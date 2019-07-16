@@ -1,0 +1,168 @@
+	<div class="dashboard-content">
+
+		<!-- Titlebar -->
+		<div id="titlebar">
+			<div class="row">
+				<div class="col-md-12">
+					<!-- Breadcrumbs -->
+					<nav id="breadcrumbs">
+						<ul>
+							<li><a href="#">Home</a></li>
+							<li><a href="#">Dashboard</a></li>
+							<li>New Contact Group</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+
+		{{#if flash}}
+			<div class="notification success closeable no-shadow">
+				<p><span>Success!</span> {{ flash }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
+
+			<div class="notification other3 closeable">
+				<p></p>
+				<a class="close"></a>
+			</div>
+
+		<div class="row">
+			<div class="toggle-wrap no_borders">
+
+			<div class="col-lg-12 trigger"><div class="col-lg-12 page_box_header toggle active"><i class="im im-icon-Cursor-Click2"></i> <b>Add</b> Contact Group<i class="sl sl-icon-plus"></i></div></div>
+			<div class="col-lg-12 toggle-container">
+
+				<div id="add-listing">
+				<form action="/dashboard/contacts/groups/add" method="POST">
+
+					<!-- Section -->
+					<div class="add-listing-section">
+
+						<!-- Row -->
+						<div class="row with-forms">
+							<br>
+							<!-- Status -->
+							<div class="col-md-12">
+								<h5>Group Name </h5>
+								<input type="text" name="name" id="name" maxlength="50">
+							</div>
+
+							<div class="col-md-12">
+								<h5>Description </h5>
+								<input type="text" name="description" id="description" maxlength="200">
+							</div>
+
+						</div>
+						<!-- Row / End -->
+					<button type="submit" class="button preview">Create <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
+
+					</div>
+					<!-- Section / End -->
+
+
+
+				</form>
+				</div>
+			</div>
+
+			</div>
+
+			<div class="col-lg-12" style="margin-top: 30px">
+				<div class="col-lg-12 page_box_header">All Contact Groups <span>[{{ args.grps.length }}]</span>
+				</div>
+			</div>
+			<div class="col-lg-12">
+
+				<div id="add-listing">
+					<!-- Section -->
+					<div class="add-listing-section">
+
+						<!-- Row -->
+						<div class="row with-forms">
+							<br>
+							<!-- Status -->
+							<div class="col-md-12 lists">
+								<ul>
+									<li class="list_item _hd" style="font-weight: bolder">
+										<ul class="saved_item">
+											<li style="flex: 6">Name</li>
+											<li style="flex: 8">Description</li>
+											<li style="flex: 2">Count</li>
+											<li style="flex: 3">Last Updated</li>
+											<li style="flex: 3">Created</li>
+											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; text-align: center; font-size: 2em; line-height: 0.3;">
+												...
+											</li>
+										</ul>
+									</li>
+									{{#each args.grps}}
+									<li class="list_item" data-wh="group">
+										<ul class="saved_item">
+											<input type="hidden" class="cid" value="'+i.id+'" />
+											<li style="flex: 6" class="dv_name">{{ name }}</li>
+											<li style="flex: 8" class="dv_desc">{{ description }}</li>
+											<li style="flex: 2">{{ count }}</li>
+											<li style="flex: 3" class="dv_updated">{{ updatedAt }}</li>
+											<li style="flex: 3">createdAt</li>
+											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
+												<span style="flex: 1; text-align:center" class="edit_item_btn"><a class="tooltip top" title="Edit" style="cursor: pointer"><i class="fa fa-edit"></i></a></span> | 
+												<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
+											</li>
+										</ul>
+									<div class="inline_edit">
+										<div class="row with-forms">
+											<!-- Status -->
+											<form>
+											<div class="col-md-5">
+												<h5>Group Name </h5>
+												<input type="text" name="name" class="ed_name" maxlength="50" value="{{ name }}">
+												<input type="hidden" name="id" class="id" value="{{ id }}">
+											</div>
+
+											<div class="col-md-6">
+												<h5>Description </h5>
+												<input type="text" name="description" class="ed_desc" maxlength="200" value="{{ description }}">
+											</div>
+											</form>
+
+											<div class="col-md-1">
+												<h5 style="text-align: center"><i class="fa fa-ellipsis-h"></i></h5>
+												<div style="display: flex; padding-top: 10px;">
+													<span style="flex: 1; text-align:center;" class="save_edit_btn"><a class="tooltip top" title="Save" style="color: green; cursor: pointer"><i class="fa fa-check"></i></a></span> | 
+													<span style="flex: 1; text-align:center" class="cancel_edit_btn"><a class="tooltip top" title="Cancel" style="color: red; cursor: pointer"><i class="fa fa-times"></i></a></span>
+												</div>
+											</div>
+
+										</div>
+									</div>
+									</li>
+									{{else}}
+										<em>No Groups created yet.</em> 
+									{{/each}}
+								</ul>
+							</div>
+
+						</div>
+						<!-- Row / End -->
+
+					</div>
+					<!-- Section / End -->
+				</div>
+			</div>
+
+			<div class="col-lg-12" style="margin-top: 30px;">
+
+				<div id="add-listing">
+				</div>
+			</div>
+
+			<!-- Copyrights -->
+			<div class="col-md-12">
+				<div class="copyrights">© 2019 Listeo. All Rights Reserved.</div>
+			</div>
+
+		</div>
+
+	</div>

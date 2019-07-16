@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Boardman</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" media="screen" href="/public/css/bootstrap.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="/public/css/main.css" />
+  
+</head>
+<body>
+  <!-- <h1>The Boardmans</h1> -->
+  <div class="container">
+    <div class="navbar navbar-fixed-top">
+      <h3>The Boardmans</h3>
+      <div class="right_nav">
+        <span class="right_nav_link">Home</span>
+        <span class="right_nav_link">Activity</span>
+        <span class="right_nav_link">Community</span>
+        <span class="right_nav_link">Login</span>
+      </div>
+    </div>
+
+    <div class="jumbotron">
+        Here we are
+    </div>
+
+    <div class="notifs_bar">
+      <div class="notif">
+        Your partner has declined the bet
+      </div>
+      <div class="notif">
+        Your partner has declined the bet
+      </div>
+      <div class="notif">
+        Your partner has declined the bet
+      </div>
+      <div class="notif">
+        Your partner has declined the bet
+      </div>
+      <div class="notif">
+        Your partner has declined the bet
+      </div>
+    </div>
+
+    <div style="text-align: center">
+      <div class="btn-group">
+        <button class="btn btn-success btn-lg" id="nav_create_bet_btn">CREATE BET!</button>
+        <button class="btn btn-warning btn-lg" id="nav_join_bet_btn">JOIN A BET!</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="new_bet_box _new" style="display: none">
+        <h3 class="section_heading">NEW BET</h3>
+
+        <div id="newb_form_grp">
+
+          <div class="form-group">
+            <div class="input-group">
+              <span class="input-group-addon">Amount</span>
+              <input id="new_bet_amt" type="number" class="form-control" placeholder="Enter the amount on the bet">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <span class="input-group-addon">Description</span>
+              <input id="new_bet_desc" type="text" class="form-control" placeholder="Description">
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-6">
+              <div class="input-group">
+                <span class="input-group-addon">Betters</span>
+                <input id="new_bet_ppl" type="number" class="form-control" placeholder="Enter 0 if open">
+              </div>
+            </div>
+            <div class="form-group col-6">
+              <div class="input-group">
+                <span class="input-group-addon">Type</span>
+                <select id="new_bet_type" class="form-control">
+                  <option value="1">Single Winner</option>
+                  <option value="2">Winner Group (multiple winners)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-6">
+                <div class="input-group">
+                  <span class="input-group-addon">Duration</span>
+                  <input id="new_bet_duran" type="number" class="form-control" placeholder="Enter a Number">
+                </div>
+            </div>
+            <div class="form-group col-6">
+              <div class="input-group">
+                <span class="input-group-addon">Period</span>
+                <select id="new_bet_durap" class="form-control">
+                  <option>Minutes</option>
+                  <option>Hours</option>
+                  <option>Days</option>
+                  <option>Weeks</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <hr>
+          <div style="text-align: center">
+            <button class="btn btn-success btn-lg" id="create_bet_btn">Create</button>
+          </div>
+          
+        </div>
+        
+        <div class="hidden" id="newb_form_resp" style="display: none">
+
+          <div class="new_bet_code">
+            
+          </div>
+          <div class="extra_msg">
+            Copy and share code
+          </div>
+          <hr>
+          <div style="text-align: center">
+            <button class="btn btn-danger btn-lg" id="close_bet_btn">Close</button>
+          </div>
+          
+        </div>
+        
+      </div>
+
+      
+      <div class="new_bet_box _join" style="display: none">
+          <div class="hidden" id="joinb_form_resp">
+              <h3 class="section_heading">JOIN BET</h3>
+
+
+              <div class="new_bet_code">
+                <div class="input-group input-group-lg">
+                  <input id="new_bet_code" type="text" class="form-control rimless" placeholder="Enter bet code here...">
+                </div>
+              </div>
+              <hr>
+              <div style="text-align: center">
+                <div class="btn-group">
+                  <button class="btn btn-default btn" id="join_bet_btn">Accept</button>
+                  <button class="btn btn-danger btn" id="njoin_bet_btn">Reject</button>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+    </div>
+
+    <div class="section">
+      <h4 class="section_heading with_border">BIGGEST WINNERS</h4> 
+      <ul class="biggest">
+        <li>
+          <ul>
+            <li>henry</li>
+            <li>williams</li>
+            <li>peter</li>
+            <li>harry</li>
+            <li>jude</li>
+          </ul>
+        </li>
+        <li>
+          <ul>
+            <li>henry</li>
+            <li>williams</li>
+            <li>peter</li>
+            <li>harry</li>
+            <li>jude</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h4 class="section_heading with_border">BIGGEST LOSERS</h4> 
+    </div>
+  </div>
+  
+
+
+
+
+
+  <div class="sidebar">
+    <div class="sidebar_header">
+      <div class="_left">
+        Browse
+      </div>
+      <div class="_right">
+        Clear
+      </div>
+      <div class="clearfix"></div>
+    </div>
+    <div class="feeds_list">
+      <div class="feed">
+        <div class="top">
+          <div class="win feed_pic">
+            P1
+          </div>
+          <div class="feed_betters">
+            <div class="win feed_name">
+              Emeka
+            </div>
+            <div class="loss feed_name">
+              Chukwudi
+            </div>
+          </div>
+          <div class="loss feed_pic">
+            P2
+          </div>
+        </div>
+        <div class="bottom">
+          N10,000
+        </div>
+      </div>
+    </div>
+  </div> 
+
+
+
+  <!-- <script src="/public/js/bootstrap.bundle.min.js"></script> -->
+  <script src="/public/js/jquery.js"></script>
+  <!-- <script src="/public/js/socket.io.js"></script> -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/public/js/bootstrap.js"></script>
+  <script src="/public/js/main.js"></script>
+</body>
+</html>

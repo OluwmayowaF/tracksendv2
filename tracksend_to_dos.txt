@@ -1,0 +1,20 @@
+- User
+  - properties
+  - documents
+  - payments
+  - activities
+  - messages
+
+
+- Staff
+  - users
+  - properties
+  - documents
+  - payments
+  - activities
+  - messages
+
+.	contacts all in single table
+.	contact phones standardized a format (for easy comparison)
+.	contacts and groups in pivot
+.	can create sub (new) group from group

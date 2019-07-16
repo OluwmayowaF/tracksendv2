@@ -1,0 +1,35 @@
+<div class="dashboard-nav">
+	{{#if page.length }}
+
+		<div class="dashboard-nav-inner">
+
+			<ul>
+				<li {{#if dashboard}} class="active" {{/if}}><a href="/dashboard"><i class="fa fa-calendar-check-o"></i> DASHBOARD</a></li>
+			</ul>
+			
+			<ul data-submenu-title="Campaigns">
+				<li {{#if campaigns}} class="active" {{/if}}><a href="/dashboard/campaigns"><i class="sl sl-icon-layers"></i> Campaigns</a></li>
+				<li {{#if senderids}} class="active" {{/if}}><a href="/dashboard/senderids"><i class="fa fa-tags"></i> Sender ID</a></li>
+			</ul>
+			
+			<ul data-submenu-title="Contacts">
+				<li {{#if newcontact}} class="active" {{/if}}><a><i class="im im-icon-Add"></i> Create New</a>
+					<ul>
+						<li><a href="/dashboard/contacts/new">Enter Details <span class="nav-tag green">6</span></a></li>
+						<li><a href="/dashboard/upload">Upload <span class="nav-tag yellow">1</span></a></li>
+					</ul>	
+				</li>
+				<li {{#if contactlist}} class="active" {{/if}}><a href="/dashboard/contacts/list"><i class="im im-icon-Folder-Archive"></i> View Contacts</a></li>
+				<li {{#if groups}} class="active" {{/if}}><a href="/dashboard/contacts/groups/new"><i class="fa fa-users"></i> Groups</a></li>
+			</ul>	
+
+			<ul data-submenu-title="Account">
+				<li {{#if topups}} class="active" {{/if}}><a href="/dashboard/topups"><i class="fa fa-money"></i> Top-Up</a></li>
+				<li {{#if profile}} class="active" {{/if}}><a href="/dashboard/profile"><i class="sl sl-icon-user"></i> Profile</a></li>
+				<li><a href="/logout"><i class="sl sl-icon-power"></i> Logout</a></li>
+			</ul>
+			
+		</div>
+
+	{{/if}}
+	</div>
