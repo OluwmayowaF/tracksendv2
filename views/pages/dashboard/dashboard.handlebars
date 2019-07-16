@@ -1,0 +1,377 @@
+	<div class="dashboard-content">
+
+		<!-- Titlebar -->
+		<div id="titlebar">
+			<div class="row">
+				<div class="col-md-12">
+				<!-- Breadcrumbs -->
+					<nav id="breadcrumbs">
+						<ul>
+							<li><a href="#">Home</a></li>
+							<li>Dashboard</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+
+		{{#if args.nocontacts}}
+		<div class="row">
+			<div class="col-md-12">
+				<div class="notification error closeable margin-bottom-30">
+					<p>NO CONTACT/GROUP HAS BEEN CREATED ON YOUR ACCOUNT: <span style="color: #666">Kindly proceed to 'CONTACTS' section to create.</span></p>
+					<a class="close" href="#"></a>
+				</div>
+			</div>
+		</div>
+		{{/if}}
+
+		{{#if args.nosenderids}}
+		<div class="row">
+			<div class="col-md-12">
+				<div class="notification error closeable margin-bottom-30">
+					<p>NO <strong>ACTIVE</strong> SENDER ID ON YOUR ACCOUNT: <span style="color: #666">Go to Sender ID page under 'CAMPAIGNS' section to create.</span></p>
+					<a class="close" href="#"></a>
+				</div>
+			</div>
+		</div>
+		{{/if}}
+
+		<div class="row">
+			<div class="col-md-4">
+				<div class="notification notice margin-bottom-30 no-shadow" style="border: outset 2px; border-radius: 10px 10px 0 0;">
+					{{!-- <p>Your Last Campaign: <strong>" {{ args.latestcampaign }} "</strong></p> --}}
+					<p>Your Last Campaign <i class="tip" data-tip-content='" {{ args.latestcampaign }} "'></i></p>
+					<a class="close" href="#"></a>
+				</div>
+			</div>
+			<div class="col-md-8">
+				<div class="notification notice margin-bottom-30 no-shadow" style="border: outset 2px; border-radius: 10px 10px 0 0; background-color: #e5f0f3;">
+					<p><strong>Activities So Far...</strong> </p>
+					<a class="close" href="#"></a>
+					
+				</div>
+			</div>
+		</div>
+
+		<input type="hidden" name="" id="values_delivered" value="{{ args.delivered }}">
+		<input type="hidden" name="" id="values_pending" value="{{ args.pending }}">
+		<input type="hidden" name="" id="values_failed" value="{{ args.failed }}">
+		<input type="hidden" name="" id="values_undeliverable" value="{{ args.undeliverable }}">
+		<input type="hidden" name="" id="values_messages" value="{{ args.messages }}">
+		<input type="hidden" name="" id="values_ccount" value="{{ args.ccount }}">
+		<input type="hidden" name="" id="values_mcount" value="{{ args.mcount }}">
+
+		<input type="hidden" name="" id="values_mgrowth" value="{{ args.mgrowth }}">
+		<input type="hidden" name="" id="values_cgrowth" value="{{ args.cgrowth }}">
+
+
+		<!-- Content -->
+		<div class="row">
+		{{#if args.nocampaigns}}
+
+			<div class="col-lg-4 col-md-6">
+				<div class="dashboard-stat color-1">
+					<div class="dashboard-stat-content"><h4>0</h4> <span>Campaigns</span></div>
+					<div class="dashboard-stat-icon"><i class="im im-icon-Mouse-2"></i></div>
+				</div>
+			</div>
+
+		{{else}}
+
+			<!-- Item -->
+			<div class="col-lg-4 col-md-6">
+				<div class="dashboard-stat color-1">
+					<div class="dashboard-stat-content"><h4>{{ args.clicks }}</h4> <span>Total Clicks</span></div>
+					<div class="dashboard-stat-icon"><i class="im im-icon-Mouse-2"></i></div>
+				</div>
+
+				<canvas id="myChart" height="300"></canvas>
+				{{!-- <div class="dashboard-stat color-1">
+					<div class="dashboard-stat-content"><h4>6</h4> <span>Active Listings</span></div>
+					<div class="dashboard-stat-icon"><i class="im im-icon-Map2"></i></div>
+				</div> --}}
+			</div>
+
+
+		{{/if}}
+		
+			<div class="col-lg-4 col-md-6">
+				<div class="dashboard-stat color-2">
+					<div class="dashboard-stat-content"><h4>{{ args.mcount }}</h4> <span>Total Messages Sent</span></div>
+					<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
+				</div>
+				{{!-- <div class="dashboard-stat color-4">
+					<div class="dashboard-stat-content"><h4>{{ args.ccount }}</h4> <span>Total Contacts</span></div>
+					<div class="dashboard-stat-icon"><i class="im im-icon-Add-UserStar"></i></div>
+				</div> --}}
+				<canvas id="mGrowth" height="300"></canvas>
+			</div>
+
+			<div class="col-lg-4 col-md-6">
+				{{!-- <div class="dashboard-stat color-2">
+					<div class="dashboard-stat-content"><h4>{{ args.mcount }}</h4> <span>Total Messages Sent</span></div>
+					<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
+				</div> --}}
+				<div class="dashboard-stat color-4">
+					<div class="dashboard-stat-content"><h4>{{ args.ccount }}</h4> <span>Total Contacts</span></div>
+					<div class="dashboard-stat-icon"><i class="im im-icon-Add-UserStar"></i></div>
+				</div>
+				<canvas id="cGrowth" height="300"></canvas>
+			</div>
+
+			<!-- Item -->
+			{{!-- <div class="col-lg-3 col-md-6">
+				<div class="dashboard-stat color-4">
+					<div class="dashboard-stat-content"><h4>126</h4> <span>Times Bookmarked</span></div>
+					<div class="dashboard-stat-icon"><i class="im im-icon-Heart"></i></div>
+				</div>
+			</div> --}}
+		</div>
+
+
+		<div class="row">
+			
+			<!-- Recent Activity -->
+			{{!-- <div class="col-lg-8 col-md-12">
+				<div class="dashboard-list-box with-icons margin-top-20">
+					<h4>Recent Activities</h4>
+					<ul>
+						<li>
+							<i class="list-box-icon sl sl-icon-layers"></i> Your listing <strong><a href="#">Hotel Govendor</a></strong> has been approved!
+							<a href="#" class="close-list-item"><i class="fa fa-close"></i></a>
+						</li>
+
+						<li>
+							<i class="list-box-icon sl sl-icon-star"></i> Kathy Brown left a review <div class="numerical-rating" data-rating="5.0"></div> on <strong><a href="#">Burger House</a></strong>
+							<a href="#" class="close-list-item"><i class="fa fa-close"></i></a>
+						</li>
+
+						<li>
+							<i class="list-box-icon sl sl-icon-heart"></i> Someone bookmarked your <strong><a href="#">Burger House</a></strong> listing!
+							<a href="#" class="close-list-item"><i class="fa fa-close"></i></a>
+						</li>
+
+						<li>
+							<i class="list-box-icon sl sl-icon-star"></i> Kathy Brown left a review <div class="numerical-rating" data-rating="3.0"></div> on <strong><a href="#">Airport</a></strong>
+							<a href="#" class="close-list-item"><i class="fa fa-close"></i></a>
+						</li>
+
+						<li>
+							<i class="list-box-icon sl sl-icon-heart"></i> Someone bookmarked your <strong><a href="#">Burger House</a></strong> listing!
+							<a href="#" class="close-list-item"><i class="fa fa-close"></i></a>
+						</li>
+
+						<li>
+							<i class="list-box-icon sl sl-icon-star"></i> John Doe left a review <div class="numerical-rating" data-rating="4.0"></div> on <strong><a href="#">Burger House</a></strong>
+							<a href="#" class="close-list-item"><i class="fa fa-close"></i></a>
+						</li>
+
+						<li>
+							<i class="list-box-icon sl sl-icon-star"></i> Jack Perry left a review <div class="numerical-rating" data-rating="2.5"></div> on <strong><a href="#">Tom's Restaurant</a></strong>
+							<a href="#" class="close-list-item"><i class="fa fa-close"></i></a>
+						</li>
+					</ul>
+				</div>
+			</div> --}}
+			
+			<!-- Invoices -->
+			{{!-- <div class="col-lg-4 col-md-12">
+				<div class="dashboard-list-box invoices with-icons margin-top-20">
+					<h4>Invoices</h4>
+					<ul>
+						
+						<li><i class="list-box-icon sl sl-icon-doc"></i>
+							<strong>Professional Plan</strong>
+							<ul>
+								<li class="unpaid">Unpaid</li>
+								<li>Order: #00124</li>
+								<li>Date: 20/07/2019</li>
+							</ul>
+							<div class="buttons-to-right">
+								<a href="dashboard-invoice.html" class="button gray">View Invoice</a>
+							</div>
+						</li>
+						
+						<li><i class="list-box-icon sl sl-icon-doc"></i>
+							<strong>Extended Plan</strong>
+							<ul>
+								<li class="paid">Paid</li>
+								<li>Order: #00108</li>
+								<li>Date: 14/07/2019</li>
+							</ul>
+							<div class="buttons-to-right">
+								<a href="dashboard-invoice.html" class="button gray">View Invoice</a>
+							</div>
+						</li>
+
+						<li><i class="list-box-icon sl sl-icon-doc"></i>
+							<strong>Extended Plan</strong>
+							<ul>
+								<li class="paid">Paid</li>
+								<li>Order: #00097</li>
+								<li>Date: 10/07/2019</li>
+							</ul>
+							<div class="buttons-to-right">
+								<a href="dashboard-invoice.html" class="button gray">View Invoice</a>
+							</div>
+						</li>
+						
+						<li><i class="list-box-icon sl sl-icon-doc"></i>
+							<strong>Basic Plan</strong>
+							<ul>
+								<li class="paid">Paid</li>
+								<li>Order: #00091</li>
+								<li>Date: 30/06/2019</li>
+							</ul>
+							<div class="buttons-to-right">
+								<a href="dashboard-invoice.html" class="button gray">View Invoice</a>
+							</div>
+						</li>
+
+					</ul>
+				</div>
+			</div> --}}
+
+
+			<!-- Copyrights -->
+			<div class="col-md-12">
+				<div class="copyrights">© 2019 Listeo. All Rights Reserved.</div>
+			</div>
+		</div>
+
+	</div>
+<script type="text/javascript" src="/scripts/chart.min.js"></script>
+<script>
+		var randomScalingFactor = function() {
+			return Math.round(Math.random() * 100);
+		};
+		
+		var delivered = 				document.getElementById('values_delivered').value;
+		var pending = 				document.getElementById('values_pending').value;
+		var failed = 				document.getElementById('values_failed').value;
+		var undeliverable = document.getElementById('values_undeliverable').value;
+		var msggrowth = 		JSON.parse(document.getElementById('values_mgrowth').value)
+		var congrowth = 		JSON.parse(document.getElementById('values_cgrowth').value)
+						
+		console.log('args rowth : ' + JSON.stringify(msggrowth));
+
+		var config = {
+			type: 'doughnut',
+			data: {
+				datasets: [{
+					data: [
+						document.getElementById('values_delivered').value,
+						document.getElementById('values_pending').value,
+						document.getElementById('values_failed').value,
+						document.getElementById('values_undeliverable').value,
+					],
+					backgroundColor: [
+                'rgba(65, 193, 65, 1)',
+                'rgba(255, 174, 0, 1)',
+                //'rgba(202, 187, 170, 1)',
+                'rgba(222, 208, 191, 1)',
+                'rgba(255, 0, 0, 0.7)',
+					],
+					label: 'Dataset 1'
+				}],
+				labels: [
+					'Delivered',
+					'Pending',
+					'Failed',
+					'Undeliverable',
+				]
+			},
+			options: {
+				responsive: true,
+				legend: {
+					position: 'right',
+				},
+				title: {
+					display: true,
+					text: 'Your Last Campaign (Messages)'
+				},
+				animation: {
+					animateScale: true,
+					animateRotate: true
+				},
+				cutoutPercentage: 60
+			}
+		};
+
+		var config_mgrowth = {
+			type: 'line',
+			data: {
+				labels: msggrowth.map((dat) => {
+						return dat.MONTH;
+					}),
+				datasets: [{
+					data: msggrowth.map((dat) => {
+						return dat.COUNT;
+					}),
+					backgroundColor: [
+                'rgba(65, 193, 65, 1)',
+					],
+					label: 'Messages',
+					fill: 'start',
+				}],
+			},
+			options: {
+				responsive: true,
+				legend: {
+					position: 'top',
+				},
+				title: {
+					display: true,
+					text: 'Outbound Messages Growth (6 Months)'
+				},
+				animation: {
+					animateScale: true,
+					animateRotate: true
+				},
+			}
+		};
+
+		var config_cgrowth = {
+			type: 'line',
+			data: {
+				labels: congrowth.map((dat) => {
+						return dat.MONTH;
+					}),
+				datasets: [{
+					data: congrowth.map((dat) => {
+						return dat.COUNT;
+					}),
+					backgroundColor: [
+                'rgba(65, 193, 65, 1)',
+					],
+					label: 'Contacts',
+					fill: 'start',
+				}],
+			},
+			options: {
+				responsive: true,
+				legend: {
+					position: 'top',
+				},
+				title: {
+					display: true,
+					text: 'Contacts Growth (6 Months)'
+				},
+				animation: {
+					animateScale: true,
+					animateRotate: true
+				},
+			}
+		};
+
+		window.onload = function() {
+			var ctx = document.getElementById('myChart').getContext('2d');
+			window.myDoughnut = new Chart(ctx, config);
+			var ctx2 = document.getElementById('mGrowth').getContext('2d');
+			window.myGraph1 = new Chart(ctx2, config_mgrowth);
+			var ctx3 = document.getElementById('cGrowth').getContext('2d');
+			window.myGraph2 = new Chart(ctx3, config_cgrowth);
+		};
+
+	</script>

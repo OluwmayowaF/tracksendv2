@@ -1,0 +1,169 @@
+	<div class="dashboard-content">
+
+		<!-- Titlebar -->
+		<div id="titlebar">
+			<div class="row">
+				<div class="col-md-12">
+					<!-- Breadcrumbs -->
+					<nav id="breadcrumbs">
+						<ul>
+							<li><a href="#">Home</a></li>
+							<li><a href="#">Dashboard</a></li>
+							<li>Topups</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+
+		{{#if flash}}
+			<div class="notification success closeable no-shadow">
+				<p><span>Success!</span> {{ flash }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
+
+			<div class="notification other3 closeable">
+				<p></p>
+				<a class="close"></a>
+			</div>
+
+		<div class="row">
+			<div class="toggle-wrap no_borders">
+
+				<div class="col-lg-12 trigger"><div class="col-lg-12 page_box_header toggle active"><i class="im im-icon-Cursor-Click2"></i> <b>Add</b> Topup<i class="sl sl-icon-plus"></i></div></div>
+				<div class="col-lg-12 toggle-container">
+					<div class="col-lg-4">
+						<div id="add-listing">
+						<form action="/dashboard/senderids/add" method="POST">
+
+							<!-- Section -->
+							<div class="add-listing-section">
+
+								<!-- Row -->
+								<div class="row with-forms">
+									<br>
+									<!-- Status -->
+									<div class="col-md-12">
+										<h5>Rates (per unit)</h5>
+
+										<ul class="rates_list">
+											<li><span class="amount">N2</span><span class="band"> : </span><span class="_lower">1</span> - <span class="_upper">50,000</span> units</li>
+											<li><span class="amount">N1.9</span><span class="band"> : </span><span class="_lower">50,001</span> - <span class="_upper">100,000</span> units</li>
+											<li><span class="amount">N1.8</span><span class="band"> : </span><span class="_lower">100,001</span> - <span class="_upper">500,000</span> units</li>
+											<li><span class="amount">N1.7</span><span class="band"> : </span><span class="_lower">Above</span> <span class="_upper">500,000</span> units</li>
+										</ul>
+									</div>
+
+
+								</div>
+								<!-- Row / End -->
+
+							</div>
+							<!-- Section / End -->
+
+
+
+						</form>
+						</div>
+					</div>
+					<div class="col-lg-8">
+						<div id="add-listing">
+						<form action="/dashboard/senderids/add" method="POST">
+
+							<!-- Section -->
+							<div class="add-listing-section">
+
+								<!-- Row -->
+								<div class="row with-forms">
+									<br>
+									<!-- Status -->
+									<div class="col-md-12">
+										<h5>Amount </h5>
+										<input type="number" name="amount" maxlength="50" id="amount_entry">
+										<div class="topup_info">
+											<div>Applicable Rate: <span id="_rate">??</span></div>
+											<div>Units: <span id="_units">??</span></div>
+											<div>Amount: <span id="_amount">??</span></div>
+										</div>
+									</div>								
+
+								</div>
+								<!-- Row / End -->
+								<button type="submit" class="button preview">Pay <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
+
+							</div>
+							<!-- Section / End -->
+
+
+
+						</form>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="col-lg-12" style="margin-top: 30px">
+				<div class="col-lg-12 page_box_header">Topup History <span>[{{ args.tups.length }}]</span>
+				</div>
+			</div>
+			<div class="col-lg-12">
+
+				<div id="add-listing">
+					<!-- Section -->
+					<div class="add-listing-section">
+
+						<!-- Row -->
+						<div class="row with-forms">
+							<br>
+							<!-- Status -->
+							<div class="col-md-12 lists">
+								<ul>
+									<li class="list_item _hd" style="font-weight: bolder">
+										<ul class="saved_item">
+											<input type="hidden" class="cid" value="'+i.id+'" />
+											<li style="flex: 6">Date</li>
+											<li style="flex: 8">Amount</li>
+											<li style="flex: 2">Units</li>
+											<li style="flex: 3">Payment Mode</li>
+										</ul>
+									</li>
+									{{#each args.tups}}
+									<li class="list_item" data-wh="senderid">
+										<ul class="saved_item">
+											<input type="hidden" class="cid" value="'+i.id+'" />
+											<li style="flex: 6">{{ createdAt }}</li>
+											<li style="flex: 8">{{ amount }}</li>
+											<li style="flex: 2">{{ units }}</li>
+											<li style="flex: 3">Mode</li>
+										</ul>
+									</li>
+									{{else}}
+										<em>No Topups yet.</em> 
+									{{/each}}
+								</ul>
+							</div>
+
+						</div>
+						<!-- Row / End -->
+
+					</div>
+					<!-- Section / End -->
+				</div>
+			</div>
+
+			<div class="col-lg-12" style="margin-top: 30px;">
+
+				<div id="add-listing">
+				</div>
+			</div>
+
+			<!-- Copyrights -->
+			<div class="col-md-12">
+				<div class="copyrights">© 2019 Listeo. All Rights Reserved.</div>
+			</div>
+
+		</div>
+
+	</div>
