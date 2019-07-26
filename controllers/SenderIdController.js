@@ -43,7 +43,7 @@ exports.add = (req, res) => {
         .then((sid) => {
             console.log('ID created');
             
-            req.flash('success', 'Your new SenderID has been created. Pending approval...');
+            req.flash('success', 'Your new SenderID has been created. Kindly note that you cannot use this Sender ID in a campaign until it is active. Approval by the telcos takes 6 hours.');
             var backURL = req.header('Referer') || '/';
             res.redirect(backURL);
 

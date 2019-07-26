@@ -3,7 +3,7 @@
 
 <!-- Basic Page Needs
 ================================================== -->
-<title>Tracksend</title>
+<title>Tracksend | {{ page }}</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -157,146 +157,21 @@
 				</div>
 			</div>
 			{{else}}
-			<div class="right-side">
+{{!-- 			<div class="right-side">
 				<div class="header-widget">
 					<a href="#sign-in-dialog" class="sign-in popup-with-zoom-anim _link"><i class="sl sl-icon-login"></i> Sign In</a>
 					<a href="#register-dialog" class="register popup-with-zoom-anim _link"><i class="sl sl-icon-user-follow"></i> Register</a>
 				</div>
 			</div>
+ --}}			
+ 			<div class="right-side">
+				<div class="header-widget">
+					<a href="/login" class="_link"><i class="sl sl-icon-login"></i> Sign In</a>
+					<a href="/register" class="_link"><i class="sl sl-icon-user-follow"></i> Register</a>
+				</div>
+			</div>
 			{{/if}}
 			<!-- Right Side Content / End -->
-
-			<!-- Sign In Popup -->
-			<div id="sign-in-dialog" class="zoom-anim-dialog mfp-hide">
-
-				<div class="small-dialog-header">
-					<h3>Sign In</h3>
-				</div>
-
-				<!--Tabs -->
-				<div class="sign-in-form style-1">
-
-					{{!-- <ul class="tabs-nav">
-						<li class=""><a href="#tab1">Log In</a></li>
-						<li><a href="#tab2">Register</a></li>
-					</ul> --}}
-
-					<div class="tabs-container alt">
-
-						<!-- Login -->
-						<div class="tab-content" id="tab1">
-							<form method="post" action="javascript: doLogin()" class="login" id="login_form">
-
-								<p class="form-row form-row-wide">
-									<label for="username">Email:
-										<i class="im im-icon-Male"></i>
-										<input type="email" class="input-text" name="email" id="email" value="" required/>
-									</label>
-								</p>
-
-								<p class="form-row form-row-wide">
-									<label for="password">Password:
-										<i class="im im-icon-Lock-2"></i>
-										<input class="input-text" type="password" name="password" id="password" required/>
-									</label>
-									<span class="lost_password">
-										<a href="#" >Lost Your Password?</a>
-									</span>
-								</p>
-
-								<div class="_form_errors _e_login" style="display:none"></div>
-
-								<div class="form-row">
-									<input type="submit" class="button border margin-top-5" name="login" value="Login" /><span class="loading_icon fa fa-hourglass-2"></span>
-									<div class="checkboxes margin-top-10">
-										<input id="remember-me" type="checkbox" name="check">
-										<label for="remember-me">Remember Me</label>
-									</div>
-								</div>
-								
-							</form>
-						</div>
-
-					</div>
-				</div>
-			</div>
-			<!-- Sign In Popup / End -->
-
-			<!-- Register Popup -->
-			<div id="register-dialog" class="zoom-anim-dialog mfp-hide">
-
-				<div class="small-dialog-header">
-					<h3>Register</h3>
-				</div>
-
-				<!--Tabs -->
-				<div class="register-form style-1">
-
-					{{!-- <ul class="tabs-nav">
-						<li class=""><a href="#tab1">Log In</a></li> 
-						<li><a href="#tab2">Register</a></li>
-					</ul> --}}
-
-					<div class="tabs-container alt">
-
-						<!-- Register -->
-						<div class="tab-content" id="tab2">
-
-							<form method="post" action="javascript: doRegistration()" class="register" id="register_form">
-								
-							<p class="form-row form-row-wide">
-								<label for="username2">Name:
-									<i class="im im-icon-Male"></i>
-									<input type="text" class="input-text" name="name" id="name" value="" required/>
-								</label>
-							</p>
-								
-							<p class="form-row form-row-wide">
-								<label for="email2">Email Address:
-									<i class="im im-icon-Mail"></i>
-									<input type="email" class="input-text" name="email" id="email" value="" required />
-								</label>
-							</p>
-
-							<p class="form-row form-row-wide">
-								<label for="password1">Password:
-									<i class="im im-icon-Lock-2"></i>
-									<input class="input-text" type="password" name="password" id="password1" required/>
-								</label>
-							</p>
-
-							<p class="form-row form-row-wide">
-								<label for="password2">Repeat Password:
-									<i class="im im-icon-Lock-2"></i>
-									<input class="input-text" type="password" name="confirm_password" id="password2" required/>
-								</label>
-							</p>
-
-							<p class="form-row form-row-wide">
-								<label for="username">Phone:
-									<i class="im im-icon-Male"></i>
-									<input type="tel" class="input-text" name="phone" id="phone" value="" required />
-								</label>
-							</p>
-
-							<p class="form-row form-row-wide">
-								<label for="username">Business Name:
-									<i class="im im-icon-Male"></i>
-									<input type="text" class="input-text" name="business" id="business" value="" required />
-								</label>
-							</p>
-
-							<div class="_form_errors _e_register" style="display:none"></div>
-
-							<input type="submit" class="button border fw margin-top-10" name="register" value="Register" /><span class="loading_icon fa fa-hourglass-2"></span>
-	
-							</form>
-						</div>
-
-					</div>
-				</div>
-			</div>
-			<!-- Sign In Popup / End -->
 
 		</div>
 	</div>
@@ -307,124 +182,6 @@
 <!-- Header Container / End -->
 
 
-
-<!-- Slider
-================================================== -->
-
-<!-- Revolution Slider -->
-<div id="rev_slider_4_1_wrapper" class="rev_slider_wrapper fullwidthbanner-container" data-alias="classicslider1" style="margin:0px auto;background-color:transparent;padding:0px;margin-top:0px;margin-bottom:0px;">
-
-<!-- 5.0.7 auto mode -->
-	<div id="rev_slider_4_1" class="rev_slider home fullwidthabanner" style="display:none;" data-version="5.0.7">
-		<ul>
-
-			<!-- Slide  -->
-			<li data-index="rs-1" data-transition="fade" data-slotamount="default"  data-easein="Power4.easeInOut" data-easeout="Power4.easeInOut" data-masterspeed="1000"  data-rotate="0"  data-fstransition="fade" data-fsmasterspeed="800" data-fsslotamount="7" data-saveperformance="off">
-
-				<!-- Background -->
-				<img src="/images/slider-bg-01.jpg" alt="" data-bgposition="center center" data-bgfit="cover" data-bgrepeat="no-repeat" data-bgparallax="10" class="rev-slidebg" data-no-retina data-kenburns="on" data-duration="12000" data-ease="Linear.easeNone" data-scalestart="100" data-scaleend="100" data-rotatestart="0" data-rotateend="0" data-offsetstart="0 0" data-offsetend="0 0">
-
-				<!-- Caption-->
-				<div class="tp-caption custom-caption-2 tp-shape tp-shapewrapper tp-resizeme rs-parallaxlevel-0" 
-					id="slide-1-layer-2" 
-					data-x="['left','left','left','left']"
-					data-hoffset="['0','40','40','40']"
-					data-y="['middle','middle','middle','middle']" data-voffset="['0']" 
-					data-width="['640','640', 640','420','320']"
-					data-height="auto"
-					data-whitespace="nowrap"
-					data-transform_idle="o:1;"	
-					data-transform_in="y:0;opacity:0;s:1000;e:Power2.easeOutExpo;s:400;e:Power2.easeOutExpo" 
-					data-transform_out="" 
-					data-mask_in="x:0px;y:[20%];s:inherit;e:inherit;" 
-					data-mask_out="x:inherit;y:inherit;s:inherit;e:inherit;" 
-					data-start="1000" 
-					data-responsive_offset="on">
-
-					<!-- Caption Content -->
-					<div class="R_title margin-bottom-15"
-					id="slide-2-layer-1"
-					data-x="['left','center','center','center']"
-					data-hoffset="['0','0','40','0']"
-					data-y="['middle','middle','middle','middle']"
-					data-voffset="['-40','-40','-20','-80']"
-					data-fontsize="['42','36', '32','36','22']"
-					data-lineheight="['70','60','60','45','35']"
-					data-width="['640','640', 640','420','320']"
-					data-height="none" data-whitespace="normal"
-					data-transform_idle="o:1;"
-					data-transform_in="y:-50px;sX:2;sY:2;opacity:0;s:1000;e:Power4.easeOut;"
-					data-transform_out="opacity:0;s:300;"
-					data-start="600"
-					data-splitin="none"
-					data-splitout="none"
-					data-basealign="slide"
-					data-responsive_offset="off"
-					data-responsive="off"
-					style="z-index: 6; color: #fff; letter-spacing: 0px; font-weight: 600; ">Discover City Gems</div>
-
-					<div class="caption-text">Interactively procrastinate high-payoff content without backward-compatible data. Quickly cultivate optimal processes and tactical architectures.</div>
-					<a href="#" class="button medium">Get Started</a>
-				</div>
-
-			</li>
-
-			<!-- Slide  -->
-			<li data-index="rs-2" data-transition="fade" data-slotamount="default"  data-easein="Power4.easeInOut" data-easeout="Power4.easeInOut" data-masterspeed="1000"  data-rotate="0"  data-fstransition="fade" data-fsmasterspeed="800" data-fsslotamount="7" data-saveperformance="off">
-
-				<!-- Background -->
-				<img src="/images/slider-bg-02.jpg"  alt=""  data-bgposition="center center" data-bgfit="cover" data-bgrepeat="no-repeat" data-bgparallax="10" class="rev-slidebg" data-no-retina data-kenburns="on" data-duration="12000" data-ease="Linear.easeNone" data-scalestart="100" data-scaleend="112" data-rotatestart="0" data-rotateend="0" data-offsetstart="0 0" data-offsetend="0 0"> 
-
-				<!-- Caption-->
-				<div class="tp-caption centered custom-caption-2 tp-shape tp-shapewrapper tp-resizeme rs-parallaxlevel-0" 
-					id="slide-2-layer-2" 
-					data-x="['center','center','center','center']" data-hoffset="['0']" 
-					data-y="['middle','middle','middle','middle']" data-voffset="['0']" 
-					data-width="['640','640', 640','420','320']"
-					data-height="auto"
-					data-whitespace="nowrap"
-					data-transform_idle="o:1;"	
-					data-transform_in="y:0;opacity:0;s:1000;e:Power2.easeOutExpo;s:400;e:Power2.easeOutExpo" 
-					data-transform_out="" 
-					data-mask_in="x:0px;y:[20%];s:inherit;e:inherit;" 
-					data-mask_out="x:inherit;y:inherit;s:inherit;e:inherit;" 
-					data-start="1000" 
-					data-responsive_offset="on">
-
-					<!-- Caption Content -->
-					<div class="R_title margin-bottom-15"
-					id="slide-2-layer-3"
-					data-x="['center','center','center','center']"
-					data-hoffset="['0','0','0','0']"
-					data-y="['middle','middle','middle','middle']"
-					data-voffset="['-40','-40','-20','-80']"
-					data-fontsize="['42','36', '32','36','22']"
-					data-lineheight="['70','60','60','45','35']"
-					data-width="['640','640', 640','420','320']"
-					data-height="none" data-whitespace="normal"
-					data-transform_idle="o:1;"
-					data-transform_in="y:-50px;sX:2;sY:2;opacity:0;s:1000;e:Power4.easeOut;"
-					data-transform_out="opacity:0;s:300;"
-					data-start="600"
-					data-splitin="none"
-					data-splitout="none"
-					data-basealign="slide"
-					data-responsive_offset="off"
-					data-responsive="off"
-					style="z-index: 6; color: #fff; letter-spacing: 0px; font-weight: 600; ">Streamline Your Business</div>
-
-					<div class="caption-text">Proactively envisioned multimedia based on expertise cross-media growth strategies. Pontificate installed base portals after maintainable products.</div>
-					<a href="#" class="button medium">Read More</a>
-				</div>
-
-			</li>
-
-		</ul>
-		<div class="tp-static-layers"></div>
-
-	</div>
-</div>
-<!-- Revolution Slider / End -->
 
 
 <!-- Content

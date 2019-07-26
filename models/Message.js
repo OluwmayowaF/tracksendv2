@@ -8,7 +8,10 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
     },
     contactlink: DataTypes.STRING,
-    // shortlinkId: DataTypes.INTEGER,
+    shortlinkId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
     type: DataTypes.STRING,
     clickcount: DataTypes.INTEGER,
     deliverytime: DataTypes.DATE,

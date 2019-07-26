@@ -9,10 +9,15 @@ module.exports = (sequelize, DataTypes) => {
     },
     name: DataTypes.STRING,
     description: DataTypes.STRING,
+    shortlinkId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
     message: DataTypes.STRING,
     schedule: DataTypes.STRING,
     recipients: DataTypes.STRING,
     status: DataTypes.INTEGER,
+    units_used: DataTypes.DOUBLE,
   }, {});
 
   // Campaign.belongsToMany(Contact, { through: { model: ContactGroup, unique: false }, foreignKey: 'groupId' });
