@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const multer = require('multer');
-var uploadController = require('../controllers/uploadController');
+var uploadController = require('../controllers/UploadController');
 
 const upload = multer({ dest: 'tmp/csv/' });
 
