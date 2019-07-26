@@ -362,7 +362,7 @@ exports.analyseCampaign = (req, res) => {
                         // return resolve;
 
                         console.error('333333333333333333333333');
-                        var sql = await sequelize.query(
+                        var sql = sequelize.query(
                                         "SELECT units FROM settingsuserbillings " +
                                         "JOIN settingsnetworks ON settingsuserbillings.settingsnetworkId = settingsnetworks.id " +
                                         "WHERE settingsuserbillings.userId = (:id) " +
