@@ -1,0 +1,77 @@
+		{{#if flash.type}}
+			<div class="notification other {{ flash.type }} closeable">
+				<p>{{ flash.msg }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
+
+			<div class="notification other2 closeable">
+				<p></p>
+				<a class="close"></a>
+			</div>
+
+<div class="container stand-alone" id="welcome">
+
+  <div class="small-dialog-header" style="text-align: center">
+    <h3>Sign In</h3>
+    <div class="aux_msg" style="display:none"></div> 
+  </div>
+
+  <!--Tabs -->
+  <div class="col-lg-3 col-md-3 col-sm-hidden col-xs-hidden">
+	</div>
+  <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+
+    <ul class="tabs-nav">
+      <li class=""></li>
+      <li class="hidden-lg hidden-md hidden-sm"><a href="#tab2" id="click_tab2">Register</a></li>
+    </ul>
+
+    <div class="tabs-container alt">
+
+      <!-- Login -->
+      <div class="tab-content" id="tab1" style="display: none; padding-top: 60px">
+        <form method="POST" action="javascript: doLogin()" class="login" id="login_form">
+          <p class="form-row form-row-wide">
+            <label for="username">Email:
+              <i class="im im-icon-Male"></i>
+              <input type="email" class="input-text" name="email" id="email" value="" required />
+            </label>
+          </p>
+
+          <p class="form-row form-row-wide">
+            <label for="password">Password:
+              <i class="im im-icon-Lock-2"></i>
+              <input class="input-text" type="password" name="password" id="password" required />
+            </label>
+            <span class="lost_password">
+              <a href="" >Lost Your Password?</a>
+            </span>
+          </p> 
+
+					<div class="_form_errors _e_login" style="display:none"></div>
+
+					<div class="form-row">
+						<input type="submit" class="button border margin-top-5" name="login" value="Login" /><span class="loading_icon fa fa-hourglass-2"></span>
+						<div class="checkboxes margin-top-10">
+							<input id="remember-me" type="checkbox" name="check">
+							<label for="remember-me">Remember Me</label>
+						</div>
+					</div>
+          
+        </form>
+      </div>
+
+      <!-- Register -->
+      <div class="tab-content hidden-lg hidden-md hidden-sm" id="tab2" style="display: none;">
+
+      </div>
+
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-3 col-sm-hidden col-xs-hidden">
+	</div>
+</div>
+
+    
+

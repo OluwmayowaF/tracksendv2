@@ -259,7 +259,7 @@ exports.validate = (req, res) => {
                 console.log('QUERY ERROR: ' + err);
 
                 // req.flash('success', 'Upload complete successfully: <b>' + inserted + '</b> duplicate contacts added; <b>' + duplicates + '</b> contacts ignored.');
-                req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added; ' + duplicates + ' duplicate contacts ignored.');
+                req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added; ' + duplicates + ' duplicate contacts ignored' + (phone_errors > 0 ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '') + (email_errors > 0 ? '; ' + email_errors + ' contacts with invalid email ignored.' : '.') );
                 res.redirect('/dashboard/upload');
                 
             });

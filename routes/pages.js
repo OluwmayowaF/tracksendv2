@@ -34,6 +34,26 @@ module.exports = function(app) {
     },
   }));
 
+  app.get('/login', (req, res) => res.render('pages/login', {
+    layout: 'main',
+    page: 'LOGIN',
+    auth: (req.user) ? true : false,
+    flash: {
+      type: req.flash('type'),
+      msg: req.flash('msg'),
+    },
+  }));
+
+  app.get('/register', (req, res) => res.render('pages/register', {
+    layout: 'main',
+    page: 'REGISTER',
+    auth: (req.user) ? true : false,
+    flash: {
+      type: req.flash('type'),
+      msg: req.flash('msg'),
+    },
+  }));
+
   app.get("/logout", function(req, res) {
     req.logout();
     

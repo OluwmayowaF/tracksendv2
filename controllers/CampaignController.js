@@ -1,5 +1,12 @@
 var models = require('../models');
 var moment = require('moment');
+const request = require('request');
+const tracksend_base_url = 'jj8wk.api.infobip.com';
+const tracksend_user = "thinktech";
+const tracksend_pwrd = "Tjflash8319#";
+
+var buff = Buffer.from(tracksend_user + ':' + tracksend_pwrd);
+var base64encode = buff.toString('base64');
 
 exports.index = (req, res) => {
     var user_id = req.user.id;
@@ -40,14 +47,21 @@ exports.index = (req, res) => {
                 // status: 1
             }
         }), 
+        models.Sender.count({
+            where: { 
+                userId: user_id,
+                status: 1
+            }
+        }), 
         models.Contact.count({
             where: { 
                 userId: user_id,
             }
         }), 
-    ]).then(([cpns, sids, grps, csender, ccontact]) => {
+    ]).then(([cpns, sids, grps, csender, casender, ccontact]) => {
         // console.log('groups are: ' + JSON.stringify(sids));
         if(!csender) var nosenderids = true; else var nosenderids = false;
+        if(!casender) var noasenderids = true; else var noasenderids = false;
         if(!ccontact) var nocontacts = true; else var nocontacts = false;
 
         res.render('pages/dashboard/campaigns', { 
@@ -60,6 +74,7 @@ exports.index = (req, res) => {
                 sids: sids,
                 grps: grps,
                 nosenderids,
+                noasenderids,
                 nocontacts,
             }
         });
@@ -89,7 +104,7 @@ exports.add = (req, res) => {
         description: req.body.description,
         userId: user_id,
         senderId: req.body.sender,
-        shortlinkId: req.body.shorturlid,
+        shortlinkId: (req.body.shorturlid.length > 0) ? req.body.shorturlid : null,
         message: message,
         schedule: schedule,
         recipients: req.body.recipients,
@@ -105,6 +120,7 @@ exports.add = (req, res) => {
             })
 
             //  change status of shortlink to used
+            if (req.body.shorturlid.length > 0) 
             models.Shortlink.findByPk(req.body.shorturlid)
             .then((shrt) => {
                 shrt.update({
@@ -152,8 +168,12 @@ exports.add = (req, res) => {
 
                             //create contact codes
                             var uid;
-                            uid = makeId(3);
-                            checkId(uid);
+                            if(req.body.shorturlid.length > 0) {
+                                uid = makeId(3);
+                                checkId(uid);
+                            } else {
+                                saveMsg(null, null);
+                            }
 
                             function checkId(id) {
                                 models.Message.findAll({
@@ -166,41 +186,45 @@ exports.add = (req, res) => {
                                         uid = makeId(3);
                                         checkId(uid);
                                     } else {
-                                        models.Message.create({
-                                            contactlink: id,
-                                            shortlinkId: req.body.shorturlid,
-                                        })
-                                        .then((shrt) => {
-
-                                            var message  = req.body.message
-                                            .replace(/\[firstname\]/g, kont.firstname)
-                                            .replace(/\[lastname\]/g, kont.lastname)
-                                            .replace(/\[email\]/g, kont.email)
-                                            .replace(/\[url\]/g, 'https://tsn.go/' + req.body.myshorturl + '/' + id)
-                                            .replace(/&nbsp;/g, ' ');
-                
-                                            var msgfull = {
-                                                "from" : m_from,
-                                                "destinations" : [{
-                                                    "to": kont.phone,
-                                                    "messageId": shrt.id,
-                                                }],
-                                                "text" : message,
-                                                "sendAt" : m_sendAt,
-                                                "flash" : m_flash,
-                                                "intermediateReport" : m_intermediateReport,
-                                                "notifyUrl" : m_notifyUrl,
-                                                "notifyContentType" : m_notifyContentType,
-                                                "validityPeriod" : m_validityPeriod,
-                                            };
-
-                                            resolve(msgfull);
-                                            
-                                        })
+                                        saveMsg(id, req.body.shorturlid);
                                     }
                                 })
                             }
 
+                            function saveMsg(cid, sid) {
+                                cpn.createMessage({
+                                    contactlink: cid,
+                                    shortlinkId: sid,
+                                })
+                                .then((shrt) => {
+
+                                    var message  = req.body.message
+                                    .replace(/\[firstname\]/g, kont.firstname)
+                                    .replace(/\[lastname\]/g, kont.lastname)
+                                    .replace(/\[email\]/g, kont.email)
+                                    .replace(/\[url\]/g, 'https://tsn.go/' + cid + '/' + sid)
+                                    .replace(/&nbsp;/g, ' ');
+        
+                                    var msgfull = {
+                                        "from" : m_from,
+                                        "destinations" : [{
+                                            "to": kont.countryId + kont.phone.substr(1),
+                                            "messageId": shrt.id,
+                                        }],
+                                        "text" : message,
+                                        "sendAt" : m_sendAt,
+                                        "flash" : m_flash,
+                                        "intermediateReport" : m_intermediateReport,
+                                        "notifyUrl" : m_notifyUrl,
+                                        "notifyContentType" : m_notifyContentType,
+                                        "validityPeriod" : m_validityPeriod,
+                                    };
+
+                                    resolve(msgfull);
+                                    
+                                })
+                                
+                            }
 
                         })
                     }
@@ -223,8 +247,8 @@ exports.add = (req, res) => {
                     doLoop(0);
                     
                     //  loop through all the batches
-                    function doLoop(start) {
-                        
+                    function doLoop(start) { 
+                        console.log('**************   ' + 'count of contacts = ' + len + '; start = ' + start + '   ****************');
                         if(start <= len) {
                             var end = (start + grpn > len) ? len : start + grpn;
 
@@ -234,7 +258,7 @@ exports.add = (req, res) => {
                             results.then(data => {
 
                                 var tosend = {
-                                    "bulkId": cpn.id + '-' + counter,
+                                    "bulkId": 'CMPGN-' + cpn.id + '-' + counter,
                                     "messages": data,
                                     "tracking": {
                                         "track" : q_tracking_track,
@@ -242,21 +266,30 @@ exports.add = (req, res) => {
                                     }, 
                                 }
 
-                                /* var xhr = new XMLHttpRequest();
-                                xhr.withCredentials = true;
-                                
-                                xhr.addEventListener("readystatechange", function () {
-                                if (this.readyState === 4) {
-                                    console.log(this.responseText);
+
+                                const options = {
+                                  url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',
+                                  json: tosend,
+                                  headers: {
+                                    'Authorization': 'Basic ' + base64encode,
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                  }
                                 }
+                                
+                                request.post(options,(err, response) => {
+                                  if (err){
+                                    return console.log(err)
+                                  }
+                                
+                                //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
+                                  console.log('Status code: ' + response.statusCode + '; Message: ' + JSON.stringify(response.body));
                                 });
-                                
-                                xhr.open("POST", "https://{base_url}/sms/2/text/advanced");
-                                xhr.setRequestHeader("authorization", "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==");
-                                xhr.setRequestHeader("accept", "application/json");
-                                xhr.setRequestHeader("content-type", "application/json");
-                                
-                                xhr.send(JSON. data); */
+                        
+                        
+
+
+
                                 console.log(JSON.stringify(tosend));
                                 counter++;
                                 if(end < len) doLoop(end)

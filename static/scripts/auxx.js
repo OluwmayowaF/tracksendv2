@@ -1,17 +1,15 @@
 // JavaScript Document
 //var SERVICE_HOST = "http://localhost/directory/services/";
 
-function _getGlobals(id) {
 
-  switch(id) {
-
-    case "SERVICE_HOST" : return "/api/";
-    break;
-
-  }
-
-} 
-
+var _getGlobals = {
+	SERVICE_HOST : "/api/",
+	SMS_SIZE_MSG1 : 160,
+	SMS_SIZE_MSG2 : 150,
+	SMS_SIZE_MSG3 : 150,
+	SMS_SIZE_MSG4 : 150,
+};
+ 
 $(document).ready(function() {
 	var campaign_confirmed = false;
 
@@ -19,6 +17,46 @@ $(document).ready(function() {
 	$('form').submit((e) => {
 		$(e.target).find('span.loading_icon').show();
 	})
+
+	$('.editable_div').on('keyup', countChars);
+
+	function countChars(e) {
+		var $we = $('.editable_div');
+		var sp = $we.find('span').length;
+		var ch = 0;
+		var msgs = 0;
+
+		//	count chars
+		if(sp > 0) {
+			var $dd = $('.editable_div').clone();
+			$dd.find('span').remove();
+			ch = $dd.text().length  + (sp * 15);
+			console.log('with sp = ' + sp + '; alls = ' + ch);
+			
+		} else {
+			ch = $we.text().length;
+			console.log('no sp; alls = ' + ch);
+		}
+		console.error('ch = ' + ch);
+
+		//	count msgs
+		if(ch <= _getGlobals.SMS_SIZE_MSG1) {
+			msgs = 1;
+		} else if(ch <= (_getGlobals.SMS_SIZE_MSG1 + _getGlobals.SMS_SIZE_MSG2)) {
+			msgs = 2;
+		} else if(ch <= (_getGlobals.SMS_SIZE_MSG1 + _getGlobals.SMS_SIZE_MSG2 + _getGlobals.SMS_SIZE_MSG3)) {
+			msgs = 3;
+		} else if(ch <= (_getGlobals.SMS_SIZE_MSG1 + _getGlobals.SMS_SIZE_MSG2 + _getGlobals.SMS_SIZE_MSG3 + _getGlobals.SMS_SIZE_MSG4)) {
+			msgs = 4;
+		} else {
+			alert('Maximum charaters reached.');
+			return false;
+		}
+		
+		$('#msg_char_count').text(ch + (sp > 0? ' (est.)' : ''));
+		$('#msg_count').text(msgs);
+		
+	}
 
 	/* $('form').submit(function(e) {
 		$(e.target).find('.loading_icon').show();
@@ -83,16 +121,18 @@ $(document).ready(function() {
 		}
 
 		pasteDiv(id, t);
+		countChars();
 
 	})
 	function pasteDiv(id, t) {
 		// $('.editable_div').html($('.editable_div').html() + '<span spellcheck="false" contenteditable="false" id="'+id+'">'+t+'</span>');
 		$('.editable_div').html($('.editable_div').html() + '<span spellcheck="false" contenteditable="false">'+t+'</span>');
-		$('.editable_div').focus();
+		// $('.editable_div').focus();
 	}
 
 	$('.create_short_url_btn').on('click', function (e) {
 
+		$(e.target).closest('div').find('.loading_icon').show();
 		var url = $('#long_url_link').val();
 
 		if(url.length < 5) {
@@ -118,7 +158,7 @@ $(document).ready(function() {
 
 		$.ajax({
 			type: 'GET',
-			url: _getGlobals('SERVICE_HOST')+'generateurl'+'?url='+url+urlid,
+			url: _getGlobals.SERVICE_HOST+'generateurl'+'?url='+url+urlid,
 			contentType: 'application/json; charset=utf-8',
 			// data: json_form_reg,
 			success: function( data ) {
@@ -138,6 +178,7 @@ $(document).ready(function() {
 					}
 				}); */
 
+				$(e.target).closest('div').find('.loading_icon').hide();
 
 				var el = document.querySelector('.short_url_box span._editable');
 				var fx = new TextScramble(el);
@@ -161,6 +202,7 @@ $(document).ready(function() {
 
 			},
 			error: function(resp, dd, ww) {
+				$(e.target).closest('div').find('.loading_icon').hide();
 				// $butt.removeAttr('disabled');
 				// $butt.closest('div').find('.loading_icon').hide();
 			}
@@ -244,7 +286,7 @@ $(document).ready(function() {
 
 		$.ajax({
 			type: 'POST',
-			url: _getGlobals('SERVICE_HOST')+'analysecampaign',
+			url: _getGlobals.SERVICE_HOST+'analysecampaign',
 			contentType: 'application/json',
 			data: json_campaign_login,
 				// data: json_form_reg,
@@ -312,7 +354,7 @@ $(document).ready(function() {
 //		closeOnSelect: false,
 //   		id: function(orgs){return {id: orgs.orgid};},
 		ajax: {
-			url: _getGlobals('SERVICE_HOST')+'providers',
+			url: _getGlobals.SERVICE_HOST+'providers',
 			dataType: 'json',
 			quietMillis: 100,
 			data: function (term, page) { // page is the one-based page number tracked by Select2
@@ -378,7 +420,7 @@ $(document).ready(function() {
 
 		$.ajax({
 			type: 'GET',
-			url: _getGlobals('SERVICE_HOST')+'groupconts'+'?grp='+opt,
+			url: _getGlobals.SERVICE_HOST+'groupconts'+'?grp='+opt,
 			contentType: 'application/json; charset=utf-8',
 			// data: json_form_reg,
 			success: function( data ) {
@@ -509,6 +551,9 @@ $(document).ready(function() {
 	
 	})
 
+	$('.trigger_off').on('click', function (e) {
+		$('._blink').fadeOut(70).fadeIn(70).fadeOut(70).fadeIn(70);
+	})
 
 	initializeActionBtns();
 	function initializeActionBtns() {
@@ -533,7 +578,7 @@ $(document).ready(function() {
 			
 				$.ajax({
 					type: 'GET',
-					url: _getGlobals('SERVICE_HOST')+'del' + wh + '?id=' + id,
+					url: _getGlobals.SERVICE_HOST+'del' + wh + '?id=' + id,
 					contentType: 'application/json; charset=utf-8',
 					success: function( data ) {
 						
@@ -588,7 +633,7 @@ $(document).ready(function() {
 		
 			$.ajax({
 				type: 'POST',
-				url: _getGlobals('SERVICE_HOST')+'save'+wh,
+				url: _getGlobals.SERVICE_HOST+'save'+wh,
 				contentType: 'application/json; charset=utf-8',
 				data: json_save_form,
 				success: function( data ) {
@@ -762,7 +807,7 @@ function doRegistration() {
 
   $.ajax({
 		type: 'POST',
-		url: _getGlobals('SERVICE_HOST')+'register',
+		url: _getGlobals.SERVICE_HOST+'register',
 		contentType: 'application/json; charset=utf-8',
 		data: json_form_reg,
 		success: function( data ) {
@@ -856,7 +901,7 @@ function doLogin() {
 
   $.ajax({
 		type: 'POST',
-		url: _getGlobals('SERVICE_HOST')+'login',
+		url: _getGlobals.SERVICE_HOST+'login',
 		contentType: 'application/json; charset=utf-8',
 		data: json_form_login,
 		success: function( data ) {

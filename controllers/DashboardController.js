@@ -266,6 +266,7 @@ exports.index = (req, res) => {
                 messages,
                 ccount,
                 mcount,
+                ctr: ((parseInt(summary.delivered) == 0) ? '0' : (parseInt(summary.clicks) * 100/parseInt(summary.delivered))),
 
                 mgrowth: JSON.stringify(mgrowth),
                 cgrowth: JSON.stringify(cgrowth),

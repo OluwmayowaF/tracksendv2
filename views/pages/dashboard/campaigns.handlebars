@@ -17,23 +17,36 @@
 		</div>
 
 		{{#if args.nocontacts}}
-		<div class="row">
+		<div class="row _blink">
 			<div class="col-md-12">
+				<a href="/dashboard/contacts/new">
 				<div class="notification error closeable margin-bottom-30">
 					<p>NO CONTACT/GROUP HAS BEEN CREATED ON YOUR ACCOUNT: <span style="color: #666">Kindly proceed to 'CONTACTS' section to create.</span></p>
 					<a class="close" href="#"></a>
 				</div>
+				</a>
 			</div>
 		</div>
 		{{/if}}
 
-		{{#if args.nosenderids}}
-		<div class="row">
+		{{#if args.noasenderids}}
+		<div class="row _blink">
 			<div class="col-md-12">
 				<div class="notification error closeable margin-bottom-30">
-					<p>NO <strong>ACTIVE</strong> SENDER ID ON YOUR ACCOUNT: <span style="color: #666">Go to Sender ID page under 'CAMPAIGNS' section to create.</span></p>
+					<p>NO <strong>ACTIVE/APPROVED</strong> SENDER ID ON YOUR ACCOUNT: <span style="color: #666">It takes 6 hours for a new Sender ID to become 'Active', if approved.</span></p>
 					<a class="close" href="#"></a>
 				</div>
+			</div>
+		</div>
+		{{else if args.nosenderids}}
+		<div class="row _blink">
+			<div class="col-md-12">
+				<a href="/dashboard/senderids">
+				<div class="notification error closeable margin-bottom-30">
+					<p>NO CREATED SENDER ID ON YOUR ACCOUNT: <span style="color: #666">Go to Sender ID page under 'CAMPAIGNS' section to create.</span></p>
+					<a class="close" href="#"></a>
+				</div>
+				</a>
 			</div>
 		</div>
 		{{/if}}
@@ -49,9 +62,19 @@
 
 			<div class="toggle-wrap no_borders">
 
-		{{#if args.nosenderids}}
+		{{#if args.nocontacts}}
 				<div class="col-lg-12 trigger_off">
-					<div class="col-lg-12 page_box_header toggle active" style="cursor: no-drop"><i class="im im-icon-Cursor-Click2"></i> <b>Create New</b> Campaign<i class="sl sl-icon-plus"></i>
+					<div class="col-lg-12 page_box_header toggle active"><i class="im im-icon-Cursor-Click2"></i> <b>Create New</b> Campaign<i class="sl sl-icon-plus"></i>
+					</div>
+				</div>
+		{{else if args.nosenderids}}
+				<div class="col-lg-12 trigger_off">
+					<div class="col-lg-12 page_box_header toggle active"><i class="im im-icon-Cursor-Click2"></i> <b>Create New</b> Campaign<i class="sl sl-icon-plus"></i>
+					</div>
+				</div>
+		{{else if args.noasenderids}}
+				<div class="col-lg-12 trigger_off">
+					<div class="col-lg-12 page_box_header toggle active"><i class="im im-icon-Cursor-Click2"></i> <b>Create New</b> Campaign<i class="sl sl-icon-plus"></i>
 					</div>
 				</div>
 		{{else}}
@@ -90,7 +113,7 @@
 
 											<div class="col-md-12">
 												<h5>Description </h5>
-												<input type="text" name="description" id="campaign_description" maxlength="200" required>
+												<input type="text" name="description" id="campaign_description" maxlength="200">
 											</div>
 										</div>
 
@@ -117,7 +140,7 @@
 										<div class="row with-forms">
 
 											<div class="col-md-12">
-												<h5>Compose Message <span id="msg_est_txt"><b>(Est.) </b></span><span>Count: <span id="msg_count">231</span></span>
+												<h5>Compose Message <span id="msg_est_txt"></span><span>[ Chars: <span id="msg_char_count">9</span>; Msgs: <span id="msg_count">1</span> ]</span>
 													<ul class="compose_options_box checkboxes in-row">
 														<li id="ch-firstname">First Name</li>
 														<li id="ch-lastname">Last Name</li>
@@ -145,7 +168,7 @@
 														<div class="col-md-12">
 															<h5>Enter or Paste Your Link</h5>
 															<input type="text" name="full_link" id="long_url_link" maxlength="50" placeholder="http://www.">
-															<button type="submit" class="button preview create_short_url_btn" style="margin-top: 0">Create <i class="sl sl-icon-refresh"></i></button>
+															<button type="submit" class="button preview create_short_url_btn" style="margin-top: 0">Create <i class="sl sl-icon-refresh"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
 														</div>
 
 
@@ -177,7 +200,7 @@
 													{{/each}}
 													<option disabled>--------------------------------------</option>
 													<option value="-1">All Groups</option>
-													<option value="-2">No Groups</option>
+													{{!-- <option value="-2">No Groups</option> --}}
 												</select>
 											</div>
 
@@ -226,7 +249,7 @@
 														</div>
 
 														<div class="col-md-12">
-															<h5>Send Time: </h5><span id="cpm_summary_time"> Immediately</span>
+															<h5>Send Time: </h5><span id="cpm_summary_time">Immediately</span>
 														</div>
 
 														<div class="col-md-12 sepr"></div>
@@ -361,6 +384,19 @@
 							<!-- Status -->
 							<div class="col-md-12 lists">
 								<ul>
+									<li class="list_item _hd" style="font-weight: bolder">
+										<ul class="saved_item">
+											<input type="hidden" class="cid" value="'+i.id+'" />
+											<li style="flex: 6">Name</li>
+											<li style="flex: 2">Status</li>
+											<li style="flex: 8">Description</li>
+											<li style="flex: 3">Units</li>
+											<li style="flex: 3">createdAt</li>
+											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; text-align: center; font-size: 2em; line-height: 0.3;">
+												...
+											</li>
+										</ul>
+									</li>
 									{{#each args.cpns}}
 									<li class="list_item">
 										<ul class="saved_item _clickable">
@@ -368,7 +404,7 @@
 											<li style="flex: 6">{{ name }}</li>
 											<li style="flex: 2">Status</li>
 											<li style="flex: 8">{{ description }}</li>
-											<li style="flex: 3">updatedAt</li>
+											<li style="flex: 3">{{ units_used }}</li>
 											<li style="flex: 3">createdAt</li>
 											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
 												<span style="flex: 1; text-align:center" class="edit_item_btn"><a class="tooltip top" title="Edit" style="cursor: pointer"><i class="fa fa-edit"></i></a></span> | 

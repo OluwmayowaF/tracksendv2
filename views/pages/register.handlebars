@@ -1,0 +1,87 @@
+		{{#if flash.type}}
+			<div class="notification other {{ flash.type }} closeable">
+				<p>{{ flash.msg }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
+
+			<div class="notification other2 closeable">
+				<p></p>
+				<a class="close"></a>
+			</div>
+
+<div class="container stand-alone" id="welcome">
+
+  <div class="small-dialog-header" style="text-align: center">
+    <h3>Register</h3>
+    <div class="aux_msg" style="display:none"></div> 
+  </div>
+
+  <!--Tabs -->
+  <div class="col-lg-3 col-md-3 col-sm-hidden col-xs-hidden">
+	</div>
+  <div class="register-in-form style-1 col-lg-6 col-md-6 col-sm-6 hidden-xs">
+
+    <ul class="tabs-nav">
+      <li></li>
+    </ul>
+
+    <div class="tabs-container alt">
+
+      <!-- Register -->
+      <div class="tab-content" id="tab2" style="padding-top: 60px">
+
+        <form method="POST" action="javascript: doRegistration()" class="register" id="register_form">
+							<p class="form-row form-row-wide">
+								<label for="username2">Name:
+									<i class="im im-icon-Male"></i>
+									<input type="text" class="input-text" name="name" id="name" value="" required/>
+								</label>
+							</p>
+								
+							<p class="form-row form-row-wide">
+								<label for="email2">Email Address:
+									<i class="im im-icon-Mail"></i>
+									<input type="email" class="input-text" name="email" id="email" value="" required />
+								</label>
+							</p>
+
+							<p class="form-row form-row-wide">
+								<label for="password1">Password:
+									<i class="im im-icon-Lock-2"></i>
+									<input class="input-text" type="password" name="password" id="password1" required/>
+								</label>
+							</p>
+
+							<p class="form-row form-row-wide">
+								<label for="password2">Repeat Password:
+									<i class="im im-icon-Lock-2"></i>
+									<input class="input-text" type="password" name="confirm_password" id="password2" required/>
+								</label>
+							</p>
+
+							<p class="form-row form-row-wide">
+								<label for="username">Phone:
+									<i class="im im-icon-Male"></i>
+									<input type="tel" class="input-text" name="phone" id="phone" value="" required />
+								</label>
+							</p>
+
+							<p class="form-row form-row-wide">
+								<label for="username">Business Name:
+									<i class="im im-icon-Male"></i>
+									<input type="text" class="input-text" name="business" id="business" value="" required />
+								</label>
+							</p>
+
+							<div class="_form_errors _e_register" style="display:none"></div>
+
+							<input type="submit" class="button border fw margin-top-10" name="register" value="Register" /><span class="loading_icon fa fa-hourglass-2"></span>
+        </form>
+      </div>
+
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-3 col-sm-hidden col-xs-hidden">
+	</div>
+</div>

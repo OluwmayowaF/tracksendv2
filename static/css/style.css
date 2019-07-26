@@ -13391,6 +13391,7 @@ button.mfp-close {
 	padding: 0;
 	margin: 0;
 	font-size: 24px;
+	text-shadow: 1px 1px 1px #fff;
 }
 
 
@@ -15809,6 +15810,23 @@ img.mfp-img {
 		cursor: default;
 	}
 
+	.unit_bal_box {
+		float: right; 
+		border: inset 2px; 
+		border-radius: 4px; 
+		padding: 2px 5px; 
+		font-size: 0.8em;
+	}
+	.unit_bal_box:hover {
+		background-color: #f8f8f8;
+	}
+
+	#analysis-box h5 {
+			display: inline-block;
+			width: 150px;
+			margin-right: 5px;
+			text-align: right;
+	}
 
 	@media (max-width:803px) {
 		.compose_options_box {
