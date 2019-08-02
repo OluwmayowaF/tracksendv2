@@ -390,7 +390,7 @@ console.log('666666');
                     })
                 }
                                          
-                async function checkAndAggregate(kont) {
+                async function checkAndAggregate(kont) { 
 
                     var message  = req.body.message
                         .replace(/\[firstname\]/g, kont.firstname)
