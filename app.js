@@ -70,7 +70,7 @@ app.use(flash());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 //  set static folder
-app.use(express.static(path.join(__dirname, 'static')));
+app.use(express.static(path.join(__dirname, '/static')));
 console.log('path is: ' + __dirname);
 
 // We need to use sessions to keep track of our user's login status
