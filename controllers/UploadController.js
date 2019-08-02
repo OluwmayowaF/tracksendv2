@@ -20,7 +20,7 @@ var connection  = mysql.createPool({
 exports.index = (req, res) => {
     var holdn = req.flash('result');    
     var user_id = req.user.id;
-    console.log('user is: ' + user_id.id);
+    console.log('user is: ' + user_id);
     
 
     console.log('result na: ' + holdn);

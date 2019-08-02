@@ -36,7 +36,7 @@ $(document).ready(function() {
 		} else {
 			ch = $we.text().length;
 			console.log('no sp; alls = ' + ch);
-		}
+		} 
 		console.error('ch = ' + ch);
 
 		//	count msgs

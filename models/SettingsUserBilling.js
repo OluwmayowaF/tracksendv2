@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     userId: DataTypes.INTEGER,
     settingsnetworkId: DataTypes.INTEGER,
-    unit: DataTypes.DOUBLE,
+    units: DataTypes.DOUBLE,
   }, {});
 
   // SettingsdefaultbillingID.belongsToMany(Contact, { through: { model: ContactGroup, unique: false }, foreignKey: 'groupId' });
