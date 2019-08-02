@@ -156,3 +156,77 @@ db.users.insertMany(
 
  */// var rand = require('./my_modules/randomid');
 // console.log(rand(7, 'titi'));
+
+
+// var names = ['mike', 'jane', 'peter'];
+var names = ['mike'];
+console.log('black');
+
+var fn = function doThings(name) {
+  return new Promise((resolve) => {
+    console.log('blue');
+
+    var char = name.substr(1);
+    getNum(char);
+    console.log('violet');
+
+    function getNum(ch) {
+      console.log('green');
+
+      fetch('fetchfrom.url')
+      .then(response => {
+        console.log('orange');
+        
+        return response.json();
+      }).then(n => {
+
+        if(n === 2) {
+          console.log('red1');
+
+          fetch('fetchfrom.url')
+          .then(response => {
+            console.log('yellow');
+            
+            return response.json();
+          }).then(color => {
+            if(color === 2) {
+              console.log('red2');
+              
+              resolve(5);
+            }
+            else {
+              console.log('brown2');
+              
+              resolve(10);
+            }
+          });
+          console.log('lilac');
+
+        } else {
+          console.log('brown1');
+          
+          resolve(20);
+        }
+        
+      });
+    }
+
+  })
+
+
+}
+
+var actions = names.map(fn)
+console.log('grey');
+
+Promise.all([actions])
+.then(() => {
+  console.log('done');
+})
+
+
+
+
+
+
+

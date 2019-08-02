@@ -256,7 +256,7 @@ exports.add = (req, res) => {
                             var results = Promise.all(actions);
 
                             results.then(data => {
-
+ 
                                 var tosend = {
                                     "bulkId": 'CMPGN-' + cpn.id + '-' + counter,
                                     "messages": data,
@@ -265,7 +265,6 @@ exports.add = (req, res) => {
                                         "type" : q_tracking_type,
                                     }, 
                                 }
-
 
                                 const options = {
                                   url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',
