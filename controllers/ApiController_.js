@@ -299,7 +299,7 @@ exports.analyseCampaign = (req, res) => {
             
             if(!grp) return;
 
-            if(req.body.skip_dnd && req.body.skip_dnd == "on") {
+            /* if(req.body.skip_dnd && req.body.skip_dnd == "on") {
                 var getconts = grp.getContacts({
                                         where: {
                                             status: 0
@@ -307,122 +307,128 @@ exports.analyseCampaign = (req, res) => {
                                     });
             } else {
                 var getconts = grp.getContacts();
-            }
-
-            getconts.then((contacts) => {
+            } */
+            grp.getContacts()
+            .then((contacts) => {
 
                 var uid = 'xxx';
+console.log('11111');
 
-                var fn = async function checkAndAggregate(kont) {
-                    // return new Promise(resolve => {
 
-                        var message  = req.body.message
+                async function getUnitsUsed(results, prefix, ctry) {
+console.log('333333');
+                
+                    //  first check if there's user-level billing
+                    /* var results = await sequelize.query(
+                        "SELECT units FROM settingsuserbillings " +
+                        "JOIN settingsnetworks ON settingsuserbillings.settingsnetworkId = settingsnetworks.id " +
+                        "WHERE settingsuserbillings.userId = (:id) " +
+                        "AND settingsnetworks.prefix = '" + prefix + "'", {
+                            replacements: {id: user_id},
+                        }
+                    );  */
+
+                    if(!results.length) {
+console.log('444444');
+                        let charge = results.map((res) => res.units);
+                        return charge;
+                        
+                    } else {
+console.log('555555');
+                        
+                        console.log('NO USER-LEVEL');
+                        let sett = await models.Settingsnetwork.findAll({
+                            /* include: [{
+                                model: models.Settingsdefaultbilling, 
+                                attributes: ['units'], 
+                                raw: true,
+                                // through: { }
+                            }], */
+                            where: { 
+                                prefix: prefix,
+                                countryId: ctry,
+                            },
+                            attributes: ['unitscharge'], 
+                            limit: 1,
+                        })
+                        .catch((err) => {
+                            console.log('ERROR!!!' + JSON.stringify(err));
+                            
+                        });
+      
+                            // console.log('billing setting is: ' + sett[0].settingsdefaultbillings.units);
+                            // console.log('billing setting is: ' + JSON.stringify(sett[0].settingsdefaultbillings[0]));
+console.log('666666');
+                        return sett[0].unitscharge;
+            
+                        
+                    }
+
+                }
+
+                function getCharge(prefix) {
+                    console.log('222222bbbbbbbb00');
+                                            
+                    return models.Settingsuserbilling.findAll({
+                        include: [{
+                            model: models.Settingsnetwork,
+                            where: {
+                                prefix: prefix
+                            },
+                        }],
+                        where: {
+                            userId: user_id
+                        }
+                    })
+                    .then((result) => {
+                        console.log('RESULT!!!');
+                        return result;
+                    })
+                    .catch((err) => {
+                        console.log('ERROR!!!' + JSON.stringify(err));
+                        
+                    })
+                }
+                                         
+                async function checkAndAggregate(kont) {  // opopopop
+
+                    var message  = req.body.message
                         .replace(/\[firstname\]/g, kont.firstname)
                         .replace(/\[lastname\]/g, kont.lastname)
                         .replace(/\[email\]/g, kont.email)
                         .replace(/\[url\]/g, 'https://tsn.go/' + req.body.myshorturl + '/' + uid)
                         .replace(/&nbsp;/g, ' ');
-    
-                        var cc = Math.ceil(message.length/CHARS_PER_SMS);
-                        msgcount += cc;
-                        var unit_ = await getUnitsUsed(kont.phone, kont.countryId);
-                        units += unit_ * cc;
-                        console.log('msg = ' + message + '; units used: ' + unit_ * cc + '; total used = ' + units);
-                        
-                        // resolve(message);
-                        return message;
 
-                        function getUnitsUsed(ph, ctry) {
-                            return new Promise(resolve => {
-                                var prefix = ph.substr(0, 4);
-                                console.log('network prefix is: ' + prefix);
-                            
-                                //  first check if there's user-level billing
-                                sequelize.query(
-                                    "SELECT units FROM settingsuserbillings " +
-                                    "JOIN settingsnetworks ON settingsuserbillings.settingsnetworkId = settingsnetworks.id " +
-                                    "WHERE settingsuserbillings.userId = (:id) " +
-                                    "AND settingsnetworks.prefix = '" + prefix + "'", {
-                                        replacements: {id: user_id},
-                                    }
-                                ).then(([results, metadata]) => {
+                    var cc = Math.ceil(message.length/CHARS_PER_SMS);
+                    msgcount += cc;
+                    let nn = 3;
 
-                                    // console.log('results ===' + charge);
-                                    
-                                    //  if user-level is set up
-                                    if(results.length) {
-                                        console.log('YES USER-LEVEL');
-                                        var charge = results.map((res) => res.units);
-                                        
-                                        resolve(charge);
-                                        
-                                    } else {
-                                        
-                                        console.log('NO USER-LEVEL');
-                                        models.Settingsnetwork.findAll({
-                                            /* include: [{
-                                                model: models.Settingsdefaultbilling, 
-                                                attributes: ['units'], 
-                                                raw: true,
-                                                // through: { }
-                                            }], */
-                                            where: { 
-                                                prefix: prefix,
-                                                countryId: ctry,
-                                            },
-                                            attributes: ['unitscharge'], 
-                                            limit: 1,
-                                        }).then(sett => {
-                                            
-                                            // console.log('billing setting is: ' + sett[0].settingsdefaultbillings.units);
-                                            // console.log('billing setting is: ' + JSON.stringify(sett[0].settingsdefaultbillings[0]));
-                                            console.log('billing setting is: ' + JSON.stringify(sett[0].unitscharge));
-                                            resolve(sett[0].unitscharge);
-                            
-                                        });
+                    let prefix = kont.phone.substr(0, 4);
+                    var results = await getCharge(prefix);
 
-                                    }
-                                });
-                            })
-                        }
-                    // })
+                    var unit_ = await getUnitsUsed(results, prefix, kont.countryId);
+                    // units += unit_ * cc;
+console.log('777777');
+                    return unit_;
+                    // resolve(message);
+                    // return message;
+
                 }
 
-                /* var balance = async function (resolve) {
-                    // return new Promise(resolve => {
+                    
+                var actions = contacts.map(checkAndAggregate);
+// console.log('000000');
+                /* var actions = [];
+                contacts.forEach(async (dd) => {
+                    checkAndAggregate(dd);
+                }); */
 
-                        return models.User.findAll({
-                            where: {
-                                id: user_id
-                            },
-                            attributes: ['balance']
-                        })
-                        .then((bal) => {
-                            var ball = bal.map((res) => res.balance);
-                            resolve(ball);
-                        })
-                                       // })
-                } */
-
-                var actions = contacts.map(fn);
-                Promise.all([actions, 
-
-                    models.User.findAll({
-                        where: {
-                            id: user_id
-                        },
-                        attributes: ['balance'],
-                        raw: true
-                    })
-                    .then((bal) => {
-                        return bal; //[0];
-                    })
-
-               ]).then(([data, bal]) => {
+                Promise.all([actions]).then(([data]) => {
+console.log('EEEEE');
 
                     // var  = data.length/CHARS_PER_SMS;
                     var contactcount = contacts.length;
-                    var balance = bal.map((res) => res.balance);
+                    var balance = 99;// bal.map((res) => res.balance);
 
                     console.log('msgs = ' + msgcount + '; contacts = ' + contactcount + '; units = ' + units + '; balance = ' + (balance));
                     
@@ -435,10 +441,18 @@ exports.analyseCampaign = (req, res) => {
 
                 })
 
+            })
+            .catch((err) => {
+                console.log('ERROR!!!' + JSON.stringify(err));
+                
             });
+
+        })
+        .catch((err) => {
+            console.log('ERROR!!!' + JSON.stringify(err));
             
         })
-    }
+}
 
 
 }

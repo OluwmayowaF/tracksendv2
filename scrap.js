@@ -229,4 +229,8 @@ Promise.all([actions])
 
 
 
-
+/* 
+{"bulkId":"CMPGN-45-3","messages":[{"from":"FROM","destinations":[{"to":"2348022334422","messageId":245},{"to":"2348022334423","messageId":246}],"text":"Hello ... ssdsdds","sendAt":null,"flash":false,"intermediateReport":true,"notifyUrl":"https://tracksend/sms/campaign/notify","notifyContentType":"application/json","validityPeriod":1440}],"tracking":{"track":"SMS","type":"Dr._Hayden_Wilderman_Jr."}}
+Status code: 200; Message: {"bulkId":"CMPGN-45-1","messages":[{"to":"2348054433221","status":{"groupId":1,"groupName":"PENDING","id":26,"name":"PENDING_ACCEPTED","description":"Message sent to next instance"},"messageId":"239"},{"to":"2348033252617","status":{"groupId":1,"groupName":"PENDING","id":26,"name":"PENDING_ACCEPTED","description":"Message sent to next instance"},"messageId":"240"},{"to":"2348022334455","status":{"groupId":1,"groupName":"PENDING","id":26,"name":"PENDING_ACCEPTED","description":"Message sent to next instance"},"messageId":"241"}]}
+Status code: 200; Message: {"bulkId":"CMPGN-45-2","messages":[{"to":"2348032334457","status":{"groupId":1,"groupName":"PENDING","id":26,"name":"PENDING_ACCEPTED","description":"Message sent to next instance"},"messageId":"242"},{"to":"2348022334458","status":{"groupId":1,"groupName":"PENDING","id":26,"name":"PENDING_ACCEPTED","description":"Message sent to next instance"},"messageId":"243"},{"to":"2348022334459","status":{"groupId":1,"groupName":"PENDING","id":26,"name":"PENDING_ACCEPTED","description":"Message sent to next instance"},"messageId":"244"}]}
+Status code: 200; Message: {"bulkId":"CMPGN-45-3","messages":[{"to":"2348022334422","status":{"groupId":1,"groupName":"PENDING","id":26,"name":"PENDING_ACCEPTED","description":"Message sent to next instance"},"messageId":"245"},{"to":"2348022334423","status":{"groupId":1,"groupName":"PENDING","id":26,"name":"PENDING_ACCEPTED","description":"Message sent to next instance"},"messageId":"246"}]} */

@@ -19,8 +19,9 @@ module.exports = function(app) {
   app.get ('/api/delsenderid',      apiController.delSenderId);
   app.post('/api/savegroup',        apiController.saveGroup);
   app.get ('/api/delgroup',         apiController.delGroup);
-  app.post('/api/savecontact',        apiController.saveContact);
-  app.get ('/api/delcontact',         apiController.delContact);
+  app.get ('/api/delcampaign',      apiController.delCampaign);
+  app.post('/api/savecontact',      apiController.saveContact);
+  app.get ('/api/delcontact',       apiController.delContact);
   app.get ('/api/generateurl',      apiController.generateUrl);
   app.post('/api/analysecampaign',  apiController.analyseCampaign);
 

@@ -78,6 +78,7 @@ app.use(session({ secret: "keyboard cat", resave: true, saveUninitialized: true 
 app.use(passport.initialize());
 app.use(passport.session());
 
+// app.locals.djt = 'talowanbe!';
 
 //  set routes
 // app.get('/', (req, res) => res.send('pages/dashboard/topups'));

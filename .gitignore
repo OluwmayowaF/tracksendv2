@@ -1,1 +1,3 @@
-node_modules
+# files/folders to ignore
+
+config/db.js

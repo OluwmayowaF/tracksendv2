@@ -1,4 +1,5 @@
 var models = require('../models');
+// import { because } from './../models/User';
 var moment = require('moment');
 const request = require('request');
 const tracksend_base_url = 'jj8wk.api.infobip.com';
@@ -81,61 +82,92 @@ exports.index = (req, res) => {
     });
 };
 
-exports.add = (req, res) => {
+exports.add = async (req, res) => {
     var user_id = req.user.id;
+    var tempid = req.body.analysis_id;
 
+    //  RETRIEVE CAMPAIGN DETAILS FROM TEMPORARY TABLE
+    var info = await models.Tmpcampaign.findByPk(tempid);
+    if(!info) {
+        console.log('INVALID OPERATION!');
+        
+        return;
+    }
+
+    //  GET USER BALANCE
+    var user_balance = await models.User.findByPk(user_id, {
+        attributes: ['balance'], 
+        raw: true, 
+    })
+    
+    console.log('USER BALANCE IS ' + JSON.stringify(user_balance));
+    
+    if(user_balance.balance < info.units_used) {
+        console.log('INSUFFICIENT UNITS!');
+
+        return;
+    }
+    
     console.log('form details are now...'); 
 
-    console.log('form details are now: ' + JSON.stringify(req.body)); 
+    console.log('form details are now: ' + JSON.stringify(info)); 
 
-    var message  = req.body.message;
+    var originalmessage  = info.message;
                             // .replace(/<span spellcheck="false" contenteditable="false">firstname<\/span>/g, '[firstname]')
                             // .replace(/<span spellcheck="false" contenteditable="false">lastname<\/span>/g, '[lastname]')
                             // .replace(/<span spellcheck="false" contenteditable="false">email<\/span>/g, '[email]')
                             // .replace(/<span spellcheck="false" contenteditable="false">url<\/span>/g, '[url]');
     // console.log('schedule is: ' + schedule);
     
-    var schedule = (req.body.schedule) ? moment(parseInt(req.body.schedule)).format('YYYY-MM-DD HH:mm:ss') : null;
+    var schedule = (info.schedule) ? moment(parseInt(info.schedule)).format('YYYY-MM-DD HH:mm:ss') : null;
     console.log('schedule is: ' + schedule);
     
     //  create campaign
     models.Campaign.create({
-        name: req.body.name,
-        description: req.body.description,
+        name: info.name,
+        description: info.description,
         userId: user_id,
-        senderId: req.body.sender,
-        shortlinkId: (req.body.shorturlid.length > 0) ? req.body.shorturlid : null,
-        message: message,
+        senderId: info.senderId,
+        shortlinkId: info.shortlinkId,
+        message: originalmessage,
         schedule: schedule,
-        recipients: req.body.recipients,
+        recipients: info.recipients,
     })
-    .then((cpn) => {
-        //  bind campaign to group(s)
-        var group = req.body.group;
+    .then(async (cpn) => {
+        //  bind campaign to group(s)   //  group | dnd | myshorturl
+        var group = info.grp;
+        var HAS_SURL = false;
 
         if (group !== 0) {
-            models.CampaignGroup.create({
+            await models.CampaignGroup.create({
                 campaignId: cpn.id,
                 groupId: group,
             })
-
-            //  change status of shortlink to used
-            if (req.body.shorturlid.length > 0) 
-            models.Shortlink.findByPk(req.body.shorturlid)
-            .then((shrt) => {
-                shrt.update({
-                    shorturl: req.body.myshorturl,
-                    status: 1
-                })
+            .error((err) => {
+                console.log('2BIG ERROR: ' + err);
             })
-
+        
+            //  change status of shortlink to used
+            if (info.shortlinkId) {
+                HAS_SURL = true;
+                await models.Shortlink.findByPk(info.shortlinkId)
+                .then((shrt) => {
+                    shrt.update({
+                        shorturl: info.myshorturl,
+                        status: 1
+                    })
+                })
+                .error((err) => {
+                    console.log('2BIG ERROR: ' + err);
+                })
+            }
             //  extract group contacts
             models.Group.findByPk(group)
             .then((grp) => {
 
                 if(!grp) return;
                 
-                if(req.body.skip_dnd && req.body.skip_dnd == "on") {
+                if(info.skip_dnd && info.skip_dnd == "on") {
                     var getconts = grp.getContacts({
                                             where: {
                                                 status: 0
@@ -144,12 +176,37 @@ exports.add = (req, res) => {
                 } else {
                     var getconts = grp.getContacts();
                 }
-    
-                getconts.then((contacts) => {
+
+                /*  
+                    DETERMINE IF SINGLE OR MULTIPLE MESSAGES
+                    1.  Check if there's URL in msg
+                    2.  Check if there's any personalization in msg
+                */
+
+                var SINGLE_MSG = false;
+                
+                var chk_message = originalmessage
+                .replace(/\[firstname\]/g, 'X')
+                .replace(/\[lastname\]/g, 'X')
+                .replace(/\[email\]/g, 'X')
+                .replace(/\[url\]/g, 'X');
+
+                if(chk_message == originalmessage) {
+                    SINGLE_MSG = true;
+                }
+
+                /*  
+                    DETERMINE IF THERE'S SHORT URL
+                */
+
+                                                            
+
+
+                getconts.then(async (contacts) => {
     
                     var q_bulkId = 'generateBulk';
                     var q_tracking_track = 'SMS';
-                    var q_tracking_type = req.body.name.replace(/ /g, '_');
+                    var q_tracking_type = info.name.replace(/ /g, '_');
 
                     var m_from = 'FROM';
                     var m_flash = false;
@@ -162,56 +219,67 @@ exports.add = (req, res) => {
                     var k = 0;
                     var msgarray = '';
 
-                    var fn = function checkAndAggregate(kont) {
+                    async function checkAndAggregate(kont) {
                         k++;
-                        return new Promise(resolve => {
+                        console.log('*******   Aggregating Contact #' + k + ':...    ********');
+                        
+                        // return new Promise(resolve => {
 
-                            //create contact codes
-                            var uid;
-                            if(req.body.shorturlid.length > 0) {
-                                uid = makeId(3);
-                                checkId(uid);
-                            } else {
-                                saveMsg(null, null);
-                            }
+                        async function getUniqueId() {
 
-                            function checkId(id) {
-                                models.Message.findAll({
+                            do {
+
+                                var uid = makeId(3);
+                                var exists = await models.Message.findAll({
                                     where: { 
-                                        contactlink: id,
+                                        contactlink: uid,
                                     },
-                                }).then((e) => {
-                                    if(e.length) {
-                                        // console.log(JSON.stringify(e));
-                                        uid = makeId(3);
-                                        checkId(uid);
-                                    } else {
-                                        saveMsg(id, req.body.shorturlid);
+                                })
+                                .error((r) => {
+                                    console.log("Error: Please try again later");
+                                })
+                                    // if(uid.length)
+                                
+                            } while (exists.length);
+                            console.log('UID = ' + uid);
+                            
+                            return {
+                                sid : info.shortlinkId,
+                                cid: uid, 
+                            };
+                        }
+                        
+                        function saveMsg(args) {
+                            return cpn.createMessage({
+                                shortlinkId: args.sid,
+                                contactlink: args.cid,
+                            })
+                            .then((shrt) => {
+                                console.log('MESSAGE ENTRY CREATE STARTED.');
+                                                                
+                                var updatedmessage  = originalmessage
+                                .replace(/\[firstname\]/g, kont.firstname)
+                                .replace(/\[lastname\]/g, kont.lastname)
+                                .replace(/\[email\]/g, kont.email)
+                                .replace(/\[url\]/g, 'https://tsn.go/' + args.sid + '/' + args.cid)
+                                .replace(/&nbsp;/g, ' ');
+    
+                                if(SINGLE_MSG) {
+                                    var msgto = {
+                                        "to": kont.countryId + kont.phone.substr(1),
+                                        "messageId": shrt.id,
                                     }
-                                })
-                            }
-
-                            function saveMsg(cid, sid) {
-                                cpn.createMessage({
-                                    contactlink: cid,
-                                    shortlinkId: sid,
-                                })
-                                .then((shrt) => {
-
-                                    var message  = req.body.message
-                                    .replace(/\[firstname\]/g, kont.firstname)
-                                    .replace(/\[lastname\]/g, kont.lastname)
-                                    .replace(/\[email\]/g, kont.email)
-                                    .replace(/\[url\]/g, 'https://tsn.go/' + cid + '/' + sid)
-                                    .replace(/&nbsp;/g, ' ');
-        
+                                    
+                                    console.log('SINGLE MESSAGE ENTRY CREATE DONE.');
+                                    return msgto;
+                                } else {
                                     var msgfull = {
                                         "from" : m_from,
                                         "destinations" : [{
                                             "to": kont.countryId + kont.phone.substr(1),
                                             "messageId": shrt.id,
                                         }],
-                                        "text" : message,
+                                        "text" : updatedmessage,
                                         "sendAt" : m_sendAt,
                                         "flash" : m_flash,
                                         "intermediateReport" : m_intermediateReport,
@@ -219,44 +287,80 @@ exports.add = (req, res) => {
                                         "notifyContentType" : m_notifyContentType,
                                         "validityPeriod" : m_validityPeriod,
                                     };
-
-                                    resolve(msgfull);
                                     
-                                })
+                                    console.log('UNSINGLE MESSAGE ENTRY CREATE DONE.');
+                                    return msgfull;
+                                }
                                 
-                            }
+                            })
+                            .error((r) => {
+                                console.log("Error: Please try again later");
+                            })
+                                        
+                        }
 
-                        })
+                        //create contact codes
+                        var args = {};
+
+                        if(!SINGLE_MSG && HAS_SURL) {
+                            console.log('GET UNIQUE ID!!!');
+                            
+                            args = await getUniqueId();
+                        }
+                        console.log('NEXT: Promise.all Done');
+                        
+                        return await saveMsg(args);
+
+                        // })
                     }
 
-                    /* var fn = function aggregateMsgs(itr) {
-                        msgarray += ' msg-' + k;
-                        k++;
-                        return new Promise(resolve => {
-
-
-                            resolve()
-                        })
-                    } */
-
-                    var start = 0;
-                    var grpn = 3;
-                    var len = contacts.length - 1;
-                    var counter = 1;
-                    
-                    doLoop(0);
-                    
                     //  loop through all the batches
-                    function doLoop(start) { 
+                    async function doLoop(start) { 
+                        let actions = [];
+                        
                         console.log('**************   ' + 'count of contacts = ' + len + '; start = ' + start + '   ****************');
                         if(start <= len) {
                             var end = (start + grpn > len) ? len : start + grpn;
 
-                            var actions = contacts.slice(start, end).map(fn);
-                            var results = Promise.all(actions);
+                            let sub_list = contacts.slice(start, end);
+                            var destinations = [];
 
-                            results.then(data => {
- 
+                            if(SINGLE_MSG) {
+                                console.log('SINGLE : ');
+                                
+                                for (let i = 0; i < sub_list.length; i++) {
+                                    destinations.push(await checkAndAggregate(sub_list[i]));
+                                }
+
+                                var msgfull = {
+                                    "from" : m_from,
+                                    "destinations" : destinations,
+                                    "text" : originalmessage,
+                                    "sendAt" : m_sendAt,
+                                    "flash" : m_flash,
+                                    "intermediateReport" : m_intermediateReport,
+                                    "notifyUrl" : m_notifyUrl,
+                                    "notifyContentType" : m_notifyContentType,
+                                    "validityPeriod" : m_validityPeriod,
+                                };
+                                console.log('SINGLE COMPILED!');
+                                
+                                actions.push(await Promise.resolve(msgfull));
+
+                            } else {
+                                console.log('NOT SINGLE OOOO');
+                                
+                                for (let i = 0; i < sub_list.length; i++) {
+                                    actions.push(await checkAndAggregate(sub_list[i]));
+                                }
+                                console.log('UNSINGLE COMPILED!');
+
+                            }
+
+                            Promise.all(actions)
+                            .then(async (data) => {
+                                console.log('MSGS ARE: ' + JSON.stringify(data));
+                                
                                 var tosend = {
                                     "bulkId": 'CMPGN-' + cpn.id + '-' + counter,
                                     "messages": data,
@@ -267,22 +371,66 @@ exports.add = (req, res) => {
                                 }
 
                                 const options = {
-                                  url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',
-                                  json: tosend,
-                                  headers: {
-                                    'Authorization': 'Basic ' + base64encode,
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json'
-                                  }
+                                    url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',
+                                    json: tosend,
+                                    headers: {
+                                        'Authorization': 'Basic ' + base64encode,
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json'
+                                    }
                                 }
                                 
                                 request.post(options,(err, response) => {
-                                  if (err){
-                                    return console.log(err)
-                                  }
-                                
-                                //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
-                                  console.log('Status code: ' + response.statusCode + '; Message: ' + JSON.stringify(response.body));
+                                    if (err){
+                                        console.log('ERROR = ' + err);
+                                        failures++;
+                                    } else {
+                                        //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
+                                        console.log('Status code: ' + response.statusCode + '; Message: ' + JSON.stringify(response.body));
+
+                                        if(response.statusCode == 200) {
+                                            successfuls++;
+                                        }
+                                    }
+
+                                    //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
+                                    if((successfuls + failures) == batches) {
+                                        console.log('SUCCESSFULS: ' + successfuls + '; FAILURES : ' + failures);
+
+                                        let new_bal = parseFloat(user_balance.balance) - parseFloat(info.units_used);
+                                        console.log('old bal = ' + user_balance.balance + '; units used = ' + info.units_used + '; NEW BALANCE = ' + new_bal);
+                                        
+                                        models.User.findByPk(user_id)
+                                        .then((usr) => { 
+                                            return usr.update({
+                                                balance: new_bal,
+                                            })
+                                        })
+                                        //  UPDATE UNITS USED FOR CAMPAIGN
+                                        .then(() => {
+                                            return cpn.update({
+                                                units_used: info.units_used,
+                                            })
+                                        })
+                                        //  REMOVE TEMPORARY DATA
+                                        .then(() => {
+                                            return info.destroy()
+                                            .then(() => {
+                                                console.log('TEMP DELETED!');
+                    
+                                                req.flash('success', 'Campaign created successfully. Messages sent out.');
+                                                var backURL = req.header('Referer') || '/';
+                                                res.redirect(backURL);
+                                            })
+                                        })
+                                        .error((err) => {
+                                            console.log('THIS ERROR: ' + err);
+                    
+                                            req.flash('error', 'Campaign created, but an error occured');
+                                            var backURL = req.header('Referer') || '/';
+                                            res.redirect(backURL);
+                                        })
+                                    }
                                 });
                         
                         
@@ -291,42 +439,40 @@ exports.add = (req, res) => {
 
                                 console.log(JSON.stringify(tosend));
                                 counter++;
-                                if(end < len) doLoop(end)
+                                if(end < len) await doLoop(end)
                             })
-
                         }
                     }
 
+                    var start = 0;
+                    var grpn = 3;
+                    var len = contacts.length;
+                    var counter = 1;
+                    var batches = Math.ceil(len/grpn);
+         
+                    var successfuls = 0;
+                    var failures = 0;
+           
+                    console.log('Start Looping...');
+                    await doLoop(0);
+                    
                     //  finally redirect back to page
-                    req.flash('success', 'Campaign created successfully. Messages sent out.');
-                    var backURL = req.header('Referer') || '/';
-                    res.redirect(backURL);
+                    console.log('END... NEW PAGE!');
 
                 });
                 
             })
+            .error((err) => {
+                console.log('BIG ERROR: ' + err);
+            })
         }
 
-
-        
     })
-    console.log('done with msg = ' + message);
-    
+    .error((err) => {
+        console.log('BIG BIG ERROR: ' + err);
+    })
 
     return;
-    models.User.findByPk(user_id).then(user => {
-
-        user.createSender(req.body) 
-        .then((sid) => {
-            console.log('ID created');
-            
-            req.flash('success', 'Your new SenderID has been created.');
-            var backURL = req.header('Referer') || '/';
-            res.redirect(backURL);
-
-        })
-
-    })
 
 	function makeId(length) {
 		var result           = '';

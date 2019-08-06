@@ -2,7 +2,24 @@
 module.exports = function(req, res, next) {
   // If the user is logged in, continue with the request to the restricted route
   if (req.user) {
-    return next();
+    const db = require('../../config/db');
+    return db.query(
+      "SELECT balance FROM users " +
+      "WHERE id = (:id) ", {
+          replacements: {id: req.user.id},
+    })
+    .then(async (balance) => {
+
+      res.locals.balance = balance[0][0].balance;
+      return next();
+
+    })
+    .catch((err) => {
+        console.log('2ERROR!!!' + JSON.stringify(err));
+      res.locals.balance = '??';
+      return next();
+    });
+
   }
   // If the user isn't' logged in, redirect them to the login page
   req.flash('type', 'error');
