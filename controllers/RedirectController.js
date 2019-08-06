@@ -18,9 +18,9 @@ exports.index = function(req, res) {
     .then((shurl) => {
         //  retrieve msg
         if(shurl == null) {
-            console.log('ERROR IN SHURL' + JSON.stringify(shurl));
+            console.log('ERROR IN SHURL: ' + JSON.stringify(shurl));
             
-            res.render('pages/dashboard/redirect-error', {
+            res.render('pages/redirect-error', {
                 page: '',
         
             });
@@ -37,7 +37,7 @@ exports.index = function(req, res) {
             if(msg.length == 0) {
                 console.log('ERROR IN MSG' + JSON.stringify(msg));
                 
-                res.render('pages/dashboard/redirect-error', {
+                res.render('pages/redirect-error', {
                     page: '',
             
                 });
