@@ -132,19 +132,15 @@ $(document).ready(function() {
 
 	$('.create_short_url_btn').on('click', function (e) {
 
-		$(e.target).closest('div').find('.loading_icon').show();
 		var url = $('#long_url_link').val();
 
 		if(url.length < 5) {
 			alert('Kindly enter valid Link');
 			return;
 		}
-		/* if($('.short_url_box #shorturlid').val().length > 0) {
-			var urlid = '&id=' + $('.short_url_box #shorturlid').val();
-		} else {
-			var urlid = '';
-		} */
 
+		$(e.target).closest('div').find('.loading_icon').show();
+		
 		$s_ = $('#_edit_span');
 		$t_ = $('#_edit_text');
 
@@ -258,18 +254,23 @@ $(document).ready(function() {
 
 	$('.campaign_summary_btn').on('click', function(e) {
 
+		$.magnificPopup.close();;
+
 		if($(this).hasClass('send')) {
 			campaign_confirmed = true;
 			$('#campaign_form').submit();
 		}
-		$.magnificPopup.close();
 
 	})
 
 	$('#campaign_form').submit(function (e) {
 
+		var $butt = $('#analyse_btn');
+		$butt.closest('div').find('.loading_icon').show();
+		
 		if (campaign_confirmed) return true;
 		
+
 		var msg_ = $('.editable_div').html();
 		msg_ = msg_.replace(/<span spellcheck="false" contenteditable="false">firstname<\/span>/g, '[firstname]')
 					.replace(/<span spellcheck="false" contenteditable="false">lastname<\/span>/g, '[lastname]')
@@ -293,17 +294,8 @@ $(document).ready(function() {
 			success: function( data ) {
 
 				console.log(data);
-				/* var msg_ = $('#campaignmessage').val();
-				msg_ = msg_.replace(/<span spellcheck="false" contenteditable="false">firstname<\/span>/g, '[firstname]')
-				.replace(/<span spellcheck="false" contenteditable="false">lastname<\/span>/g, '[lastname]')
-				.replace(/<span spellcheck="false" contenteditable="false">email<\/span>/g, '[email]')
-				.replace(/<span spellcheck="false" contenteditable="false">url<\/span>/g, '[url]')
-				.replace(/&nbsp;/g, ' ')
-				.replace(/<span style="color: rgb\(112, 112, 112\); font-size: 15px; background-color: rgb\(255, 255, 255\); display: inline !important;">/g, '')
-				.replace(/<\/span>/g, ''); */
 
-
-
+				$('#analysis_id').val(data.tmpid);
 				$('#analysis-box #cpm_summary_name').text($('#campaign_name').val());
 				$('#analysis-box #cpm_summary_sender').text($('#sel_sender_id option:selected').text());
 				$('#analysis-box #cpm_summary_msg').text(msg_);
@@ -325,14 +317,16 @@ $(document).ready(function() {
 
 				$('#click_analysis_box').click();
 
+				$butt.closest('div').find('.loading_icon').hide();
+
 			},
 			error: function(resp, dd, ww) {
 				// $butt.removeAttr('disabled');
-				// $butt.closest('div').find('.loading_icon').hide();
+				$butt.closest('div').find('.loading_icon').hide();
 			}
 		}).done(function(){
 			// $butt.removeAttr('disabled');
-			// $butt.closest('div').find('.loading_icon').hide();
+			$butt.closest('div').find('.loading_icon').hide();
 		});
 
 		return false;
@@ -409,6 +403,9 @@ $(document).ready(function() {
 	});
 
 	$('#sel_contact_group').on('change', function(e) {
+
+		if($(e.target).hasClass('_plain')) return;
+
 		var opt = $(e.target).val();
 		console.log('efasd sfdasdfasdf sfdasd...'+opt);
 
@@ -586,6 +583,8 @@ $(document).ready(function() {
 							console.log('ssssssssuuuuuuuuuuu');
 							
 							$item.remove();
+							var cnt = parseInt($('.page_box_header span.items_count').text());
+							$('.page_box_header span.items_count').text(--cnt);
 							
 							$('.notification.other3').removeClass('success error').addClass('success');
 							$('.notification.other3 p').text('Item successfully deleted.');

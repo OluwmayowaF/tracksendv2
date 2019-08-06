@@ -30,6 +30,7 @@ module.exports = function(sequelize, DataTypes) {
     name: DataTypes.STRING,
     phone: DataTypes.STRING,
     business: DataTypes.STRING,
+    balance: DataTypes.DOUBLE,
   }, {
     hooks: {
       beforeCreate: function(user) {

@@ -58,6 +58,11 @@
 			</div>
 		{{/if}}
 
+			<div class="notification other3 closeable">
+				<p></p>
+				<a class="close"></a>
+			</div>
+
 		<div class="row">
 
 			<div class="toggle-wrap no_borders">
@@ -192,7 +197,7 @@
 
 											<div class="col-md-12">
 												<h5>Select Group </h5>
-												<select class="chosen-select-no-single" name="group" id="sel_contact_group" required>
+												<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" required>
 													<option label="blank" value="0">Select Group</option>
 													<option disabled>--------------------------------------</option>
 													{{#each args.grps}}
@@ -218,7 +223,8 @@
 
 										</div>
 										<!-- Row / End -->
-									<button type="submit" class="button preview">Analyse <i class="im im-icon-Gears-2"></i></button>
+										<input type="hidden" name="analysis_id" id="analysis_id" value="0">
+									<div><button type="submit" class="button preview" id="analyse_btn">Analyse <i class="im im-icon-Gears-2"></i></button> <span class="loading_icon fa fa-hourglass-2"></span></div>
 									<a href="#analysis-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1; visibility: hidden;" id="click_analysis_box"><i class="im im-icon-Two-Windows"></i> Show Analysis</a>
 											<div id="analysis-box" class="zoom-anim-dialog mfp-hide">
 
@@ -267,13 +273,13 @@
 														</div>
 
 														<div class="col-md-12">
-															<h5>Total Units Charge: </h5><span id="cpm_units_chrg">--</span>
+															<h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">--</span>
 														</div>
 
 														<div class="col-md-12 sepr"></div>
 														
 														<div class="col-md-12">
-															<h5>Available Balance: </h5><span id="cpm_units_balance">--</span>
+															<h5>Available Balance: </h5><span id="cpm_units_balance" style="font-weight: bold">--</span>
 														</div>
 
 														<div class="col-md-12 sepr"></div>
@@ -369,7 +375,7 @@
 			</div>
 
 			<div class="col-lg-12" style="margin-top: 30px">
-				<div class="col-lg-12 page_box_header">All Campaigns <span>[{{ args.cpns.length }}]</span>
+				<div class="col-lg-12 page_box_header">All Campaigns [<span class="items_count">{{ args.cpns.length }}</span>]
 				</div>
 			</div>
 			<div class="col-lg-12">
@@ -398,16 +404,16 @@
 										</ul>
 									</li>
 									{{#each args.cpns}}
-									<li class="list_item">
+									<li class="list_item" data-wh="campaign">
 										<ul class="saved_item _clickable">
-											<input type="hidden" class="cid" value="'+i.id+'" />
+											<form><input type="hidden" class="id" value="{{ id }}" /></form>
 											<li style="flex: 6">{{ name }}</li>
 											<li style="flex: 2">Status</li>
 											<li style="flex: 8">{{ description }}</li>
 											<li style="flex: 3">{{ units_used }}</li>
 											<li style="flex: 3">createdAt</li>
 											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
-												<span style="flex: 1; text-align:center" class="edit_item_btn"><a class="tooltip top" title="Edit" style="cursor: pointer"><i class="fa fa-edit"></i></a></span> | 
+												{{!-- <span style="flex: 1; text-align:center" class="edit_item_btn"><a class="tooltip top" title="Edit" style="cursor: pointer"><i class="fa fa-edit"></i></a></span> |  --}}
 												<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
 											</li>
 										</ul>
@@ -420,6 +426,43 @@
 
 						</div>
 						<!-- Row / End -->
+
+						<div id="campaign-detail-box" class="zoom-anim-dialog mfp-hide">
+
+							<div class="small-dialog-header">
+								<h3>Short URL <b> Setup</b></h3>
+							</div>
+
+							<!--Tabs -->
+							<div class="sign-in-form style-1">
+
+								<div class="row with-forms">
+
+									<!-- Status -->
+									<div class="col-md-12">
+										<h5>Enter or Paste Your Link</h5>
+										<input type="text" name="full_link" id="long_url_link" maxlength="50" placeholder="http://www.">
+										<button type="submit" class="button preview create_short_url_btn" style="margin-top: 0">Create <i class="sl sl-icon-refresh"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
+									</div>
+
+
+									<div class="col-md-12" style="margin-top: 30px;">
+										<h5>Here's Your Short URL:  <span class="customize_url_btn" style="display: none">[ Customize ]</span></h5>
+										<div class="short_url_box">http://tns.go/<span id="_edit_span" class="_editable" maxlength="5">...</span><input style="display: none" type="text" name="myshorturl" id="_edit_text" placeholder="..." class="_editable" maxlength="10" readonly >
+											<input type="hidden" name="shorturlid" id="shorturlid" >
+										</div>
+										{{!-- <div class="short_url_box">https://tsn.go/
+										</div> --}}
+
+										<button type="button" class="button preview short_url_btn paste" style="margin-top: 0">Insert in Msg <i class="fa fa-paste"></i></button>
+										<button type="button" class="button preview short_url_btn done" style="margin-top: 0">Done <i class="fa fa-arrow-circle-right"></i></button>
+									</div>
+
+
+								</div>
+
+							</div>
+						</div>
 
 					</div>
 					<!-- Section / End -->

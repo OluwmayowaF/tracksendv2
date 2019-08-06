@@ -83,7 +83,9 @@ exports.index = (req, res) => {
             });
             // group.createContact(req.body)
         })
-
+        .catch((err) => {
+            console.log('ERROR: ' + err);
+        })
     }
 
 }
@@ -125,24 +127,27 @@ exports.do = (req, res) => {
         if(groupId == -1) {
             models.User.findByPk(userId)
             .then(user => {
-                user.createGroup(req.body)
-                .then((grp) => {
-                    groupId = grp.id;
-                    console.log('new group ID is: ' + groupId);
-                    
-                    headers.push(req.file.path.split('\\')[2]);
-                    headers.push(req.body.country);
-                    headers.push(groupId);
+                return user.createGroup(req.body)
+            })
+            .then((grp) => {
+                groupId = grp.id;
+                console.log('new group ID is: ' + groupId);
+                
+                headers.push(req.file.path.split('\\')[2]);
+                headers.push(req.body.country);
+                headers.push(groupId);
 
-                    console.log('pushing: ' + headers);
-                    
-                    req.flash('result', headers);
-                    var backURL = req.header('Referer') || '/'; 
-                    res.redirect(backURL);
-                    console.log('yeah');
-                    
-                    return;        
-                })
+                console.log('pushing: ' + headers);
+                
+                req.flash('result', headers);
+                var backURL = req.header('Referer') || '/'; 
+                res.redirect(backURL);
+                console.log('yeah');
+                
+                return;        
+            })
+            .error((err) => {
+                console.log('ERROR: Creating group things' + err);
             })
         } else {
             headers.push(req.file.path.split('\\')[2]);
@@ -206,7 +211,7 @@ exports.validate = (req, res) => {
         //  this is just to get the titles of the file... if user indicates titled file
         fileRows.push(data); // push each row
     })
-    .on("end", function () {
+    .on("end", async function () {
 
         fs.unlinkSync(fpath);   // remove temp file
 
@@ -231,14 +236,15 @@ exports.validate = (req, res) => {
             } 
 
             //  filter out corrupt entries
-            var rows_filtered = rows_matched.filter(validateCsvRow);
-            var rows_trimmed = rows_filtered.slice(0, 50000);   //  rows limit is 50,000
+            var rows_trimmed = rows_matched.slice(0, 50000);   //  rows limit is 50,000
+            var rows_filtered = rows_trimmed.filter(validateCsvRow);
+            var rows_finetuned = rows_filtered.map(tunePhoneNums);
  
-            console.log('FINAL DATA: ' + rows_trimmed);
+            console.log('FINAL DATA: ' + rows_finetuned);
             console.log('t_error: ' + total_errors + '; e_errors: ' + email_errors + '; p_errors: ' + phone_errors);
             
             var sql = "INSERT IGNORE INTO contacts (firstname, lastname, phone, email, userId, groupId, countryId, status) VALUES ?";
-            var query = connection.query(sql, [rows_trimmed], function (err, result) {
+            var query = await connection.query(sql, [rows_finetuned], async function (err, result) {
 
                 var inserted = 0;
                 var duplicates = 0;
@@ -247,13 +253,20 @@ exports.validate = (req, res) => {
                     inserted = result.affectedRows;
                     duplicates = result.warningCount;
 
-                    models.Group.findByPk(groupId)
+                    await models.Group.findByPk(groupId)
                     .then((group) => {
                         group.update({
                             count: Sequelize.literal('count + ' + inserted),
                         })
                     })
-
+                    .error((err) => {
+                        console.log('ERROR:' + err);
+                        
+                    })
+                } 
+                if(err) {
+                    console.log('ERROR: IN DUMPING');
+                    
                 }
                 console.log('QUERY DONE: ' + JSON.stringify(result));
                 console.log('QUERY ERROR: ' + err);
@@ -318,14 +331,46 @@ exports.validate = (req, res) => {
         else if (!moment(row[2], "YYYY-MM-DD").isValid()) {
             return "invalid date of birth"
         } */
+        // row = row.split(',');
+        console.log('ROWS : ' + JSON.stringify(row));
 
         var fname = row[0];
         var lname = row[1];
         var phone = row[2];
         var email = row[3];
+console.log('PPPPPPPPPPPPPP: ' + phone);
 
-        return (checkEmail(email) && checkPhone(phone));
+        let r_e = checkEmail(email);
+        return (checkPhone(phone));
 
+        function checkPhone(ph) {
+console.log('00phone: ' + ph);
+            if(ph.length > 0) {
+                let phone = ph
+                        .replace(/ /g, '')
+                        .replace(/\-/g, '')
+                        .replace(/\./g, '')
+                        .replace(/\+/g, '');
+
+console.log('0phone: ' + phone);
+
+                if(
+                    ((phone.length == 10) && (phone.substr(0, 1) != '0'))
+                    ||
+                    ((phone.length == 11) && (phone.substr(0, 1) == '0'))
+                    ||
+                    ((phone.length == 13) && (phone.substr(0, 3) == '234'))
+                    ||
+                    ((phone.length == 14) && (phone.substr(0, 4) == '2340'))
+                ){
+console.log('1phone: ' + phone);
+                    return true;
+                }
+            }
+            total_errors++;
+            phone_errors++;
+            return false;
+        }
         function checkEmail(email) {
             if(email.length > 5) {
                 return true;
@@ -334,27 +379,27 @@ exports.validate = (req, res) => {
             email_errors++;
             return false;
         }
-        function checkPhone(phone) {
-            if(phone.length > 0) {
-                phone = phone
-                        .replace(/ /g, '')
-                        .replace(/-/g, '')
-                        .replace(/\+/g, '');
+    }
 
-                if(
-                    ((phone.length == 10) && (phone.substr(0, 1) != '0'))
-                    ||
-                    ((phone.length == 11) && (phone.substr(0, 1) == '0'))
-                    ||
-                    ((phone.length == 13) && (phone.substr(0, 3) != '234'))
-                ){
-                    return true;
-                }
-            }
-            total_errors++;
-            phone_errors++;
-            return false;
+    function tunePhoneNums(row) {
+        var ph = row[2];
+
+        if(ph.length > 0) {
+            let phone = ph
+                    .replace(/ /g, '')
+                    .replace(/\-/g, '')
+                    .replace(/\./g, '')
+                    .replace(/\+/g, '');
+
+            if ((phone.length == 10) && (phone.substr(0, 1) != '0')) phone = '0' + phone;
+            if ((phone.length == 13) && (phone.substr(0, 3) == '234')) phone = '0' + phone.substr(-10);
+            if ((phone.length == 14) && (phone.substr(0, 4) == '2340')) phone = '0' + phone.substr(-10);
+
+            row[2] = phone;
+
         }
+
+        return row;
     }
 
 }; 

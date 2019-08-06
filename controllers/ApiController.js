@@ -159,6 +159,39 @@ exports.delGroup = (req, res) => {
 
 }
 
+exports.delCampaign = (req, res) => {
+    var user_id = req.user.id;
+    console.log('dele = ' + req.query.id);
+    
+        models.Campaign.findByPk(req.query.id)
+        .then(cpn => {
+            if(cpn.userId == user_id) {
+                cpn.destroy()
+                .then((r) => {
+                    res.send({
+                        response: "success",
+                    });
+                }) 
+                .error((r) => {
+                    res.send({
+                        response: "Error: Please try again later",
+                    });
+                })
+            } else {
+                res.send({
+                    response: "Error: Invalid permission",
+                });
+            }
+        })
+        .catch((err) => {
+            res.send({
+                response: "Error: Please try again later.",
+            });
+        });
+        
+
+}
+
 exports.saveContact = (req, res) => {
     var user_id = req.user.id;
 
@@ -283,8 +316,14 @@ exports.generateUrl = (req, res) => {
 }
 
 exports.analyseCampaign = (req, res) => {
-    var user_id = req.user.id;
-
+    try {
+        var user_id = req.user.id;
+    } catch {
+        res.send({
+            response: "Error: You're not logged in.",
+        });
+    }
+    
     console.log('form details are now: ' + JSON.stringify(req.body)); 
 
     var msgcount = 0;
@@ -295,11 +334,10 @@ exports.analyseCampaign = (req, res) => {
         //  extract group contacts
         models.Group.findByPk(group)
         .then((grp) => {
-            console.log('CONSTACT ARE : ' + JSON.stringify(grp));
             
             if(!grp) return;
 
-            /* if(req.body.skip_dnd && req.body.skip_dnd == "on") {
+            if(req.body.skip_dnd && req.body.skip_dnd == "on") {
                 var getconts = grp.getContacts({
                                         where: {
                                             status: 0
@@ -307,90 +345,94 @@ exports.analyseCampaign = (req, res) => {
                                     });
             } else {
                 var getconts = grp.getContacts();
-            } */
-            grp.getContacts()
-            .then((contacts) => {
+            }
+
+            getconts
+            .then(async (contacts) => {
 
                 var uid = 'xxx';
-console.log('11111');
+                var allresults = [];
 
+                function getSMSCount(txt) {
+    
+                    let len = txt.length;
 
-                async function getUnitsUsed(results, prefix, ctry) {
-console.log('333333');
-                
-                    //  first check if there's user-level billing
-                    /* var results = await sequelize.query(
+                    const SMS_SIZE_MSG1 = 160;
+                    const SMS_SIZE_MSG2 = 150;
+                    const SMS_SIZE_MSG3 = 150;
+                    const SMS_SIZE_MSG4 = 150;
+
+                    if(len <= SMS_SIZE_MSG1) {
+                        return 1;
+                    } else if(len <= (SMS_SIZE_MSG1 + SMS_SIZE_MSG2)) {
+                        return 2;
+                    } else if(len <= (SMS_SIZE_MSG1 + SMS_SIZE_MSG2 + SMS_SIZE_MSG3)) {
+                        return 3;
+                    } else if(len <= (SMS_SIZE_MSG1 + SMS_SIZE_MSG2 + SMS_SIZE_MSG3 + SMS_SIZE_MSG4)) {
+                        return 4;
+                    } else {
+                        return 5;
+                    }
+                }
+                async function getCharge(prefix, ctry) {
+
+                    var results = await sequelize.query(
                         "SELECT units FROM settingsuserbillings " +
                         "JOIN settingsnetworks ON settingsuserbillings.settingsnetworkId = settingsnetworks.id " +
                         "WHERE settingsuserbillings.userId = (:id) " +
                         "AND settingsnetworks.prefix = '" + prefix + "'", {
                             replacements: {id: user_id},
                         }
-                    );  */
+                    )
+                    .then(async (res_charge) => {
 
-                    if(!results.length) {
-console.log('444444');
-                        let charge = results.map((res) => res.units);
-                        return charge;
-                        
-                    } else {
-console.log('555555');
-                        
-                        console.log('NO USER-LEVEL');
-                        let sett = await models.Settingsnetwork.findAll({
-                            /* include: [{
-                                model: models.Settingsdefaultbilling, 
-                                attributes: ['units'], 
-                                raw: true,
-                                // through: { }
-                            }], */
-                            where: { 
-                                prefix: prefix,
-                                countryId: ctry,
-                            },
-                            attributes: ['unitscharge'], 
-                            limit: 1,
-                        })
-                        .catch((err) => {
-                            console.log('ERROR!!!' + JSON.stringify(err));
+                        console.log('RES!!!' + JSON.stringify(res_charge));
+                        // console.log('RES!!!' + res_charge[0][0].units);
+
+                        if(res_charge[0][0] && res_charge[0][0].units) {
+                            console.log('444444');
+                            return res_charge[0][0].units;
                             
-                        });
-      
-                            // console.log('billing setting is: ' + sett[0].settingsdefaultbillings.units);
-                            // console.log('billing setting is: ' + JSON.stringify(sett[0].settingsdefaultbillings[0]));
-console.log('666666');
-                        return sett[0].unitscharge;
-            
-                        
-                    }
+                        } else {
 
-                }
+                            let results_ = await models.Settingsnetwork.findAll({
+                                /* include: [{
+                                    model: models.Settingsdefaultbilling, 
+                                    attributes: ['units'], 
+                                    raw: true,
+                                    // through: { }
+                                }], */
+                                where: { 
+                                    prefix: prefix,
+                                    countryId: ctry,
+                                },
+                                attributes: ['unitscharge'], 
+                                limit: 1,
+                            })
+                            .then((res_rcharge) => {
+                                console.log('RRES!!!' + JSON.stringify(res_rcharge));
+                                console.log('RRES!!!' + res_rcharge.map((r) => r.unitscharge));
+                                return res_rcharge.map((r) => r.unitscharge);
+                            })
+                            .catch((err) => {
+                                console.log('1ERROR!!!' + JSON.stringify(err));
+                            });
 
-                function getCharge(prefix) {
-                    console.log('222222bbbbbbbb00');
-                                            
-                    return models.Settingsuserbilling.findAll({
-                        include: [{
-                            model: models.Settingsnetwork,
-                            where: {
-                                prefix: prefix
-                            },
-                        }],
-                        where: {
-                            userId: user_id
+                            return results_;
+console.log('555555');
                         }
+
                     })
-                    .then((result) => {
-                        console.log('RESULT!!!');
-                        return result;
+                    .error((r) => {
+                        console.log("Error: Please try again later");
+                        res.send({
+                            response: "Error: Please try again later",
+                        });
                     })
-                    .catch((err) => {
-                        console.log('ERROR!!!' + JSON.stringify(err));
-                        
-                    })
-                }
-                                         
-                async function checkAndAggregate(kont) {  // opopopop
+    
+                    return results;
+                }                                                     
+                async function checkAndAggregate(kont) {  
 
                     var message  = req.body.message
                         .replace(/\[firstname\]/g, kont.firstname)
@@ -399,60 +441,139 @@ console.log('666666');
                         .replace(/\[url\]/g, 'https://tsn.go/' + req.body.myshorturl + '/' + uid)
                         .replace(/&nbsp;/g, ' ');
 
-                    var cc = Math.ceil(message.length/CHARS_PER_SMS);
+                    let cc = getSMSCount(message);
                     msgcount += cc;
-                    let nn = 3;
 
                     let prefix = kont.phone.substr(0, 4);
-                    var results = await getCharge(prefix);
+                    let unit_ = await getCharge(prefix, kont.countryId);
 
-                    var unit_ = await getUnitsUsed(results, prefix, kont.countryId);
-                    // units += unit_ * cc;
-console.log('777777');
+                    units += unit_ * cc;
                     return unit_;
-                    // resolve(message);
-                    // return message;
 
                 }
 
+                for (let i = 0; i < contacts.length; i++) {
+                    allresults.push(await checkAndAggregate(contacts[i]));
+                }
+
+                Promise.all([
+                    allresults,
+                    models.User.findByPk((user_id), {
+                        attributes: ['balance'],
+                        raw: true
+                    })
+                ])
+                .then(async ([all, bal]) => {
                     
-                var actions = contacts.map(checkAndAggregate);
-// console.log('000000');
-                /* var actions = [];
-                contacts.forEach(async (dd) => {
-                    checkAndAggregate(dd);
-                }); */
+                    console.log('THE END!!! balance ' + JSON.stringify(bal));
+                    console.log('THE END!!!');
 
-                Promise.all([actions]).then(([data]) => {
-console.log('EEEEE');
+                    let tid = req.body.analysis_id;
 
-                    // var  = data.length/CHARS_PER_SMS;
-                    var contactcount = contacts.length;
-                    var balance = 99;// bal.map((res) => res.balance);
+                    if(tid == 0) {
+                        var tt = await models.Tmpcampaign.create({
+                            name: req.body.name,
+                            description: req.body.description,
+                            userId: user_id,
+                            senderId: req.body.sender,
+                            shortlinkId: (req.body.shorturlid.length > 0) ? req.body.shorturlid : null,
+                            myshorturl: req.body.myshorturl,
+                            grp: req.body.group,
+                            message: req.body.message,
+                            schedule: null, //req.body.schedule,
+                            recipients: req.body.recipients,
+                            skip_dnd: (req.body.skip_dnd) ? req.body.skip_dnd : null,
+                            units_used: units,
+                        })
+                        .then((tmp) => {
+                            console.log('TP CREATED');
+                            
+                            return tmp.id;
+                        })
+                        .error((r) => {
+                            console.log("3Error::: Please try again later: " + JSON.stringify(r));
+                        })
 
-                    console.log('msgs = ' + msgcount + '; contacts = ' + contactcount + '; units = ' + units + '; balance = ' + (balance));
+                        return [bal.balance, parseInt(tt)];
+                    } else {
+                        var tt = await models.Tmpcampaign.findByPk(tid)
+                        .then((tp) => {
+                            return tp.update({
+                                name: req.body.name,
+                                description: req.body.description,
+                                userId: user_id,
+                                senderId: req.body.sender,
+                                shortlinkId: (req.body.shorturlid.length > 0) ? req.body.shorturlid : null,
+                                myshorturl: req.body.myshorturl,
+                                grp: req.body.group,
+                                message: req.body.message,
+                                schedule: null, //req.body.schedule,
+                                recipients: req.body.recipients,
+                                skip_dnd: (req.body.skip_dnd) ? req.body.skip_dnd : null,
+                                units_used: units,
+                            })
+                            .then(() => {
+                                return tid;
+                            })
+                            .error((r) => {
+                                console.log("1Error::: Please try again later: " + JSON.stringify(r));
+                            })
+                        })
+                        .error((r) => {
+                            console.log("2Error::: Please try again later: " + JSON.stringify(r));
+                        })
+
+                        return [bal.balance, parseInt(tid)];
+                    }
+                    /* console.log('TT = ' + JSON.stringify(tt));
+                    
+
+                    return tt.then((tmpid) => {
+                        console.log('TID = ' + JSON.stringify(tmpid));
+                        
+                        let bye = ;
+                        console.log('post1... ' + JSON.stringify(bye));
+                        
+                        return bye;
+                    })
+                    .error((r) => {
+                        console.log("4Error::: Please try again later: " + JSON.stringify(r));
+                    }) */
+                })
+                .then((fin) => {
+                    console.log('post2... ' + JSON.stringify(fin));
                     
                     res.send({
-                        msgcount,
-                        contactcount,
-                        units,
-                        balance,
-                    });
-
+                            tmpid: fin[1],
+                            msgcount,
+                            contactcount: contacts.length,
+                            units,
+                            balance: fin[0],
+                        });
                 })
-
-            })
-            .catch((err) => {
-                console.log('ERROR!!!' + JSON.stringify(err));
+                .catch((r) => {
+                    console.log("0Error:: Please try again later: " + JSON.stringify(r));
+                    res.send({
+                        response: "Error: Please try again later",
+                    });
+                })
                 
+            })
+            .error((r) => {
+                console.log("00Error::: Please try again later: " + JSON.stringify(r));
+                res.send({
+                    response: "Error: Please try again later",
+                });
+            })
+
+        })
+        .error((r) => {
+            console.log("Error: Please try again later");
+            res.send({
+                response: "Error: Please try again later",
             });
-
         })
-        .catch((err) => {
-            console.log('ERROR!!!' + JSON.stringify(err));
-            
-        })
-}
-
+        
+    }
 
 }

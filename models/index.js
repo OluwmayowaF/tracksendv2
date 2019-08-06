@@ -12,6 +12,7 @@ const models = {
   Group:      sequelize.import('./Group'),
   ContactGroup: sequelize.import('./ContactGroup'),
   Sender:     sequelize.import('./SenderID'),
+  Tmpcampaign:   sequelize.import('./Tmpcampaign'),
   Campaign:   sequelize.import('./Campaign'),
   CampaignGroup: sequelize.import('./CampaignGroup'),
   Shortlink:  sequelize.import('./Shortlink'),
@@ -20,7 +21,7 @@ const models = {
   Settingsuserbilling:  sequelize.import('./SettingsUserBilling'),
   Settingstopuprate:  sequelize.import('./SettingsTopupRate'),
   Topup:      sequelize.import('./Topup'),
-  Payment:      sequelize.import('./Payment'),
+  Payment:    sequelize.import('./Payment'),
   Country:    sequelize.import('./Country'),
 };
 
