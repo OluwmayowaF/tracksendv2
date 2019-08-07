@@ -68,7 +68,7 @@ exports.index = function(req, res) {
 exports.error = function(req, res) {
     console.log('sdadssd');
     
-    res.render('pages/dashboard/redirect-error', {
+    res.render('pages/redirect-error', {
         page: '',
 
     });
