@@ -61,11 +61,14 @@
 			</div>
 			<div class="right-side">
 				
+				{{#if page.length }}
 				<div class="unit_bal_box">
 				<a href="/dashboard/topups">
 					Units Balance: <strong>{{ balance }}</strong>
 				</a>
 				</div>	
+				{{else}}
+				{{/if}}
 				<div class="clearfix"></div>
 			</div>
 			<!-- Left Side Content / End -->
