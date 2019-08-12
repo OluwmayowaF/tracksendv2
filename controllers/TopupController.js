@@ -1,4 +1,8 @@
+const _ = require('lodash');
 var models = require('../models');
+const request = require('request');
+const {initializePayment, verifyPayment} = require('../config/paystack')(request);
+
 
 exports.index = (req, res) => {
     var user_id = req.user.id;
@@ -44,25 +48,53 @@ exports.index = (req, res) => {
 };
 
 
-exports.add = (req, res) => {
-    var user_id = req.user.id;
+exports.pay = (req, res) => {
 
-    console.log('form details are now...'); 
-    console.log('form details are now: ' + JSON.stringify(req.body)); 
+    var form = _.pick(req.body,['amount','email','full_name','metadata','reference']);
+    form.full_name = req.user.name;
+    form.email = req.user.email;
+    form.reference = '';
+    form.amount *= 100;
+    
+    /* form.metadata = {
+        full_name : form.full_name
+    } */
+    initializePayment(form, (error, body)=>{
+        if(error){
+            //handle errors
+            console.log(error);
+            return;
+       }
+       const response = JSON.parse(body);
+       res.redirect(response.data.authorization_url)
+    });
 
-    models.User.findByPk(user_id).then(user => {
+};
 
-        user.createSender(req.body) 
-        .then((sid) => {
-            console.log('ID created');
-            
-            req.flash('success', 'Your new SenderID has been created.');
-            var backURL = req.header('Referer') || '/';
-            res.redirect(backURL);
+exports.ref = (req, res) => {
 
-        })
+    const ref = req.query.reference;
+    verifyPayment(ref, (error,body)=>{
+        if(error){
+            //handle errors appropriately
+            console.log(error)
+            return res.redirect('/error');
+        }
+        
+        const response = JSON.parse(body);
+        const data = _.at(response.data, ['reference', 'amount','customer.email', 'metadata.full_name']);
+        var [reference, amount, email, full_name] =  data;
+        var newDonor = {reference, amount, email, full_name}
+        
+        const donor = new Donor(newDonor)
 
-    })
-
-
+        donor.save().then((donor)=>{
+            if(!donor){
+                res.redirect('/error');
+            }
+            res.redirect('/receipt/'+donor._id);
+        }).catch((e)=>{
+            res.redirect('/error');
+       });
+    });
 };

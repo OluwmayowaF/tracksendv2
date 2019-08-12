@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     currency: DataTypes.STRING,
     isverified: DataTypes.INTEGER,
   }, {});
-
+ 
   // SettingstopuprateID.belongsToMany(Contact, { through: { model: ContactGroup, unique: false }, foreignKey: 'groupId' });
   // SettingstopuprateID.belongsTo(User);
 

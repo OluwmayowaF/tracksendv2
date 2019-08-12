@@ -100,7 +100,7 @@ require("./routes/pages")(app);
 
 
 //  init database
-const db = require('./config/db');
+const db = require('./config/cfg/db');
 db.authenticate()
   .then(() => {
     console.log('Database connected...');

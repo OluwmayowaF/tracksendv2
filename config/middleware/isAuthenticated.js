@@ -2,7 +2,7 @@
 module.exports = function(req, res, next) {
   // If the user is logged in, continue with the request to the restricted route
   if (req.user) {
-    const db = require('../../config/db');
+    const db = require('../cfg/db');
     return db.query(
       "SELECT balance FROM users " +
       "WHERE id = (:id) ", {

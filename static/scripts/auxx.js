@@ -754,8 +754,8 @@ $(document).ready(function() {
 			bands.forEach(band => {
 				if(ent >= band[1] && ent <= band[2]) {
 					$('#_rate').text('N' + band[0] + '/unit');
-					$('#_units').text(Math.floor(ent / band[0]));
-					$('#_amount').text('N' + ( Math.floor(ent / band[0])) * band[0]);
+					$('#_units').text(formatMyNumber(Math.floor(ent / band[0])));
+					$('#_amount').text(formatMyNumber(Math.floor( ( Math.floor(ent / band[0]) ) * band[0] ), 'N'));
 				}
 			});
 		}

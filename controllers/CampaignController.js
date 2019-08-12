@@ -2,9 +2,7 @@ var models = require('../models');
 // import { because } from './../models/User';
 var moment = require('moment');
 const request = require('request');
-const tracksend_base_url = 'jj8wk.api.infobip.com';
-const tracksend_user = "thinktech";
-const tracksend_pwrd = "Tjflash8319#";
+const {tracksend_user, tracksend_pwrd, tracksend_base_url} = require('../config/cfg/infobip')();
 
 var buff = Buffer.from(tracksend_user + ':' + tracksend_pwrd);
 var base64encode = buff.toString('base64');
