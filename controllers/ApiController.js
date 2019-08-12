@@ -1,5 +1,5 @@
 var models = require('../models');
-const sequelize = require('../config/db');
+const sequelize = require('../config/cfg/db');
 const CHARS_PER_SMS = 160;
 
 exports.index = function(req, res) {

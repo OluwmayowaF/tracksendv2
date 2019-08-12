@@ -1,6 +1,6 @@
 var models = require('../models');
 var moment = require('moment');
-const sequelize = require('../config/db');
+const sequelize = require('../config/cfg/db');
 
 exports.index = (req, res) => {
     const ACCUMULATE_MESSAGES = true;

@@ -2,7 +2,7 @@
 
 var Sequelize = require('sequelize');
 
-const sequelize = require('../config/db');
+const sequelize = require('../config/cfg/db');
 
 // const sequelize = new Sequelize(config.database, config.username, config.password);
 
