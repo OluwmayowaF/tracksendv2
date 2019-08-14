@@ -173,7 +173,7 @@ exports.add = async (req, res) => {
                                         });
                 } else {
                     var getconts = grp.getContacts();
-                }
+                } 
 
                 /*  
                     DETERMINE IF SINGLE OR MULTIPLE MESSAGES

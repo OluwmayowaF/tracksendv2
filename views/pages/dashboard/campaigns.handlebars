@@ -116,10 +116,10 @@
 												<input type="text" name="name" id="campaign_name" maxlength="50" required>
 											</div>
 
-											<div class="col-md-12">
+											{{!-- <div class="col-md-12">
 												<h5>Description </h5>
 												<input type="text" name="description" id="campaign_description" maxlength="200">
-											</div>
+											</div> --}}
 										</div>
 
 										<div class="row with-forms">
@@ -196,8 +196,8 @@
 											</div>
 
 											<div class="col-md-12">
-												<h5>Select Group </h5>
-												<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" required>
+												<h5>Select Group(s) </h5>
+												<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" required multiple>
 													<option label="blank" value="0">Select Group</option>
 													<option disabled>--------------------------------------</option>
 													{{#each args.grps}}
