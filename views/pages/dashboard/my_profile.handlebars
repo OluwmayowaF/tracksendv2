@@ -53,8 +53,8 @@
                 <label>Your Name</label>
                 <input value="{{ args.user.name }}" type="text" name="name" required>
 
-                <label>Email</label>
-                <input value="{{ args.user.email }}" type="email" name="email" required>
+                <label>Email <span>(Uneditable)</span></label>
+                <input value="{{ args.user.email }}" type="email" disabled>
 
                 <label>Phone</label>
                 <input value="{{ args.user.phone }}" type="phone" name="phone">

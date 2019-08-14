@@ -1,6 +1,9 @@
 var models = require('../models');
 const sequelize = require('../config/cfg/db');
 const CHARS_PER_SMS = 160;
+const _ = require('lodash');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 exports.index = function(req, res) {
     res.send('NOT IMPLEMENTED: Site Home Page');
@@ -14,29 +17,83 @@ exports.groupList = function(req, res) {
 // Display detail page for a specific contact.
 exports.getContacts = (req, res) => {
 
+    var q;
     if(req.query.grp != -1) {
-        models.Group.findByPk(req.query.grp, {
-            include: [{
-                model: models.Contact, 
-                // attributes: ['id', 'name', 'nameKh'], 
-                // through: { }
-            }],
-            // where: { id: req.query.grp } 
-        }).then(cg => {
+        
+        if(req.query.txt) {
+            console.log('yes ttt');
+            
+            q = sequelize.query(
+                "SELECT * FROM contacts " +
+                "WHERE (" + 
+                    " firstname LIKE :tt OR " +
+                    " lastname LIKE :tt OR " + 
+                    " email LIKE :tt " +
+                ") AND groupId = (:grp) " +
+                "AND userId = (:usr) ",
+                {
+                    replacements: {
+                        tt: '%' + req.query.txt + '%',
+                        grp: req.query.grp,
+                        usr: req.user.id,
+                    },
+                    type: sequelize.QueryTypes.SELECT,
+                },
+            );
+        } else {
+            console.log('no tt');
+            
+            q = models.Group.findByPk(req.query.grp, {
+                include: [{
+                    model: models.Contact, 
+                    // attributes: ['id', 'name', 'nameKh'], 
+                    // through: { }
+                }],
+                where: { userId: req.user.id } 
+            });
+        }
+
+        q.then(cg => {
+            console.log(JSON.stringify(cg));
+            
             res.send(cg); 
         });
     } else {
-        models.Group.findAll({
-            include: [{
-                model: models.Contact, 
-                // attributes: ['id', 'name', 'nameKh'], 
-                // through: { }
-            }],
-            // where: { id: req.query.grp } 
-        }).then(cg => {
+
+        if(req.query.txt) {
+            console.log('yes ttt');
+            
+            q = sequelize.query(
+                "SELECT * FROM contacts " +
+                "WHERE (" + 
+                    " firstname LIKE :tt OR " +
+                    " lastname LIKE :tt OR " + 
+                    " email LIKE :tt " +
+                ") AND userId = :usr ",
+                {
+                    replacements: {
+                        tt: '%' + req.query.txt + '%',
+                        usr: req.user.id,
+                    },
+                    type: sequelize.QueryTypes.SELECT,
+                },
+            );
+        } else {
+            console.log('no tt');
+        
+            q = models.Contact.findAll({
+                // raw: true,
+                where: { 
+                    userId: req.user.id, 
+                } 
+            });
+        }
+
+        q.then(cg => {
+            console.log(cg);
+            
             res.send(cg); 
         });
-        
     }
 
 }
@@ -328,150 +385,190 @@ exports.analyseCampaign = (req, res) => {
 
     var msgcount = 0;
     var units = 0;
-    var group = req.body.group;
+    var groups = req.body.group;
+    var skip = (req.body.skip_dnd && req.body.skip_dnd == "on");
 
-    if (group !== 0) {
+    if (groups !== 0) {
+        if(!Array.isArray(groups)) groups = [groups];
+        console.log('group= ' + JSON.stringify(groups));
+        
         //  extract group contacts
-        models.Group.findByPk(group)
-        .then((grp) => {
-            
-            if(!grp) return;
+        models.Group.findAll({
+            include: [{
+                model: models.Contact, 
+                ...(skip ? {where: {status: 0}} : {})
+            }],
+            where: {
+                id: {
+                    [Op.in]: groups,
+                },
+                userId: req.user.id,
+            },
+        })
+        .then((dd) => {
+            //  merge contacts from all groups
 
-            if(req.body.skip_dnd && req.body.skip_dnd == "on") {
-                var getconts = grp.getContacts({
-                                        where: {
-                                            status: 0
-                                        }
-                                    });
-            } else {
-                var getconts = grp.getContacts();
+            var arr = [];
+            dd.forEach(el => {
+                arr = arr.concat(el.contacts);
+            });
+
+            //  remove duplicates
+            arr = _.uniqBy(arr, 'phone');
+
+            return arr;
+        })
+        .then(async (contacts) => {
+
+            var uid = 'xxx';
+            var allresults = [];
+
+            function getSMSCount(txt) {
+
+                let len = txt.length;
+
+                const SMS_SIZE_MSG1 = 160;
+                const SMS_SIZE_MSG2 = 150;
+                const SMS_SIZE_MSG3 = 150;
+                const SMS_SIZE_MSG4 = 150;
+
+                if(len <= SMS_SIZE_MSG1) {
+                    return 1;
+                } else if(len <= (SMS_SIZE_MSG1 + SMS_SIZE_MSG2)) {
+                    return 2;
+                } else if(len <= (SMS_SIZE_MSG1 + SMS_SIZE_MSG2 + SMS_SIZE_MSG3)) {
+                    return 3;
+                } else if(len <= (SMS_SIZE_MSG1 + SMS_SIZE_MSG2 + SMS_SIZE_MSG3 + SMS_SIZE_MSG4)) {
+                    return 4;
+                } else {
+                    return 5;
+                }
+            }
+            async function getCharge(prefix, ctry) {
+
+                var results = await sequelize.query(
+                    "SELECT units FROM settingsuserbillings " +
+                    "JOIN settingsnetworks ON settingsuserbillings.settingsnetworkId = settingsnetworks.id " +
+                    "WHERE settingsuserbillings.userId = (:id) " +
+                    "AND settingsnetworks.prefix = '" + prefix + "'", {
+                        replacements: {id: user_id},
+                    }
+                )
+                .then(async (res_charge) => {
+
+                    console.log('RES!!!' + JSON.stringify(res_charge));
+                    // console.log('RES!!!' + res_charge[0][0].units);
+
+                    if(res_charge[0][0] && res_charge[0][0].units) {
+                        console.log('444444');
+                        return res_charge[0][0].units;
+                        
+                    } else {
+
+                        let results_ = await models.Settingsnetwork.findAll({
+                            /* include: [{
+                                model: models.Settingsdefaultbilling, 
+                                attributes: ['units'], 
+                                raw: true,
+                                // through: { }
+                            }], */
+                            where: { 
+                                prefix: prefix,
+                                countryId: ctry,
+                            },
+                            attributes: ['unitscharge'], 
+                            limit: 1,
+                        })
+                        .then((res_rcharge) => {
+                            console.log('RRES!!!' + JSON.stringify(res_rcharge));
+                            console.log('RRES!!!' + res_rcharge.map((r) => r.unitscharge));
+                            return res_rcharge.map((r) => r.unitscharge);
+                        })
+                        .catch((err) => {
+                            console.log('1ERROR!!!' + JSON.stringify(err));
+                        });
+
+                        return results_;
+console.log('555555');
+                    }
+
+                })
+                .error((r) => {
+                    console.log("Error: Please try again later");
+                    res.send({
+                        response: "Error: Please try again later",
+                    });
+                })
+
+                return results;
+            }                                                     
+            async function checkAndAggregate(kont) {  
+
+                var message  = req.body.message
+                    .replace(/\[firstname\]/g, kont.firstname)
+                    .replace(/\[lastname\]/g, kont.lastname)
+                    .replace(/\[email\]/g, kont.email)
+                    .replace(/\[url\]/g, 'https://tsn.go/' + req.body.myshorturl + '/' + uid)
+                    .replace(/&nbsp;/g, ' ');
+
+                let cc = getSMSCount(message);
+                msgcount += cc;
+
+                let prefix = kont.phone.substr(0, 4);
+                let unit_ = await getCharge(prefix, kont.countryId);
+
+                units += unit_ * cc;
+                return unit_;
+
             }
 
-            getconts
-            .then(async (contacts) => {
+            for (let i = 0; i < contacts.length; i++) {
+                allresults.push(await checkAndAggregate(contacts[i]));
+            }
 
-                var uid = 'xxx';
-                var allresults = [];
+            Promise.all([
+                allresults,
+                models.User.findByPk((user_id), {
+                    attributes: ['balance'],
+                    raw: true
+                })
+            ])
+            .then(async ([all, bal]) => {
+                
+                console.log('THE END!!! balance ' + JSON.stringify(bal));
+                console.log('THE END!!!');
 
-                function getSMSCount(txt) {
-    
-                    let len = txt.length;
+                let tid = req.body.analysis_id;
 
-                    const SMS_SIZE_MSG1 = 160;
-                    const SMS_SIZE_MSG2 = 150;
-                    const SMS_SIZE_MSG3 = 150;
-                    const SMS_SIZE_MSG4 = 150;
-
-                    if(len <= SMS_SIZE_MSG1) {
-                        return 1;
-                    } else if(len <= (SMS_SIZE_MSG1 + SMS_SIZE_MSG2)) {
-                        return 2;
-                    } else if(len <= (SMS_SIZE_MSG1 + SMS_SIZE_MSG2 + SMS_SIZE_MSG3)) {
-                        return 3;
-                    } else if(len <= (SMS_SIZE_MSG1 + SMS_SIZE_MSG2 + SMS_SIZE_MSG3 + SMS_SIZE_MSG4)) {
-                        return 4;
-                    } else {
-                        return 5;
-                    }
-                }
-                async function getCharge(prefix, ctry) {
-
-                    var results = await sequelize.query(
-                        "SELECT units FROM settingsuserbillings " +
-                        "JOIN settingsnetworks ON settingsuserbillings.settingsnetworkId = settingsnetworks.id " +
-                        "WHERE settingsuserbillings.userId = (:id) " +
-                        "AND settingsnetworks.prefix = '" + prefix + "'", {
-                            replacements: {id: user_id},
-                        }
-                    )
-                    .then(async (res_charge) => {
-
-                        console.log('RES!!!' + JSON.stringify(res_charge));
-                        // console.log('RES!!!' + res_charge[0][0].units);
-
-                        if(res_charge[0][0] && res_charge[0][0].units) {
-                            console.log('444444');
-                            return res_charge[0][0].units;
-                            
-                        } else {
-
-                            let results_ = await models.Settingsnetwork.findAll({
-                                /* include: [{
-                                    model: models.Settingsdefaultbilling, 
-                                    attributes: ['units'], 
-                                    raw: true,
-                                    // through: { }
-                                }], */
-                                where: { 
-                                    prefix: prefix,
-                                    countryId: ctry,
-                                },
-                                attributes: ['unitscharge'], 
-                                limit: 1,
-                            })
-                            .then((res_rcharge) => {
-                                console.log('RRES!!!' + JSON.stringify(res_rcharge));
-                                console.log('RRES!!!' + res_rcharge.map((r) => r.unitscharge));
-                                return res_rcharge.map((r) => r.unitscharge);
-                            })
-                            .catch((err) => {
-                                console.log('1ERROR!!!' + JSON.stringify(err));
-                            });
-
-                            return results_;
-console.log('555555');
-                        }
-
+                if(tid == 0) {
+                    var tt = await models.Tmpcampaign.create({
+                        name: req.body.name,
+                        description: req.body.description,
+                        userId: user_id,
+                        senderId: req.body.sender,
+                        shortlinkId: (req.body.shorturlid.length > 0) ? req.body.shorturlid : null,
+                        myshorturl: req.body.myshorturl,
+                        grp: req.body.group,
+                        message: req.body.message,
+                        schedule: null, //req.body.schedule,
+                        recipients: req.body.recipients,
+                        skip_dnd: (req.body.skip_dnd) ? req.body.skip_dnd : null,
+                        units_used: units,
+                    })
+                    .then((tmp) => {
+                        console.log('TP CREATED');
+                        
+                        return tmp.id;
                     })
                     .error((r) => {
-                        console.log("Error: Please try again later");
-                        res.send({
-                            response: "Error: Please try again later",
-                        });
+                        console.log("3Error::: Please try again later: " + JSON.stringify(r));
                     })
-    
-                    return results;
-                }                                                     
-                async function checkAndAggregate(kont) {  
 
-                    var message  = req.body.message
-                        .replace(/\[firstname\]/g, kont.firstname)
-                        .replace(/\[lastname\]/g, kont.lastname)
-                        .replace(/\[email\]/g, kont.email)
-                        .replace(/\[url\]/g, 'https://tsn.go/' + req.body.myshorturl + '/' + uid)
-                        .replace(/&nbsp;/g, ' ');
-
-                    let cc = getSMSCount(message);
-                    msgcount += cc;
-
-                    let prefix = kont.phone.substr(0, 4);
-                    let unit_ = await getCharge(prefix, kont.countryId);
-
-                    units += unit_ * cc;
-                    return unit_;
-
-                }
-
-                for (let i = 0; i < contacts.length; i++) {
-                    allresults.push(await checkAndAggregate(contacts[i]));
-                }
-
-                Promise.all([
-                    allresults,
-                    models.User.findByPk((user_id), {
-                        attributes: ['balance'],
-                        raw: true
-                    })
-                ])
-                .then(async ([all, bal]) => {
-                    
-                    console.log('THE END!!! balance ' + JSON.stringify(bal));
-                    console.log('THE END!!!');
-
-                    let tid = req.body.analysis_id;
-
-                    if(tid == 0) {
-                        var tt = await models.Tmpcampaign.create({
+                    return [bal.balance, parseInt(tt)];
+                } else {
+                    var tt = await models.Tmpcampaign.findByPk(tid)
+                    .then((tp) => {
+                        return tp.update({
                             name: req.body.name,
                             description: req.body.description,
                             userId: user_id,
@@ -485,94 +582,60 @@ console.log('555555');
                             skip_dnd: (req.body.skip_dnd) ? req.body.skip_dnd : null,
                             units_used: units,
                         })
-                        .then((tmp) => {
-                            console.log('TP CREATED');
-                            
-                            return tmp.id;
+                        .then(() => {
+                            return tid;
                         })
                         .error((r) => {
-                            console.log("3Error::: Please try again later: " + JSON.stringify(r));
+                            console.log("1Error::: Please try again later: " + JSON.stringify(r));
                         })
-
-                        return [bal.balance, parseInt(tt)];
-                    } else {
-                        var tt = await models.Tmpcampaign.findByPk(tid)
-                        .then((tp) => {
-                            return tp.update({
-                                name: req.body.name,
-                                description: req.body.description,
-                                userId: user_id,
-                                senderId: req.body.sender,
-                                shortlinkId: (req.body.shorturlid.length > 0) ? req.body.shorturlid : null,
-                                myshorturl: req.body.myshorturl,
-                                grp: req.body.group,
-                                message: req.body.message,
-                                schedule: null, //req.body.schedule,
-                                recipients: req.body.recipients,
-                                skip_dnd: (req.body.skip_dnd) ? req.body.skip_dnd : null,
-                                units_used: units,
-                            })
-                            .then(() => {
-                                return tid;
-                            })
-                            .error((r) => {
-                                console.log("1Error::: Please try again later: " + JSON.stringify(r));
-                            })
-                        })
-                        .error((r) => {
-                            console.log("2Error::: Please try again later: " + JSON.stringify(r));
-                        })
-
-                        return [bal.balance, parseInt(tid)];
-                    }
-                    /* console.log('TT = ' + JSON.stringify(tt));
-                    
-
-                    return tt.then((tmpid) => {
-                        console.log('TID = ' + JSON.stringify(tmpid));
-                        
-                        let bye = ;
-                        console.log('post1... ' + JSON.stringify(bye));
-                        
-                        return bye;
                     })
                     .error((r) => {
-                        console.log("4Error::: Please try again later: " + JSON.stringify(r));
-                    }) */
-                })
-                .then((fin) => {
-                    console.log('post2... ' + JSON.stringify(fin));
-                    
-                    res.send({
-                            tmpid: fin[1],
-                            msgcount,
-                            contactcount: contacts.length,
-                            units,
-                            balance: fin[0],
-                        });
-                })
-                .catch((r) => {
-                    console.log("0Error:: Please try again later: " + JSON.stringify(r));
-                    res.send({
-                        response: "Error: Please try again later",
-                    });
-                })
+                        console.log("2Error::: Please try again later: " + JSON.stringify(r));
+                    })
+
+                    return [bal.balance, parseInt(tid)];
+                }
+                /* console.log('TT = ' + JSON.stringify(tt));
                 
+
+                return tt.then((tmpid) => {
+                    console.log('TID = ' + JSON.stringify(tmpid));
+                    
+                    let bye = ;
+                    console.log('post1... ' + JSON.stringify(bye));
+                    
+                    return bye;
+                })
+                .error((r) => {
+                    console.log("4Error::: Please try again later: " + JSON.stringify(r));
+                }) */
             })
-            .error((r) => {
-                console.log("00Error::: Please try again later: " + JSON.stringify(r));
+            .then((fin) => {
+                console.log('post2... ' + JSON.stringify(fin));
+                
+                res.send({
+                        tmpid: fin[1],
+                        msgcount,
+                        contactcount: contacts.length,
+                        units,
+                        balance: fin[0],
+                    });
+            })
+            .catch((r) => {
+                console.log("0Error:: Please try again later: " + JSON.stringify(r));
                 res.send({
                     response: "Error: Please try again later",
                 });
             })
-
+            
         })
         .error((r) => {
-            console.log("Error: Please try again later");
+            console.log("00Error::: Please try again later: " + JSON.stringify(r));
             res.send({
                 response: "Error: Please try again later",
             });
         })
+
         
     }
 

@@ -4,7 +4,7 @@ const fs        = require('fs');
 const csv       = require('fast-csv');
 var moment      = require('moment');
 var mysql       = require('mysql');
-
+ 
 var connection  = mysql.createPool({
     connectionLimit : 10,
     host            : 'localhost',
@@ -39,6 +39,9 @@ exports.index = (req, res) => {
         fid = result.splice(result.length - 1);
         rows = result.join();
 
+        console.log('====================================');
+        console.log('grp = ' + grp + '; ctry = ' + ctry + '; fid = ' + fid);
+        console.log('====================================');
         res.render('pages/dashboard/upload_contacts', {
 
             page: 'CONTACTS',
@@ -74,7 +77,7 @@ exports.index = (req, res) => {
         .then(([grps, ctry]) => {
             res.render('pages/dashboard/upload_contacts', {
                 page: 'CONTACTS',
-                flash: req.flash('success'),
+                flash: (req.flash('error')) ? req.flash('error') : req.flash('success'),
 
                 args: {
                     grps: grps,
@@ -198,7 +201,7 @@ exports.validate = (req, res) => {
     var email_errors = 0;
     
     console.log('path na: ' + fpath);
-    
+     
     // csv.parseFile(fpath, {headers: true})
     if(!fs.existsSync(fpath)) {
         req.flash('error', 'An error occurred, please re-upload your file.');

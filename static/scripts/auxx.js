@@ -305,14 +305,21 @@ $(document).ready(function() {
 				$('#analysis-box #cpm_summary_avg').text(parseInt(data.msgcount)/parseInt(data.contactcount));
 				$('#analysis-box #cpm_units_chrg').text(data.units);
 
-				var bal;
+				var bal, noc;
 				if(data.units > data.balance) {
 					bal = '<span style="color: red">' + data.balance + ' (INSUFFICIENT) </span>';
+					
+					$('.campaign_summary_btn.send').hide();
+				} else if(data.contactcount == 0) {
+					noc = '<span style="color: red">' + data.contactcount + ' (NO CONTACTS ADDED) </span>';
+					$('#analysis-box #cpm_summary_recp').html(noc);
+					$('#analysis-box #cpm_summary_avg').text('--');
 					$('.campaign_summary_btn.send').hide();
 				} else {
 					bal = data.balance;
 					$('.campaign_summary_btn.send').show();
 				}
+
 				$('#analysis-box #cpm_units_balance').html(bal);
 
 				$('#click_analysis_box').click();
@@ -415,13 +422,44 @@ $(document).ready(function() {
 			return;
 		}
 
+		_getContacts(opt, '');
+	
+	})
+
+	$('#search_conts_btn').on('click', function(e) {
+
+		var tt = $('#search_conts_box #search_conts').val();
+		if(tt.length == 0) return;
+
+		var opt = $('#sel_contact_group').val();
+		console.log('efasd sfdasdfasdf sfdasd...'+opt);
+
+		/* if(opt == '0') {
+			$('#show_contacts_pane').hide();			
+			$('.lists #contact_list').html('');			
+			return;
+		} */
+
+		_getContacts(opt, tt);
+	
+	})
+
+	function _getContacts(opt, txt) {
+
+		var arg;
+
+		arg = (txt) ? 'groupconts'+'?grp='+opt+'&txt='+txt : 'groupconts?grp='+opt;
+		$('._loader').show();
+		
 		$.ajax({
 			type: 'GET',
-			url: _getGlobals.SERVICE_HOST+'groupconts'+'?grp='+opt,
+			url: _getGlobals.SERVICE_HOST + arg,
 			contentType: 'application/json; charset=utf-8',
 			// data: json_form_reg,
 			success: function( data ) {
 				$('#show_contacts_pane').show();			
+				$('._loader').hide();
+
 					console.log(data.contacts);
 					var header = '<li class="list_item _hd" style="font-weight: bolder">' +
 					'	<ul class="saved_item">' +
@@ -438,22 +476,20 @@ $(document).ready(function() {
 					var count = 0;
 
 					if(opt == -1) {
-						$('#group_name').text('ALL Groups');
 
-						data.forEach(el => {
+						/* data.forEach(el => {
 							$('#group_contact_count').text(count += el.count);
-							do_html(el.contacts);
-						});
-
+							do_html(el.contacts ? el.contacts : el);
+						}); */
+							$('#group_name').text('ALL Groups');
+							$('#group_contact_count').text(data.length);
 					} else {
 						$('#group_name').text(data.name);
 						$('#group_contact_count').text(data.count);
-
-						do_html(data.contacts);
-						
-						initializeActionBtns();
-
 					}
+
+					do_html(data.contacts ? data.contacts : data);
+					initializeActionBtns();
 
 					function do_html(list) {
 						
@@ -538,15 +574,16 @@ $(document).ready(function() {
 					}
 			},
 			error: function(resp, dd, ww) {
+				$('._loader').hide();
 				// $butt.removeAttr('disabled');
 				// $butt.closest('div').find('.loading_icon').hide();
 			}
 		}).done(function(){
+			$('._loader').hide();
 			// $butt.removeAttr('disabled');
 			// $butt.closest('div').find('.loading_icon').hide();
 		});
-	
-	})
+	}
 
 	$('.trigger_off').on('click', function (e) {
 		$('._blink').fadeOut(70).fadeIn(70).fadeOut(70).fadeIn(70);
@@ -924,6 +961,10 @@ function doLogin() {
 				
 				$me.find('._form_errors._e_login').text('Invalid email/password');
 				$me.find('._form_errors._e_login').show();
+			} else {
+				$me.find('._form_errors._e_login').text('An error occurred, please check your connection.');
+				$me.find('._form_errors._e_login').show();
+				
 			}
 			console.log('error...' + JSON.stringify(resp) + '...' + dd + '...' + ww);
 			

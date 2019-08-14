@@ -29,7 +29,7 @@
 			</div>
 
 		<div class="row">
-			<div class="col-lg-12"><div class="col-lg-12 page_box_header">All Contacts</div></div>
+			<div class="col-lg-12"><div class="col-lg-12 page_box_header">All Contacts<i class="sl sl-icon-refresh _loader"></i></div></div>
 			<div class="col-lg-12">
 
 				<div id="add-listing">
@@ -109,12 +109,18 @@
 					<!-- Section -->
 					<div class="add-listing-section" style="background-color: inherit;">
 
-						<!-- Row -->
+						<!-- Row --> 
 						<div class="row with-forms">
 							<br>
 							<!-- Status -->
 							<div class="col-md-12 lists">
-								<h5>Group: <span id="group_name" style="weight: bold"></span> | Contacts: <span id="group_contact_count" style="weight: bold"></span> </h5>
+								<h5 style="position: relative">Group: <span id="group_name" style="weight: bold"></span> | Contacts: <span id="group_contact_count" style="weight: bold"></span> <i class="sl sl-icon-refresh _loader"></i></h5>
+								<div class="input-group mb-3" id="search_conts_box">
+									<input type="text" class="form-control" name="search_conts" id="search_conts" placeholder="Search Contacts..." style="width: 92%; display: inline; height: 35px; padding: 10px; font-size: 0.9em;">
+									<span class="input-group-append">
+										<button class="btn btn-default" id="search_conts_btn">Search</button>
+									</span>
+								</div>
 								<ul id="contact_list">
 								</ul>
 							</div>

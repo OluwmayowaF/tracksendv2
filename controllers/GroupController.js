@@ -4,13 +4,9 @@ exports.index = function(req, res) {
     res.send('NOT IMPLEMENTED: Site Home Page');
 };
 
-// Display list of all contacts.
-exports.groupList = function(req, res) {
-    res.send('NOT IMPLEMENTED: Contact list');
-};
 
 // Display detail page for a specific contact.
-exports.newGroup = (req, res) => {
+exports.listGroup = (req, res) => {
     var user_id = req.user.id;
 
     // ContactGroup.findAll()

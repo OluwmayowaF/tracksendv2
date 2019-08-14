@@ -36,7 +36,10 @@ exports.update = (req, res) => {
     models.User.findByPk(user_id)
     .then(user => { 
 
-        user.update(req.body)
+        user.update({
+            name: req.body.name,
+            phone: req.body.phone,
+        })
         .then(() => {
             req.flash('success', 'Profile update successfully');
             res.redirect('/dashboard/profile');
