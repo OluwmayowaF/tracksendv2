@@ -43,13 +43,14 @@
 						<!-- Row -->
 						<div class="row with-forms">
 							<br>
-							<h5>Match your headers with Ours: </h5>
+							<h5>Match your headers with Ours <span>(where relevant)</span>: </h5>
 							<div class="col-md-12">
 								<div class="col-md-3">
 									<h5>First name: </h5>
 								</div>
 								<div class="col-md-9">
 									<select class="chosen-select-no-single" name="row">
+										<option>[ignore]</option>
 										{{#each args.result}}
 										<option>{{ this }}</option>
 										{{/each}}
@@ -62,6 +63,7 @@
 								</div>
 								<div class="col-md-9">
 									<select class="chosen-select-no-single" name="row">
+										<option>[ignore]</option>
 										{{#each args.result}}
 										<option>{{ this }}</option>
 										{{/each}}
@@ -86,6 +88,7 @@
 								</div>
 								<div class="col-md-9">
 									<select class="chosen-select-no-single" name="row">
+										<option>[ignore]</option>
 										{{#each args.result}}
 										<option>{{ this }}</option>
 										{{/each}}

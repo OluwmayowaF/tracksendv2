@@ -817,12 +817,15 @@ function doDate() {
 function doRegistration() {
 	// console.log(th);
 	
+	var $me = $('#register_form');
+	if($me.find('.loading_icon').is(':visible')) return;
+
 	$('._form_errors').hide();
 	$('._e_reg').hide();
 	$('._e_reg .e_list').html('');
 
-	var $me = $('#register_form');
 	$me.find('.error').removeClass('error');
+
 
 	if ($me.find('#password1').val().length < 3) {
 		$me.find('._form_errors._e_register').text('Password length is minimum of 3 characters');
@@ -856,14 +859,15 @@ function doRegistration() {
 			console.log('regis: ' + data[0]);
 			
 			if(data[0] && data[0] == 'registered') {
-				$('#login_form')[0].reset();
+				// $('#login_form')[0].reset();
 				$('#register_form')[0].reset();
 				$.magnificPopup.close();	//	to hide dialog box
 
 				$('.notification.other2').addClass('success');
 				$('.notification.other2 p').text('Registration successful. Please sign in.');
 				$('.notification.other2').show();
-				// location.href = '#welcome';
+
+				location.href = '/dashboard';
 				// floatingMsg('success',"Welcome to Spaceba, " + data.name + ". Kindly sign in.");
 				/* var el = $('#sign-in-dialog');
 				$.magnificPopup.open({
@@ -926,12 +930,14 @@ function doLogin() {
 	console.log('gbdfnhgb');
 	// return false;
 	
+	var $me = $('#login_form');
+	if($me.find('.loading_icon').is(':visible')) return;
+	
 	$('._form_errors').hide();
 	$('._e_login').hide();
 	$('._e_login .e_list').html('');
 
 // var json_form_reg = JSON.stringify($('#registration_form').serializeObject()); 
-	var $me = $('#login_form');
 	$me.find('.error').removeClass('error');
 	var json_form_login = JSON.stringify($me.serializeObject()); 
 	

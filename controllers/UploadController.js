@@ -75,9 +75,11 @@ exports.index = (req, res) => {
             })
         ])
         .then(([grps, ctry]) => {
+            // console.log('flash error = ' + req.flash('error') + '; flash suss = ' + req.flash('success'));
+            
             res.render('pages/dashboard/upload_contacts', {
                 page: 'CONTACTS',
-                flash: (req.flash('error')) ? req.flash('error') : req.flash('success'),
+                flash: (req.flash('error').length > 0) ? req.flash('error') : req.flash('success'),
 
                 args: {
                     grps: grps,
@@ -275,7 +277,7 @@ exports.validate = (req, res) => {
                 console.log('QUERY ERROR: ' + err);
 
                 // req.flash('success', 'Upload complete successfully: <b>' + inserted + '</b> duplicate contacts added; <b>' + duplicates + '</b> contacts ignored.');
-                req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added; ' + duplicates + ' duplicate contacts ignored' + (phone_errors > 0 ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '') + (email_errors > 0 ? '; ' + email_errors + ' contacts with invalid email ignored.' : '.') );
+                req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added; ' + duplicates + ' duplicate contacts ignored' + (phone_errors > 0 ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '') );
                 res.redirect('/dashboard/upload');
                 
             });

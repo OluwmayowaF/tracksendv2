@@ -16,12 +16,19 @@
 			</div>
 		</div>
 
+		{{#if flash}}
+			<div class="notification success closeable no-shadow">
+				<p><span>Success!</span> {{ flash }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
+
 		{{#if args.nocontacts}}
 		<div class="row _blink">
 			<div class="col-md-12">
 				<a href="/dashboard/contacts/new">
-				<div class="notification error closeable margin-bottom-30">
-					<p>NO CONTACT/GROUP HAS BEEN CREATED ON YOUR ACCOUNT: <span style="color: #666">Kindly proceed to 'CONTACTS' section to create.</span></p>
+				<div class="notification error closeable margin-bottom-10">
+					<p>NO CONTACT/GROUP HAS BEEN CREATED ON YOUR ACCOUNT: <span style="color: #666">Click here to create.</span></p>
 					<a class="close" href="#"></a>
 				</div>
 				</a>
@@ -43,19 +50,12 @@
 			<div class="col-md-12">
 				<a href="/dashboard/senderids">
 				<div class="notification error closeable margin-bottom-30">
-					<p>NO CREATED SENDER ID ON YOUR ACCOUNT: <span style="color: #666">Go to Sender ID page under 'CAMPAIGNS' section to create.</span></p>
+					<p>NO CREATED SENDER ID ON YOUR ACCOUNT: <span style="color: #666">Click here to create.</span></p>
 					<a class="close" href="#"></a>
 				</div>
 				</a>
 			</div>
 		</div>
-		{{/if}}
-
-		{{#if flash}}
-			<div class="notification success closeable no-shadow">
-				<p><span>Success!</span> {{ flash }}</p>
-				<a class="close"></a>
-			</div>
 		{{/if}}
 
 			<div class="notification other3 closeable">
@@ -458,7 +458,7 @@
 										</div> --}}
 
 										<button type="button" class="button preview short_url_btn paste" style="margin-top: 0">Insert in Msg <i class="fa fa-paste"></i></button>
-										<button type="button" class="button preview short_url_btn done" style="margin-top: 0">Done <i class="fa fa-arrow-circle-right"></i></button>
+										<button type="button" class="button preview short_url_btn done" style="margin-top: 0">Update <i class="fa fa-arrow-circle-right"></i></button>
 									</div>
 
 
