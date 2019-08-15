@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true
     },
     myshorturl: DataTypes.STRING,
-    grp: DataTypes.INTEGER,
+    grp: DataTypes.STRING,
     message: DataTypes.STRING,
     schedule: DataTypes.STRING,
     recipients: DataTypes.STRING,
