@@ -266,6 +266,8 @@ $(document).ready(function() {
 	$('#campaign_form').submit(function (e) {
 
 		var $butt = $('#analyse_btn');
+		$('._form_errors').hide();
+		$('._e_analyse').hide();
 		$butt.closest('div').find('.loading_icon').show();
 		
 		if (campaign_confirmed) return true;
@@ -317,7 +319,7 @@ $(document).ready(function() {
 					$('.campaign_summary_btn.send').hide();
 				} else {
 					bal = data.balance;
-					$('.campaign_summary_btn.send').show();
+					$('.campaign_summary_btn.send').show(); 
 				}
 
 				$('#analysis-box #cpm_units_balance').html(bal);
@@ -330,6 +332,8 @@ $(document).ready(function() {
 			error: function(resp, dd, ww) {
 				// $butt.removeAttr('disabled');
 				$butt.closest('div').find('.loading_icon').hide();
+				$('._form_errors._e_analyse').text('An error occurred. Please try again, or refresh page.');
+				$('._form_errors._e_analyse').show();
 			}
 		}).done(function(){
 			// $butt.removeAttr('disabled');

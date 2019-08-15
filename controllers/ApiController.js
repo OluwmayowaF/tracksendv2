@@ -388,7 +388,7 @@ exports.analyseCampaign = (req, res) => {
     var groups = req.body.group;
     var skip = (req.body.skip_dnd && req.body.skip_dnd == "on");
 
-    if (groups !== 0) {
+    if (groups != 0) {
         if(!Array.isArray(groups)) groups = [groups];
         console.log('group= ' + JSON.stringify(groups));
         
@@ -548,7 +548,7 @@ console.log('555555');
                         senderId: req.body.sender,
                         shortlinkId: (req.body.shorturlid.length > 0) ? req.body.shorturlid : null,
                         myshorturl: req.body.myshorturl,
-                        grp: req.body.group,
+                        grp: JSON.stringify(groups),
                         message: req.body.message,
                         schedule: null, //req.body.schedule,
                         recipients: req.body.recipients,
@@ -575,7 +575,7 @@ console.log('555555');
                             senderId: req.body.sender,
                             shortlinkId: (req.body.shorturlid.length > 0) ? req.body.shorturlid : null,
                             myshorturl: req.body.myshorturl,
-                            grp: req.body.group,
+                            grp: JSON.stringify(groups),
                             message: req.body.message,
                             schedule: null, //req.body.schedule,
                             recipients: req.body.recipients,
