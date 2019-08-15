@@ -43,9 +43,15 @@ module.exports = function(app) {
   app.post("/api/register", function(req, res) {
 
     console.log(req.body);
-    db.User.create(req.body).then(function() {
+    db.User.create(req.body).then(function(user) {
       // res.redirect(307, "/api/login");
-      res.json(["registered"]);
+      console.log('111111');
+      req.login(user, () => {
+        console.log('222222');
+        req.flash('success', 'Registration successful. Welcome to Tracksend.');
+        console.log('33333');
+        res.json(["registered"]);
+      });
     }).catch(function(err) {
       console.log(err);
       res.json(err);
