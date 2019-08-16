@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var contactController = require('../controllers/ContactController');
+// var contactController = require('../controllers/ContactController');
 var apiController = require('../controllers/ApiController');
 
 // Home page route.
