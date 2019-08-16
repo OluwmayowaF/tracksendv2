@@ -24,6 +24,6 @@ module.exports = function(req, res, next) {
   // If the user isn't' logged in, redirect them to the login page
   req.flash('type', 'error');
   req.flash('msg', 'Please login to access page.');
-  return res.redirect("/");
+  return res.redirect("/login");
 };
 

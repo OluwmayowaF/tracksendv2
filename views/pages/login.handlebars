@@ -1,9 +1,3 @@
-		{{#if flash.type}}
-			<div class="notification other {{ flash.type }} closeable">
-				<p>{{ flash.msg }}</p>
-				<a class="close"></a>
-			</div>
-		{{/if}}
 
 			<div class="notification other2 closeable">
 				<p></p>
@@ -24,13 +18,20 @@
 
     <ul class="tabs-nav">
       <li class=""></li>
-      <li class="hidden-lg hidden-md hidden-sm"><a href="#tab2" id="click_tab2">Register</a></li>
+      <li class="hidden-lg hidden-md hidden-sm"><a href="#tab2" id="click_tab2"></a></li>
     </ul>
 
     <div class="tabs-container alt">
 
       <!-- Login -->
       <div class="tab-content" id="tab1" style="display: none; padding-top: 60px">
+        {{#if flash.type}}
+          <div class="notification {{ flash.type }} closeable no-shadow">
+            <p>{{ flash.msg }}</p>
+            <a class="close"></a>
+          </div>
+        {{/if}}
+
         <form method="POST" action="javascript: doLogin()" class="login" id="login_form">
           <p class="form-row form-row-wide">
             <label for="username">Email:

@@ -46,6 +46,13 @@ module.exports = function(app) {
     db.User.create(req.body).then(function(user) {
       // res.redirect(307, "/api/login");
       console.log('111111');
+      //  then create the [Uncategorized] group for the new user
+      db.Group.create({
+        name: '[Uncategorized]',
+        description: 'For all contacts without distinct groups.',
+        userId: user.id,
+      })
+
       req.login(user, () => {
         console.log('222222');
         req.flash('success', 'Registration successful. Welcome to Tracksend.');
