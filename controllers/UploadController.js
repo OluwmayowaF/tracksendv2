@@ -170,16 +170,16 @@ exports.do = (req, res) => {
                 console.log('ERROR: Creating group things' + err);
             })
         } else {
+            var pth = req.file.path.split('\\')[2];
+            pth = (pth.length > 0) ? pth : req.file.path.split('/')[2];
             console.log('====================================');
-            console.log('path file: ' + req.file.path + '; split: ' + req.file.path.split('\\')[2]);
+            console.log('path file: ' + req.file.path + '; split: ' + pth);
             console.log('====================================');
-
-            headers.push(req.file.path.split('\\')[2]);
+            headers.push(pth);
             headers.push(req.body.country);
             headers.push(groupId);
-
             console.log('pushing: ' + headers);
-            
+        
             req.flash('result', headers);
             var backURL = req.header('Referer') || '/'; 
             res.redirect(backURL);
