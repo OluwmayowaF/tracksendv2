@@ -1,6 +1,7 @@
 var models = require('../models');
 var moment = require('moment');
 const sequelize = require('../config/cfg/db');
+const Sequelize = require('sequelize');
 
 exports.index = (req, res) => {
     const ACCUMULATE_MESSAGES = true;
@@ -68,6 +69,9 @@ exports.index = (req, res) => {
         models.Group.count({
             where: { 
                 userId: user_id,
+                name: {
+                    [Sequelize.Op.ne]: '[Uncategorized]',
+                }
             }
         }), 
         models.Sender.count({
@@ -231,9 +235,11 @@ exports.index = (req, res) => {
     ]).then(([summary, messages, cgroup, csender, ccount, mcount, mgrowth, cgrowth]) => {
         console.log('qqq= '+messages.length);
         
-        
+        console.log('====================================');
+        console.log('CGROUP: '+ ccount);
+        console.log('====================================');
         if(!messages.length) nocampaigns = true;
-        if(!cgroup) nocontacts = true;
+        if(!ccount) nocontacts = true;
         if(!csender) nosenderids = true;
         
         console.log('groups1 are: ' + JSON.stringify(summary));

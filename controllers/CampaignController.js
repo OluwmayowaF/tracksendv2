@@ -64,7 +64,9 @@ exports.index = (req, res) => {
             }
         }), 
     ]).then(([cpns, sids, grps, csender, casender, ccontact]) => {
-        // console.log('groups are: ' + JSON.stringify(sids));
+        console.log('====================================');
+        console.log('cpns: ' + cpns + ', sids: ' + sids + ', grps: ' + grps + ', csender: ' + csender + ', casender: ' + casender + ', ccontact' + ccontact);
+        console.log('====================================');
         if(!csender) var nosenderids = true; else var nosenderids = false;
         if(!casender) var noasenderids = true; else var noasenderids = false;
         if(!ccontact) var nocontacts = true; else var nocontacts = false;

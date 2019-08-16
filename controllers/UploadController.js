@@ -1,4 +1,6 @@
 const Sequelize = require('sequelize');
+const dbauth = require('../config/cfg/dbauth')();
+
 var models      = require('../models');
 const fs        = require('fs');
 const csv       = require('fast-csv');
@@ -8,9 +10,9 @@ var mysql       = require('mysql');
 var connection  = mysql.createPool({
     connectionLimit : 10,
     host            : 'localhost',
-    user            : 'ts_user',
-    password        : 'ts_pwrd',
-    database        : 'tracksend',
+    user            : dbauth.dbuser,
+    password        : dbauth.dbpwrd,
+    database        : dbauth.dbdb,
     debug           : true
   });
 
@@ -372,7 +374,7 @@ exports.validate = (req, res) => {
         var email = row[3];
 console.log('PPPPPPPPPPPPPP: ' + phone);
 
-        let r_e = checkEmail(email);
+        //let r_e = checkEmail(email);
         return (checkPhone(phone));
 
         function checkPhone(ph) {
