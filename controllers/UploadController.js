@@ -170,7 +170,11 @@ exports.do = (req, res) => {
                 console.log('ERROR: Creating group things' + err);
             })
         } else {
+            console.log('====================================');
+            console.log('path : ' + req.file.path);
             var pth = req.file.path.split('\\')[2];
+            console.log('====================================');
+            console.log('path split: ' + pth);
             pth = (pth.length > 0) ? pth : req.file.path.split('/')[2];
             console.log('====================================');
             console.log('path file: ' + req.file.path + '; split: ' + pth);
