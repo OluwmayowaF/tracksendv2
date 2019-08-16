@@ -8,7 +8,9 @@ router.get('/', contactController.index);
 router.get('/list', contactController.contactList);
 router.get('/new', contactController.newContact);
 // router.get('/groups/list', groupController.listGroup);
-router.get('/listers', groupController.listGroup);
+router.get('/listers', (req, res) => {
+  res.send('here we go... and go');
+});
 router.get('/groups/list', (req, res) => {
   res.send('here we go...');
 });
