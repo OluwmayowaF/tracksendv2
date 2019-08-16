@@ -17,10 +17,18 @@ exports.index = (req, res) => {
     })
     .then((tups) => {
 
+        var flashtype, flash = req.flash('error');
+        if(flash.length > 0) {
+            flashtype = "error";           
+        } else {
+            flashtype = "success";
+            flash = req.flash('success');
+        }
+
         res.render('pages/dashboard/topups', {
             page: 'TopUps',
             topups: true,
-            // flash: req.flash('success'),
+            flashtype, flash,
 
             args: {
                 tups: tups,

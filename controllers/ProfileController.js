@@ -15,10 +15,18 @@ exports.index = (req, res) => {
     .then(user => { 
         console.log("user: " + JSON.stringify(user));
         
+        var flashtype, flash = req.flash('error');
+        if(flash.length > 0) {
+            flashtype = "error";           
+        } else {
+            flashtype = "success";
+            flash = req.flash('success');
+        }
+
         res.render('pages/dashboard/my_profile', {
             page: 'Profile',
             profile: true,
-            flash: req.flash('success'),
+            flashtype, flash,
 
             args: {
                 user: user,

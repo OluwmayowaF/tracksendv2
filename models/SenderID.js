@@ -5,9 +5,16 @@ module.exports = (sequelize, DataTypes) => {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true 
     },
-    name: DataTypes.STRING,
+    name: {
+      type: DataTypes.STRING,
+      unique: 'sender_user_composite',
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      unique: 'sender_user_composite',
+    },
     description: DataTypes.STRING,
     status: DataTypes.INTEGER,
   }, {});

@@ -17,8 +17,8 @@
 		</div>
 
 		{{#if flash}}
-			<div class="notification success closeable no-shadow">
-				<p><span>Success!</span> {{ flash }}</p>
+			<div class="notification {{ flashtype }} closeable no-shadow">
+				<p><span style="text-transform: capitalize">{{ flashtype }}!</span> {{ flash }}</p>
 				<a class="close"></a>
 			</div>
 		{{/if}}
@@ -45,8 +45,8 @@
 							<br>
 							<!-- Status -->
 							<div class="col-md-12">
-								<h5>ID Name </h5>
-								<input type="text" name="name" id="name" maxlength="50">
+								<h5>ID Name <span>( max: 11 chars; no spaces; only alphanumeric characters )</span></h5>
+								<input type="text" name="name" id="name" maxlength="50" required>
 							</div>
 
 							<div class="col-md-12">

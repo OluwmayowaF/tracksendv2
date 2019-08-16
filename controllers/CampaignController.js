@@ -37,7 +37,10 @@ exports.index = (req, res) => {
         }), 
         models.Group.findAll({
             where: { 
-                userId: user_id
+                userId: user_id,
+                name: {
+                    [Sequelize.Op.ne]: '[Uncategorized]',
+                }
             },
             order: [ 
                 ['createdAt', 'DESC']
@@ -66,10 +69,18 @@ exports.index = (req, res) => {
         if(!casender) var noasenderids = true; else var noasenderids = false;
         if(!ccontact) var nocontacts = true; else var nocontacts = false;
 
+        var flashtype, flash = req.flash('error');
+        if(flash.length > 0) {
+            flashtype = "error";           
+        } else {
+            flashtype = "success";
+            flash = req.flash('success');
+        }
+
         res.render('pages/dashboard/campaigns', { 
             page: 'Campaigns',
             campaigns: true,
-            flash: req.flash('success'),
+            flashtype, flash,
 
             args: {
                 cpns: cpns,

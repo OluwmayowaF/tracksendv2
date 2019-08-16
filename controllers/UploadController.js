@@ -62,7 +62,10 @@ exports.index = (req, res) => {
         Promise.all([
             models.Group.findAll({ 
                 where: { 
-                    userId: user_id
+                    userId: user_id,
+                    name: {
+                        [Sequelize.Op.ne]: '[Uncategorized]',
+                    }
                 },
                 order: [ 
                     ['createdAt', 'DESC']
@@ -77,9 +80,17 @@ exports.index = (req, res) => {
         .then(([grps, ctry]) => {
             // console.log('flash error = ' + req.flash('error') + '; flash suss = ' + req.flash('success'));
             
+            var flashtype, flash = req.flash('error');
+            if(flash.length > 0) {
+                flashtype = "error";           
+            } else {
+                flashtype = "success";
+                flash = req.flash('success');
+            }
+    
             res.render('pages/dashboard/upload_contacts', {
                 page: 'CONTACTS',
-                flash: (req.flash('error').length > 0) ? req.flash('error') : req.flash('success'),
+                flashtype, flash,
 
                 args: {
                     grps: grps,

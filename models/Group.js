@@ -9,7 +9,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     name: {
       type: DataTypes.STRING,
-      unique: 'groupname_index',
+      unique: 'group_user_composite',
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      unique: 'group_user_composite',
     },
     description: DataTypes.STRING,
     count: DataTypes.INTEGER,

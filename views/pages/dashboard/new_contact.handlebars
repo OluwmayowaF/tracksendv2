@@ -17,8 +17,8 @@
 		</div>
 
 		{{#if flash}}
-			<div class="notification success closeable no-shadow">
-				<p><span>Success!</span> {{ flash }}</p>
+			<div class="notification {{ flashtype }} closeable no-shadow">
+				<p><span style="text-transform: capitalize">{{ flashtype }}!</span> {{ flash }}</p>
 				<a class="close"></a>
 			</div>
 		{{/if}}
@@ -57,7 +57,7 @@
 							<!-- Status -->
 							<div class="col-md-6">
 								<h5>Phone</h5>
-								<input type="text" name="phone">
+								<input type="text" name="phone" required>
 							</div>
 
 							<!-- Type -->
@@ -81,7 +81,8 @@
 							<div class="col-md-6">
 								<h5>Group </h5>
 								<select class="chosen-select-no-single" name="group" id="new_contact_group">
-									{{!-- <option label="blank" value="0">[No Group]</option> --}}
+									{{!-- <option label="blank" >[No Group]</option> --}}
+									<option value="1">[Uncategorized]</option>
 									<option value="-1">[Create Group]</option>
 									<option label="blank" disabled>--------------------------------</option>
 									{{#each args.grps}}
