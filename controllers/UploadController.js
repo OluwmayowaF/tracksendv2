@@ -149,6 +149,9 @@ exports.do = (req, res) => {
                 groupId = grp.id;
                 console.log('new group ID is: ' + groupId);
                 
+                console.log('====================================');
+                console.log('path file: ' + req.file.path + '; split: ' + req.file.path.split('\\')[2]);
+                console.log('====================================');
                 headers.push(req.file.path.split('\\')[2]);
                 headers.push(req.body.country);
                 headers.push(groupId);
