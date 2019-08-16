@@ -169,6 +169,10 @@ exports.do = (req, res) => {
                 console.log('ERROR: Creating group things' + err);
             })
         } else {
+            console.log('====================================');
+            console.log('path file: ' + req.file.path + '; split: ' + req.file.path.split('\\')[2]);
+            console.log('====================================');
+
             headers.push(req.file.path.split('\\')[2]);
             headers.push(req.body.country);
             headers.push(groupId);
