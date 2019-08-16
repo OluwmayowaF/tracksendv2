@@ -149,13 +149,14 @@ exports.do = (req, res) => {
                 groupId = grp.id;
                 console.log('new group ID is: ' + groupId);
                 
+                var pth = req.file.path.split('\\')[2];
+                pth = (pth.length > 0) ? pth : req.file.path.split('/')[2];
                 console.log('====================================');
-                console.log('path file: ' + req.file.path + '; split: ' + req.file.path.split('\\')[2]);
+                console.log('path file: ' + req.file.path + '; split: ' + pth);
                 console.log('====================================');
-                headers.push(req.file.path.split('\\')[2]);
+                headers.push(pth);
                 headers.push(req.body.country);
                 headers.push(groupId);
-
                 console.log('pushing: ' + headers);
                 
                 req.flash('result', headers);
