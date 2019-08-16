@@ -11,16 +11,16 @@ router.get('/groups/list', groupController.listGroup);
 // router.get('/groups', groupController.groupList);
 
 router.post('/add', contactController.addContact);
-router.post('/upload', contactController.contactList);
+// router.post('/upload', contactController.contactList);
 router.post('/groups/add', groupController.addGroup);
 
-router.get('/edit/:id', contactController.contactList);
+// router.get('/edit/:id', contactController.contactList);
 // router.get('/groups/edit/:id', groupController.groupList);
 
-router.post('/edit/:id', contactController.contactList);
+// router.post('/edit/:id', contactController.contactList);
 // router.post('/groups/edit/:id', groupController.groupList);
 
-router.get('/delete/:id', contactController.contactList);
+// router.get('/delete/:id', contactController.contactList);
 // router.get('/groups/delete/:id', groupController.groupList);
 
 

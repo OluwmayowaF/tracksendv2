@@ -246,10 +246,18 @@ exports.index = (req, res) => {
         console.log('groups9 are: ' + JSON.stringify(mgrowth));
         console.log('groups10 are: ' + JSON.stringify(cgrowth));
 
+        var flashtype, flash = req.flash('error');
+        if(flash.length > 0) {
+            flashtype = "error";           
+        } else {
+            flashtype = "success";
+            flash = req.flash('success');
+        }
+
         res.render('pages/dashboard/dashboard', { 
             page: 'Dashboard',
             dashboard: true,
-            flash: req.flash('success'),
+            flashtype, flash,
 
             args: {
                 nosenderids: nosenderids,

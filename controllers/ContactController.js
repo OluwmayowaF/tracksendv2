@@ -6,14 +6,17 @@ exports.index = function(req, res) {
     res.send('NOT IMPLEMENTED: Site Home Page');
 };
 
-// Display list of all contacts.
+// Display list of all contacts
 exports.contactList = (req, res) => {
     var user_id = req.user.id;
 
 
     models.Group.findAll({ 
         where: { 
-            userId: user_id
+            userId: user_id,
+            name: {
+                [Sequelize.Op.ne]: '[Uncategorized]',
+            }
         },
         order: [ 
             ['createdAt', 'DESC']
@@ -43,7 +46,10 @@ exports.newContact = (req, res) => {
     Promise.all([
         models.Group.findAll({ 
             where: { 
-                userId: user_id
+                userId: user_id,
+                name: {
+                    [Sequelize.Op.ne]: '[Uncategorized]',
+                }
             },
             order: [ 
                 ['createdAt', 'DESC']
@@ -57,10 +63,18 @@ exports.newContact = (req, res) => {
     ])
     .then(([grps, ctry]) => { 
         
-        res.render('pages/dashboard/new_contact', {
+        var flashtype, flash = req.flash('error');
+        if(flash.length > 0) {
+            flashtype = "error";           
+        } else {
+            flashtype = "success";
+            flash = req.flash('success');
+        }
+
+       res.render('pages/dashboard/new_contact', {
             page: 'CONTACTS',
             newcontact: true,
-            flash: req.flash('success'),
+            flashtype, flash,
 
             args: {
                 grps: grps,
@@ -80,86 +94,47 @@ exports.addContact = (req, res) => {
     var userId = user_id;
     var status = 0;
 
-    models.User.findByPk(userId).then(user => {
-
-        if(req.body.group == -1) {
-            console.log('creating new contact and group');
-
-            /* user.createGroup(req.body)
-            .then((group) => {
-                group.createContact(req.body)
-                .then((contact) => {
-                    console.log('the new guy is: ' + contact.id);
-                })
-            }) */
-            /* Promise.all([user.createContact(req.body), user.createGroup(req.body)])
-             .then(([contact, group]) => {
-                console.log('next create the needful');
-                models.ContactGroup.create({
-                    contactId: contact.id,
-                    groupId: group.id,
-                })
-                .then(() => {
-
-                    req.flash('success', 'Your new Contact has been created.');
-                    var backURL = req.header('Referer') || '/';
-                    res.redirect(backURL);
-
-                })
-                // group.createContact(req.body)
-            }) */
-            user.createGroup(req.body)
-            .then((group) => {
-                group.createContact({
-                    firstname: req.body.firstname,
-                    lastname: req.body.lastname,
-                    phone: req.body.phone,
-                    email: req.body.email,
-                    countryId: req.body.country,
-                    userId: userId,
-                    status: status,
-                })
-                .then(() => {
-                    group.update({
-                        count: Sequelize.literal('count + 1'),
-                    });
-                })
-                .then(() => {
-                    req.flash('success', 'Your new Contact has been created.');
-                    var backURL = req.header('Referer') || '/';
-                    res.redirect(backURL);
-                });
-                // group.createContact(req.body)
-            });
-
-        } else {
-
-            console.log('just creating new contact');
-
-            models.Group.findByPk(req.body.group)
-            .then(group => {
-                group.createContact({
-                    firstname: req.body.firstname,
-                    lastname: req.body.lastname,
-                    phone: req.body.phone,
-                    email: req.body.email,
-                    countryId: req.body.country,
-                    userId: userId,
-                    status: status,
-                })
-                .then((contact) => {
-                    group.update({
-                        count: Sequelize.literal('count + 1'),
-                    })
-                })
-                .then(() => {
-                    req.flash('success', 'Your new Contact has been created.');
-                    var backURL = req.header('Referer') || '/';
-                    res.redirect(backURL);
-                })
+    models.User.findByPk(userId).then(async user => {
+        try {
+            if(req.body.phone.length < 3) throw "Invalid Phone Number";
+            if(req.body.group == -1) {
+                console.log('creating new contact and group');
+                var group = await user.createGroup(req.body);
+            } else {
+                var group = await models.Group.findByPk(req.body.group);
+            }
+            group.createContact({
+                firstname: req.body.firstname,
+                lastname: req.body.lastname,
+                phone: req.body.phone,
+                email: req.body.email,
+                countryId: req.body.country,
+                userId: userId,
+                status: status,
             })
-        }
-    })
+            .then(() => {
+                group.update({
+                    count: Sequelize.literal('count + 1'),
+                });
+            })
+            .then(() => {
+                req.flash('success', 'Your new Contact has been created.');
+                var backURL = req.header('Referer') || '/';
+                res.redirect(backURL);
+            })
+        } catch(err) {
+            console.log(err);
+            console.log('errorerr = ' + err);
+            
+            if(err.name == 'SequelizeUniqueConstraintError') {
+                req.flash('error', 'Group Name already exists on your account.');
+            } else if (err == "Invalid Phone Number" ) {
+                req.flash('error', err);
+            }
+            var backURL = req.header('Referer') || '/';
+            res.redirect(backURL);
+        };
+    });
 
     
 }

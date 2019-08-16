@@ -15,6 +15,7 @@ $(document).ready(function() {
 
 
 	$('form').submit((e) => {
+		// if($(e.target).find('span.loading_icon').is(':visible')) return false;
 		$(e.target).find('span.loading_icon').show();
 	})
 
@@ -607,12 +608,14 @@ $(document).ready(function() {
 		$('.del_item_btn').off('click');
 		$('.del_item_btn').on('click', function(e) {
 		
-			var del = prompt('Are you sure you want to delete this Sender ID? Type "YES" to proceed.');
+			var $btn = $(e.target);
+			var $item = $btn.closest('.list_item');
+			var id = $item.find('form .id').val();
+			var wh = $item.attr('data-wh');
+			var whh = (wh == 'group') ? '. (NOTE THIS WILL ALSO DELETE ALL CONTACTS IN THE GROUP!)' : '';
+
+			var del = prompt('Are you sure you want to delete this '+ wh + whh + '? Type "YES" to proceed.');
 			if(del.toUpperCase() == 'YES') {
-				var $btn = $(e.target);
-				var $item = $btn.closest('.list_item');
-				var wh = $item.attr('data-wh');
-				var id = $item.find('form .id').val();
 			
 				$.ajax({
 					type: 'GET',
@@ -818,7 +821,7 @@ function doRegistration() {
 	// console.log(th);
 	
 	var $me = $('#register_form');
-	if($me.find('.loading_icon').is(':visible')) return;
+	// if($me.find('.loading_icon').is(':visible')) return;
 
 	$('._form_errors').hide();
 	$('._e_reg').hide();
@@ -904,7 +907,9 @@ function doRegistration() {
 			$butt.removeAttr('disabled');
 			$me.find('.loading_icon').hide();
 
-			if(resp.responseText) {
+					$me.find('._form_errors._e_register').text('Please check your connection and try again.');
+					$me.find('._form_errors._e_register').show();
+			/* if(resp.responseText) {
 				var rp = resp.responseText;
 				var rpp = JSON.parse(rp);//.serializeObject();
 
@@ -918,7 +923,7 @@ function doRegistration() {
 				
 			//msgBox("Something's wrong with your connection. Please check and try again.","error");
 			return;
-			}
+			} */
 		}
 	}).done(function(){
     $butt.removeAttr('disabled');
@@ -931,7 +936,6 @@ function doLogin() {
 	// return false;
 	
 	var $me = $('#login_form');
-	if($me.find('.loading_icon').is(':visible')) return;
 	
 	$('._form_errors').hide();
 	$('._e_login').hide();
@@ -972,7 +976,7 @@ function doLogin() {
 				$me.find('._form_errors._e_login').text('Invalid email/password');
 				$me.find('._form_errors._e_login').show();
 			} else {
-				$me.find('._form_errors._e_login').text('An error occurred, please check your connection.');
+				$me.find('._form_errors._e_login').text('Please check your connection, and try aggin.');
 				$me.find('._form_errors._e_login').show();
 				
 			}

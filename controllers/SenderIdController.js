@@ -18,10 +18,18 @@ exports.index = (req, res) => {
     })
     .then((sids) => {
         console.log('groups are: ' + JSON.stringify(sids));
+        var flashtype, flash = req.flash('error');
+        if(flash.length > 0) {
+            flashtype = "error";           
+        } else {
+            flashtype = "success";
+            flash = req.flash('success');
+        }
+
         res.render('pages/dashboard/sender_ids', {
             page: 'Sender IDs',
             senderids: true,
-            flash: req.flash('success'),
+            flashtype, flash,
 
             args: {
                 sids: sids,
@@ -39,15 +47,28 @@ exports.add = (req, res) => {
 
     models.User.findByPk(user_id).then(user => {
 
-        user.createSender(req.body) 
-        .then((sid) => {
-            console.log('ID created');
-            
-            req.flash('success', 'Your new SenderID has been created. Kindly note that you cannot use this Sender ID in a campaign until it is active. Approval by the telcos takes 6 hours.');
+        if(req.body.name.length > 0 && req.body.name.length  < 12) {
+            user.createSender(req.body) 
+            .then((sid) => {
+                console.log('ID created');
+                
+                req.flash('success', 'Your new SenderID has been created. Kindly note that you cannot use this Sender ID in a campaign until it is active. Approval by the telcos takes 6 hours.');
+                var backURL = req.header('Referer') || '/';
+                res.redirect(backURL);
+
+            })
+            .catch((err) => {
+                if(err.name == 'SequelizeUniqueConstraintError') {
+                    req.flash('error', 'Sender ID already exists on your account.');
+                    var backURL = req.header('Referer') || '/';
+                    res.redirect(backURL);
+                }
+            })
+        } else {
+            req.flash('error', "Kindly enter a valid Sender ID. Note: max 11 chars; no spaces; only alphanumeric characters.");
             var backURL = req.header('Referer') || '/';
             res.redirect(backURL);
-
-        })
+        }
 
     })
 

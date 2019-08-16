@@ -17,8 +17,8 @@
 		</div>
 
 		{{#if flash}}
-			<div class="notification success closeable no-shadow">
-				<p><span>Success!</span> {{ flash }}</p>
+			<div class="notification {{ flashtype }} closeable no-shadow">
+				<p><span style="text-transform: capitalize">{{ flashtype }}!</span> {{ flash }}</p>
 				<a class="close"></a>
 			</div>
 		{{/if}}

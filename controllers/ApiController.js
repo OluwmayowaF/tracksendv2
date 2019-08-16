@@ -46,6 +46,7 @@ exports.getContacts = (req, res) => {
             q = models.Group.findByPk(req.query.grp, {
                 include: [{
                     model: models.Contact, 
+                    where: { userId: req.user.id } 
                     // attributes: ['id', 'name', 'nameKh'], 
                     // through: { }
                 }],
