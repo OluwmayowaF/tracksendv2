@@ -7897,6 +7897,7 @@ body .notification strong { border: none; }
 	top: 100px;
 	left: 15px;
 	border: outset 1px;
+	z-index: 20;
 }
 .notification.other2 {
 	position: absolute;

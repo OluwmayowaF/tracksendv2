@@ -4,7 +4,7 @@ const path = require('path');
 
 var dashboardController = require('../controllers/DashboardController');
 
-const dashboardRouter = require('./contacts');
+// const dashboardRouter = require('./contacts');
 const contactRouter = require('./contacts');
 const campaignRouter = require('./campaigns');
 const senderIdRouter = require('./senderids');
