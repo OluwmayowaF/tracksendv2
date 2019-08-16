@@ -153,8 +153,11 @@
 								<h5>Group </h5>
 								<select class="chosen-select-no-single" name="group" id="new_contact_group" required>
 									{{!-- <option label="blank" value="0">[No Group]</option> --}}
+									<option></option>
 									<option value="-1">[Create Group]</option>
+									{{#if args.grps.length}}
 									<option label="blank" disabled>--------------------------------</option>
+									{{/if}}
 									{{#each args.grps}}
 									<option value="{{ id }}">{{ name }}</option>
 									{{/each}}

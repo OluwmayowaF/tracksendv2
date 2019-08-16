@@ -36,16 +36,7 @@
 		</div>
 		{{/if}}
 
-		{{#if args.noasenderids}}
-		<div class="row _blink">
-			<div class="col-md-12">
-				<div class="notification error closeable margin-bottom-30">
-					<p>NO <strong>ACTIVE/APPROVED</strong> SENDER ID ON YOUR ACCOUNT: <span style="color: #666">It takes 6 hours for a new Sender ID to become 'Active', if approved.</span></p>
-					<a class="close" href="#"></a>
-				</div>
-			</div>
-		</div>
-		{{else if args.nosenderids}}
+		{{#if args.nosenderids}}
 		<div class="row _blink">
 			<div class="col-md-12">
 				<a href="/dashboard/senderids">
@@ -54,6 +45,15 @@
 					<a class="close" href="#"></a>
 				</div>
 				</a>
+			</div>
+		</div>
+		{{else if args.noasenderids}}
+		<div class="row _blink">
+			<div class="col-md-12">
+				<div class="notification error closeable margin-bottom-30">
+					<p>NO <strong>ACTIVE/APPROVED</strong> SENDER ID ON YOUR ACCOUNT: <span style="color: #666">It takes 6 hours for a new Sender ID to become 'Active', if approved.</span></p>
+					<a class="close" href="#"></a>
+				</div>
 			</div>
 		</div>
 		{{/if}}
