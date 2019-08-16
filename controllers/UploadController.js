@@ -150,7 +150,7 @@ exports.do = (req, res) => {
                 console.log('new group ID is: ' + groupId);
                 
                 var pth = req.file.path.split('\\')[2];
-                pth = (pth.length > 0) ? pth : req.file.path.split('/')[2];
+                pth = (pth) ? pth : req.file.path.split('/')[2];
                 console.log('====================================');
                 console.log('path file: ' + req.file.path + '; split: ' + pth);
                 console.log('====================================');
@@ -175,7 +175,7 @@ exports.do = (req, res) => {
             var pth = req.file.path.split('\\')[2];
             console.log('====================================');
             console.log('path split: ' + pth);
-            pth = (pth.length > 0) ? pth : req.file.path.split('/')[2];
+            pth = (pth) ? pth : req.file.path.split('/')[2];
             console.log('====================================');
             console.log('path file: ' + req.file.path + '; split: ' + pth);
             console.log('====================================');
