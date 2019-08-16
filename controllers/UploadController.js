@@ -216,6 +216,7 @@ exports.validate = (req, res) => {
     var has_headers = true;
     var rowcount = 0;
     var fpath = "tmp\\csv\\" + req.body.fid;
+    var fpath2 = "tmp/csv/" + req.body.fid;
     var rows_inp = req.body.row; 
     var rows_std = req.body.rows.split(','); 
     var rows_matched = []; 
@@ -229,9 +230,12 @@ exports.validate = (req, res) => {
      
     // csv.parseFile(fpath, {headers: true})
     if(!fs.existsSync(fpath)) {
-        req.flash('error', 'An error occurred, please re-upload your file.');
-        res.redirect('/dashboard/upload');
-        return;
+        fpath = fpath2;
+        if(!fs.existsSync(fpath)) {
+            req.flash('error', 'An error occurred, please re-upload your file.');
+            res.redirect('/dashboard/upload');
+            return;
+        }
     }
     
     csv.parseFile(fpath)
