@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const Sequelize = require('sequelize');
 var models = require('../models');
 const request = require('request');
 const {initializePayment, verifyPayment} = require('../config/paystack')(request);
@@ -17,23 +18,38 @@ exports.index = (req, res) => {
     })
     .then((tups) => {
 
-        var flashtype, flash = req.flash('error');
-        if(flash.length > 0) {
-            flashtype = "error";           
-        } else {
-            flashtype = "success";
-            flash = req.flash('success');
-        }
+        models.Settingstopuprate.findAll({
+            order: [ 
+                ['id', 'ASC']
+            ]
+        })
+        .then((rates) => {
 
-        res.render('pages/dashboard/topups', {
-            page: 'TopUps',
-            topups: true,
-            flashtype, flash,
-
-            args: {
-                tups: tups,
+            console.log('====================================');
+            console.log(JSON.stringify(rates));
+            console.log('====================================');
+            
+            var flashtype, flash = req.flash('error');
+            if(flash.length > 0) {
+                flashtype = "error";           
+            } else {
+                flashtype = "success";
+                flash = req.flash('success');
             }
-        });
+
+            res.render('pages/dashboard/topups', {
+                page: 'TopUps',
+                topups: true,
+                flashtype, flash,
+
+                args: {
+                    tups,
+                    rates,
+                }
+            });
+        })
+
+        
 
     })
 
@@ -58,35 +74,133 @@ exports.index = (req, res) => {
 
 exports.pay = (req, res) => {
 
-    var form = _.pick(req.body,['amount','email','full_name','metadata','reference']);
+    var form = _.pick(req.body,['amount','phone','email','full_name','metadata','reference','callback_url']);
     form.full_name = req.user.name;
+    form.phone = req.user.phone;
     form.email = req.user.email;
-    form.reference = '';
+    // form.reference = 'ourfirsttime';
+    form.callback_url = 'https://dev2.tracksend.co/topups/ref';
     form.amount *= 100;
     
+    models.Payment.create({
+        paymentref: '-',
+        userId: req.user.id,
+        name: form.full_name,
+        phone: form.phone,
+        email: form.email,
+        amount: form.amount,       //   amount in kobo
+        currency: 'NGN',
+        channel: '-',
+    })
+    .then((pay) => {
+        form.reference = pay.id;
+        initializePayment(form, (error, body)=>{
+            if(error){
+                //handle errors
+                console.log(error);
+                req.flash('error', 'An error occurred. Please refresh page and try again.');
+                res.redirect('dashboard/topups/');
+                return;
+            }
+            const response = JSON.parse(body);
+            res.redirect(response.data.authorization_url)
+        });
+        
+    } )
     /* form.metadata = {
         full_name : form.full_name
     } */
-    initializePayment(form, (error, body)=>{
-        if(error){
-            //handle errors
-            console.log(error);
-            return;
-       }
-       const response = JSON.parse(body);
-       res.redirect(response.data.authorization_url)
-    });
 
 };
 
 exports.ref = (req, res) => {
 
+    try {
+        const ref = req.query.reference;
+        verifyPayment(ref, async (error, body)=>{
+            if(error){
+                //handle errors appropriately
+                console.log(error)
+                // return res.redirect('dashboard/topups/error');
+                throw 'Error in verifying payment.';
+            }
+            
+            const response = JSON.parse(body);
+            const data = _.at(response.data, ['reference', 'amount','customer.email', 'metadata.full_name']);
+            var [reference, amount, email, full_name] =  data;
+            var newDonor = {reference, amount, email, full_name}
+
+            var payment = await models.Payment.findByPk(ref);
+            var r = await payment.update({isverified: 1,});
+                console.log('====================================');
+                console.log('payment table update feedbak = ' + JSON.stringify(r));
+                console.log('====================================');
+
+            var rate = await models.Settingstopuprate.findAll({
+                order: [ 
+                    ['id', 'ASC']
+                ]
+            });
+
+            let owo = response.amount;
+            var units = 0;
+            var rid = 0;
+            var drate = 0;
+            rate.forEach(el => {
+                if(owo >= el.lowerlimit && owo <= el.upperlimit) {
+                    drate = el.amount;
+                    rid = el.id;
+                }
+            });
+            if(drate != 0) {
+                units = Math.floor(owo/drate);
+            } else throw 'Error in amount paid';
+
+            var tpp = await models.Topup.create({
+                userId: payment.userId,
+                settingstopuprateId: rid,
+                amount: payment.amount/100, //  amount in NGN
+                units,
+                paymentId: payment.id,
+            })
+            .then(async () => {
+                var usr = await models.User.findByPk(payment.userId);
+                await usr.update({
+                    balance: Sequelize.literal('balance + ' + units),
+                });
+
+
+            })
+            
+            return tpp;
+            /* const donor = new Donor(newDonor)
+
+            donor.save().then((donor)=>{
+                if(!donor){
+                    res.redirect('dashboard/topups/error');
+                }
+                res.redirect('/receipt/'+donor._id);
+            }).catch((e)=>{
+        }); */
+        });
+    } catch (err) {
+        console.log('====================================');
+        console.log('ERROR : ' + err);
+        console.log('====================================');
+
+        req.flash('error', 'An error occurred during your payment. Kindly contact platform admin.');
+        res.redirect('dashboard/topups/');
+    }
+};
+
+exports.errpg = (req, res) => {
+
     const ref = req.query.reference;
-    verifyPayment(ref, (error,body)=>{
+    verifyPayment(ref, (error, body)=>{
         if(error){
             //handle errors appropriately
             console.log(error)
-            return res.redirect('/error');
+            return res.redirect('dashboard/topups/error');
         }
         
         const response = JSON.parse(body);

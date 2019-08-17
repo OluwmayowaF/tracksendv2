@@ -24,14 +24,28 @@ exports.contactList = (req, res) => {
     })
     .then(grps => { 
         
-        res.render('pages/dashboard/contact_list', {
-            page: 'CONTACTS',
-            contactlist: true,
+        models.Group.findAll({ 
+            where: { 
+                userId: user_id,
+                name: '[Uncategorized]',
+            },
+        })
+        .then(non => { 
+            var ngrp = non[0].id;
+console.log('====================================');
+console.log('NON= ' + ngrp);
+console.log('====================================');
+            res.render('pages/dashboard/contact_list', {
+                page: 'CONTACTS',
+                contactlist: true,
 
-            args: {
-                grps: grps,
-            }
+                args: {
+                    grps,
+                    ngrp,
+                }
+            });
         });
+
     });
 
 };
@@ -55,13 +69,21 @@ exports.newContact = (req, res) => {
                 ['createdAt', 'DESC']
             ]
         }), 
+        models.Group.findAll({ 
+            where: { 
+                userId: user_id,
+                name: '[Uncategorized]',
+            },
+        }), 
         models.Country.findAll({ 
             order: [ 
                 ['name', 'ASC']
             ]
         })
     ])
-    .then(([grps, ctry]) => { 
+    .then(([grps, non, ctry]) => { 
+        var ngrp = non[0].id;
+        console.log('NGRP = ' + JSON.stringify(non[0].id));
         
         var flashtype, flash = req.flash('error');
         if(flash.length > 0) {
@@ -77,8 +99,9 @@ exports.newContact = (req, res) => {
             flashtype, flash,
 
             args: {
-                grps: grps,
-                ctry: ctry,
+                grps,
+                ngrp,
+                ctry,
             }
         });
     });

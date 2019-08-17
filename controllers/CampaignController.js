@@ -46,6 +46,12 @@ exports.index = (req, res) => {
                 ['createdAt', 'DESC']
             ]
         }),
+        models.Group.findAll({
+            where: { 
+                userId: user_id,
+                name: '[Uncategorized]',
+            },
+        }),
         models.Sender.count({
             where: { 
                 userId: user_id,
@@ -63,7 +69,9 @@ exports.index = (req, res) => {
                 userId: user_id,
             }
         }), 
-    ]).then(([cpns, sids, grps, csender, casender, ccontact]) => {
+    ]).then(([cpns, sids, grps, non, csender, casender, ccontact]) => {
+        var ngrp = non[0].id;
+
         console.log('====================================');
         console.log('cpns: ' + cpns + ', sids: ' + sids + ', grps: ' + grps + ', csender: ' + csender + ', casender: ' + casender + ', ccontact' + ccontact);
         console.log('====================================');
@@ -85,9 +93,10 @@ exports.index = (req, res) => {
             flashtype, flash,
 
             args: {
-                cpns: cpns,
-                sids: sids,
-                grps: grps,
+                cpns,
+                sids,
+                grps,
+                ngrp,
                 nosenderids,
                 noasenderids,
                 nocontacts,

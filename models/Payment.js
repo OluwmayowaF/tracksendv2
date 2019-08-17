@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     email: DataTypes.STRING,
     amount: DataTypes.DOUBLE,
     currency: DataTypes.STRING,
+    channel: DataTypes.STRING,
     isverified: DataTypes.INTEGER,
   }, {});
  

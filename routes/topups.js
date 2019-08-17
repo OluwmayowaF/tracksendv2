@@ -6,6 +6,7 @@ var topupController = require('../controllers/TopupController');
 router.get('/', topupController.index);
 router.post('/pay', topupController.pay);
 router.post('/ref', topupController.ref);
+router.post('/error', topupController.errpg);
 // router.post('/add', senderIdController.add);
 
 
