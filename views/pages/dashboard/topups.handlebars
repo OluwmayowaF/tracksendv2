@@ -48,10 +48,9 @@
 										<h5>Rates (per unit)</h5>
 
 										<ul class="rates_list">
-											<li><span class="amount">N2</span><span class="band"> : </span><span class="_lower">1</span> - <span class="_upper">50,000</span> units</li>
-											<li><span class="amount">N1.9</span><span class="band"> : </span><span class="_lower">50,001</span> - <span class="_upper">100,000</span> units</li>
-											<li><span class="amount">N1.8</span><span class="band"> : </span><span class="_lower">100,001</span> - <span class="_upper">500,000</span> units</li>
-											<li><span class="amount">N1.7</span><span class="band"> : </span><span class="_lower">Above</span> <span class="_upper">500,000</span> units</li>
+											{{#each args.rates}}
+											<li><span class="amount">N{{ amount }}</span><span class="band"> : </span><span class="_lower">{{ lowerlimit }}</span> - <span class="_upper">{{ upperlimit }}</span> units</li>
+											{{/each}}
 										</ul>
 									</div>
 

@@ -199,7 +199,7 @@
 												<h5>Select Group(s) </h5>
 												<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" required multiple>
 													<option label="blank" value="0">Select Group</option>
-													<option value="1">[Uncategorized]</option>
+													<option value="{{ args.ngrp }}">[Uncategorized]</option>
 													<option disabled>--------------------------------------</option>
 													{{#each args.grps}}
 													<option value="{{ id }}">{{ name }}</option>

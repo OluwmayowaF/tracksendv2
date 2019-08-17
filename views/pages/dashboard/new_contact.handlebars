@@ -82,7 +82,7 @@
 								<h5>Group </h5>
 								<select class="chosen-select-no-single" name="group" id="new_contact_group">
 									{{!-- <option label="blank" >[No Group]</option> --}}
-									<option value="1">[Uncategorized]</option>
+									<option value="{{ args.ngrp }}">[Uncategorized]</option>
 									<option value="-1">[Create Group]</option>
 									<option label="blank" disabled>--------------------------------</option>
 									{{#each args.grps}}
