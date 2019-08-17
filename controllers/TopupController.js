@@ -126,6 +126,7 @@ exports.ref = (req, res) => {
             }
             
             const response = JSON.parse(body);
+            console.log('RESPONSE IS -> ' + JSON.stringify(response));
             const data = _.at(response.data, ['reference', 'amount','customer.email', 'metadata.full_name']);
             var [reference, amount, email, full_name] =  data;
             var newDonor = {reference, amount, email, full_name}
@@ -143,7 +144,7 @@ exports.ref = (req, res) => {
             });
             console.log('111111111 -> ' + response.amount);
             
-            let owo = response.amount;
+            let owo = parseInt(r.amount)/100;
             var units = 0;
             var rid = 0;
             var drate = 0;
