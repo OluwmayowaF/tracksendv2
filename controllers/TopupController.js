@@ -79,7 +79,7 @@ exports.pay = (req, res) => {
     form.phone = req.user.phone;
     form.email = req.user.email;
     // form.reference = 'ourfirsttime';
-    form.callback_url = 'https://dev2.tracksend.co/topups/ref';
+    form.callback_url = 'https://dev2.tracksend.co/dashboard/topups/ref';
     form.amount *= 100;
     
     models.Payment.create({
