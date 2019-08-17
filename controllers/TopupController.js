@@ -141,7 +141,7 @@ exports.ref = (req, res) => {
                     ['id', 'ASC']
                 ]
             });
-            console.log('111111111');
+            console.log('111111111 -> ' + response.amount);
             
             let owo = response.amount;
             var units = 0;
