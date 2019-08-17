@@ -99,7 +99,7 @@ exports.pay = (req, res) => {
                 //handle errors
                 console.log(error);
                 req.flash('error', 'An error occurred. Please refresh page and try again.');
-                res.redirect('dashboard/topups/');
+                res.redirect('/dashboard/topups/');
                 return;
             }
             const response = JSON.parse(body);
@@ -183,7 +183,7 @@ exports.ref = (req, res) => {
                 console.log('DONE!');
                 
                 req.flash('success', 'Payment successful. Account topped up with ' + units + '.');
-                res.redirect('dashboard/topups/');
+                res.redirect('/dashboard/topups/');
 
 
             })
@@ -211,28 +211,5 @@ exports.ref = (req, res) => {
 
 exports.errpg = (req, res) => {
 
-    const ref = req.query.reference;
-    verifyPayment(ref, (error, body)=>{
-        if(error){
-            //handle errors appropriately
-            console.log(error)
-            return res.redirect('dashboard/topups/error');
-        }
-        
-        const response = JSON.parse(body);
-        const data = _.at(response.data, ['reference', 'amount','customer.email', 'metadata.full_name']);
-        var [reference, amount, email, full_name] =  data;
-        var newDonor = {reference, amount, email, full_name}
-        
-        const donor = new Donor(newDonor)
-
-        donor.save().then((donor)=>{
-            if(!donor){
-                res.redirect('/error');
-            }
-            res.redirect('/receipt/'+donor._id);
-        }).catch((e)=>{
-            res.redirect('/error');
-       });
-    });
+    
 };
