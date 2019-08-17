@@ -182,7 +182,7 @@ exports.ref = (req, res) => {
                 });
                 console.log('DONE!');
                 
-                req.flash('success', 'Payment successful. Account topped up with ' + units + '.');
+                req.flash('success', 'Payment successful. Account topped up with ' + units + ' units.');
                 res.redirect('/dashboard/topups/');
 
 
