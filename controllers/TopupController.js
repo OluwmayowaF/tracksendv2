@@ -141,21 +141,30 @@ exports.ref = (req, res) => {
                     ['id', 'ASC']
                 ]
             });
-
+            console.log('111111111');
+            
             let owo = response.amount;
             var units = 0;
             var rid = 0;
             var drate = 0;
             rate.forEach(el => {
+                console.log('trying...');
+                
                 if(owo >= el.lowerlimit && owo <= el.upperlimit) {
+                    console.log('got it!');
+                    
                     drate = el.amount;
                     rid = el.id;
                 }
             });
             if(drate != 0) {
+                console.log('moving on...');
+                
                 units = Math.floor(owo/drate);
             } else throw 'Error in amount paid';
 
+            console.log('we dey here...');
+            
             var tpp = await models.Topup.create({
                 userId: payment.userId,
                 settingstopuprateId: rid,
@@ -164,10 +173,16 @@ exports.ref = (req, res) => {
                 paymentId: payment.id,
             })
             .then(async () => {
+                console.log('and almost finally...');
+                
                 var usr = await models.User.findByPk(payment.userId);
                 await usr.update({
                     balance: Sequelize.literal('balance + ' + units),
                 });
+                console.log('DONE!');
+                
+                req.flash('success', 'Payment successful. Account topped up with ' + units + '.');
+                res.redirect('dashboard/topups/');
 
 
             })
