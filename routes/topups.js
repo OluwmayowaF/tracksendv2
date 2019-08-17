@@ -5,8 +5,8 @@ var topupController = require('../controllers/TopupController');
 // Home page route.
 router.get('/', topupController.index);
 router.post('/pay', topupController.pay);
-router.post('/ref', topupController.ref);
-router.post('/error', topupController.errpg);
+router.get('/ref', topupController.ref);
+router.get('/error', topupController.errpg);
 // router.post('/add', senderIdController.add);
 
 
