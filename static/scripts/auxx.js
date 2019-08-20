@@ -374,6 +374,7 @@ $(document).ready(function() {
 				$('#details_ctr').text(parseInt(data.delivered) == 0 ? 0 : ((parseInt(data.clicks) / parseInt(data.delivered)) * 100));
 				$('#details_mcount').text(data.mcount);
 				$('#details_ccount').text(data.ccount);
+				$('#campaign_box_header').text(data.messages[0].name);
 
 				config.data.datasets[0].data = [ 
 					parseInt(data.delivered), 
