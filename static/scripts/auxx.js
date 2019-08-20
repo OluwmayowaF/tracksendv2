@@ -375,6 +375,7 @@ $(document).ready(function() {
 				$('#details_mcount').text(data.mcount);
 				$('#details_ccount').text(data.ccount);
 				$('#campaign_box_header').text(data.messages[0].name);
+				console.log('NAME NA: ' + data.messages[0].name);
 
 				config.data.datasets[0].data = [ 
 					parseInt(data.delivered), 
@@ -393,13 +394,13 @@ $(document).ready(function() {
 			},
 			error: function(resp, dd, ww) {
 				// $butt.removeAttr('disabled');
-				$butt.closest('div').find('.loading_icon').hide();
+				// $butt.closest('div').find('.loading_icon').hide();
 				$('._form_errors._e_analyse').text('An error occurred. Please try again, or refresh page.');
 				$('._form_errors._e_analyse').show();
 			}
 		}).done(function(){
 			// $butt.removeAttr('disabled');
-			$butt.closest('div').find('.loading_icon').hide();
+			// $butt.closest('div').find('.loading_icon').hide();
 		});
 
 	})
