@@ -683,6 +683,7 @@ exports.loadCampaign = (req, res) => {
         }),
         models.Campaign.findAll({ 
             where: { 
+                id: cmgnid,
                 userId: user_id,
             },
             include: [{
