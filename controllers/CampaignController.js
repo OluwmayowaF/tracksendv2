@@ -5,6 +5,7 @@ const request = require('request');
 const {tracksend_user, tracksend_pwrd, tracksend_base_url} = require('../config/cfg/infobip')();
 const _ = require('lodash');
 const Sequelize = require('sequelize');
+const sequelize = require('../config/cfg/db');
 const Op = Sequelize.Op;
 
 var buff = Buffer.from(tracksend_user + ':' + tracksend_pwrd);
@@ -15,18 +16,22 @@ exports.index = (req, res) => {
 
 
     console.log('showing page...'); 
-    
-    
+        
     Promise.all([
-        models.Campaign.findAll({ 
-            where: { 
-                userId: user_id
-            }, 
-            order: [ 
-                ['createdAt', 'DESC']
-            ]
-        }), 
-        models.Sender.findAll({ 
+        sequelize.query(
+            "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, campaigns.createdAt FROM campaigns " +
+            "JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
+            "JOIN groups ON groups.id = campaign_groups.groupId " +
+            "WHERE campaigns.userId = :uid " +
+            "GROUP BY campaigns.id " +
+            "ORDER BY campaigns.createdAt DESC ", {
+                replacements: {
+                    uid: user_id,
+                },
+                type: sequelize.QueryTypes.SELECT,
+            },
+        ), 
+        models.Sender.findAll({     //  get all sender ids for display in form
             where: { 
                 userId: user_id,
                 status: 1
@@ -35,7 +40,7 @@ exports.index = (req, res) => {
                 ['createdAt', 'DESC']
             ]
         }), 
-        models.Group.findAll({
+        models.Group.findAll({      //  get all groups for display in form, except uncategorized group
             where: { 
                 userId: user_id,
                 name: {
@@ -46,25 +51,25 @@ exports.index = (req, res) => {
                 ['createdAt', 'DESC']
             ]
         }),
-        models.Group.findAll({
+        models.Group.findAll({      //  get only the uncategorized group
             where: { 
                 userId: user_id,
                 name: '[Uncategorized]',
             },
         }),
-        models.Sender.count({
+        models.Sender.count({       //  get count of sender ids
             where: { 
                 userId: user_id,
                 // status: 1
             }
         }), 
-        models.Sender.count({
+        models.Sender.count({       //  get count of "active" sender ids
             where: { 
                 userId: user_id,
                 status: 1
             }
         }), 
-        models.Contact.count({
+        models.Contact.count({      //  get count of contacts
             where: { 
                 userId: user_id,
             }
@@ -73,7 +78,7 @@ exports.index = (req, res) => {
         var ngrp = non[0].id;
 
         console.log('====================================');
-        console.log('cpns: ' + cpns + ', sids: ' + sids + ', grps: ' + grps + ', csender: ' + csender + ', casender: ' + casender + ', ccontact' + ccontact);
+        console.log('cpns: ' + JSON.stringify(cpns) + ', sids: ' + JSON.stringify(sids) + ', grps: ' + JSON.stringify(grps) + ', csender: ' + csender + ', casender: ' + casender + ', ccontact' + ccontact);
         console.log('====================================');
         if(!csender) var nosenderids = true; else var nosenderids = false;
         if(!casender) var noasenderids = true; else var noasenderids = false;

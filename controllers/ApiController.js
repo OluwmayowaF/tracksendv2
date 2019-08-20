@@ -641,3 +641,110 @@ console.log('555555');
     }
 
 }
+
+exports.loadCampaign = (req, res) => {
+
+    
+    const ACCUMULATE_CONTACTS = true;
+    const ACCUMULATE_MESSAGES = true;
+
+    var user_id = req.user.id;
+    var cmgnid = req.query.id;
+
+    var nosenderids = false;
+    var nocontacts = false;
+    var nocampaigns = false;
+
+    var acc_m = 0;    //  accumulating msgs
+    var acc_c = 0;    //  accumulating msgs
+
+
+    console.log('showing page...' + cmgnid); 
+    
+    
+    Promise.all([
+        sequelize.query(
+            "SELECT * FROM ( SELECT COUNT(status) AS pending        FROM messages WHERE status = 0 AND campaignId = :cid ) t1," +
+            "              ( SELECT COUNT(status) AS delivered      FROM messages WHERE status = 1 AND campaignId = :cid ) t2," +
+            "              ( SELECT COUNT(status) AS failed         FROM messages WHERE status = 2 AND campaignId = :cid ) t3," +
+            "              ( SELECT COUNT(status) AS undeliverable  FROM messages WHERE status = 3 AND campaignId = :cid ) t4," +
+            "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = :cid ) t5," + 
+            "              ( SELECT userId                          FROM campaigns WHERE id = :cid ) t6 " +
+            "WHERE t6.userId = :id" , {
+                replacements: {
+                    cid: cmgnid,
+                    id: user_id,
+                },
+                type: sequelize.QueryTypes.SELECT,
+            }
+        ).then(([results, metadata]) => {
+            console.log(results);
+            return results;
+        }),
+        models.Campaign.findAll({ 
+            where: { 
+                userId: user_id,
+            },
+            include: [{
+                model: models.Message, 
+                limit: 5,
+                order: [ 
+                    ['createdAt', 'DESC']
+                ],
+                // attributes: ['id', 'name', 'nameKh'],
+                // through: { }
+            }], 
+            order: [ 
+                ['createdAt', 'DESC']
+            ],
+            limit: 1,
+        }), 
+        models.Contact.count({
+            where: { 
+                userId: user_id,
+            }
+        }), 
+        /* models.Message.count({
+            where: { 
+                userId: user_id,
+            }
+        }),  */
+        sequelize.query(
+            "SELECT COUNT(messages.id) AS msgcount FROM messages " +
+            "JOIN campaigns ON messages.campaignId = campaigns.id " +
+            "WHERE campaigns.userId = :id ", {
+                replacements: {
+                    id: user_id,
+                },
+                type: sequelize.QueryTypes.SELECT,
+            },
+        ).then(([results, metadata]) => {
+            console.log('unt is = ' + JSON.stringify(results));
+           
+            return results.msgcount;
+        }),
+    ]).then(([summary, messages, ccount, mcount]) => {
+        console.log('qqq= '+messages.length);
+        
+        console.log('====================================');
+        console.log('SUMM: ' + JSON.stringify(summary) + '; MESS: ' + JSON.stringify(messages) + '; CCONT: '+ JSON.stringify(ccount) + '; CMSG: ' + JSON.stringify(mcount));
+        console.log('====================================');
+        
+        res.send({
+            delivered: summary.delivered,
+            pending: summary.pending,
+            failed: summary.failed, 
+            undeliverable: summary.undeliverable,
+            clicks: summary.clicks,
+            messages,
+            ccount,
+            mcount,
+        });
+
+    });
+
+
+
+}
+
+
