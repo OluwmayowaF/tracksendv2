@@ -24,6 +24,7 @@ module.exports = function(app) {
   app.get ('/api/delcontact',       apiController.delContact);
   app.get ('/api/generateurl',      apiController.generateUrl);
   app.post('/api/analysecampaign',  apiController.analyseCampaign);
+  app.get('/api/loadcampaign',      apiController.loadCampaign);
 
   // Using the passport.authenticate middleware with our local strategy.
   // If the user has valid login credentials, send them to the members page.

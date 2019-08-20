@@ -88,7 +88,7 @@
 					</div>
 				</div>
 		{{/if}}
-				<div class="col-lg-12 toggle-container">
+				<div class="col-lg-12 toggle-container" style="display: none">
 
 					<div id="add-listing">
 						<!-- Tabs Navigation -->
@@ -186,7 +186,7 @@
 															</div> --}}
 
 															<button type="button" class="button preview short_url_btn paste" style="margin-top: 0">Insert in Msg <i class="fa fa-paste"></i></button>
-															<button type="button" class="button preview short_url_btn done" style="margin-top: 0">Done <i class="fa fa-arrow-circle-right"></i></button>
+															<button type="button" class="button preview short_url_btn done" style="margin-top: 0">OK <i class="fa fa-arrow-circle-right"></i></button>
 														</div>
 
 
@@ -228,7 +228,7 @@
 										<div class="_form_errors _e_analyse" style="display:none; margin-top: 10px"></div>
 
 										<input type="hidden" name="analysis_id" id="analysis_id" value="0">
-									<div><button type="submit" class="button preview" id="analyse_btn">Analyse <i class="im im-icon-Gears-2"></i></button> <span class="loading_icon fa fa-hourglass-2"></span></div>
+									<div><button type="submit" class="button preview" id="analyse_btn">Analyse <i class="im im-icon-Gears-2"></i></button> <span class="loading_icon fa fa-hourglass-2"></span><span style="margin-left: 5px" class="activity_status"></span></div>
 									<a href="#analysis-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1; visibility: hidden;" id="click_analysis_box"><i class="im im-icon-Two-Windows"></i> Show Analysis</a>
 											<div id="analysis-box" class="zoom-anim-dialog mfp-hide">
 
@@ -396,24 +396,24 @@
 								<ul>
 									<li class="list_item _hd" style="font-weight: bolder">
 										<ul class="saved_item">
-											<input type="hidden" class="cid" value="'+i.id+'" />
 											<li style="flex: 6">Name</li>
 											<li style="flex: 2">Status</li>
-											<li style="flex: 8">Description</li>
+											<li style="flex: 8">Sent To</li>
 											<li style="flex: 3">Units</li>
-											<li style="flex: 3">createdAt</li>
+											<li style="flex: 3">Created</li>
 											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; text-align: center; font-size: 2em; line-height: 0.3;">
 												...
 											</li>
 										</ul>
 									</li>
+									<a href="#campaign-detail-box" class="campaign-detail popup-with-zoom-anim" style="color: #09b1d1; visibility: hidden;" id="click_campaign_detail_box"></a>
 									{{#each args.cpns}}
-									<li class="list_item" data-wh="campaign">
+									<li class="list_item campaign_list" data-wh="campaign">
 										<ul class="saved_item _clickable">
 											<form><input type="hidden" class="id" value="{{ id }}" /></form>
 											<li style="flex: 6">{{ name }}</li>
-											<li style="flex: 2">Status</li>
-											<li style="flex: 8">{{ description }}</li>
+											<li style="flex: 2">Active</li>
+											<li style="flex: 8">{{ grpname }}</li>
 											<li style="flex: 3">{{ units_used }}</li>
 											<li style="flex: 3">createdAt</li>
 											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
@@ -428,45 +428,43 @@
 								</ul>
 							</div>
 
+
 						</div>
 						<!-- Row / End -->
 
 						<div id="campaign-detail-box" class="zoom-anim-dialog mfp-hide">
-
-							<div class="small-dialog-header">
-								<h3>Short URL <b> Setup</b></h3>
-							</div>
-
-							<!--Tabs -->
-							<div class="sign-in-form style-1">
-
-								<div class="row with-forms">
-
-									<!-- Status -->
-									<div class="col-md-12">
-										<h5>Enter or Paste Your Link</h5>
-										<input type="text" name="full_link" id="long_url_link" maxlength="50" placeholder="http://www.">
-										<button type="submit" class="button preview create_short_url_btn" style="margin-top: 0">Create <i class="sl sl-icon-refresh"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
-									</div>
-
-
-									<div class="col-md-12" style="margin-top: 30px;">
-										<h5>Here's Your Short URL:  <span class="customize_url_btn" style="display: none">[ Customize ]</span></h5>
-										<div class="short_url_box">http://tns.go/<span id="_edit_span" class="_editable" maxlength="5">...</span><input style="display: none" type="text" name="myshorturl" id="_edit_text" placeholder="..." class="_editable" maxlength="10" readonly >
-											<input type="hidden" name="shorturlid" id="shorturlid" >
+										<div class="small-dialog-header">
+											<h3>Campaign <b> Details</b></h3>
 										</div>
-										{{!-- <div class="short_url_box">https://tsn.go/
-										</div> --}}
+								<div class="sign-in-form style-1">
 
-										<button type="button" class="button preview short_url_btn paste" style="margin-top: 0">Insert in Msg <i class="fa fa-paste"></i></button>
-										<button type="button" class="button preview short_url_btn done" style="margin-top: 0">Update <i class="fa fa-arrow-circle-right"></i></button>
+									<div class="row with-forms">
+
+
+										<div class="col-lg-8 col-md-12">
+											<canvas id="myChart" height="300"></canvas>
+										</div>
+										<div class="col-lg-4 col-md-12" style="padding-top: 20px">
+											<div class="dashboard-stat color-1">
+												<div class="dashboard-stat-content" style="width: 38%; left: 25px; border-right: inset 1px;"><h4 id="details_clicks"></h4> <span>Total Clicks</span></div>
+												<div class="dashboard-stat-content" style="width: 33%; left: 170px;"><h4 id="details_ctr"></h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div>
+												<div class="dashboard-stat-icon"><i class="im im-icon-Mouse-2"></i></div>
+											</div>
+
+											<div class="dashboard-stat color-2">
+												<div class="dashboard-stat-content"><h4 id="details_mcount"></h4> <span>Total Messages Sent</span></div>
+												<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
+											</div>
+											
+											<div class="dashboard-stat color-4">
+												<div class="dashboard-stat-content"><h4 id="details_ccount"></h4> <span>Total Contacts</span></div>
+												<div class="dashboard-stat-icon"><i class="im im-icon-Add-UserStar"></i></div>
+											</div>
+										</div>
 									</div>
-
-
 								</div>
-
-							</div>
 						</div>
+					
 
 					</div>
 					<!-- Section / End -->
@@ -482,3 +480,58 @@
 		</div>
 
 	</div>
+
+<script type="text/javascript" src="/scripts/chart.min.js"></script>
+<script>
+		
+		var delivered = 		1;
+		var pending = 			1;
+		var failed = 				1;
+		var undeliverable = 1;
+						
+		// console.log('args rowth : ' + JSON.stringify(msggrowth));
+
+		var config = {
+			type: 'doughnut',
+			data: {
+				datasets: [{
+					data: [delivered, pending, failed, undeliverable ],
+					backgroundColor: [
+                'rgba(65, 193, 65, 1)',
+                'rgba(255, 174, 0, 1)',
+                //'rgba(202, 187, 170, 1)',
+                'rgba(222, 208, 191, 1)',
+                'rgba(255, 0, 0, 0.7)',
+					],
+					label: 'Dataset 1'
+				}],
+				labels: [
+					'Delivered',
+					'Pending',
+					'Failed',
+					'Undeliverable',
+				]
+			},
+			options: {
+				responsive: true,
+				legend: {
+					position: 'right',
+				},
+				title: {
+					display: true,
+					text: 'Your Last Campaign (Messages)'
+				},
+				animation: {
+					animateScale: true,
+					animateRotate: true
+				},
+				cutoutPercentage: 50
+			}
+		};
+
+		window.onload = function() {
+			var ctx = document.getElementById('myChart').getContext('2d');
+			window.myDoughnut = new Chart(ctx, config);
+		};
+
+	</script>

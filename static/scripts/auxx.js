@@ -16,7 +16,7 @@ $(document).ready(function() {
 
 	$('form').submit((e) => {
 		// if($(e.target).find('span.loading_icon').is(':visible')) return false;
-		$(e.target).find('span.loading_icon').show();
+		$(this).find('span.loading_icon').show();
 	})
 
 	$('.editable_div').on('keyup', countChars);
@@ -76,7 +76,7 @@ $(document).ready(function() {
 	});
   
   $('#new_contact_group').on('change', function(e) {
-    if($(e.target).val() == -1) {
+    if($(this).val() == -1) {
       console.log('hehe');
       
       $('#_new_group_info').find('input[name="name"]').attr('required','required');
@@ -133,6 +133,7 @@ $(document).ready(function() {
 
 	$('.create_short_url_btn').on('click', function (e) {
 
+		var $we = $(this);
 		var url = $('#long_url_link').val();
 
 		if(url.length < 5) {
@@ -140,7 +141,7 @@ $(document).ready(function() {
 			return;
 		}
 
-		$(e.target).closest('div').find('.loading_icon').show();
+		$we.closest('div').find('.loading_icon').show();
 		
 		$s_ = $('#_edit_span');
 		$t_ = $('#_edit_text');
@@ -175,7 +176,7 @@ $(document).ready(function() {
 					}
 				}); */
 
-				$(e.target).closest('div').find('.loading_icon').hide();
+				$we.closest('div').find('.loading_icon').hide();
 
 				var el = document.querySelector('.short_url_box span._editable');
 				var fx = new TextScramble(el);
@@ -199,7 +200,7 @@ $(document).ready(function() {
 
 			},
 			error: function(resp, dd, ww) {
-				$(e.target).closest('div').find('.loading_icon').hide();
+				$we.closest('div').find('.loading_icon').hide();
 				// $butt.removeAttr('disabled');
 				// $butt.closest('div').find('.loading_icon').hide();
 			}
@@ -260,6 +261,7 @@ $(document).ready(function() {
 		if($(this).hasClass('send')) {
 			campaign_confirmed = true;
 			$('#campaign_form').submit();
+			$('.activity_status').text('Sending...').show();
 		}
 
 	})
@@ -270,6 +272,7 @@ $(document).ready(function() {
 		$('._form_errors').hide();
 		$('._e_analyse').hide();
 		$butt.closest('div').find('.loading_icon').show();
+		$butt.closest('div').find('.activity_status').text('Analyzing...');
 		
 		if (campaign_confirmed) return true;
 		
@@ -328,6 +331,63 @@ $(document).ready(function() {
 				$('#click_analysis_box').click();
 
 				$butt.closest('div').find('.loading_icon').hide();
+				$butt.closest('div').find('.activity_status').text('');
+
+			},
+			error: function(resp, dd, ww) {
+				// $butt.removeAttr('disabled');
+				$butt.closest('div').find('.loading_icon').hide();
+				$butt.closest('div').find('.activity_status').text('');
+				$('._form_errors._e_analyse').text('An error occurred. Please try again, or refresh page.');
+				$('._form_errors._e_analyse').show();
+			}
+		}).done(function(){
+			// $butt.removeAttr('disabled');
+			$butt.closest('div').find('.loading_icon').hide();
+			$butt.closest('div').find('.activity_status').text('');
+		});
+
+		return false;
+
+	})
+
+	$('.list_item.campaign_list').on('click', function(e) {
+		e.stopPropagation();
+
+		var $we = $(this);
+		console.log(' ourrrrrr ' + $we.attr('class'));
+		var id = $we.find('.id').val();
+		var rr = config.data.datasets[0].data;
+				console.log(JSON.stringify(rr));
+		
+		$.ajax({
+			type: 'GET',
+			url: _getGlobals.SERVICE_HOST+'loadcampaign?id='+id,
+			contentType: 'application/json',
+			// data: json_campaign_login,
+				// data: json_form_reg,
+			success: function( data ) {
+
+				console.log(data);
+			
+				$('#details_clicks').text(data.clicks);
+				$('#details_ctr').text(parseInt(data.delivered) == 0 ? 0 : ((parseInt(data.clicks) / parseInt(data.delivered)) * 100));
+				$('#details_mcount').text(data.mcount);
+				$('#details_ccount').text(data.ccount);
+
+				config.data.datasets[0].data = [ 
+					parseInt(data.delivered), 
+					parseInt(data.pending), 
+					parseInt(data.failed), 
+					parseInt(data.undeliverable), 
+				];
+				console.log('====================================');
+				// console.log(JSON.stringify(config.data));
+				console.log('====================================');
+
+				// var ctx = document.getElementById('myChart').getContext('2d');
+				window.myDoughnut.update();
+				$('#click_campaign_detail_box').click();
 
 			},
 			error: function(resp, dd, ww) {
@@ -340,8 +400,6 @@ $(document).ready(function() {
 			// $butt.removeAttr('disabled');
 			$butt.closest('div').find('.loading_icon').hide();
 		});
-
-		return false;
 
 	})
 
@@ -416,9 +474,10 @@ $(document).ready(function() {
 
 	$('#sel_contact_group').on('change', function(e) {
 
-		if($(e.target).hasClass('_plain')) return;
+		$we = $(this);
+		if($we.hasClass('_plain')) return;
 
-		var opt = $(e.target).val();
+		var opt = $we.val();
 		console.log('efasd sfdasdfasdf sfdasd...'+opt);
 
 		if(opt == '0') {
@@ -598,7 +657,7 @@ $(document).ready(function() {
 	function initializeActionBtns() {
 		$('.edit_item_btn').off('click');
 		$('.edit_item_btn').on('click', function(e) {
-			var $btn = $(e.target);
+			var $btn = $(this);
 			var $item = $btn.closest('.list_item');
 			$item.find('.saved_item').hide();
 			$item.find('.inline_edit').show();
@@ -607,8 +666,8 @@ $(document).ready(function() {
 		
 		$('.del_item_btn').off('click');
 		$('.del_item_btn').on('click', function(e) {
-		
-			var $btn = $(e.target);
+			e.stopPropagation();
+			var $btn = $(this); console.log('btn = ' + $btn.attr('class'));
 			var $item = $btn.closest('.list_item');
 			var id = $item.find('form .id').val();
 			var wh = $item.attr('data-wh');
@@ -662,7 +721,7 @@ $(document).ready(function() {
 
 		$('.save_edit_btn').off('click');
 		$('.save_edit_btn').on('click', function(e) {
-			var $btn = $(e.target);
+			var $btn = $(this);
 			var $item = $btn.closest('.list_item');
 			var wh = $item.attr('data-wh');
 			var $me = $item.find('form');
@@ -724,7 +783,7 @@ $(document).ready(function() {
 
 		$('.cancel_edit_btn').off('click');
 		$('.cancel_edit_btn').on('click', function(e) {
-			var $btn = $(e.target);
+			var $btn = $(this);
 			var $item = $btn.closest('.list_item');
 			$item.find('.inline_edit').hide();
 			$item.find('.saved_item').show();
@@ -760,7 +819,7 @@ $(document).ready(function() {
 	})
 
 	$('#pwrd_edit_form').submit(function(e) {
-		var $we = $(e.target);
+		var $we = $(this);
 		$('._e_listing .e_list').html('');
 		var $htl = $we.find('._e_listing .e_list');
 
@@ -776,7 +835,7 @@ $(document).ready(function() {
 
 	$('#floating_msg._show').delay(3000).fadeOut();
 	$('#floating_msg._show').on('click', function(e) {
-		$(e.target).hide();
+		$(this).hide();
 	});
 
 	$('#amount_entry').on('keyup', function (e) {
