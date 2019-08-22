@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 
+var phoneval = require('../my_modules/phonevalidate');
 var models = require('../models');
 
 exports.index = function(req, res) {
@@ -119,13 +120,15 @@ exports.addContact = (req, res) => {
 
     models.User.findByPk(userId).then(async user => {
         try {
-            if(req.body.phone.length < 3) throw "Invalid Phone Number";
+            // if(req.body.phone.length < 3) throw "Invalid Phone Number";
+            if(!(req.body.phone = phoneval(req.body.phone))) throw "Invalid";
             if(req.body.group == -1) {
                 console.log('creating new contact and group');
                 var group = await user.createGroup(req.body);
             } else {
                 var group = await models.Group.findByPk(req.body.group);
             }
+
             group.createContact({
                 firstname: req.body.firstname,
                 lastname: req.body.lastname,
@@ -145,14 +148,27 @@ exports.addContact = (req, res) => {
                 var backURL = req.header('Referer') || '/';
                 res.redirect(backURL);
             })
+            .catch((err) => {
+                console.log(err);
+                if(err.name == 'SequelizeUniqueConstraintError') {
+                    req.flash('error', 'Contact already exists.');
+                } else {
+                    req.flash('error', 'An error occurred. Please try again later.');
+                }
+                var backURL = req.header('Referer') || '/';
+                res.redirect(backURL);
+            });
+            
         } catch(err) {
             console.log(err);
             console.log('errorerr = ' + err);
             
             if(err.name == 'SequelizeUniqueConstraintError') {
                 req.flash('error', 'Group Name already exists on your account.');
-            } else if (err == "Invalid Phone Number" ) {
-                req.flash('error', err);
+            } else if (err == "Invalid" ) {
+                req.flash('error', "Invalid Phone Number");
+            } else if (err == "Duplicate" ) {
+                req.flash('error', "Duplicate Phone Number");
             }
             var backURL = req.header('Referer') || '/';
             res.redirect(backURL);

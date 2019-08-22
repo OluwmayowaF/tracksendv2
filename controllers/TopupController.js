@@ -2,12 +2,12 @@ const _ = require('lodash');
 const Sequelize = require('sequelize');
 var models = require('../models');
 const request = require('request');
-const {initializePayment, verifyPayment} = require('../config/paystack')(request);
+const { initializePayment, verifyPayment } = require('../config/paystack')(request);
+const randgen = require('../my_modules/randgen');
 
 
-exports.index = (req, res) => {
+exports.index = async (req, res) => {
     var user_id = req.user.id;
-
     models.Topup.findAll({ 
         where: { 
             userId: user_id
@@ -34,7 +34,7 @@ exports.index = (req, res) => {
                 flashtype = "error";           
             } else {
                 flashtype = "success";
-                flash = req.flash('success');
+                flash = req.flash('success'); 
             }
 
             res.render('pages/dashboard/topups', {
@@ -72,18 +72,18 @@ exports.index = (req, res) => {
 };
 
 
-exports.pay = (req, res) => {
+exports.pay = async (req, res) => {
 
     var form = _.pick(req.body,['amount','phone','email','full_name','metadata','reference','callback_url']);
     form.full_name = req.user.name;
     form.phone = req.user.phone;
     form.email = req.user.email;
-    // form.reference = 'ourfirsttime';
+    form.reference = await randgen('paymentref', models.Payment);
     form.callback_url = 'https://dev2.tracksend.co/dashboard/topups/ref';
     form.amount *= 100;
     
     models.Payment.create({
-        paymentref: '-',
+        paymentref: form.reference,
         userId: req.user.id,
         name: form.full_name,
         phone: form.phone,
@@ -93,7 +93,6 @@ exports.pay = (req, res) => {
         channel: '-',
     })
     .then((pay) => {
-        form.reference = pay.id;
         initializePayment(form, (error, body)=>{
             if(error){
                 //handle errors

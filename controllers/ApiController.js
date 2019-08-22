@@ -28,9 +28,11 @@ exports.getContacts = (req, res) => {
                 "WHERE (" + 
                     " firstname LIKE :tt OR " +
                     " lastname LIKE :tt OR " + 
+                    " phone LIKE :tt " +
                     " email LIKE :tt " +
                 ") AND groupId = (:grp) " +
-                "AND userId = (:usr) ",
+                "AND userId = (:usr) " +
+                "LIMIT 100 ",
                 {
                     replacements: {
                         tt: '%' + req.query.txt + '%',
@@ -46,7 +48,8 @@ exports.getContacts = (req, res) => {
             q = models.Group.findByPk(req.query.grp, {
                 include: [{
                     model: models.Contact, 
-                    where: { userId: req.user.id } 
+                    where: { userId: req.user.id },
+                    limit: 100,
                     // attributes: ['id', 'name', 'nameKh'], 
                     // through: { }
                 }],
@@ -69,8 +72,10 @@ exports.getContacts = (req, res) => {
                 "WHERE (" + 
                     " firstname LIKE :tt OR " +
                     " lastname LIKE :tt OR " + 
+                    " phone LIKE :tt " +
                     " email LIKE :tt " +
-                ") AND userId = :usr ",
+                ") AND userId = :usr " +
+                "LIMIT 100 ",
                 {
                     replacements: {
                         tt: '%' + req.query.txt + '%',
@@ -86,7 +91,8 @@ exports.getContacts = (req, res) => {
                 // raw: true,
                 where: { 
                     userId: req.user.id, 
-                } 
+                },
+                limit: 100,
             });
         }
 
