@@ -103,6 +103,9 @@ exports.pay = (req, res) => {
                 return;
             }
             const response = JSON.parse(body);
+            console.log('====================================');
+            console.log('RESPONSE: ' + JSON.stringify(response));
+            console.log('====================================');
             res.redirect(response.data.authorization_url)
         });
         
