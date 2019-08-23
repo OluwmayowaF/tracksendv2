@@ -133,7 +133,13 @@ exports.ref = (req, res) => {
             var [reference, amount, email, full_name] =  data;
             var newDonor = {reference, amount, email, full_name}
 
-            var payment = await models.Payment.findByPk(ref);
+            var payment = await models.Payment.findAll({
+                where: {
+                    paymentref: ref,
+                }
+            });
+            console.log('retrieved payment: ' + JSON.stringify(payment));
+            
             var r = await payment.update({isverified: 1,});
                 console.log('====================================');
                 console.log('payment table update feedbak = ' + JSON.stringify(r));
