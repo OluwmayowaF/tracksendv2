@@ -294,7 +294,7 @@ exports.add = async (req, res) => {
                         .replace(/\[firstname\]/g, kont.firstname)
                         .replace(/\[lastname\]/g, kont.lastname)
                         .replace(/\[email\]/g, kont.email)
-                        .replace(/\[url\]/g, 'https://tsn.go/' + args.sid + '/' + args.cid)
+                        .replace(/\[url\]/g, 'http://tsn.pub/' + args.sid + '/' + args.cid)
                         .replace(/&nbsp;/g, ' ');
 
                         if(SINGLE_MSG) {
@@ -495,7 +495,7 @@ exports.add = async (req, res) => {
         }
 
     })
-    .error((err) => {
+    .catch((err) => {
         console.log('BIG BIG ERROR: ' + err);
     })
 
