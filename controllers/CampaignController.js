@@ -274,9 +274,10 @@ exports.add = async (req, res) => {
                         
                     } while (exists.length);
                     console.log('UID = ' + uid);
-                    
+                    let shrtlnk = await models.Shortlink.findByPk(info.shortlinkId);
                     return {
-                        sid : info.shortlinkId,
+                        sid : shrtlnk.id,
+                        slk : shrtlnk.shorturl,
                         cid: uid, 
                     };
                 }
@@ -294,7 +295,7 @@ exports.add = async (req, res) => {
                         .replace(/\[firstname\]/g, kont.firstname)
                         .replace(/\[lastname\]/g, kont.lastname)
                         .replace(/\[email\]/g, kont.email)
-                        .replace(/\[url\]/g, 'http://tsn.pub/' + args.sid + '/' + args.cid)
+                        .replace(/\[url\]/g, 'http://tsn.pub/' + args.slk + '/' + args.cid)
                         .replace(/&nbsp;/g, ' ');
 
                         if(SINGLE_MSG) {
