@@ -413,7 +413,7 @@ exports.add = async (req, res) => {
                             }
                         }
                         
-                        request.post(options,(err, response) => {
+                        request.post(options, async (err, response) => {
                             if (err){
                                 console.log('ERROR = ' + err);
                                 failures++;
@@ -433,40 +433,39 @@ exports.add = async (req, res) => {
                             if((successfuls + failures) == batches) {
                                 console.log('SUCCESSFULS: ' + successfuls + '; FAILURES : ' + failures);
 
-                                let new_bal = parseFloat(user_balance.balance) - parseFloat(info.units_used);
-                                console.log('old bal = ' + user_balance.balance + '; units used = ' + info.units_used + '; NEW BALANCE = ' + new_bal);
+                                try {
+                                    if(successfuls > 0) {
+                                        let new_bal = parseFloat(user_balance.balance) - parseFloat(info.units_used);
+                                        console.log('old bal = ' + user_balance.balance + '; units used = ' + info.units_used + '; NEW BALANCE = ' + new_bal);
+
+                                        let usr = await models.User.findByPk(user_id)
+                                        //  UPDATE UNITS USER BALANCE
+                                        await usr.update({
+                                            balance: new_bal,
+                                        });
+                                        //  UPDATE UNITS USED FOR CAMPAIGN
+                                        cpn.update({
+                                            units_used: info.units_used,
+                                        });
+                                        //  REMOVE TEMPORARY DATA
+                                        await info.destroy();
                                 
-                                models.User.findByPk(user_id)
-                                .then((usr) => { 
-                                    return usr.update({
-                                        balance: new_bal,
-                                    })
-                                })
-                                //  UPDATE UNITS USED FOR CAMPAIGN
-                                .then(() => {
-                                    return cpn.update({
-                                        units_used: info.units_used,
-                                    })
-                                })
-                                //  REMOVE TEMPORARY DATA
-                                .then(() => {
-                                    return info.destroy()
-                                    .then(() => {
-                                        console.log('TEMP DELETED!');
-            
-                                        if(failures) req.flash('success', 'Campaign created but some errors occurred.');
-                                        else req.flash('success', 'Campaign created successfully. Messages sent out.');
+                                        // if(failures) req.flash('success', 'Campaign created but some errors occurred.');
+                                        req.flash('success', 'Campaign created successfully. Messages sent out.');
                                         var backURL = req.header('Referer') || '/';
                                         res.redirect(backURL);
-                                    })
-                                })
-                                .error((err) => {
+                                    } else {
+                                        req.flash('error', 'An error occurred while sending out your Campaign. Please try again later or contact admin.');
+                                        var backURL = req.header('Referer') || '/';
+                                        res.redirect(backURL);
+                                    }
+                                } catch (err) {
                                     console.log('THIS ERROR: ' + err);
             
-                                    req.flash('error', 'Campaign created, but an error occured.');
+                                    req.flash('error', 'An error occurred while sending out your Campaign. Please try again later or contact admin.');
                                     var backURL = req.header('Referer') || '/';
                                     res.redirect(backURL);
-                                })
+                                }
                             }
                         });
                 
