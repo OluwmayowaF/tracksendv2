@@ -31,7 +31,8 @@ $(document).ready(function() {
 			$(this).find('span.loading_icon').hide();
 
 			return false;
-		}
+		} 
+		return true;
 	})
 
 	$('.editable_div').on('keyup', countChars);
