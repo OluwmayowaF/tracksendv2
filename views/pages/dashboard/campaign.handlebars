@@ -1,0 +1,171 @@
+	<div class="dashboard-content">
+
+		<!-- Titlebar -->
+		<div id="titlebar">
+			<div class="row">
+				<div class="col-md-12">
+				<!-- Breadcrumbs -->
+					<nav id="breadcrumbs">
+						<ul>
+							<li><a href="/">Home</a></li>
+							<li><a href="/dashboard">Dashboard</a></li>
+							<li><a href="/dashboard/campaigns">Campaigns</a></li>
+							<li>Campaign</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+
+		{{#if flash}}
+			<div class="notification {{ flashtype }} closeable no-shadow">
+				<p><span style="text-transform: capitalize">{{ flashtype }}!</span> {{ flash }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
+
+		<input type="hidden" name="" id="values_delivered" value="{{ args.delivered }}">
+		<input type="hidden" name="" id="values_pending" value="{{ args.pending }}">
+		<input type="hidden" name="" id="values_failed" value="{{ args.failed }}">
+		<input type="hidden" name="" id="values_undeliverable" value="{{ args.undeliverable }}">
+		<input type="hidden" name="" id="values_messages" value="{{ args.recipients }}">
+		<input type="hidden" name="" id="values_ccount" value="{{ args.ccount }}">
+		<input type="hidden" name="" id="values_mcount" value="{{ args.mcount }}">
+
+
+		<!-- Content -->
+		<div class="row">
+
+			<!-- Item -->
+			<div class="col-lg-4 col-md-6">
+				<div class="dashboard-stat color-1">
+					<div class="dashboard-stat-content" style="width: 38%; left: 25px; border-right: inset 1px;"><h4>{{ args.clicks }}</h4> <span>Total Clicks</span></div>
+					<div class="dashboard-stat-content" style="width: 33%; left: 170px;"><h4>{{ args.ctr }}</h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div>
+					<div class="dashboard-stat-icon"><i class="im im-icon-Mouse-2"></i></div>
+				</div>
+			</div>
+		
+			<div class="col-lg-4 col-md-6">
+				<div class="dashboard-stat color-2">
+					<div class="dashboard-stat-content"><h4>{{ args.mcount }}</h4> <span>Total Messages Sent</span></div>
+					<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
+				</div>
+			</div>
+
+			<div class="col-lg-4 col-md-6">
+				<canvas id="myChart" height="200"></canvas>
+			</div>
+		</div>
+
+
+		<div class="row">
+			<div class="col-lg-12" style="margin-top: 30px">
+				<div class="col-lg-12 page_box_header">Recipients
+				</div>
+			</div>
+			<div class="col-md-12 lists">
+				<ul>
+					<li class="list_item _hd" style="font-weight: bolder">
+						<ul class="saved_item">
+							<li style="flex: 4">First Name</li>
+							<li style="flex: 4">Last Name</li>
+							<li style="flex: 4">Phone</li>
+							<li style="flex: 2">Status</li>
+							<li style="flex: 3">Delivered</li>
+							<li style="flex: 3">Read</li>
+							<li style="flex: 3">Clicked</li>
+						</ul>
+					</li>
+					{{#each args.recipients}}
+
+					<a href="/dashboard/campaigns/campaign/{{ id }}" class="_campaign-detail" id="_click_campaign_detail_box">
+					<li class="list_item campaign_list" data-wh="campaign">
+						<ul class="saved_item _clickable">
+							<form><input type="hidden" class="id" value="{{ id }}" /></form>
+							<li style="cursor: pointer; flex: 4">{{ contact.firstname }}</li>
+							<li style="cursor: pointer; flex: 4">{{ contact.lastname }}</li>
+							<li style="cursor: pointer; flex: 4">{{ contact.phone }}</li>
+							<li style="cursor: pointer; flex: 2">{{ status }}</li>
+							<li style="cursor: pointer; flex: 3">{{ deliverytime }}</li>
+							<li style="cursor: pointer; flex: 3">{{ readtime }}</li>
+							<li style="cursor: pointer; flex: 3">{{ firstclicktime }}</li>
+						</ul>
+					</li>
+					</a>
+
+					{{else}}
+						<em>No Campaigns created yet.</em> 
+					{{/each}}
+				</ul>
+			</div>
+		</div>
+
+		
+		<div class="row">
+			<!-- Copyrights -->
+			<div class="col-md-12">
+				<div class="copyrights">© 2019 Tracksend. All Rights Reserved.</div>
+			</div>
+		</div>
+
+	</div>
+<script type="text/javascript" src="/scripts/chart.min.js"></script>
+<script>
+		var randomScalingFactor = function() {
+			return Math.round(Math.random() * 100);
+		};
+		
+		var delivered = 		document.getElementById('values_delivered').value;
+		var pending = 			document.getElementById('values_pending').value;
+		var failed = 				document.getElementById('values_failed').value;
+		var undeliverable = document.getElementById('values_undeliverable').value;
+						
+		var config = {
+			type: 'doughnut',
+			data: {
+				datasets: [{
+					data: [
+						document.getElementById('values_delivered').value,
+						document.getElementById('values_pending').value,
+						document.getElementById('values_failed').value,
+						document.getElementById('values_undeliverable').value,
+					],
+					backgroundColor: [
+                'rgba(65, 193, 65, 1)',
+                'rgba(255, 174, 0, 1)',
+                //'rgba(202, 187, 170, 1)',
+                'rgba(222, 208, 191, 1)',
+                'rgba(255, 0, 0, 0.7)',
+					],
+					label: 'Dataset 1'
+				}],
+				labels: [
+					'Delivered',
+					'Pending',
+					'Failed',
+					'Undeliverable',
+				]
+			},
+			options: {
+				responsive: true,
+				legend: {
+					position: 'bottom',
+				},
+				title: {
+					display: true,
+					text: 'Your Last Campaign (Messages)'
+				},
+				animation: {
+					animateScale: true,
+					animateRotate: true
+				},
+				cutoutPercentage: 60
+			}
+		};
+
+		window.onload = function() {
+			var ctx = document.getElementById('myChart').getContext('2d');
+			window.myDoughnut = new Chart(ctx, config);
+		};
+
+	</script>

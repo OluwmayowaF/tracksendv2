@@ -15562,10 +15562,10 @@ img.mfp-img {
     background-color: #fcfcfc;
 	}
 
-	.lists > ul li.list_item {
+	.lists ul li.list_item {
     border-bottom: inset 1px #ddd;
 	}
-	.lists > ul li.list_item:hover:not(._hd) {
+	.lists ul li.list_item:hover:not(._hd) {
     background-color: #e5eff1;
 	}
 

@@ -285,6 +285,7 @@ exports.add = async (req, res) => {
                     return cpn.createMessage({
                         shortlinkId: args.sid,
                         contactlink: args.cid,
+                        contactId: kont.id,
                     })
                     .then((shrt) => {
                         console.log('MESSAGE ENTRY CREATE STARTED.');
@@ -512,3 +513,104 @@ exports.add = async (req, res) => {
 	}
 
 }
+
+exports.view = (req, res) => {
+    var user_id = req.user.id;
+    var cmgnid = req.params.id;
+
+
+    console.log('showing page...'); 
+        
+    Promise.all([
+        sequelize.query(
+            "SELECT * FROM ( SELECT COUNT(status) AS pending        FROM messages WHERE status = 0 AND campaignId = :cid ) t1," +
+            "              ( SELECT COUNT(status) AS delivered      FROM messages WHERE status = 1 AND campaignId = :cid ) t2," +
+            "              ( SELECT COUNT(status) AS failed         FROM messages WHERE status = 2 AND campaignId = :cid ) t3," +
+            "              ( SELECT COUNT(status) AS undeliverable  FROM messages WHERE status = 3 AND campaignId = :cid ) t4," +
+            "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = :cid ) t5," + 
+            "              ( SELECT userId                          FROM campaigns WHERE id = :cid ) t6 " +
+            "WHERE t6.userId = :id" , {
+                replacements: {
+                    cid: cmgnid,
+                    id: user_id,
+                },
+                type: sequelize.QueryTypes.SELECT,
+            }
+        ).then(([results, metadata]) => {
+            console.log(results);
+            return results;
+        }),
+        models.Campaign.findAll({ 
+            where: { 
+                id: cmgnid,
+                userId: user_id,
+            },
+            include: [{
+                model: models.Message, 
+                limit: 100,
+                order: [ 
+                    ['createdAt', 'DESC']
+                ],
+                include: [{
+                    model: models.Contact, 
+                    attributes: ['id', 'firstname', 'lastname', 'phone'],
+                    // through: { }
+                }], 
+                attributes: ['deliverytime', 'readtime', 'firstclicktime'],
+                // through: { }
+            }], 
+            order: [ 
+                ['createdAt', 'DESC']
+            ],
+            limit: 1,
+        }), 
+        /* models.Message.count({
+            where: { 
+                userId: user_id,
+            }
+        }),  */
+        sequelize.query(
+            "SELECT COUNT(messages.id) AS msgcount FROM messages " +
+            "JOIN campaigns ON messages.campaignId = campaigns.id " +
+            "WHERE campaigns.userId = :uid " +
+            "AND campaigns.id = :id ", {
+                replacements: {
+                    uid: user_id,
+                    id: cmgnid,
+                },
+                type: sequelize.QueryTypes.SELECT,
+            },
+        ).then(([results, metadata]) => {
+            console.log('unt is = ' + JSON.stringify(results));
+           
+            return results.msgcount;
+        }),
+    ]).then(([summary, cpgnrecp, mcount]) => {
+        console.log('qqq= '+cpgnrecp.length);
+        var recipients = cpgnrecp[0].messages;
+        
+        console.log('====================================');
+        console.log('SUMM: ' + JSON.stringify(summary) + '; MESS: ' + JSON.stringify(cpgnrecp) + '; CMSG: ' + JSON.stringify(recipients.length));
+        console.log('====================================');
+        var mname = cpgnrecp.map((r) => r.name);
+        
+        res.render('pages/dashboard/campaign', { 
+            page: 'Campaign: "' + mname + '"', //'Campaigns',
+            campaigns: true,
+
+            args: {
+                delivered: summary.delivered,
+                pending: summary.pending,
+                failed: summary.failed, 
+                undeliverable: summary.undeliverable,
+                clicks: summary.clicks,
+                recipients,
+                mname,
+                mcount,
+                ctr: ((parseInt(summary.delivered) == 0) ? '0' : (parseInt(summary.clicks) * 100/parseInt(summary.delivered))),
+            }
+        });
+
+    });
+};
+

@@ -7,8 +7,8 @@
 					<!-- Breadcrumbs -->
 					<nav id="breadcrumbs">
 						<ul>
-							<li><a href="#">Home</a></li>
-							<li><a href="#">Dashboard</a></li>
+							<li><a href="/">Home</a></li>
+							<li><a href="/dashboard">Dashboard</a></li>
 							<li>New Contact</li>
 						</ul>
 					</nav>
@@ -28,7 +28,7 @@
 			<div class="col-lg-12">
 
 				<div id="add-listing">
-				<form action="/dashboard/contacts/add" method="POST">
+				<form action="/dashboard/contacts/add" method="POST" id="new_contact_form">
 
 					<!-- Section -->
 					<div class="add-listing-section">
@@ -109,14 +109,15 @@
 							</div>
 						</div>
 
+						<div class="checkboxes margin-top-10 _errorable">
+							<input id="have_consent" type="checkbox" name="check">
+							<label for="have_consent">This contact gave me permission to send him/her messages</label>
+						</div>
+
+						<div class="_form_errors _e_consent" style="display:none; margin-top: 10px"></div>
+
 					</div>
 					<!-- Section / End -->
-
-					<div class="checkboxes margin-top-10">
-						<input id="remember-me" type="checkbox" name="check">
-						<label for="remember-me">Contact gave me permission to send them messages</label>
-					</div>
-
 
 					<button type="submit" class="button preview">Save <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
 

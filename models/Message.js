@@ -28,6 +28,9 @@ module.exports = (sequelize, DataTypes) => {
     Message.belongsTo(models.Campaign, {
       foreignKey: 'campaignId',
     });
+    Message.belongsTo(models.Contact, {
+      foreignKey: 'contactId',
+    });
   }
 
   return Message;
