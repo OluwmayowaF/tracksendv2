@@ -19,6 +19,21 @@ $(document).ready(function() {
 		$(this).find('span.loading_icon').show();
 	})
 
+	$('#new_contact_form, #csv_upload_form').submit(function (e) {
+		$('._form_errors._e_consent').hide();
+		$('._form_errors._e_consent').text('');
+		$('._errorable').css('color', 'inherit');
+		
+		if(!$('#have_consent').is(':checked')) {
+			$('._errorable').css('color', 'red');
+			$('._form_errors._e_consent').text('You are only allowed to add contacts who has given you consent to send them messages.');
+			$('._form_errors._e_consent').show();
+			$(this).find('span.loading_icon').hide();
+
+			return false;
+		}
+	})
+
 	$('.editable_div').on('keyup', countChars);
 
 	function countChars(e) {
@@ -668,7 +683,9 @@ $(document).ready(function() {
 		
 		$('.del_item_btn').off('click');
 		$('.del_item_btn').on('click', function(e) {
+			e.preventDefault();
 			e.stopPropagation();
+
 			var $btn = $(this); console.log('btn = ' + $btn.attr('class'));
 			var $item = $btn.closest('.list_item');
 			var id = $item.find('form .id').val();

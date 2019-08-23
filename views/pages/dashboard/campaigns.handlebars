@@ -7,8 +7,8 @@
 					<!-- Breadcrumbs -->
 					<nav id="breadcrumbs">
 						<ul>
-							<li><a href="#">Home</a></li>
-							<li><a href="#">Dashboard</a></li>
+							<li><a href="/">Home</a></li>
+							<li><a href="/dashboard">Dashboard</a></li>
 							<li>Campaigns</li>
 						</ul>
 					</nav>
@@ -382,93 +382,42 @@
 				<div class="col-lg-12 page_box_header">All Campaigns [<span class="items_count">{{ args.cpns.length }}</span>]
 				</div>
 			</div>
-			<div class="col-lg-12">
+			<div class="col-md-12 lists">
+				<ul>
+					<li class="list_item _hd" style="font-weight: bolder">
+						<ul class="saved_item">
+							<li style="flex: 6">Name</li>
+							<li style="flex: 2">Status</li>
+							<li style="flex: 8">Sent To</li>
+							<li style="flex: 3">Units</li>
+							<li style="flex: 3">Created</li>
+							<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; text-align: center; font-size: 2em; line-height: 0.3;">
+								...
+							</li>
+						</ul>
+					</li>
+					{{#each args.cpns}}
 
-				<div id="add-listing">
-					<!-- Section -->
-					<div class="add-listing-section">
+					<a href="/dashboard/campaigns/campaign/{{ id }}" class="_campaign-detail" id="_click_campaign_detail_box">
+					<li class="list_item campaign_list" data-wh="campaign">
+						<ul class="saved_item _clickable">
+							<form><input type="hidden" class="id" value="{{ id }}" /></form>
+							<li style="cursor: pointer; flex: 6">{{ name }}</li>
+							<li style="cursor: pointer; flex: 2">Active</li>
+							<li style="cursor: pointer; flex: 8">{{ grpname }}</li>
+							<li style="cursor: pointer; flex: 3">{{ units_used }}</li>
+							<li style="cursor: pointer; flex: 3">createdAt</li>
+							<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
+								<span style="flex: 1; text-align:center" class="del_item_btn"><span class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></span></span>
+							</li>
+						</ul>
+					</li>
+					</a>
 
-						<!-- Row -->
-						<div class="row with-forms">
-							<br>
-							<!-- Status -->
-							<div class="col-md-12 lists">
-								<ul>
-									<li class="list_item _hd" style="font-weight: bolder">
-										<ul class="saved_item">
-											<li style="flex: 6">Name</li>
-											<li style="flex: 2">Status</li>
-											<li style="flex: 8">Sent To</li>
-											<li style="flex: 3">Units</li>
-											<li style="flex: 3">Created</li>
-											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; text-align: center; font-size: 2em; line-height: 0.3;">
-												...
-											</li>
-										</ul>
-									</li>
-									<a href="#campaign-detail-box" class="campaign-detail popup-with-zoom-anim" style="color: #09b1d1; visibility: hidden;" id="click_campaign_detail_box"></a>
-									{{#each args.cpns}}
-									<li class="list_item campaign_list" data-wh="campaign">
-										<ul class="saved_item _clickable">
-											<form><input type="hidden" class="id" value="{{ id }}" /></form>
-											<li style="flex: 6">{{ name }}</li>
-											<li style="flex: 2">Active</li>
-											<li style="flex: 8">{{ grpname }}</li>
-											<li style="flex: 3">{{ units_used }}</li>
-											<li style="flex: 3">createdAt</li>
-											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
-												{{!-- <span style="flex: 1; text-align:center" class="edit_item_btn"><a class="tooltip top" title="Edit" style="cursor: pointer"><i class="fa fa-edit"></i></a></span> |  --}}
-												<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
-											</li>
-										</ul>
-									</li>
-									{{else}}
-										<em>No Campaigns created yet.</em> 
-									{{/each}}
-								</ul>
-							</div>
-
-
-						</div>
-						<!-- Row / End -->
-
-						<div id="campaign-detail-box" class="zoom-anim-dialog mfp-hide">
-										<div class="small-dialog-header">
-											<h3>Campaign "<b id="campaign_box_header"></b>" Details</h3>
-										</div>
-								<div class="sign-in-form style-1">
-
-									<div class="row with-forms">
-
-
-										<div class="col-lg-8 col-md-12">
-											<canvas id="myChart" height="300"></canvas>
-										</div>
-										<div class="col-lg-4 col-md-12" style="padding-top: 20px">
-											<div class="dashboard-stat color-1">
-												<div class="dashboard-stat-content" style="width: 38%; left: 25px; border-right: inset 1px;"><h4 id="details_clicks"></h4> <span>Total Clicks</span></div>
-												<div class="dashboard-stat-content" style="width: 33%; left: 170px;"><h4 id="details_ctr"></h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div>
-												<div class="dashboard-stat-icon"><i class="im im-icon-Mouse-2"></i></div>
-											</div>
-
-											<div class="dashboard-stat color-2">
-												<div class="dashboard-stat-content"><h4 id="details_mcount"></h4> <span>Total Messages Sent</span></div>
-												<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
-											</div>
-											
-											<div class="dashboard-stat color-4">
-												<div class="dashboard-stat-content"><h4 id="details_ccount"></h4> <span>Total Contacts</span></div>
-												<div class="dashboard-stat-icon"><i class="im im-icon-Add-UserStar"></i></div>
-											</div>
-										</div>
-									</div>
-								</div>
-						</div>
-					
-
-					</div>
-					<!-- Section / End -->
-				</div>
+					{{else}}
+						<em>No Campaigns created yet.</em> 
+					{{/each}}
+				</ul>
 			</div>
 
 
