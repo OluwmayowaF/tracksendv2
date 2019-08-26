@@ -46,14 +46,16 @@ exports.index = function(req, res) {
             console.log('this is: ' + JSON.stringify(msg));
             
             //  update msg clicks and date (if first time)
-            if(msg.firstclicktime == null) {
+            /* if(msg.firstclicktime == null) {
                 var mysqlTimestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
                 msg[0].update({
                     firstclicktime: mysqlTimestamp,
                 })
-            }
+            } */
+            var mysqlTimestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
             msg[0].update({
                 clickcount: Sequelize.literal('clickcount + 1'),
+                ...((msg.firstclicktime == null) ? {firstclicktime: mysqlTimestamp} : {})
             })
             .then(() => {
                 //  finally, redirect to client URL

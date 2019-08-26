@@ -78,7 +78,6 @@
 					</li>
 					{{#each args.recipients}}
 
-					<a href="/dashboard/campaigns/campaign/{{ id }}" class="_campaign-detail" id="_click_campaign_detail_box">
 					<li class="list_item campaign_list" data-wh="campaign">
 						<ul class="saved_item _clickable">
 							<form><input type="hidden" class="id" value="{{ id }}" /></form>
@@ -91,7 +90,6 @@
 							<li style="cursor: pointer; flex: 3">{{ firstclicktime }}</li>
 						</ul>
 					</li>
-					</a>
 
 					{{else}}
 						<em>No Campaigns created yet.</em> 

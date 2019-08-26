@@ -755,3 +755,42 @@ exports.loadCampaign = (req, res) => {
 }
 
 
+exports.smsNotify = (req, res) => {
+    
+    console.log('====================================');
+    console.log('INFOBIP RESPONSE: ' + JSON.stringify(req.query));
+    console.log('====================================');
+
+    
+    var resp = req.query.response;
+    resp.results.forEach(msg => {
+        var id = msg.messageId;
+        var status = msg.status.groupName; 
+        var dt = msg.sentAt;
+        var sid;
+
+        console.log('====================================');
+        console.log('MSG STATUS = ' + status);
+        console.log('====================================');
+
+        if (status == 'DELIVERED') {
+            sid = 1;
+        } else {
+            sid = 2;
+        }
+
+        models.Contact.findByPk(id)
+        .then((mg) => {
+            mg.update({
+                deliverytime: dt,
+                status: sid,
+            })
+        })
+
+    });
+
+
+
+}
+
+
