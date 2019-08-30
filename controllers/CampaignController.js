@@ -614,3 +614,102 @@ exports.view = (req, res) => {
     });
 };
 
+exports.copy = (req, res) => {
+    var user_id = req.user.id;
+    var id = req.query.id;
+
+    console.log('showing page...' + id); 
+        
+    Promise.all([
+        sequelize.query(
+            "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, campaigns.createdAt FROM campaigns " +
+            "JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
+            "JOIN groups ON groups.id = campaign_groups.groupId " +
+            "WHERE campaigns.userId = :uid " +
+            "GROUP BY campaigns.id " +
+            "ORDER BY campaigns.createdAt DESC ", {
+                replacements: {
+                    uid: user_id,
+                },
+                type: sequelize.QueryTypes.SELECT,
+            },
+        ), 
+        models.Sender.findAll({     //  get all sender ids for display in form
+            where: { 
+                userId: user_id,
+                status: 1
+            },
+            order: [ 
+                ['createdAt', 'DESC']
+            ]
+        }), 
+        models.Group.findAll({      //  get all groups for display in form, except uncategorized group
+            where: { 
+                userId: user_id,
+                name: {
+                    [Sequelize.Op.ne]: '[Uncategorized]',
+                }
+            },
+            order: [ 
+                ['createdAt', 'DESC']
+            ]
+        }),
+        models.Group.findAll({      //  get only the uncategorized group
+            where: { 
+                userId: user_id,
+                name: '[Uncategorized]',
+            },
+        }),
+        models.Sender.count({       //  get count of sender ids
+            where: { 
+                userId: user_id,
+                // status: 1
+            }
+        }), 
+        models.Sender.count({       //  get count of "active" sender ids
+            where: { 
+                userId: user_id,
+                status: 1
+            }
+        }), 
+        models.Contact.count({      //  get count of contacts
+            where: { 
+                userId: user_id,
+            }
+        }), 
+    ]).then(([cpns, sids, grps, non, csender, casender, ccontact]) => {
+        var ngrp = non[0].id;
+
+        console.log('====================================');
+        console.log('cpns: ' + JSON.stringify(cpns) + ', sids: ' + JSON.stringify(sids) + ', grps: ' + JSON.stringify(grps) + ', csender: ' + csender + ', casender: ' + casender + ', ccontact' + ccontact);
+        console.log('====================================');
+        if(!csender) var nosenderids = true; else var nosenderids = false;
+        if(!casender) var noasenderids = true; else var noasenderids = false;
+        if(!ccontact) var nocontacts = true; else var nocontacts = false;
+
+        var flashtype, flash = req.flash('error');
+        if(flash.length > 0) {
+            flashtype = "error";           
+        } else {
+            flashtype = "success";
+            flash = req.flash('success');
+        }
+
+        res.render('pages/dashboard/campaigns', { 
+            page: 'Campaigns',
+            campaigns: true,
+            flashtype, flash,
+
+            args: {
+                cpns,
+                sids,
+                grps,
+                ngrp,
+                nosenderids,
+                noasenderids,
+                nocontacts,
+            }
+        });
+    });
+};
+
