@@ -739,6 +739,29 @@ $(document).ready(function() {
 
 		})
 
+		$('.copy_item_btn').off('click');
+		$('.copy_item_btn').on('click', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+
+			var $btn = $(this); console.log('btn = ' + $btn.attr('class'));
+			var $item = $btn.closest('.list_item');
+			var id = $item.find('form .id').val();
+			var wh = $item.attr('data-wh');
+			var whh = (wh == 'group') ? '. (NOTE THIS WILL ALSO DELETE ALL CONTACTS IN THE GROUP!)' : '';
+
+			var yes = confirm('Duplicate '+ wh + whh + '?');
+			if(yes) {
+				console.log('====================================');
+				console.log('copying ' + wh + '; with id = ' + id);
+				console.log('====================================');
+
+				location.href = '/dashboard/campaigns/copy?id=' + id;
+
+			} else return;
+
+		})
+
 		$('.save_edit_btn').off('click');
 		$('.save_edit_btn').on('click', function(e) {
 			var $btn = $(this);

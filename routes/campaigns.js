@@ -6,6 +6,7 @@ var campaignController = require('../controllers/CampaignController');
 router.get('/', campaignController.index);
 router.post('/add', campaignController.add);
 router.get('/campaign/:id', campaignController.view);
+router.get('/copy', campaignController.copy);
 
 
 module.exports = router;
