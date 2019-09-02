@@ -527,7 +527,8 @@ exports.view = (req, res) => {
             "              ( SELECT COUNT(status) AS delivered      FROM messages WHERE status = 1 AND campaignId = :cid ) t2," +
             "              ( SELECT COUNT(status) AS failed         FROM messages WHERE status = 2 AND campaignId = :cid ) t3," +
             "              ( SELECT COUNT(status) AS undeliverable  FROM messages WHERE status = 3 AND campaignId = :cid ) t4," +
-            "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = :cid ) t5," + 
+            "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE clickcount > 0 AND campaignId = :cid ) t5," + 
+            "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = :cid ) t6," + 
             "              ( SELECT userId                          FROM campaigns WHERE id = :cid ) t6 " +
             "WHERE t6.userId = :id" , {
                 replacements: {
@@ -607,7 +608,7 @@ exports.view = (req, res) => {
                 recipients,
                 mname,
                 mcount,
-                ctr: ((parseInt(summary.delivered) == 0) ? '0' : (parseInt(summary.clicks) * 100/parseInt(summary.delivered))),
+                ctr: ((parseInt(summary.delivered) == 0) ? '0' : (parseInt(summary.clickc) * 100/parseInt(summary.delivered))),
             }
         });
 
