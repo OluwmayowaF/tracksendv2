@@ -530,7 +530,7 @@ exports.view = (req, res) => {
             "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE clickcount > 0 AND campaignId = :cid ) t5," + 
             "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = :cid ) t6," + 
             "              ( SELECT userId                          FROM campaigns WHERE id = :cid ) t7 " +
-            "WHERE t6.userId = :id" , {
+            "WHERE t7.userId = :id" , {
                 replacements: {
                     cid: cmgnid,
                     id: user_id,
