@@ -757,9 +757,9 @@ exports.loadCampaign = (req, res) => {
 
 exports.smsNotify = (req, res) => {
     
-    console.log('====================================');
+    console.log('[====================================');
     console.log('INFOBIP RESPONSE: ' + JSON.stringify(req.query));
-    console.log('====================================');
+    console.log('====================================]');
 
     
     var resp = req.query.response;

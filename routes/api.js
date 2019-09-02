@@ -26,7 +26,7 @@ module.exports = function(app) {
   app.post('/api/analysecampaign',  apiController.analyseCampaign);
   app.get('/api/loadcampaign',      apiController.loadCampaign);
   
-  app.get('/api/sms/notify',        apiController.smsNotify);
+  app.post('/api/sms/notify',        apiController.smsNotify);
 
   // Using the passport.authenticate middleware with our local strategy.
   // If the user has valid login credentials, send them to the members page.
