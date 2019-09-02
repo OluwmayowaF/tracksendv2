@@ -26,7 +26,7 @@ exports.index = (req, res) => {
             "              ( SELECT COUNT(status) AS delivered      FROM messages WHERE status = 1 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) ORDER BY createdAt DESC LIMIT 1 ) ) t2," +
             "              ( SELECT COUNT(status) AS failed         FROM messages WHERE status = 2 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) ORDER BY createdAt DESC LIMIT 1 ) ) t3," +
             "              ( SELECT COUNT(status) AS undeliverable  FROM messages WHERE status = 3 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) ORDER BY createdAt DESC LIMIT 1 ) ) t4," +
-            "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE clickcount > 0 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) ORDER BY createdAt DESC LIMIT 1 ) ) t5" +
+            "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE clickcount > 0 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) ORDER BY createdAt DESC LIMIT 1 ) ) t5," +
             "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) ORDER BY createdAt DESC LIMIT 1 ) ) t6", {
                 replacements: {id: user_id},
                 type: sequelize.QueryTypes.SELECT,
