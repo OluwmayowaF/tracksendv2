@@ -243,7 +243,7 @@ exports.add = async (req, res) => {
             var m_from = sndr.name;
             var m_flash = false;
             var m_intermediateReport = true;
-            var m_notifyUrl = 'https://dev2.tracksend.com/api/sms/notify';
+            var m_notifyUrl = 'https://dev2.tracksend.co/api/sms/notify';
             var m_notifyContentType = 'application/json';
             var m_validityPeriod = 24 * 60; //  24 hours
             var m_sendAt = schedule; //  24 hours
