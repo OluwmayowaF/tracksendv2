@@ -779,7 +779,7 @@ exports.smsNotify = (req, res) => {
             sid = 2;
         }
 
-        models.Contact.findByPk(id)
+        models.Message.findByPk(id)
         .then((mg) => {
             mg.update({
                 deliverytime: dt,
