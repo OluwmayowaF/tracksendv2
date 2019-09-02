@@ -757,12 +757,12 @@ exports.loadCampaign = (req, res) => {
 
 exports.smsNotify = (req, res) => {
     
-    console.log('[====================================');
-    console.log('INFOBIP RESPONSE: ' + JSON.stringify(req.query));
-    console.log('====================================]');
+    console.log('[[====================================');
+    console.log('INFOBIP RESPONSE: ' + JSON.stringify(req.body));
+    console.log('====================================]]');
 
     
-    var resp = req.query.response;
+    var resp = req.body.response;
     resp.results.forEach(msg => {
         var id = msg.messageId;
         var status = msg.status.groupName; 
