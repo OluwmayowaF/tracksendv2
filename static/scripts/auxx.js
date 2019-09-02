@@ -599,7 +599,7 @@ $(document).ready(function() {
 													'		<li style="flex: 3" class="dv_lastname">'+i.lastname+'</li>' +
 													'		<li style="flex: 2">'+i.phone+'</li>' +
 													'		<li style="flex: 4" class="dv_email">'+i.email+'</li>' +
-													'		<li style="flex: 2">'+status+'</li>' +
+													'		<li style="flex: 2' + (status == 'DND'? '; color: red' : (status == 'Non-DND'? '; color: green' : '')) + '">'+status+'</li>' +
 													'		<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">' +
 													'			<span style="flex: 1; text-align:center" class="edit_item_btn"><a class="tooltip top" title="Edit" style="cursor: pointer"><i class="fa fa-edit"></i></a></span>|' +
 													'			<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>' +

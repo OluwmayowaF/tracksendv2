@@ -403,7 +403,7 @@ exports.analyseCampaign = (req, res) => {
         models.Group.findAll({
             include: [{
                 model: models.Contact, 
-                ...(skip ? {where: {status: 0}} : {})
+                ...(skip ? {where: {status: {[Sequelize.Op.ne]: 2}}} : {})
             }],
             where: {
                 id: {
@@ -765,6 +765,7 @@ exports.smsNotify = (req, res) => {
     var resp = req.body;
     resp.results.forEach(msg => {
         var id = msg.messageId;
+        var phone = msg.to;
         var status = msg.status.groupName; 
         var dt = msg.sentAt;
         var sid;
@@ -773,10 +774,54 @@ exports.smsNotify = (req, res) => {
         console.log('MSG STATUS = ' + status);
         console.log('====================================');
 
+        let pref = phone.substr(0, 3);
+        let phn = '0' + phone.substr(3);
+
         if (status == 'DELIVERED') {
             sid = 1;
+
+            models.Contact.update(
+                {
+                    status: 1
+                },
+                {
+                    where: {
+                        countryId: pref,
+                        phone: phn,
+                    }
+                }
+            )
+
+        } else if (status == 'REJECTED') {
+            sid = 3;
+
+            models.Contact.update(
+                {
+                    status: 2
+                },
+                {
+                    where: {
+                        countryId: pref,
+                        phone: phn,
+                    }
+                }
+            )
+
         } else {
             sid = 2;
+
+            models.Contact.update(
+                {
+                    status: 1
+                },
+                {
+                    where: {
+                        countryId: pref,
+                        phone: phn,
+                    }
+                }
+            )
+
         }
 
         models.Message.findByPk(id)
