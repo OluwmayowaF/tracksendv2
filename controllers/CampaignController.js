@@ -179,7 +179,7 @@ exports.add = async (req, res) => {
             var dd = await models.Group.findAll({
                 include: [{
                     model: models.Contact, 
-                    ...(skip ? {where: {status: 0}} : {})
+                    ...(skip ? {where: {status: {[Sequelize.Op.ne]: 2}}} : {})
                 }],
                 where: {
                     id: {
