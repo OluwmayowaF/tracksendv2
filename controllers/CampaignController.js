@@ -529,7 +529,7 @@ exports.view = (req, res) => {
             "              ( SELECT COUNT(status) AS undeliverable  FROM messages WHERE status = 3 AND campaignId = :cid ) t4," +
             "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE clickcount > 0 AND campaignId = :cid ) t5," + 
             "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = :cid ) t6," + 
-            "              ( SELECT userId                          FROM campaigns WHERE id = :cid ) t6 " +
+            "              ( SELECT userId                          FROM campaigns WHERE id = :cid ) t7 " +
             "WHERE t6.userId = :id" , {
                 replacements: {
                     cid: cmgnid,
