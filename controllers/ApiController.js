@@ -762,7 +762,7 @@ exports.smsNotify = (req, res) => {
     console.log('====================================]]');
 
     
-    var resp = req.body.response;
+    var resp = req.body;
     resp.results.forEach(msg => {
         var id = msg.messageId;
         var status = msg.status.groupName; 
@@ -784,6 +784,11 @@ exports.smsNotify = (req, res) => {
             mg.update({
                 deliverytime: dt,
                 status: sid,
+            })
+            .then(() => {
+                console.log('====================================');
+                console.log('DOOOOOOOONNNNNNNNNNNNEEEEEEEEEEEEEE');
+                console.log('====================================');
             })
         })
 
