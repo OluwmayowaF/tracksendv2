@@ -557,7 +557,7 @@ exports.view = (req, res) => {
                     attributes: ['id', 'firstname', 'lastname', 'phone'],
                     // through: { }
                 }], 
-                attributes: ['deliverytime', 'readtime', 'firstclicktime'],
+                attributes: ['status', 'deliverytime', 'readtime', 'firstclicktime'],
                 // through: { }
             }], 
             order: [ 
