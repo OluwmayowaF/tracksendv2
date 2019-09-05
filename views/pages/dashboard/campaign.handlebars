@@ -72,7 +72,6 @@
 							<li style="flex: 4">Phone</li>
 							<li style="flex: 2">Status</li>
 							<li style="flex: 3">Delivered</li>
-							<li style="flex: 3">Read</li>
 							<li style="flex: 3">Clicked</li>
 						</ul>
 					</li>
@@ -84,15 +83,15 @@
 							<li style="cursor: pointer; flex: 4">{{ contact.firstname }}</li>
 							<li style="cursor: pointer; flex: 4">{{ contact.lastname }}</li>
 							<li style="cursor: pointer; flex: 4">{{ contact.phone }}</li>
-							<li style="cursor: pointer; flex: 2">{{ status }}</li>
-							<li style="cursor: pointer; flex: 3">{{ deliverytime }}</li>
-							<li style="cursor: pointer; flex: 3">{{ readtime }}</li>
-							<li style="cursor: pointer; flex: 3">{{ firstclicktime }}</li>
+							{{!-- <li style="cursor: pointer; flex: 2">{{ifCond status '==' 0 }} Pending </li> --}}
+							<li style="cursor: pointer; flex: 2"> </li>
+							<li style="cursor: pointer; flex: 3">{{formatDate deliverytime "short"}}</li>
+							<li style="cursor: pointer; flex: 3">{{formatDate firstclicktime "short"}}</li>
 						</ul>
 					</li>
 
 					{{else}}
-						<em>No Campaigns created yet.</em> 
+						<em>No Contacts added.</em> 
 					{{/each}}
 				</ul>
 			</div>

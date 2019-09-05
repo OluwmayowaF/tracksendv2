@@ -1,5 +1,6 @@
 const express = require('express');
 const exphbs = require('express-handlebars');
+const { hbs } = require('./my_modules/handlebarhelpers')();
 const bodyParser = require('body-parser');
 const path = require('path');
 // const http = require('http');
@@ -25,36 +26,9 @@ var sessionStore = new session.MemoryStore;
 
 const PORT = process.env.PORT || 3000;
 
-/* Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
-
-  switch (operator) {
-      case '==':
-          return (v1 == v2) ? options.fn(this) : options.inverse(this);
-      case '===':
-          return (v1 === v2) ? options.fn(this) : options.inverse(this);
-      case '!=':
-          return (v1 != v2) ? options.fn(this) : options.inverse(this);
-      case '!==':
-          return (v1 !== v2) ? options.fn(this) : options.inverse(this);
-      case '<':
-          return (v1 < v2) ? options.fn(this) : options.inverse(this);
-      case '<=':
-          return (v1 <= v2) ? options.fn(this) : options.inverse(this);
-      case '>':
-          return (v1 > v2) ? options.fn(this) : options.inverse(this);
-      case '>=':
-          return (v1 >= v2) ? options.fn(this) : options.inverse(this);
-      case '&&':
-          return (v1 && v2) ? options.fn(this) : options.inverse(this);
-      case '||':
-          return (v1 || v2) ? options.fn(this) : options.inverse(this);
-      default:
-          return options.inverse(this);
-  }
-}); */
 
 //  set view engine
-app.engine('handlebars', exphbs({ defaultLayout: 'dashboard' }));
+app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 
 app.use(cookieParser('secret'));
