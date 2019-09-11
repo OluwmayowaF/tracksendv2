@@ -397,60 +397,6 @@ $(document).ready(function() {
 
 	})
 
-	$('.list_item.campaign_list').on('click', function(e) {
-		e.stopPropagation();
-
-		var $we = $(this);
-		console.log(' ourrrrrr ' + $we.attr('class'));
-		var id = $we.find('.id').val();
-		var rr = config.data.datasets[0].data;
-				console.log(JSON.stringify(rr));
-		
-		$.ajax({
-			type: 'GET',
-			url: _getGlobals.SERVICE_HOST+'loadcampaign?id='+id,
-			contentType: 'application/json',
-			// data: json_campaign_login,
-				// data: json_form_reg,
-			success: function( data ) {
-
-				console.log(data);
-			
-				$('#details_clicks').text(data.clicks);
-				$('#details_ctr').text(parseInt(data.delivered) == 0 ? 0 : ((parseInt(data.clicks) / parseInt(data.delivered)) * 100));
-				$('#details_mcount').text(data.mcount);
-				$('#details_ccount').text(data.ccount);
-				$('#campaign_box_header').text(data.messages[0].name);
-				console.log('NAME NA: ' + data.messages[0].name);
-
-				config.data.datasets[0].data = [ 
-					parseInt(data.delivered), 
-					parseInt(data.pending), 
-					parseInt(data.failed), 
-					parseInt(data.undeliverable), 
-				];
-				console.log('====================================');
-				// console.log(JSON.stringify(config.data));
-				console.log('====================================');
-
-				// var ctx = document.getElementById('myChart').getContext('2d');
-				window.myDoughnut.update();
-				$('#click_campaign_detail_box').click();
-
-			},
-			error: function(resp, dd, ww) {
-				// $butt.removeAttr('disabled');
-				// $butt.closest('div').find('.loading_icon').hide();
-				$('._form_errors._e_analyse').text('An error occurred. Please try again, or refresh page.');
-				$('._form_errors._e_analyse').show();
-			}
-		}).done(function(){
-			// $butt.removeAttr('disabled');
-			// $butt.closest('div').find('.loading_icon').hide();
-		});
-
-	})
-
 	var hideTimer = window.setTimeout(() => {
 		$('.to_hide').fadeOut();
 	}, 1000);
@@ -542,8 +488,10 @@ console.log('====================================');
 
 	//	FOR LINKING GROUPS TO CONTACT LIST
 	var ggd = $('#linked_group_id').val();
-	$('#sel_contact_group').val(ggd).trigger('chosen:updated');
-	$('#sel_contact_group').change();
+	if(ggd) {
+		$('#sel_contact_group').val(ggd).trigger('chosen:updated');
+		$('#sel_contact_group').change();
+	}
 	//	...end
 
 	
@@ -710,10 +658,18 @@ console.log('====================================');
 		$('._blink').fadeOut(70).fadeIn(70).fadeOut(70).fadeIn(70);
 	})
 
+	$('.inline_edit').on('click', function (e) {
+		e.stopPropagation();
+		e.preventDefault();
+	})
+	
 	initializeActionBtns();
 	function initializeActionBtns() {
 		$('.edit_item_btn').off('click');
 		$('.edit_item_btn').on('click', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+
 			var $btn = $(this);
 			var $item = $btn.closest('.list_item');
 			$item.find('.saved_item').hide();
