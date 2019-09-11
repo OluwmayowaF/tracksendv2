@@ -1,5 +1,6 @@
 var models = require('../models');
 const sequelize = require('../config/cfg/db');
+var moment = require('moment');
 const CHARS_PER_SMS = 160;
 const _ = require('lodash');
 const Sequelize = require('sequelize');
@@ -543,7 +544,7 @@ console.log('555555');
             .then(async ([all, bal]) => {
                 
                 console.log('THE END!!! balance ' + JSON.stringify(bal));
-                console.log('THE END!!!');
+                console.log('THE END!!!' +  moment(parseInt(req.body.schedule)).format('YYYY-MM-DD HH:mm:ss'));
 
                 let tid = req.body.analysis_id;
 
@@ -557,7 +558,8 @@ console.log('555555');
                         myshorturl: req.body.myshorturl,
                         grp: JSON.stringify(groups),
                         message: req.body.message,
-                        schedule: null, //req.body.schedule,
+                        // schedule: (req.body.schedule) ? moment(req.body.schedule, 'DD/MM/YYYY h:mm:ss A').format('YYYY-MM-DD HH:mm:ss') : null, //req.body.schedule,
+                        schedule: (req.body.schedule) ? moment(parseInt(req.body.schedule)).format('YYYY-MM-DD HH:mm:ss') : null, //req.body.schedule,
                         recipients: req.body.recipients,
                         skip_dnd: (req.body.skip_dnd) ? req.body.skip_dnd : null,
                         units_used: units,
