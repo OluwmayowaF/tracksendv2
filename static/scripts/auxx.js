@@ -46,22 +46,7 @@ $(document).ready(function() {
 		var arr = [];
 
 
-		console.log('TXT: ' + $we.text());
-		
-		//	first remove all inline spans
-		/* while ($q.find('span').length) {
-			arr.push($q);
-			$q = $q.find('span');
-		}
-
-		for(var a = arr.length; a >= 0; a--) {
-			var $rr = arr[a - 1];
-			var t = $rr.text();
-
-		} */
-
-
-		//	count chars
+		//	count chars 
 		if(sp > 0) {
 			var $dd = $('.editable_div').clone();
 			$dd.find('span.arg').remove();

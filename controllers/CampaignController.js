@@ -19,7 +19,7 @@ exports.index = (req, res) => {
         
     Promise.all([
         sequelize.query(
-            "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, campaigns.createdAt FROM campaigns " +
+            "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, IF(status = 1, 'Active', 'Error') AS status, campaigns.createdAt FROM campaigns " +
             "JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
             "JOIN groups ON groups.id = campaign_groups.groupId " +
             "WHERE campaigns.userId = :uid " +
@@ -147,7 +147,10 @@ exports.add = async (req, res) => {
                             // .replace(/<span spellcheck="false" contenteditable="false">url<\/span>/g, '[url]');
     // console.log('schedule is: ' + schedule);
     
-    var schedule = (info.schedule) ? moment(parseInt(info.schedule)).format('YYYY-MM-DD HH:mm:ss') : null;
+    var schedule_ = (info.schedule) ? moment(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss') : null;  //  for DB
+    var schedule = (info.schedule) ? moment(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DDTHH:mm:ss.000Z') : null;   //  for infobip
+    console.log('schedule is: ' + info.schedule);
+    console.log('schedule is: ' + schedule_);
     console.log('schedule is: ' + schedule);
     
     //  create campaign
@@ -158,7 +161,7 @@ exports.add = async (req, res) => {
         senderId: info.senderId,
         shortlinkId: info.shortlinkId,
         message: originalmessage,
-        schedule: schedule,
+        schedule: schedule_,
         recipients: info.recipients,
         }),
         models.Sender.findByPk(info.senderId)
@@ -447,7 +450,9 @@ exports.add = async (req, res) => {
                                         //  UPDATE UNITS USED FOR CAMPAIGN
                                         cpn.update({
                                             units_used: info.units_used,
+                                            status: 1
                                         });
+
                                         //  REMOVE TEMPORARY DATA
                                         await info.destroy();
                                 
@@ -456,6 +461,7 @@ exports.add = async (req, res) => {
                                         var backURL = req.header('Referer') || '/';
                                         res.redirect(backURL);
                                     } else {
+
                                         req.flash('error', 'An error occurred while sending out your Campaign. Please try again later or contact admin.');
                                         var backURL = req.header('Referer') || '/';
                                         res.redirect(backURL);

@@ -19,15 +19,14 @@ exports.index = (req, res) => {
 
     console.log('showing page...'); 
     
-    
     Promise.all([
         sequelize.query(
-            "SELECT * FROM ( SELECT COUNT(status) AS pending        FROM messages WHERE status = 0 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) ORDER BY createdAt DESC LIMIT 1 ) ) t1," +
-            "              ( SELECT COUNT(status) AS delivered      FROM messages WHERE status = 1 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) ORDER BY createdAt DESC LIMIT 1 ) ) t2," +
-            "              ( SELECT COUNT(status) AS failed         FROM messages WHERE status = 2 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) ORDER BY createdAt DESC LIMIT 1 ) ) t3," +
-            "              ( SELECT COUNT(status) AS undeliverable  FROM messages WHERE status = 3 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) ORDER BY createdAt DESC LIMIT 1 ) ) t4," +
-            "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE clickcount > 0 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) ORDER BY createdAt DESC LIMIT 1 ) ) t5," +
-            "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) ORDER BY createdAt DESC LIMIT 1 ) ) t6", {
+            "SELECT * FROM ( SELECT COUNT(status) AS pending        FROM messages WHERE status = 0 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t1," +
+            "              ( SELECT COUNT(status) AS delivered      FROM messages WHERE status = 1 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t2," +
+            "              ( SELECT COUNT(status) AS failed         FROM messages WHERE status = 2 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t3," +
+            "              ( SELECT COUNT(status) AS undeliverable  FROM messages WHERE status = 3 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t4," +
+            "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE clickcount > 0 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t5," +
+            "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t6", {
                 replacements: {id: user_id},
                 type: sequelize.QueryTypes.SELECT,
             }
@@ -52,6 +51,7 @@ exports.index = (req, res) => {
         models.Campaign.findAll({ 
             where: { 
                 userId: user_id,
+                status: 1,
             },
             include: [{
                 model: models.Message, 
@@ -94,7 +94,8 @@ exports.index = (req, res) => {
         sequelize.query(
             "SELECT COUNT(messages.id) AS msgcount FROM messages " +
             "JOIN campaigns ON messages.campaignId = campaigns.id " +
-            "WHERE campaigns.userId = (:id) ", {
+            "WHERE campaigns.userId = (:id) " +
+            "AND campaigns.status = 1 ", {
                 replacements: {id: user_id},
                 type: sequelize.QueryTypes.SELECT,
             },
@@ -107,6 +108,7 @@ exports.index = (req, res) => {
             "SELECT COUNT(messages.id) AS premsgcount FROM messages " +
             "JOIN campaigns ON messages.campaignId = campaigns.id " +
             "WHERE campaigns.userId = (:id) " +
+            "AND campaigns.status = 1 " +
             "AND messages.createdAt < DATE_SUB(now(), INTERVAL 6 MONTH) ", {
                 replacements: {id: user_id},
                 type: sequelize.QueryTypes.SELECT,
@@ -122,6 +124,7 @@ exports.index = (req, res) => {
                 "FROM messages " +
                 "JOIN campaigns ON messages.campaignId = campaigns.id " +
                 "WHERE campaigns.userId = (:id) " +
+                "AND campaigns.status = 1 " +
                 "AND messages.createdAt > DATE_SUB(now(), INTERVAL 6 MONTH) " +
                 "GROUP BY 1 " +
                 "ORDER BY 1 ", {
