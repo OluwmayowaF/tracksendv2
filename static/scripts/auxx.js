@@ -94,7 +94,7 @@ $(document).ready(function() {
 		// alert(e.timeStamp);
 		console.log('TM: ' + JSON.stringify(e));
 		
-		$('#schedule').val(e.timeStamp);
+		// $('#schedule').val(e.timeStamp);
 	});
   
   $('#new_contact_group').on('change', function(e) {
@@ -312,6 +312,12 @@ $(document).ready(function() {
 		$dd.html(msg_);
 		var msg = $dd.text();
 		$('#campaignmessage').val(msg);
+		let w = moment($('#datepicker').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
+		console.log('====================================');
+		console.log('tz: ' + w);
+		console.log('====================================');
+		$('#schedule').val(moment.utc(w, 'YYYY-MM-DD HH:mm:ss Z').format('YYYY-MM-DD HH:mm:ss'));
+		// $('#datepicker').val();
 
 		$me = $('#campaign_form');
 		
