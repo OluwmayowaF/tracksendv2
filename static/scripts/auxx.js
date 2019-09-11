@@ -39,18 +39,37 @@ $(document).ready(function() {
 
 	function countChars(e) {
 		var $we = $('.editable_div');
-		var sp = $we.find('span').length;
+		var sp = $we.find('span.arg').length;
 		var ch = 0;
 		var msgs = 0;
+		var $q = $we;
+		var arr = [];
+
+
+		console.log('TXT: ' + $we.text());
+		
+		//	first remove all inline spans
+		/* while ($q.find('span').length) {
+			arr.push($q);
+			$q = $q.find('span');
+		}
+
+		for(var a = arr.length; a >= 0; a--) {
+			var $rr = arr[a - 1];
+			var t = $rr.text();
+
+		} */
+
 
 		//	count chars
 		if(sp > 0) {
 			var $dd = $('.editable_div').clone();
-			$dd.find('span').remove();
+			$dd.find('span.arg').remove();
 			ch = $dd.text().length  + (sp * 15);
 			console.log('with sp = ' + sp + '; alls = ' + ch);
 			
 		} else {
+			// $we.html($we.text());
 			ch = $we.text().length;
 			console.log('no sp; alls = ' + ch);
 		} 
@@ -143,7 +162,7 @@ $(document).ready(function() {
 	})
 	function pasteDiv(id, t) {
 		// $('.editable_div').html($('.editable_div').html() + '<span spellcheck="false" contenteditable="false" id="'+id+'">'+t+'</span>');
-		$('.editable_div').html($('.editable_div').html() + '<span spellcheck="false" contenteditable="false">'+t+'</span>');
+		$('.editable_div').html($('.editable_div').html() + '<span class="arg" spellcheck="false" contenteditable="false">'+t+'</span>');
 		// $('.editable_div').focus();
 	}
 
@@ -294,14 +313,18 @@ $(document).ready(function() {
 		
 
 		var msg_ = $('.editable_div').html();
-		msg_ = msg_.replace(/<span spellcheck="false" contenteditable="false">firstname<\/span>/g, '[firstname]')
-					.replace(/<span spellcheck="false" contenteditable="false">lastname<\/span>/g, '[lastname]')
-					.replace(/<span spellcheck="false" contenteditable="false">email<\/span>/g, '[email]')
-					.replace(/<span spellcheck="false" contenteditable="false">url<\/span>/g, '[url]')
+		msg_ = msg_.replace(/<span class="arg" spellcheck="false" contenteditable="false">firstname<\/span>/g, '[firstname]')
+					.replace(/<span class="arg" spellcheck="false" contenteditable="false">lastname<\/span>/g, '[lastname]')
+					.replace(/<span class="arg" spellcheck="false" contenteditable="false">email<\/span>/g, '[email]')
+					.replace(/<span class="arg" spellcheck="false" contenteditable="false">url<\/span>/g, '[url]')
 					.replace(/&nbsp;/g, ' ')
 					.replace(/<span style="color: rgb\(112, 112, 112\); font-size: 15px; background-color: rgb\(255, 255, 255\); display: inline !important;">/g, '')
 					.replace(/<\/span>/g, '');
-		$('#campaignmessage').val(msg_);
+
+		var $dd = $('.editable_div').clone();
+		$dd.html(msg_);
+		var msg = $dd.text();
+		$('#campaignmessage').val(msg);
 
 		$me = $('#campaign_form');
 		
@@ -320,7 +343,7 @@ $(document).ready(function() {
 				$('#analysis_id').val(data.tmpid);
 				$('#analysis-box #cpm_summary_name').text($('#campaign_name').val());
 				$('#analysis-box #cpm_summary_sender').text($('#sel_sender_id option:selected').text());
-				$('#analysis-box #cpm_summary_msg').text(msg_);
+				$('#analysis-box #cpm_summary_msg').text(msg);
 				$('#analysis-box #cpm_summary_to').text($('#sel_contact_group option:selected').text());
 				$('#analysis-box #cpm_summary_recp').text(data.contactcount);
 				$('#analysis-box #cpm_summary_count').text(data.msgcount);

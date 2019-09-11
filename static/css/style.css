@@ -15658,10 +15658,11 @@ img.mfp-img {
     border: solid 1px #ccc;
     border-radius: 3px;
     box-shadow: 0 0 5px #eee;
-    outline: none;
+		outline: none;
+		word-break: break-all;
 	}
 
-	.editable_div span {
+	.editable_div span.arg {
     color: yellow;
     background-color: #444;
     display: inline-block;
@@ -15862,7 +15863,8 @@ img.mfp-img {
     width: 250px;
     background: #f1f1f1;
     padding-left: 5px;
-    border-radius: 3px;
+		border-radius: 3px;
+		word-break: break-all;
 	}
 
 	/* #campaign-detail-box span {
