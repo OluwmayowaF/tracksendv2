@@ -10,6 +10,7 @@ exports.index = function(req, res) {
 // Display list of all contacts
 exports.contactList = (req, res) => {
     var user_id = req.user.id;
+    var lnkgrp = req.params.lnkgrp;
 
 
     models.Group.findAll({ 
@@ -41,6 +42,7 @@ console.log('====================================');
                 contactlist: true,
 
                 args: {
+                    lnkgrp,
                     grps,
                     ngrp,
                 }

@@ -78,15 +78,15 @@
 					{{#each args.recipients}}
 
 					<li class="list_item campaign_list" data-wh="campaign">
-						<ul class="saved_item _clickable">
+						<ul class="saved_item">
 							<form><input type="hidden" class="id" value="{{ id }}" /></form>
-							<li style="cursor: pointer; flex: 4">{{ contact.firstname }}</li>
-							<li style="cursor: pointer; flex: 4">{{ contact.lastname }}</li>
-							<li style="cursor: pointer; flex: 4">{{ contact.phone }}</li>
-							{{!-- <li style="cursor: pointer; flex: 2">{{ifCond status '==' 0 }} Pending </li> --}}
-							<li style="cursor: pointer; flex: 2">{{ status }} </li>
-							<li style="cursor: pointer; flex: 3">{{formatDate deliverytime "short"}}</li>
-							<li style="cursor: pointer; flex: 3; text-align:center">{{ clickcount }}</li>
+							<li style="flex: 4">{{ contact.firstname }}</li>
+							<li style="flex: 4">{{ contact.lastname }}</li>
+							<li style="flex: 4">{{ contact.phone }}</li>
+							{{!-- <li style="flex: 2">{{ifCond status '==' 0 }} Pending </li> --}}
+							<li style="flex: 2">{{ status }} </li>
+							<li style="flex: 3">{{formatDate deliverytime "short"}}</li>
+							<li style="flex: 3; text-align:center">{{ clickcount }}</li>
 						</ul>
 					</li>
 
