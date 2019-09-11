@@ -454,7 +454,7 @@ exports.add = async (req, res) => {
                                         await info.destroy();
                                 
                                         // if(failures) req.flash('success', 'Campaign created but some errors occurred.');
-                                        let mm = (schedule_) ? 'scheduled to be sent out at ' + moment(schedule_, 'YYYY-MM-DD HH:mm:ss').format('h:mm A (UTC), DD-MMM-YYYY') + '.' : 'sent out.';
+                                        let mm = (schedule_) ? 'scheduled to be sent out at ' + moment(schedule_, 'YYYY-MM-DD HH:mm:ss').add(1, 'hour').format('h:mm A, DD-MMM-YYYY') + '.' : 'sent out.';
                                         req.flash('success', 'Campaign created successfully. Messages ' + mm);
                                         var backURL = req.header('Referer') || '/';
                                         res.redirect(backURL);
@@ -561,7 +561,7 @@ exports.view = (req, res) => {
                     attributes: ['id', 'firstname', 'lastname', 'phone'],
                     // through: { }
                 }], 
-                attributes: ['status', 'deliverytime', 'readtime', 'firstclicktime'],
+                attributes: ['status', 'deliverytime', 'readtime', 'firstclicktime', 'clickcount'],
                 // through: { }
             }], 
             order: [ 
