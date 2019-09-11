@@ -92,6 +92,8 @@ $(document).ready(function() {
 		collapse: true
 	}).on('dp.change', function (e) {
 		// alert(e.timeStamp);
+		console.log('TM: ' + JSON.stringify(e));
+		
 		$('#schedule').val(e.timeStamp);
 	});
   
