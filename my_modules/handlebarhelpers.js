@@ -53,11 +53,22 @@ const hbsHelpers = () => {
                     format = DateFormats[format] || format;
                     // return moment(datetime).fromNow();
                     // return moment(datetime).calendar();
-                    return moment(datetime).format(format);
+                    var dt_ = moment(datetime);//.format(format)
+                    var dt = moment(datetime).format(format)
+                    return dt_.isValid() ? dt : '--';
                 }
                 else {
                     return datetime;
                 }
+            } ,
+
+            formatNumber: function (num) {
+                var nnum = num.toString().split(',');
+                num = '';
+                for(var i=0;i<nnum.length;i++) {
+                    num += nnum[0];
+                }
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             } 
 
         }

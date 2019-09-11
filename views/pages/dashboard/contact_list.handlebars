@@ -45,9 +45,10 @@
 							<div class="col-md-12">
 								<h5>Select Group </h5>
 								<select class="chosen-select-no-single" name="group" id="sel_contact_group">
+									<option></option>
 									<option value="{{ args.ngrp }}">[Uncategorized]</option>
 								{{#if args.grps.length}}
-									<option label="blank" value="0">Select Group</option>
+									{{!-- <option label="blank" value="0">Select Group</option> --}}
 									<option disabled>--------------------------------------</option>
 									{{#each args.grps}}
 									<option value="{{ id }}">{{ name }}</option>
@@ -115,7 +116,7 @@
 							<br>
 							<!-- Status -->
 							<div class="col-md-12 lists">
-								<h5 style="position: relative">Group: <span id="group_name" style="weight: bold"></span> | Contacts: <span id="group_contact_count" style="weight: bold"></span> <i class="sl sl-icon-refresh _loader"></i></h5>
+								<h5 style="position: relative">Group: <span id="group_name" style="weight: bold"></span> | Contacts: <span class="items_count" id="group_contact_count" style="weight: bold"></span> <i class="sl sl-icon-refresh _loader"></i></h5>
 								<div class="input-group mb-3" id="search_conts_box">
 									<input type="text" class="form-control" name="search_conts" id="search_conts" placeholder="Search Contacts..." style="width: 92%; display: inline; height: 35px; padding: 10px; font-size: 0.9em;">
 									<span class="input-group-append">

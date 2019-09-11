@@ -594,6 +594,26 @@ exports.view = (req, res) => {
         console.log('qqq= '+cpgnrecp.length);
         var recipients = cpgnrecp[0].messages;
         
+        recipients.forEach(i => {
+            let st = i.status;
+            switch (st) {
+                case 0:
+                    i.status = "Pending"
+                    break;
+                case 1:
+                    i.status = "Delivered"
+                    break;
+                case 2:
+                    i.status = "Failed"
+                    break;
+                case 3:
+                    i.status = "DND"
+                    break;
+            
+                default:
+                    break;
+            }
+        });
         console.log('====================================');
         console.log('SUMM: ' + JSON.stringify(summary) + '; MESS: ' + JSON.stringify(cpgnrecp) + '; CMSG: ' + JSON.stringify(recipients.length));
         console.log('====================================');

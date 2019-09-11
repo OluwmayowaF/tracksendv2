@@ -288,30 +288,33 @@ exports.saveContact = (req, res) => {
 
 }
 
-exports.delContact = (req, res) => {
+exports.delContact = async (req, res) => {
     var user_id = req.user.id;
     console.log('dele = ' + req.query.id);
     
-        models.Contact.findByPk(req.query.id)
-        .then(con => {
-            if(con.userId == user_id) {
-                con.destroy()
-                .then((r) => {
-                    res.send({
-                        response: "success",
-                    });
-                }) 
-                .error((r) => {
-                    res.send({
-                        response: "Error: Please try again later",
-                    });
+        //  get groups with the contact
+        var con = await models.Contact.findByPk(req.query.id)
+        if(con.userId == user_id) {
+            try {
+                await con.destroy();
+                var grp = await models.Group.findByPk(con.groupId);
+                await grp.update({
+                    count: Sequelize.literal('count - 1'),
                 })
-            } else {
                 res.send({
-                    response: "Error: Invalid permission",
+                    response: "success",
                 });
             }
-        });
+            catch (r) {
+                res.send({
+                    response: "Error: Please try again later",
+                });
+            }
+        } else {
+            res.send({
+                response: "Error: Invalid permission",
+            });
+        }
         
 
 }
