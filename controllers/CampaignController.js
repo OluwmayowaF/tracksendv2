@@ -148,10 +148,7 @@ exports.add = async (req, res) => {
     // console.log('schedule is: ' + schedule);
     
     var schedule_ = (info.schedule) ? moment(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss') : null;  //  for DB
-    var schedule = (info.schedule) ? moment.utc(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DDTHH:mm:ss.000Z') : null;   //  for infobip
-    console.log('schedule is: ' + info.schedule);
-    console.log('schedule is: ' + schedule_);
-    console.log('schedule is: ' + schedule);
+    var schedule = (info.schedule) ? moment(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DDTHH:mm:ss.000Z') : null;   //  for infobip
     
     //  create campaign
     Promise.all([models.Campaign.create({
@@ -457,7 +454,7 @@ exports.add = async (req, res) => {
                                         await info.destroy();
                                 
                                         // if(failures) req.flash('success', 'Campaign created but some errors occurred.');
-                                        let mm = (schedule_) ? 'scheduled to be sent out at ' + moment(schedule_, 'YYYY-MM-DD HH:mm:ss').format('h:mm A, DD-MMM-YYYY') + '.' : 'sent out.';
+                                        let mm = (schedule_) ? 'scheduled to be sent out at ' + moment(schedule_, 'YYYY-MM-DD HH:mm:ss').format('h:mm A (UTC), DD-MMM-YYYY') + '.' : 'sent out.';
                                         req.flash('success', 'Campaign created successfully. Messages ' + mm);
                                         var backURL = req.header('Referer') || '/';
                                         res.redirect(backURL);
