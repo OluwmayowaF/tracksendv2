@@ -49,8 +49,15 @@
 
 										<ul class="rates_list">
 											{{#each args.rates}}
-											<li><span class="amount">N{{ amount }}</span><span class="band"> : </span><span class="_lower">{{ lowerlimit }}</span> - <span class="_upper">{{ upperlimit }}</span> units</li>
+											<li><span class="amount">N{{formatNumber amount }}</span><span class="band"> : </span><span class="_lower">{{formatNumber lowerlimit }}</span> - <span class="_upper">{{formatNumber upperlimit }}</span> units</li>
 											{{/each}}
+										{{#each args.rates}}
+											<div class="_rates">
+												<input type="hidden" class="_rates_amt" value="{{ amount }}" >
+												<input type="hidden" class="_rates_lwr" value="{{ lowerlimit }}" >
+												<input type="hidden" class="_rates_upr" value="{{ upperlimit }}" >
+											</div>
+										{{/each}}
 										</ul>
 									</div>
 
@@ -135,7 +142,7 @@
 											<li style="flex: 6">{{ createdAt }}</li>
 											<li style="flex: 8">{{ amount }}</li>
 											<li style="flex: 2">{{ units }}</li>
-											<li style="flex: 3">Mode</li>
+											<li style="flex: 3">Card</li>
 										</ul>
 									</li>
 									{{else}}

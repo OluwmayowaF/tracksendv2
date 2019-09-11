@@ -37,6 +37,20 @@ $(document).ready(function() {
 
 	$('.editable_div').on('keyup', countChars);
 
+	//	FOR CALCULATION OF TOPUPS 
+	var topupbands = [];
+	$('.rates_list div._rates').each(function (i, el) {
+		
+		$w = $(el);
+		topupbands.push([
+			$w.find('._rates_amt').val(),
+			$w.find('._rates_lwr').val(),
+			$w.find('._rates_upr').val(),
+		])
+	})
+		console.log('q: ' + JSON.stringify(topupbands));
+	//	...end
+
 	function countChars(e) {
 		var $we = $('.editable_div');
 		var sp = $we.find('span.arg').length;
@@ -722,8 +736,8 @@ $(document).ready(function() {
 							console.log('ssssssssuuuuuuuuuuu');
 							
 							$item.remove();
-							var cnt = parseInt($('.page_box_header span.items_count').text());
-							$('.page_box_header span.items_count').text(--cnt);
+							var cnt = parseInt($('span.items_count').text());
+							$('span.items_count').text(--cnt);
 							
 							$('.notification.other3').removeClass('success error').addClass('success');
 							$('.notification.other3 p').text('Item successfully deleted.');
@@ -901,19 +915,18 @@ $(document).ready(function() {
 		var ent = parseFloat($(this).val());
 		console.log('entered: ' + ent);
 		
-		var bands = [
-			[2, 1, 50000],
+			/* [2, 1, 50000],
 			[1.9, 50001, 100000],
 			[1.8, 100001, 500000],
 			[1.7, 500001, 1000000000000],
-		]
+		] */
 
 		if(!ent) {
 				$('#_rate').text('??');
 				$('#_units').text('??');
 				$('#_amount').text('??');
 		} else {
-			bands.forEach(band => {
+			topupbands.forEach(band => {
 				if(ent >= band[1] && ent <= band[2]) {
 					$('#_rate').text('N' + band[0] + '/unit');
 					$('#_units').text(formatMyNumber(Math.floor(ent / band[0])));
