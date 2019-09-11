@@ -140,7 +140,7 @@ exports.add = async (req, res) => {
 
     console.log('form details are now: ' + JSON.stringify(info)); 
 
-    var originalmessage  = info.message;
+    var originalmessage  = info.message.replace(/[^\x00-\x7F]/g, "");;
                             // .replace(/<span spellcheck="false" contenteditable="false">firstname<\/span>/g, '[firstname]')
                             // .replace(/<span spellcheck="false" contenteditable="false">lastname<\/span>/g, '[lastname]')
                             // .replace(/<span spellcheck="false" contenteditable="false">email<\/span>/g, '[email]')
