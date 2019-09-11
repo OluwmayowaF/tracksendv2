@@ -457,7 +457,8 @@ exports.add = async (req, res) => {
                                         await info.destroy();
                                 
                                         // if(failures) req.flash('success', 'Campaign created but some errors occurred.');
-                                        req.flash('success', 'Campaign created successfully. Messages sent out.');
+                                        let mm = (schedule) ? 'scheduled to be sent out at ' + moment(schedule, 'YYYY-MM-DD HH:mm:ss').format('h:mm A, DD-MMM-YYYY') + '.' : 'sent out.';
+                                        req.flash('success', 'Campaign created successfully. Messages ' + mm);
                                         var backURL = req.header('Referer') || '/';
                                         res.redirect(backURL);
                                     } else {
@@ -485,7 +486,7 @@ exports.add = async (req, res) => {
             }
 
             var start = 0;
-            var grpn = 3;
+            var grpn = 1000;
             var len = contacts.length;
             var counter = 1;
             var batches = Math.ceil(len/grpn);
