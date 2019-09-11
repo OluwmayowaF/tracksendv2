@@ -521,7 +521,9 @@ $(document).ready(function() {
 	});
 
 	$('#sel_contact_group').on('change', function(e) {
-
+console.log('====================================');
+console.log('changed');
+console.log('====================================');
 		$we = $(this);
 		if($we.hasClass('_plain')) return;
 
@@ -538,6 +540,13 @@ $(document).ready(function() {
 	
 	})
 
+	//	FOR LINKING GROUPS TO CONTACT LIST
+	var ggd = $('#linked_group_id').val();
+	$('#sel_contact_group').val(ggd).trigger('chosen:updated');
+	$('#sel_contact_group').change();
+	//	...end
+
+	
 	$('#search_conts_btn').on('click', function(e) {
 
 		var tt = $('#search_conts_box #search_conts').val();

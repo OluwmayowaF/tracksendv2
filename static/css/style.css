@@ -15830,7 +15830,7 @@ img.mfp-img {
 	}
 
 	.saved_item._clickable li {
-		cursor: default;
+		cursor: pointer;
 	}
 
 	.unit_bal_box {

@@ -6,6 +6,7 @@ var groupController = require('../controllers/GroupController');
 // Home page route.
 router.get('/', contactController.index);
 router.get('/list', contactController.contactList);
+router.get('/list/:lnkgrp', contactController.contactList);
 router.get('/new', contactController.newContact);
 router.get('/groups/list', groupController.listGroup);
 // router.get('/groups', groupController.groupList);
