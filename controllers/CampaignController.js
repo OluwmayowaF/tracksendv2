@@ -179,7 +179,24 @@ exports.add = async (req, res) => {
             var dd = await models.Group.findAll({
                 include: [{
                     model: models.Contact, 
-                    ...(skip ? {where: {status: {[Sequelize.Op.ne]: 2}}} : {})
+                    ...(
+                        skip ? {
+                            where: {
+                                [Sequelize.Op.and]: [
+                                    {
+                                        status: {
+                                            [Sequelize.Op.ne] : 2
+                                        }
+                                    },
+                                    {
+                                        status: {
+                                            [Sequelize.Op.ne] : 3
+                                        }
+                                    }
+                                ]
+                            }
+                        } : {}
+                        )
                 }],
                 where: {
                     id: {
@@ -450,6 +467,16 @@ exports.add = async (req, res) => {
                                             status: 1
                                         });
 
+                                        //  LOG TRANSACTIONS
+                                        models.Transaction.create({
+                                            description: 'DEBIT',
+                                            userId: user_id,
+                                            type: 'CAMPAIGN',
+                                            ref_id: cpn.id,
+                                            units: (-1) * info.units_used,
+                                            status: 1,
+                                        })
+
                                         //  REMOVE TEMPORARY DATA
                                         await info.destroy();
                                 
@@ -530,7 +557,7 @@ exports.view = (req, res) => {
             "SELECT * FROM ( SELECT COUNT(status) AS pending        FROM messages WHERE status = 0 AND campaignId = :cid ) t1," +
             "              ( SELECT COUNT(status) AS delivered      FROM messages WHERE status = 1 AND campaignId = :cid ) t2," +
             "              ( SELECT COUNT(status) AS failed         FROM messages WHERE status = 2 AND campaignId = :cid ) t3," +
-            "              ( SELECT COUNT(status) AS undeliverable  FROM messages WHERE status = 3 AND campaignId = :cid ) t4," +
+            "              ( SELECT COUNT(status) AS undeliverable  FROM messages WHERE (status = 3 OR status = 4) AND campaignId = :cid ) t4," +
             "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE clickcount > 0 AND campaignId = :cid ) t5," + 
             "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = :cid ) t6," + 
             "              ( SELECT userId                          FROM campaigns WHERE id = :cid ) t7 " +
@@ -608,6 +635,9 @@ exports.view = (req, res) => {
                     break;
                 case 3:
                     i.status = "DND"
+                    break;
+                case 4:
+                    i.status = "Invalid"
                     break;
             
                 default:

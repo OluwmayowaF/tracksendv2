@@ -21,6 +21,7 @@ const models = {
   Settingsuserbilling:  sequelize.import('./SettingsUserBilling'),
   Settingstopuprate:  sequelize.import('./SettingsTopupRate'),
   Topup:      sequelize.import('./Topup'),
+  Transaction:      sequelize.import('./Transaction'),
   Payment:    sequelize.import('./Payment'),
   Country:    sequelize.import('./Country'),
 };

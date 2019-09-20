@@ -1,38 +1,230 @@
 var express = require('express');
 var router = express.Router();
 const path = require('path');
+var models = require('../models');
+const sequelize = require('../config/cfg/db');
+var bcrypt = require("bcryptjs");
+const nodemailer = require('nodemailer');
+const randgen = require('../my_modules/randgen');
+
 
 const redirectRouter = require('../routes/redirect');
 
-// const app = express();
-// app.use(express.static(path.join(__dirname, 'static')));
-
-/* router.get('/',(req, res) => res.render('pages/dashboard/dashboard', {
-  page: 'DASHBOARD',
-
-})); */
-
-// router.get('/', dashboardController.index);
-// router.use('/contacts', contactRouter);
-// router.use('/campaigns', campaignRouter);
-// router.use('/senderids', senderIdRouter);
-// router.use('/topups', topupRouter);
-// router.use('/upload', uploadRouter);
-
-// Requiring our custom middleware for checking if a user is logged in
-// var isAuthenticated = require("../config/middleware/isAuthenticated");
-//
 module.exports = function(app) {
   //
-  app.get('/', (req, res) => res.render('pages/home', {
-    layout: 'main',
-    page: 'HOME',
-    auth: (req.user) ? true : false,
-    flash: {
-      type: req.flash('type'),
-      msg: req.flash('msg'),
-    },
-  }));
+  app.get('/', (req, res) => 
+    {
+      var backURL = 'http://tracksend.co'; // req.header('Referer') || '/';
+      res.redirect(backURL);
+  });
+
+  app.get('/post-migration/tiwex', async (req, res) => {
+
+    res.send('ERROR OOOOOOOOOOOO');
+    // return;
+
+    //  create default '[uncategorized]' group for all existing users ... AND ... send them all emails to change their passwords
+    console.log('====================================');
+    console.log("...create default '[uncategorized]' group for all existing users");
+    console.log('====================================');
+
+    // Generate test SMTP service account from ethereal.email
+    // Only needed if you don't have a real mail account for testing
+    var testAccount = await nodemailer.createTestAccount();
+    var transporter = nodemailer.createTransport({
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+            user: 'rahsaan.hilll@ethereal.email', // generated ethereal user
+            pass: 'fts9U7Q2Q8QUbvrdxw' // generated ethereal password
+        },
+        //  remove this if you're using a real SMTP service...
+        tls: {
+          rejectUnauthorized: false
+        }
+    });
+
+    await models.User.findAll()
+    .then(async usrs => {
+
+      usrs.forEach(usr => {
+        //  create default '[uncategorized]' group for all existing users
+        models.Group.create({
+          name: '[Uncategorized]',
+          userId: usr.id,
+          description: "This is a default group that holds all contacts that's not grouped",
+          count: 0,
+        })
+        .error((err) => {
+          console.log("ERROR: " + err);
+        })
+
+        //  send password update mail to all existing users
+        console.log("...send password update mail to all existing users");
+        //  first generate tokens for each user
+        var arr = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9'];
+
+        var len = arr.length;
+        var id = '';
+        for (let i = 0; i < 64; i++) {
+          var r = arr[Math.floor(Math.random() * len)];//.toString();
+          id += r;
+        }
+
+        models.User.findByPk(usr.id)
+        .then(async (uu) => {
+          await uu.update({
+            update_profile: 0,
+            token: id,
+          })
+
+          // send mail with defined transport object
+          var info = await transporter.sendMail({
+              from: '"Spaceba" <info@spaceba.com>', // sender address
+              to: '"' + usr.name + '" <' + usr.email + '>', // list of receivers
+              subject: 'Hallo ✔', // Subject line
+              text: 'Hello ' + usr.name + ', <br><br>Spaceba has upgraded it\'s systems in order to serve you better. As a result, all users are required to update their passwords. Here\'s your password update link: https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + id, // plain text body
+              html: '<b>Hello ' + usr.name + '</b>, <br><br>Spaceba has upgraded it\'s systems in order to serve you better. As a result, all users are required to update their passwords. Here\'s your password update link: https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + id, // html body
+          });
+
+          console.log('Message sent: %s', info.messageId);
+          // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+          // Preview only available when sending through an Ethereal account
+          console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+          // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+          
+        })
+    
+      });
+
+    })
+
+    // ALSO migrate all network rate settings (`settingsnetworks`)
+    console.log('====================================');
+    console.log("...migrate all network rate settings (`settingsnetworks`)");
+    console.log('====================================');
+
+    await sequelize.query("SELECT * FROM settings_telco")
+    .then(([results, metadata]) => {
+          console.log(results);
+          // return results;
+
+          results.forEach(res => {
+
+            let prfs = res.phone_string;
+            let starr = prfs.split(',');
+            console.log('0000');
+
+            starr.forEach(res_ => {
+              console.log('1111111');
+              
+              var prefix = "0" + res_.substr(3);
+              models.Settingsnetwork.create({
+                name: res.telco_name,
+                prefix,
+                unitscharge: res.unit_no,
+                countryId: 234,
+              })            
+            });
+          });
+    })
+
+
+    //  THE END!
+  });
+
+  
+  app.get('/account/update/password/:email/:token', async (req, res) => {
+
+    var email = req.params.email;
+    var token = req.params.token;
+
+    console.log('Email = ' + email + "; token = " + token);
+    
+    res.render('pages/passwordupgrade', {
+      layout: 'main1',
+      page: 'LOGIN',
+      args: {
+          email,
+          token,
+      }
+    });
+
+  });
+
+  app.post('/account/update/password/', async (req, res) => {
+
+    var email = req.body.email; 
+    var token = req.body.token;
+    var password = req.body.password;
+    var cpassword = req.body.confirm_password;
+
+    console.log('hehe');
+    
+    if(password == cpassword) {
+      
+      models.User.findAll({
+        where: {
+          email,
+          token,
+          update_profile: 0
+        }
+      })
+      .then(async usr => {
+        console.log('====================================');
+        console.log('user = ' + JSON.stringify(usr));
+        console.log('====================================');
+
+        if(!usr.length || usr.length > 1) {
+          res.send('INVALID OPERTAION!');
+        } else {
+
+          var user = await models.User.findByPk(usr[0].id);
+          if(!user) {
+            console.log('====================================');
+            console.log('user error!');
+            console.log('====================================');
+            return;
+          }
+
+          var new_password = bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
+
+          await user.update({
+              password: new_password,
+              token: null,
+              update_profile: 1
+          })
+
+          console.log('UPDATED');
+          req.login(user, function(err) {
+              if (err) { 
+                  return next(err); 
+              }
+              req.flash('success', 'Password update successfully');
+              return res.redirect('/dashboard/profile');
+          });
+
+        }
+      })
+      .error((err) => {
+        console.log('====================================');
+        console.log('error = ' + err);
+        console.log('====================================');
+      })
+
+      
+    } else {
+        req.flash('error', 'Password mismatch. Please enter again.');
+        res.redirect('/dashboard/profile');
+    }
+
+
+    
+
+  });
+
 
   app.get('/login', (req, res) => {
     if(req.user) {

@@ -407,7 +407,31 @@ exports.analyseCampaign = (req, res) => {
         models.Group.findAll({
             include: [{
                 model: models.Contact, 
-                ...(skip ? {where: {status: {[Sequelize.Op.ne]: 2}}} : {})
+                ...(
+                    /* skip ? {
+                        where: {
+                            status: {
+                                    [Sequelize.Op.ne] : 2, 
+                            }
+                        }
+                    } : {} */
+                    skip ? {
+                        where: {
+                            [Sequelize.Op.and]: [
+                                {
+                                    status: {
+                                        [Sequelize.Op.ne] : 2
+                                    }
+                                },
+                                {
+                                    status: {
+                                        [Sequelize.Op.ne] : 3
+                                    }
+                                }
+                            ]
+                        }
+                    } : {}
+                )
             }],
             where: {
                 id: {
@@ -678,7 +702,7 @@ exports.loadCampaign = (req, res) => {
             "SELECT * FROM ( SELECT COUNT(status) AS pending        FROM messages WHERE status = 0 AND campaignId = :cid ) t1," +
             "              ( SELECT COUNT(status) AS delivered      FROM messages WHERE status = 1 AND campaignId = :cid ) t2," +
             "              ( SELECT COUNT(status) AS failed         FROM messages WHERE status = 2 AND campaignId = :cid ) t3," +
-            "              ( SELECT COUNT(status) AS undeliverable  FROM messages WHERE status = 3 AND campaignId = :cid ) t4," +
+            "              ( SELECT COUNT(status) AS undeliverable  FROM messages WHERE (status = 3 OR status = 4) AND campaignId = :cid ) t4," +
             "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = :cid ) t5," + 
             "              ( SELECT userId                          FROM campaigns WHERE id = :cid ) t6 " +
             "WHERE t6.userId = :id" , {
@@ -796,6 +820,21 @@ exports.smsNotify = (req, res) => {
             )
 
         } else if (status == 'REJECTED') {
+            sid = 4;
+
+            models.Contact.update(
+                {
+                    status: 3
+                },
+                {
+                    where: {
+                        countryId: pref,
+                        phone: phn,
+                    }
+                }
+            )
+            
+        } else if (status == 'UNDELIVERABLE') {
             sid = 3;
 
             models.Contact.update(
