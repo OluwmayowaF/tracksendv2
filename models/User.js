@@ -31,6 +31,7 @@ module.exports = function(sequelize, DataTypes) {
     phone: DataTypes.STRING,
     business: DataTypes.STRING,
     balance: DataTypes.DOUBLE,
+    token: DataTypes.STRING,
   }, {
     hooks: {
       beforeCreate: function(user) {

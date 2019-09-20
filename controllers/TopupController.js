@@ -184,20 +184,30 @@ exports.ref = (req, res) => {
                 units,
                 paymentId: payment.id,
             })
-            .then(async () => {
-                console.log('and almost finally...');
-                
-                var usr = await models.User.findByPk(payment.userId);
-                await usr.update({
-                    balance: Sequelize.literal('balance + ' + units),
-                });
-                console.log('DONE!');
-                
-                req.flash('success', 'Payment successful. Account topped up with ' + units + ' units.');
-                res.redirect('/dashboard/topups/');
-
-
+            //.then(async () => {
+            console.log('and almost finally...');
+            
+            //  LOG TRANSACTIONS
+            await models.Transaction.create({
+                description: 'CREDIT',
+                userId: payment.userId,
+                type: 'TOPUP',
+                ref_id: tpp.id,
+                units: units,
+                status: 1,
             })
+            
+            var usr = await models.User.findByPk(payment.userId);
+            await usr.update({
+                balance: Sequelize.literal('balance + ' + units),
+            });
+            console.log('DONE!');
+            
+            req.flash('success', 'Payment successful. Account topped up with ' + units + ' units.');
+            res.redirect('/dashboard/topups/');
+
+
+            //})
             
             return tpp;
             /* const donor = new Donor(newDonor)
