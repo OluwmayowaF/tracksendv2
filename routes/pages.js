@@ -30,7 +30,7 @@ module.exports = function(app) {
 
     // Generate test SMTP service account from ethereal.email
     // Only needed if you don't have a real mail account for testing
-    var testAccount = await nodemailer.createTestAccount();
+    // var testAccount = await nodemailer.createTestAccount();
     var transporter = nodemailer.createTransport({
         host: 'smtp.ethereal.email',
         port: 587,
@@ -43,7 +43,11 @@ module.exports = function(app) {
         tls: {
           rejectUnauthorized: false
         }
-    });
+    })
+    /* .catch((err) => {
+      console.log(err);
+      
+    }) */
 
     await models.User.findAll()
     .then(async usrs => {
@@ -126,7 +130,10 @@ module.exports = function(app) {
                 prefix,
                 unitscharge: res.unit_no,
                 countryId: 234,
-              })            
+              })
+              .error((err) => {
+                console.log("ERROR: " + err);
+              })
             });
           });
     })
