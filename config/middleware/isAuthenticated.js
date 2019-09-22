@@ -10,7 +10,7 @@ module.exports = function(req, res, next) {
     })
     .then(async (balance) => {
 
-      res.locals.balance = balance[0][0].balance;
+      res.locals.balance = balance[0][0].balance ? balance[0][0].balance : 0;
       return next();
 
     })
