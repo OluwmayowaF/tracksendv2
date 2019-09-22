@@ -20,7 +20,7 @@ module.exports = function(app) {
 
   app.get('/post-migration/tiwex', async (req, res) => {
 
-    res.send('ERROR OOOOOOOOOOOO');
+    // res.send('ERROR OOOOOOOOOOOO');
     // return;
 
     //  create default '[uncategorized]' group for all existing users ... AND ... send them all emails to change their passwords
@@ -52,7 +52,7 @@ module.exports = function(app) {
     await models.User.findAll()
     .then(async usrs => {
 
-      usrs.forEach(usr => {
+      await usrs.forEach(usr => {
         //  create default '[uncategorized]' group for all existing users
         models.Group.create({
           name: '[Uncategorized]',
@@ -111,11 +111,11 @@ module.exports = function(app) {
     console.log('====================================');
 
     await sequelize.query("SELECT * FROM settings_telco")
-    .then(([results, metadata]) => {
+    .then(async ([results, metadata]) => {
           console.log(results);
           // return results;
 
-          results.forEach(res => {
+          await results.forEach(res => {
 
             let prfs = res.phone_string;
             let starr = prfs.split(',');
@@ -137,6 +137,8 @@ module.exports = function(app) {
             });
           });
     })
+
+    res.send('DONE!!!');
 
 
     //  THE END!

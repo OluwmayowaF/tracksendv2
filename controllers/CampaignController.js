@@ -20,8 +20,8 @@ exports.index = (req, res) => {
     Promise.all([
         sequelize.query(
             "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, IF(status = 1, 'Active', 'Error') AS status, campaigns.createdAt FROM campaigns " +
-            "JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
-            "JOIN groups ON groups.id = campaign_groups.groupId " +
+            "LEFT OUTER JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
+            "LEFT OUTER JOIN groups ON groups.id = campaign_groups.groupId " +
             "WHERE campaigns.userId = :uid " +
             "GROUP BY campaigns.id " +
             "ORDER BY campaigns.createdAt DESC ", {
@@ -588,7 +588,7 @@ exports.view = (req, res) => {
                     attributes: ['id', 'firstname', 'lastname', 'phone'],
                     // through: { }
                 }], 
-                attributes: ['status', 'deliverytime', 'readtime', 'firstclicktime', 'clickcount'],
+                attributes: ['status', 'deliverytime', 'readtime', 'firstclicktime', 'clickcount', 'destination'],
                 // through: { }
             }], 
             order: [ 
@@ -620,9 +620,27 @@ exports.view = (req, res) => {
     ]).then(([summary, cpgnrecp, mcount]) => {
         console.log('qqq= '+cpgnrecp.length);
         var recipients = cpgnrecp[0].messages;
+        console.log('CONTA: ' + JSON.stringify(cpgnrecp[0]));
+        console.log('CONTA: ' + JSON.stringify(recipients));
         
-        recipients.forEach(i => {
-            let st = i.status;
+        recipients = recipients.map(ii => {
+            let jj = JSON.stringify(ii);
+            var i = JSON.parse(jj);
+            var st = parseInt(i.status);
+
+            if(i.contact == null && i.destination.length > 0) {
+                var ds = i.destination;
+                let pp = '0' + ds.substr(-10);
+
+                i.contact = {
+                    firstname: '--',
+                    lastname: '--',
+                    phone: pp,
+                }
+            }
+
+            console.log('PHONE = ' + i.contact.phone);
+            
             switch (st) {
                 case 0:
                     i.status = "Pending"
@@ -643,6 +661,9 @@ exports.view = (req, res) => {
                 default:
                     break;
             }
+            
+            return i;
+            
         });
         console.log('====================================');
         console.log('SUMM: ' + JSON.stringify(summary) + '; MESS: ' + JSON.stringify(cpgnrecp) + '; CMSG: ' + JSON.stringify(recipients.length));
@@ -659,7 +680,7 @@ exports.view = (req, res) => {
                 failed: summary.failed, 
                 undeliverable: summary.undeliverable,
                 clicks: summary.clicks,
-                recipients,
+                recipients: recipients,
                 mname,
                 mcount,
                 ctr: ((parseInt(summary.delivered) == 0) ? '0' : (parseInt(summary.clickc) * 100/parseInt(summary.delivered))),
