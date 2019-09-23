@@ -105,6 +105,12 @@ exports.pay = async (req, res) => {
             console.log('====================================');
             console.log('RESPONSE: ' + JSON.stringify(response));
             console.log('====================================');
+            if(!response.status) {
+                console.log(error);
+                req.flash('error', response.message);
+                res.redirect('/dashboard/topups/');
+                return;                
+            }
             res.redirect(response.data.authorization_url)
         });
         

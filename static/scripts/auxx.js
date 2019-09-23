@@ -978,11 +978,11 @@ function doRegistration() {
 				// $('.sign-in._link').click();
 
 			} else if(data.errors) {
-				$.each(data.errors, function(key, data) {
+				$.each(data.errors, function(key, data) { 
 					// console.log('error = ' + data.errors.map((inp) => inp.message));
 					console.log('error = ' + data.message);
 					var err = 'Sorry error occurred';
-					if(data.message == 'email must be unique') {
+					if((data.message == 'email must be unique') || (data.type == 'unique violation')) {
 						err = "Account with this email already exists.";
 					}
 					
