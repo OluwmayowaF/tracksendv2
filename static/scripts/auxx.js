@@ -1066,7 +1066,7 @@ function doLogin() {
 			
 		},
 		error: function(resp, dd, ww) {
-			if(ww == 'Unauthorized') {
+			if((ww == 'Unauthorized') || (resp.responseText == 'Unauthorized')) {
 				console.log('failed');
 				
 				$me.find('._form_errors._e_login').text('Invalid email/password');
@@ -1077,6 +1077,7 @@ function doLogin() {
 				
 			}
 			console.log('error...' + JSON.stringify(resp) + '...' + dd + '...' + ww);
+			console.log('error2...' + resp.responseText);
 			
 			$butt.removeAttr('disabled');
 			$me.find('.loading_icon').hide();
