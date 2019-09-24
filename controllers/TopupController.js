@@ -79,7 +79,7 @@ exports.pay = async (req, res) => {
     form.phone = req.user.phone;
     form.email = req.user.email;
     form.reference = await randgen('paymentref', models.Payment);
-    form.callback_url = 'https://dev2.tracksend.co/dashboard/topups/ref';
+    form.callback_url = 'https://app.tracksend.co/dashboard/topups/ref';
     form.amount *= 100;
     
     models.Payment.create({
