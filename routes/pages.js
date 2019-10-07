@@ -20,7 +20,7 @@ module.exports = function(app) {
 
   app.get('/post-migration/tiwex', async (req, res) => {
 
-    // res.send('ERROR OOOOOOOOOOOO');
+    res.send('ERROR OOOOOOOOOOOO');
     // return;
 
     //  create default '[uncategorized]' group for all existing users ... AND ... send them all emails to change their passwords
@@ -139,6 +139,120 @@ module.exports = function(app) {
     })
 
     res.send('DONE!!!');
+
+
+    //  THE END!
+  });
+
+  app.get('/sanitize-contacts/tiwex', async (req, res) => {
+    const Sequelize = require('sequelize');
+    var kk = 0;
+    const phoneValidity = (phone) => {
+
+      if(phone.length > 0) {
+        var phone = phone
+                .replace(/ /g, '')
+                .replace(/\-/g, '')
+                .replace(/\./g, '')
+                .replace(/\,/g, '')
+                .replace(/\+/g, '')
+                .replace(/\=/g, '');
+  
+        if ((phone.length == 10) && (phone.substr(0, 1) != '0')) phone = '0' + phone;
+        else if ((phone.length == 11) && (phone.substr(0, 1) == '0')) phone = phone;
+        else if ((phone.length == 13) && (phone.substr(0, 3) == '234')) phone = '0' + phone.substr(-10);
+        else if ((phone.length == 14) && (phone.substr(0, 4) == '2340')) phone = '0' + phone.substr(-10);
+        else return [phone, 5];
+  
+        return [phone, 0];
+      } else return [phone, 5];
+    
+    }
+  
+
+    let grps = await models.Group.findAll(
+      /* {
+        where: {
+            userId: 25,
+        }
+      } */
+    );
+
+    grps.forEach(async grp => {
+      try {
+        let pp = await models.Contact.findAll({
+          where: {
+              groupId: grp.id,
+          }
+        })
+        .catch(err => {
+          console.log('1. ERROR: ' + JSON.stringify(err));
+          
+        });
+
+        pp.forEach(async p => {
+          let p_ = phoneValidity(p.phone);
+          await models.Contact.update(
+            {
+              phone: p_[0],
+              status: p_[1] === 0 ? Sequelize.literal('status') : p_[1],
+            },
+            {
+              where: {
+                  id: p.id,
+              }
+            }
+          )
+          .catch(async err => {
+            if(err.name === 'SequelizeUniqueConstraintError') {
+              console.log('2. ERROR: ' + p.id + '-' + p.phone + '-' + 'DUPLICATE - ' + kk);
+              console.log('KK = ' + kk);
+              kk++;
+              await models.Contact.destroy(
+                {
+                  where: {
+                    id: p.id
+                  }
+                }
+              )
+              .then(() => {
+                console.log('DELETED : ' + p.id);
+
+              })
+              .catch(err => {
+                console.log('UNDELETED + ' + JSON.stringify(err));
+                
+              })
+              
+            }
+            if(err.name === 'SequelizeConnectionAcquireTimeoutError') {
+              console.log('3. ERROR: ' + p.id + '-' + p.phone + '-' + 'TIMEOUT!!! - ' + kk);
+
+            }
+            
+          });
+        });
+        console.log('************* GROUP ' + grp.id + ' **************');
+      } catch(err) {
+          console.log('ERROR:  *** ' + err.errors[0].type); //JSON.stringify(err));//SequelizeConnectionAcquireTimeoutError//
+        
+      }
+    });
+
+    
+    /* await models.Contact.update(
+      {
+        phone: phoneval(Sequelize.literal('phone')),
+        status: 5,
+      },
+      {
+        where: {
+            userId: 25,
+        }
+      }
+    ) */
+
+    res.send('DONE!!!!');
 
 
     //  THE END!
