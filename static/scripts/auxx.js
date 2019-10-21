@@ -152,8 +152,13 @@ $(document).ready(function() {
 				
 				break;
 			case 'ch-url':
-				return;
+				t = 'url';
+				id = 'url-in';
 				
+				if(!($('#sel_short_url').val() > 0)) {
+					alert('Please select the Short URL to insert from above.');
+					return false;
+				}
 				break;
 		}
 
@@ -171,10 +176,10 @@ $(document).ready(function() {
 
 		var $we = $(this);
 		var url = $('#long_url_link').val();
-
+		
 		if(url.length < 5) {
 			alert('Kindly enter valid Link');
-			return;
+			return false;
 		}
 
 		$we.closest('div').find('.loading_icon').show();
@@ -188,7 +193,8 @@ $(document).ready(function() {
 		$t_.hide();
 		$s_.show();
 
-		var urlid = '';
+		var urlid = '&id=' + $('#shorturlid').val();
+
 
 		$.ajax({
 			type: 'GET',

@@ -7,7 +7,6 @@
 				<!-- Breadcrumbs -->
 					<nav id="breadcrumbs">
 						<ul>
-							<li><a href="/">Home</a></li>
 							<li><a href="/dashboard">Dashboard</a></li>
 							<li><a href="/dashboard/campaigns">Campaigns</a></li>
 							<li>Campaign</li>
@@ -60,7 +59,9 @@
 
 		<div class="row">
 			<div class="col-lg-12" style="margin-top: 30px">
-				<div class="col-lg-12 page_box_header">Recipients
+				<div class="col-lg-12 page_box_header" style="display: flex">
+				  <div style="flex: 90%">Recipients</div>	
+				  <div id="_this_style_1"><a href="#msgtext-box" class="msgtext popup-with-zoom-anim" style="color: inherit">View Message</a></div>	
 				</div>
 			</div>
 			<div class="col-md-12 lists">
@@ -97,7 +98,21 @@
 			</div>
 		</div>
 
-		
+		<div id="msgtext-box" class="zoom-anim-dialog mfp-hide">
+
+			<div class="small-dialog-header" style="margin-bottom: 15px">
+				<h3>Campaign  <b>Message</b></h3>
+			</div>
+
+			<!--Tabs -->
+			<div class="sign-in-form style-1">
+
+				<div class="row with-forms">
+					{{ args.mmsg }}
+				</div>
+
+			</div>
+		</div>
 		<div class="row">
 			<!-- Copyrights -->
 			<div class="col-md-12">

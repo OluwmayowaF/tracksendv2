@@ -15,7 +15,7 @@ const models = {
   Tmpcampaign:   sequelize.import('./Tmpcampaign'),
   Campaign:   sequelize.import('./Campaign'),
   CampaignGroup: sequelize.import('./CampaignGroup'),
-  Shortlink:  sequelize.import('./Shortlink'),
+  Shortlink:  sequelize.import('./ShortLink'),
   Message:    sequelize.import('./Message'),
   Settingsnetwork:  sequelize.import('./SettingsNetwork'),
   Settingsuserbilling:  sequelize.import('./SettingsUserBilling'),

@@ -74,7 +74,17 @@ exports.index = (req, res) => {
                 userId: user_id,
             }
         }), 
-    ]).then(([cpns, sids, grps, non, csender, casender, ccontact]) => {
+        models.Shortlink.findAll({ 
+            where: { 
+                userId: user_id,
+                status: 1
+            },
+            order: [    
+                // ['status', 'DESC'],
+                ['createdAt', 'DESC']
+            ]
+        }),    
+    ]).then(([cpns, sids, grps, non, csender, casender, ccontact, shorturl]) => {
         var ngrp = non[0].id;
 
         console.log('====================================');
@@ -105,6 +115,7 @@ exports.index = (req, res) => {
                 nosenderids,
                 noasenderids,
                 nocontacts,
+                shorturl,
             }
         });
     });
@@ -229,7 +240,7 @@ exports.add = async (req, res) => {
             //  change status of shortlink to used
             if (info.shortlinkId) {
                 HAS_SURL = true;
-                await models.Shortlink.findByPk(info.shortlinkId)
+                /* await models.Shortlink.findByPk(info.shortlinkId)
                 .then((shrt) => {
                     shrt.update({
                         shorturl: info.myshorturl,
@@ -238,7 +249,7 @@ exports.add = async (req, res) => {
                 })
                 .error((err) => {
                     console.log('2BIG ERROR: ' + err);
-                })
+                }) */
             }
             
             //  check for personalizations
@@ -669,6 +680,7 @@ exports.view = (req, res) => {
         console.log('SUMM: ' + JSON.stringify(summary) + '; MESS: ' + JSON.stringify(cpgnrecp) + '; CMSG: ' + JSON.stringify(recipients.length));
         console.log('====================================');
         var mname = cpgnrecp.map((r) => r.name);
+        var mmsg = cpgnrecp.map((r) => r.message);
         
         res.render('pages/dashboard/campaign', { 
             page: 'Campaign: "' + mname + '"', //'Campaigns',
@@ -682,6 +694,7 @@ exports.view = (req, res) => {
                 clicks: summary.clicks,
                 recipients: recipients,
                 mname,
+                mmsg,
                 mcount,
                 ctr: ((parseInt(summary.delivered) == 0) ? '0' : (parseInt(summary.clickc) * 100/parseInt(summary.delivered))),
             }
