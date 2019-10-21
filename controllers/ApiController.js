@@ -322,52 +322,47 @@ exports.delContact = async (req, res) => {
 exports.generateUrl = (req, res) => {
     var user_id = req.user.id;
 
-    var uid, url = req.query.url;
+    var uid, url = req.query.url;//, id = req.query.id;
 
     uid = makeId(3);
 
     checkId(uid);
 
-    function checkId(id) {
-        models.Shortlink.findAll({
+    async function checkId(id) {
+        let e = await models.Shortlink.findAll({
             where: { 
                 shorturl: id,
                 // status: 1,
             },
-        }).then((e) => {
-            if(e.length) {
-                console.log(JSON.stringify(e));
-                uid = makeId(3);
-                checkId(uid);
-            } else {
-                if(req.query.id) {
-                    models.Shortlink.findByPk(req.query.id)
-                    .then((shrt) => {
-                        shrt.update({
-                            shorturl: id,
-                        }).then(() => {
-                            res.send({
-                                id: req.query.id,
-                                shorturl: id,
-                            });
-                        })
-                    }) 
-                } else {
-                    models.Shortlink.create({
-                        userId: user_id,
-                        shorturl: id,
-                        url: url,
-                    })
-                    .then((shrt) => {
-                        res.send({
-                            // shorturl: 'https://tns.go/' + id,
-                            id: shrt.id,
-                            shorturl: id,
-                        });
-                    })
-                }
-            }
         })
+        
+        if(e.length) {
+            console.log(JSON.stringify(e));
+            uid = makeId(3);
+            checkId(uid);
+        } else {
+            if(req.query.id) {
+                let shrt = await models.Shortlink.findByPk(req.query.id);
+                await shrt.update({
+                    shorturl: id,
+                });
+                await res.send({
+                    id: req.query.id,
+                    shorturl: id,
+                });
+            } else {
+                let shrt = await models.Shortlink.create({
+                    userId: user_id,
+                    shorturl: id,
+                    url: url,
+                });
+                res.send({
+                    // shorturl: 'https://tns.go/' + id,
+                    id: shrt.id,
+                    shorturl: id,
+                });
+            }
+        }
     }
 
 	function makeId(length) {
@@ -539,11 +534,14 @@ console.log('555555');
             }                                                     
             async function checkAndAggregate(kont) {  
 
+                if(req.body.shorturl) {
+                    var shorturl = await models.Shortlink.findByPk(req.body.shorturl);
+                }
                 var message  = req.body.message
                     .replace(/\[firstname\]/g, kont.firstname)
                     .replace(/\[lastname\]/g, kont.lastname)
                     .replace(/\[email\]/g, kont.email)
-                    .replace(/\[url\]/g, 'https://tsn.go/' + req.body.myshorturl + '/' + uid)
+                    .replace(/\[url\]/g, 'https://tsn.go/' + shorturl.shorturl + '/' + uid)
                     .replace(/&nbsp;/g, ' ');
 
                 let cc = getSMSCount(message);
@@ -581,8 +579,8 @@ console.log('555555');
                         description: req.body.description,
                         userId: user_id,
                         senderId: req.body.sender,
-                        shortlinkId: (req.body.shorturlid.length > 0) ? req.body.shorturlid : null,
-                        myshorturl: req.body.myshorturl,
+                        shortlinkId: (req.body.shorturl.length > 0) ? req.body.shorturl : null,
+                        // myshorturl: req.body.myshorturl,
                         grp: JSON.stringify(groups),
                         message: req.body.message,
                         // schedule: (req.body.schedule) ? moment(req.body.schedule, 'DD/MM/YYYY h:mm:ss A').format('YYYY-MM-DD HH:mm:ss') : null, //req.body.schedule,
@@ -609,8 +607,8 @@ console.log('555555');
                             description: req.body.description,
                             userId: user_id,
                             senderId: req.body.sender,
-                            shortlinkId: (req.body.shorturlid.length > 0) ? req.body.shorturlid : null,
-                            myshorturl: req.body.myshorturl,
+                            shortlinkId: (req.body.shorturl.length > 0) ? req.body.shorturl : null,
+                            // myshorturl: req.body.myshorturl,
                             grp: JSON.stringify(groups),
                             message: req.body.message,
                             schedule: (req.body.datepicker) ? req.body.schedule : null, //req.body.schedule,

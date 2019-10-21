@@ -9,6 +9,10 @@ const randgen = require('../my_modules/randgen');
 exports.index = async (req, res) => {
     var user_id = req.user.id;
     models.Topup.findAll({ 
+        include: [{
+            model: models.Payment, 
+            attributes: ['channel'], 
+        }],
         where: { 
             userId: user_id
         },

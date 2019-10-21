@@ -293,3 +293,176 @@ exports.index = (req, res) => {
     });
 };
 
+exports.manualget = (req, res) => {
+    var user_id = req.user.id;
+
+    models.Topup.findAll({ 
+        include: [{
+            model: models.Payment, 
+            // attributes: ['id', 'name', 'nameKh'], 
+            where: { 
+                channel: "manual"
+            }
+        },
+        {
+            model: models.User, 
+            attributes: ['id', 'name'], 
+        }],
+        order: [ 
+            ['createdAt', 'DESC']
+        ]
+    })
+    .then((tups) => {
+
+        models.Settingstopuprate.findAll({
+            order: [ 
+                ['id', 'ASC']
+            ]
+        })
+        .then((rates) => {
+
+            console.log('====================================');
+            console.log(JSON.stringify(tups));
+            console.log('====================================');
+            
+            var flashtype, flash = req.flash('error');
+            if(flash.length > 0) {
+                flashtype = "error";           
+            } else {
+                flashtype = "success";
+                flash = req.flash('success'); 
+            }
+
+            res.render('pages/dashboard/manual_topup', {
+                page: 'TopUps', 
+                topups: true,
+                flashtype, flash,
+
+                args: {
+                    tups,
+                    rates,
+                }
+            });
+        })
+
+        
+
+    })
+
+};
+
+exports.manualpost = async (req, res) => {
+
+    let uid = req.user.id;
+    let cid = req.body.clientid;
+    let amt = req.body.amount;
+    // let rid = req.body.rateid;
+    try {
+        let client = await models.User.findByPk(cid);
+
+        let payt = await models.Payment.create({
+            paymentref: "Manual_By_" + uid,
+            userId: client.id,
+            name: client.name,
+            phone: client.phone,
+            email: client.email,
+            amount: amt,
+            channel: 'manual',
+            isverified: 1,
+        })
+
+        let getUnits = async(amt) => {
+            var rate = await models.Settingstopuprate.findAll({
+                order: [ 
+                    ['id', 'ASC']
+                ]
+            });
+            console.log('111111111 -> ' + amt);
+            
+            let owo = parseInt(amt);
+            var units = 0;
+            let rid = 0;
+            var drate = 0;
+            rate.forEach(el => {
+                console.log('trying...');
+                
+                if(owo >= el.lowerlimit && owo <= el.upperlimit) {
+                    console.log('got it!');
+                    
+                    drate = el.amount;
+                    rid = el.id;
+                }
+            });
+            if(drate != 0) {
+                console.log('moving on...');
+                
+                units = Math.floor(owo/drate);
+            } 
+
+            return {
+                units,
+                rid,
+            }
+
+        }
+        
+        let gettr = await getUnits(amt);
+        console.log('====================================');
+        console.log(gettr);
+        console.log('====================================');
+        let units = gettr.units;
+        let rateid = gettr.rid;
+        
+        if(rateid === 0) {
+            console.log('====================================');
+            console.log('error in amount');
+            console.log('====================================');
+        }
+
+        let topup = await models.Topup.create({
+            userId: client.id,
+            settingstopuprateId: rateid,
+            amount: amt,
+            units,
+            paymentId: payt.id,
+        })
+
+        let trx = await models.Transaction.create({
+            description: 'CREDIT',
+            amount: amt,
+            trxref: "Manual_By_" + uid,
+            units,
+            userId: client.id,
+            status: 1, 
+            type: 'MANUAL_TOPUP',
+            ref_id: topup.id,
+        })
+
+        await client.update({
+            balance: Sequelize.literal('balance + ' + units),
+        });
+
+        req.flash('success', "Manual TopUp Successful");
+        res.redirect('/dashboard/m_a_n_u_a_l');
+        
+
+    } catch(err) {
+        console.log(err);
+        console.log('errorerr = ' + err);
+        
+        if(err.name == 'SequelizeUniqueConstraintError') {
+            req.flash('error', 'Group Name already exists on your account.');
+        } else if (err == "Invalid" ) {
+            req.flash('error', "Invalid Phone Number");
+        } else if (err == "Duplicate" ) {
+            req.flash('error', "Duplicate Phone Number");
+        }
+        var backURL = req.header('Referer') || '/';
+        res.redirect(backURL);
+    };
+
+
+    console.log('showing page...'); 
+    
+};
+

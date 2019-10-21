@@ -7823,7 +7823,11 @@ mark { border-radius: 4px; }
 .notification.warning,
 .notification.warning a,
 .notification.warning strong {
-	color: #8f872e;
+	color: #bf8600;
+}
+.notification.warning._er,
+.notification.warning._er a {
+	color: #de5959;
 }
 
 .notification.notice h4 { font-size: 19px; margin: 3px 0 15px 0; }
@@ -7851,7 +7855,7 @@ mark { border-radius: 4px; }
 }
 
 #dashboard .warning {
-	background-color: #f6f4c9;
+	background-color: #fff7bd;
 }
 
 
@@ -13315,7 +13319,7 @@ button.mfp-close {
 }
 
 #small-dialog .mfp-close,
-#sign-in-dialog .mfp-close, #register-dialog .mfp-close, #url-setup-box .mfp-close, #analysis-box .mfp-close, #campaign-detail-box .mfp-close,
+#sign-in-dialog .mfp-close, #register-dialog .mfp-close, #url-setup-box .mfp-close, #analysis-box .mfp-close, #msgtext-box .mfp-close, #campaign-detail-box .mfp-close,
 .mfp-close:hover {
 	color: #fff;
 }
@@ -13326,6 +13330,7 @@ button.mfp-close {
 #register-dialog .mfp-close,
 #url-setup-box .mfp-close,
 #analysis-box .mfp-close,
+#msgtext-box .mfp-close,
 #campaign-detail-box .mfp-close,
 #small-dialog .mfp-close {
 	color: #666;
@@ -13356,6 +13361,8 @@ button.mfp-close {
 #url-setup-box .mfp-close::before,
 #analysis-box .mfp-close::after,
 #analysis-box .mfp-close::before,
+#msgtext-box .mfp-close::after,
+#msgtext-box .mfp-close::before,
 #campaign-detail-box .mfp-close::after,
 #campaign-detail-box .mfp-close::before,
 #small-dialog .mfp-close::after,
@@ -13487,6 +13494,7 @@ button.mfp-close {
 #register-dialog,
 #url-setup-box,
 #analysis-box,
+#msgtext-box,
 #campaign-detail-box,
 #small-dialog {
 	background: #fff;
@@ -13501,7 +13509,7 @@ button.mfp-close {
 }
 
 
-#sign-in-dialog, #register-dialog, #url-setup-box, #analysis-box {
+#sign-in-dialog, #register-dialog, #url-setup-box, #analysis-box, #msgtext-box {
 	max-width: 500px;
 }
 
@@ -13514,6 +13522,7 @@ button.mfp-close {
 #register-dialog span.line,
 #url-setup-box span.line,
 #analysis-box span.line,
+#msgtext-box span.line,
 #campaign-detail-box span.line,
 #small-dialog span.line {padding-top: 0;}
 
@@ -15221,13 +15230,13 @@ img.mfp-img {
 	    padding: 30px;
 	}
 
-	#sign-in-dialog, #register-dialog, #url-setup-box, #analysis-box, #campaign-detail-box, #small-dialog {
+	#sign-in-dialog, #register-dialog, #url-setup-box, #analysis-box, #msgtext-box, #campaign-detail-box, #small-dialog {
 		background: #fff;
 		padding: 30px;
 		padding-top: 0;
     }
 
-	#sign-in-dialog .mfp-close, #register-dialog .mfp-close, #url-setup-box .mfp-close, #analysis-box .mfp-close, #campaign-detail-box .mfp-close, #small-dialog .mfp-close {
+	#sign-in-dialog .mfp-close, #register-dialog .mfp-close, #url-setup-box .mfp-close, #analysis-box .mfp-close, #msgtext-box .mfp-close, #campaign-detail-box .mfp-close, #small-dialog .mfp-close {
 	    top: 24px;
 	    right: 30px;
 	    width: 40px;
@@ -15291,7 +15300,7 @@ img.mfp-img {
 	    line-height: 30Px;
 	}
 
-	#sign-in-dialog, #register-dialog, #url-setup-box, #analysis-box, #small-dialog {
+	#sign-in-dialog, #register-dialog, #url-setup-box, #analysis-box, #msgtext-box, #small-dialog {
 	    max-width: 75vw;
 	}
 
@@ -15681,6 +15690,7 @@ img.mfp-img {
     float: right;
     border: solid 1px #bbb;
     border-radius: 3px;
+    box-shadow: 2px 2px 5px #ccc;
 	}
 	.compose_options_box > li {
 		display: inline-block;
@@ -15702,6 +15712,9 @@ img.mfp-img {
     border-right: solid 1px #999;
 		font-size: 0.75em;
 		cursor: pointer;
+	}
+	.compose_options_box.checkboxes li:last-of-type {
+    border-right: none;
 	}
 	.compose_options_box.checkboxes li:hover {
 		background-color: #eee;
@@ -15916,6 +15929,18 @@ img.mfp-img {
 		-ms-animation: loader 2s linear infinite;
 		-o-animation: loader 2s linear infinite;
 		animation: loader 2s linear infinite;
+	}
+
+	#_this_style_1 {
+    flex: 14%;
+    font-size: 0.7em;
+    background-color: white;
+    color: #116575;
+    text-align: center;
+    border: solid 1px #aaa;
+    border-radius: 5px;
+    box-shadow: -2px -2px 5px #999 inset;
+    cursor: pointer;
 	}
 
 	@media (max-width:803px) {

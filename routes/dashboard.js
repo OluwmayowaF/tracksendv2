@@ -9,6 +9,7 @@ const contactRouter = require('./contacts');
 const campaignRouter = require('./campaigns');
 const senderIdRouter = require('./senderids');
 const topupRouter = require('./topups');
+const shortLinkRouter = require('./shortlinks');
 const uploadRouter = require('./upload');
 const profileRouter = require('./profile');
 
@@ -29,6 +30,7 @@ const profileRouter = require('./profile');
 
 // Requiring our custom middleware for checking if a user is logged in
 var isAuthenticated = require("../config/middleware/isAuthenticated");
+var isAdministrator = require("../config/middleware/isAdministrator");
 //
 module.exports = function(app) {
   //
@@ -36,9 +38,16 @@ module.exports = function(app) {
   app.use('/dashboard/contacts', isAuthenticated, contactRouter);
   app.use('/dashboard/campaigns', isAuthenticated, campaignRouter);
   app.use('/dashboard/senderids', isAuthenticated, senderIdRouter);
+  app.use('/dashboard/shortlinks', isAuthenticated, shortLinkRouter);
+  app.use('/dashboard/shorturls', isAuthenticated, shortLinkRouter);
   app.use('/dashboard/topups', isAuthenticated, topupRouter);
   app.use('/dashboard/upload', isAuthenticated, uploadRouter);
   app.use('/dashboard/profile', isAuthenticated, profileRouter);
+  app.get('/dashboard/m_a_n_u_a_l', isAdministrator, dashboardController.manualget);
+  // app.get('/dashboard/m_a_n_u_a_l', isAdministrator, (req, res) => {
+  //   res.send('yeaaah');
+  // });
+  app.post('/dashboard/m_a_n_u_a_l', isAdministrator, dashboardController.manualpost);
 
 /*   app.get("/", function(req, res) {
     // If the user already has an account send them to the members page
