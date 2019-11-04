@@ -62,11 +62,11 @@ exports.index = function(req, res) {
             .then(async () => {
                 //  finally, redirect to client URL
                 let utm = '';
-                if(shurl.has_utm && !seencmpgn) {
+                if(shurl.has_utm) {
                     cmpgn = await models.Campaign.findByPk((shurl.campaignId), {
                         attributes: ['name'], 
                     })
-                    seencmpgn = true;
+                 //   seencmpgn = true;
                     utm = '?utm_source=tracksend&utm_medium=tracksend&utm_campaign=' + cmpgn.name;
                 }
                 res.redirect(shurl.url + utm);
