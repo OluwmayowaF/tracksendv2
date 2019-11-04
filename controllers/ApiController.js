@@ -16,7 +16,7 @@ exports.groupList = function(req, res) {
 };
 
 // Display detail page for a specific contact.
-exports.getContacts = (req, res) => {
+exports.getContacts = async (req, res) => {
 
     var q;
     if(req.query.grp != -1) {
@@ -24,12 +24,12 @@ exports.getContacts = (req, res) => {
         if(req.query.txt) {
             console.log('yes ttt');
             
-            q = sequelize.query(
+            q = await sequelize.query(
                 "SELECT * FROM contacts " +
                 "WHERE (" + 
                     " firstname LIKE :tt OR " +
                     " lastname LIKE :tt OR " + 
-                    " phone LIKE :tt " +
+                    " phone LIKE :tt OR " +
                     " email LIKE :tt " +
                 ") AND groupId = (:grp) " +
                 "AND userId = (:usr) " +
@@ -46,34 +46,48 @@ exports.getContacts = (req, res) => {
         } else {
             console.log('no tt');
             
-            q = models.Group.findByPk(req.query.grp, {
-                include: [{
-                    model: models.Contact, 
-                    where: { userId: req.user.id },
-                    limit: 100,
-                    // attributes: ['id', 'name', 'nameKh'], 
-                    // through: { }
-                }],
-                where: { userId: req.user.id } 
-            });
+            q = await Promise.all([
+                    models.Group.findByPk(req.query.grp, {
+                    include: [{
+                        model: models.Contact, 
+                        where: { userId: req.user.id },
+                        limit: 100,
+                        // attributes: ['id', 'name', 'nameKh'], 
+                        // through: { }
+                    }],
+                    where: { userId: req.user.id } 
+                }),
+                sequelize.query(
+                    "SELECT * FROM ( SELECT COUNT(status) AS unverified FROM contacts WHERE status = 0 AND groupId = :gid AND userId = :uid) t1, " +
+                    "              ( SELECT COUNT(status) AS ndnd       FROM contacts WHERE status = 1 AND groupId = :gid AND userId = :uid) t2, " +
+                    "              ( SELECT COUNT(status) AS dnd        FROM contacts WHERE status = 2 AND groupId = :gid AND userId = :uid) t3 " , {
+                        replacements: {
+                            gid: req.query.grp,
+                            uid: req.user.id,
+                        },
+                        type: sequelize.QueryTypes.SELECT,
+                    }
+                )
+            ]);
         }
 
-        q.then(cg => {
+        res.send(q); 
+        /* q.then((cg, conts) => {
             console.log(JSON.stringify(cg));
             
-            res.send(cg); 
-        });
+            res.send([cg, conts]); 
+        }); */
     } else {
 
         if(req.query.txt) {
             console.log('yes ttt');
             
-            q = sequelize.query(
+            q = await sequelize.query(
                 "SELECT * FROM contacts " +
                 "WHERE (" + 
                     " firstname LIKE :tt OR " +
                     " lastname LIKE :tt OR " + 
-                    " phone LIKE :tt " +
+                    " phone LIKE :tt OR " +
                     " email LIKE :tt " +
                 ") AND userId = :usr " +
                 "LIMIT 100 ",
@@ -88,7 +102,7 @@ exports.getContacts = (req, res) => {
         } else {
             console.log('no tt');
         
-            q = models.Contact.findAll({
+            q = await models.Contact.findAll({
                 // raw: true,
                 where: { 
                     userId: req.user.id, 
@@ -97,11 +111,7 @@ exports.getContacts = (req, res) => {
             });
         }
 
-        q.then(cg => {
-            console.log(cg);
-            
-            res.send(cg); 
-        });
+        res.send(q); 
     }
 
 }
@@ -393,6 +403,7 @@ exports.analyseCampaign = (req, res) => {
     var units = 0;
     var groups = req.body.group;
     var skip = (req.body.skip_dnd && req.body.skip_dnd == "on");
+    var utm = (req.body.add_utm && req.body.add_utm == "on");
 
     if (groups != 0) {
         if(!Array.isArray(groups)) groups = [groups];
@@ -587,6 +598,7 @@ console.log('555555');
                         schedule: (req.body.datepicker) ? req.body.schedule : null, //req.body.schedule,
                         recipients: req.body.recipients,
                         skip_dnd: (req.body.skip_dnd) ? req.body.skip_dnd : null,
+                        has_utm: (utm) ? 1 : 0,
                         units_used: units,
                     })
                     .then((tmp) => {

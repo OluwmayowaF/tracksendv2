@@ -535,7 +535,7 @@ console.log('====================================');
 				$('#show_contacts_pane').show();			
 				$('._loader').hide();
 
-					console.log(data.contacts);
+					console.log(data[0].contacts);
 					var header = '<li class="list_item _hd" style="font-weight: bolder">' +
 					'	<ul class="saved_item">' +
 					'		<li style="flex: 3">First Name</li>' +
@@ -549,21 +549,68 @@ console.log('====================================');
 
 					$('.lists #contact_list').html(header);
 					var count = 0;
+					let searchall = (opt == -1);
+					let switchgrp = (txt == '');
+					let dat;
 
-					if(opt == -1) {
+					//	set contacts result group name title
+					if(searchall) {
 
 						/* data.forEach(el => {
 							$('#group_contact_count').text(count += el.count);
 							do_html(el.contacts ? el.contacts : el);
 						}); */
-							$('#group_name').text('ALL Groups');
+
+						if(switchgrp) {
+							$('#search_conts_box #search_conts').val('');
+							$('#group_contact_count').text(data[0].length);
+							dat = data;
+						} else {
 							$('#group_contact_count').text(data.length);
+							dat = data;
+						}
+						
+						$('#group_name').text('ALL Groups');
+
+						$('#_group_info').hide();
+						$('#_group_info #_desc').text('');
+						$('#_group_info #_dnds').text('');
+						$('#_group_info #_ndnds').text('');
+						$('#_group_info #_unverifs').text('');
+						$('#_group_info #_conts').text('');
+						$('#_group_info #_cdate').text('');
+						$('#_group_info #_udate').text('');
+						
 					} else {
-						$('#group_name').text(data.name);
-						$('#group_contact_count').text(data.count);
+						
+						if(switchgrp) {
+							$('#search_conts_box #search_conts').val('');
+							$('#group_contact_count').text(data[0].length);
+							$('#group_name').text(data[0].name);
+							$('#group_contact_count').text(data[0].contacts.length);
+							
+							$('#_group_info #_desc').text(data[0].description ? data[0].description : '[none]');
+							$('#_group_info #_conts').text(data[0].contacts.length);
+							$('#_group_info #_dnds').text(data[1][0].dnd);
+							$('#_group_info #_ndnds').text(data[1][0].ndnd);
+							$('#_group_info #_unverifs').text(data[1][0].unverified);
+							$('#_group_info #_cdate').text(moment.utc(data[0].createdAt, 'YYYY-MM-DD HH:mm:ss Z').format('h:mm a, DD-MMM, YYYY'));
+							$('#_group_info #_udate').text(moment.utc(data[0].updatedAt, 'YYYY-MM-DD HH:mm:ss Z').format('h:mm a, DD-MMM, YYYY'));
+							$('#_group_info').show();
+							
+							dat = data[0].contacts;
+						} else {
+							$('#group_contact_count').text(data.length);
+							$('#group_name').text(data.name);
+							$('#group_contact_count').text(data.count);
+
+							dat = data;
+						}
+
 					}
 
-					do_html(data.contacts ? data.contacts : data);
+
+					do_html(dat);//a.contacts ? data.contacts : data);
 					initializeActionBtns();
 
 					function do_html(list) {
@@ -585,13 +632,15 @@ console.log('====================================');
 									break;
 							
 							}
+
+							let repltxt = new RegExp('(' + txt + ')', 'gi');
 							var html = '<li class="list_item" data-wh="contact">' +
 													'	<ul class="saved_item">' +
 													'		<input type="hidden" class="cid" value="'+i.id+'" />' +
-													'		<li style="flex: 3" class="dv_firstname">'+i.firstname+'</li>' +
-													'		<li style="flex: 3" class="dv_lastname">'+i.lastname+'</li>' +
-													'		<li style="flex: 2">'+i.phone+'</li>' +
-													'		<li style="flex: 4" class="dv_email">'+i.email+'</li>' +
+													'		<li style="flex: 3" class="dv_firstname">'+((txt == '') ? i.firstname : i.firstname.replace(repltxt, '<span style="text-decoration: underline">$1</span>'))+'</li>' +
+													'		<li style="flex: 3" class="dv_lastname">'+((txt == '') ? i.lastname : i.lastname.replace(repltxt, '<span style="text-decoration: underline">'+txt+'</span>'))+'</li>' +
+													'		<li style="flex: 2">'+((txt == '') ? i.phone : i.phone.replace(repltxt, '<span style="text-decoration: underline">'+txt+'</span>'))+'</li>' +
+													'		<li style="flex: 4" class="dv_email">'+((txt == '') ? i.email : i.email.replace(repltxt, '<span style="text-decoration: underline">'+txt+'</span>'))+'</li>' +
 													'		<li style="flex: 2' + (status == 'DND'? '; color: red' : (status == 'Non-DND'? '; color: green' : '')) + '">'+status+'</li>' +
 													'		<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">' +
 													'			<span style="flex: 1; text-align:center" class="edit_item_btn"><a class="tooltip top" title="Edit" style="cursor: pointer"><i class="fa fa-edit"></i></a></span>|' +

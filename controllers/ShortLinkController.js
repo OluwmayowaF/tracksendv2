@@ -77,7 +77,7 @@ exports.add = async (req, res) => {
     let sid = req.body.shorturlid;
     let url = req.body.myshorturl;
 
-    try {
+    try { 
         await models.Shortlink.update(
             {
                 shorturl: url,

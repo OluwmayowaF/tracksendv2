@@ -3,20 +3,21 @@
 module.exports = (sequelize, DataTypes) => {
   var Campaign = sequelize.define('campaign', {
     id: {
-      type: DataTypes.INTEGER,
+      type:     DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
-    name: DataTypes.STRING,
+    name:       DataTypes.STRING,
     description: DataTypes.STRING,
     shortlinkId: {
-      type: DataTypes.INTEGER,
+      type:     DataTypes.INTEGER,
       allowNull: true
     },
-    message: DataTypes.STRING,
-    schedule: DataTypes.STRING,
+    message:    DataTypes.STRING,
+    schedule:   DataTypes.STRING,
     recipients: DataTypes.STRING,
-    status: DataTypes.INTEGER,
+    status:     DataTypes.INTEGER,
+    has_utm:    DataTypes.INTEGER,
     units_used: DataTypes.DOUBLE,
   }, {});
 
