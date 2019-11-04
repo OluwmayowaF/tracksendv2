@@ -343,7 +343,11 @@ exports.add = async (req, res) => {
                                     "messageId": shrt.id,
                                 }],
                                 "text" : updatedmessage,
-                                "sendAt" : m_sendAt,
+                                ...(
+                                    m_sendAt ? {
+                                        "sendAt" : m_sendAt,
+                                    } : {}
+                                ),
                                 "flash" : m_flash,
                                 "intermediateReport" : m_intermediateReport,
                                 "notifyUrl" : m_notifyUrl,
@@ -399,7 +403,11 @@ exports.add = async (req, res) => {
                             "from" : m_from,
                             "destinations" : destinations,
                             "text" : originalmessage,
-                            "sendAt" : m_sendAt,
+                            ...(
+                                m_sendAt ? {
+                                    "sendAt" : m_sendAt,
+                                } : {}
+                            ),
                             "flash" : m_flash,
                             "intermediateReport" : m_intermediateReport,
                             "notifyUrl" : m_notifyUrl,

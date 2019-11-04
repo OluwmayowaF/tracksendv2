@@ -84,7 +84,8 @@ exports.index = (req, res) => {
         models.Contact.count({
             where: { 
                 userId: user_id,
-            }
+            },
+            // group: ['phone']
         }), 
         /* models.Message.count({
             where: { 
