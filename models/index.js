@@ -12,7 +12,7 @@ const models = {
   Group:      sequelize.import('./Group'),
   ContactGroup: sequelize.import('./ContactGroup'),
   Sender:     sequelize.import('./SenderID'),
-  Tmpcampaign:   sequelize.import('./Tmpcampaign'),
+  Tmpcampaign:   sequelize.import('./Tmpcampaign'), 
   Campaign:   sequelize.import('./Campaign'),
   CampaignGroup: sequelize.import('./CampaignGroup'),
   Shortlink:  sequelize.import('./ShortLink'),

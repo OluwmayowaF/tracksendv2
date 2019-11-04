@@ -171,6 +171,7 @@ exports.add = async (req, res) => {
         message: originalmessage,
         schedule: schedule_,
         recipients: info.recipients,
+        has_utm: info.has_utm,
         }),
         models.Sender.findByPk(info.senderId)
     ])

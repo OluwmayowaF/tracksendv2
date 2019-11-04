@@ -11231,7 +11231,7 @@ a.close-list-item {
 	top: 30px;
 	z-index: 100;
 }
-.add-listing-section .ignore_dnd label.switch {
+.add-listing-section .ignore_dnd label.switch, .add-listing-section .add_utm label.switch {
 	position: relative;
 	right: auto;
 	top: 4px;
@@ -15607,6 +15607,10 @@ img.mfp-img {
     margin-bottom: 15px;
 		padding: 20px !important;
     background-color: #fbfbfb;
+	}
+	#_group_info .summary_box {
+		height: 150px;
+		overflow: auto;
 	}
 
 	.summary_box span {

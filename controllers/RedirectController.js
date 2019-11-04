@@ -6,6 +6,8 @@ exports.index = function(req, res) {
 
     var surl = req.params.surl;
     var curl = req.params.curl;
+    var seencmpgn = false;
+    var cmpgn;
 
     console.log('we show: surl = ' + surl + '; curl = ' + curl);
     
@@ -57,9 +59,17 @@ exports.index = function(req, res) {
                 clickcount: Sequelize.literal('clickcount + 1'),
                 ...((msg.firstclicktime == null) ? {firstclicktime: mysqlTimestamp} : {})
             })
-            .then(() => {
+            .then(async () => {
                 //  finally, redirect to client URL
-                res.redirect(shurl.url);
+                let utm = '';
+                if(shurl.has_utm && !seencmpgn) {
+                    cmpgn = await models.Campaign.findByPk((shurl.campaignId), {
+                        attributes: ['name'], 
+                    })
+                    seencmpgn = true;
+                    utm = '?utm_source=tracksend&utm_medium=tracksend&utm_campaign=' + cmpgn.name;
+                }
+                res.redirect(shurl.url + utm);
             })
 
         })

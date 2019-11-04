@@ -161,7 +161,7 @@
 											<div class="col-md-6">
 												<h5>Short URL </h5>
 												<select class="chosen-select-no-single" name="shorturl" id="sel_short_url" required>
-													<option label="blank" value="0"></option>
+													<option label="blank" value="0">Select</option>
 													{{#each args.shorturl}}
 													<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
 													{{/each}}
@@ -230,9 +230,15 @@
 											</div> --}}
 
 											<div class="col-md-12 with-forms">
-												<div class="col-md-12 ignore_dnd" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
+												<div class="col-md-6 ignore_dnd" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
 													<h5 style="float: left">Skip DND (Do-Not-Disturb) Contacts  <i class="tip" data-tip-content="This applies to contacts that has be confirmed to be DND based on feedback from previous message."></i> </h5>
 													<label class="switch"><input type="checkbox" checked="" name="skip_dnd"><span class="slider round"></span></label>
+													<div class="clearfix"></div>
+												</div>
+												<div class="col-md-5 add_utm" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px; float: right">
+													<h5 style="float: left">Add UTM Tags  <i class="tip" data-tip-content="Tags to help track source medium e.g. Facebook, Instagram, etc."></i> </h5>
+													<label class="switch"><input type="checkbox" checked="" name="add_utm"><span class="slider round"></span></label>
+													<div class="clearfix"></div>
 												</div>
 											</div>
 

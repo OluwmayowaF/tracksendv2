@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
     });
   }
 
-  return Shortlink;
+  return Shortlink; 
 }
 
 
