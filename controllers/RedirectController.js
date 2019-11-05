@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const moment = require('moment');
 var models = require('../models');
 
-exports.index = function(req, res) {
+exports.sms = async function(req, res) {
 
     var surl = req.params.surl;
     var curl = req.params.curl;
@@ -10,6 +10,76 @@ exports.index = function(req, res) {
     var cmpgn;
 
     console.log('we show: surl = ' + surl + '; curl = ' + curl);
+    
+    var shurl = await models.Shortlink.findOne({
+        where: { 
+            shorturl: surl,
+        },
+        // attributes: 
+    });
+
+    if(shurl == null) {
+        console.log('ERROR IN SHURL: ' + JSON.stringify(shurl));
+        
+        res.render('pages/redirect-error', {
+            page: '',
+    
+        });
+        return;
+    }
+
+    var pro = await Promise.all([
+        shurl.getMessages({
+            where: {
+                contactlink: curl,
+            }
+        }),
+        shurl.update({
+            clickcount: Sequelize.literal('clickcount + 1'),
+        })
+    ])
+    
+    if(pro[0].length == 0) {
+        console.log('ERROR IN MSG' + JSON.stringify(msg));
+        
+        res.render('pages/redirect-error', {
+            page: '',
+    
+        });
+        return;
+    }
+    console.log('this is: ' + JSON.stringify(pro));
+    
+    //  update msg clicks and date (if first time)
+    var mysqlTimestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+    pro[0][0].update({
+        clickcount: Sequelize.literal('clickcount + 1'),
+        ...((pro[0][0].firstclicktime == null) ? {firstclicktime: mysqlTimestamp} : {})
+    })
+    .then(async () => {
+        //  finally, redirect to client URL
+        let utm = '';
+        console.log('pre-utm-check; cid = ' + shurl.campaignId);
+        
+        if(shurl.has_utm) {
+            console.log('post-utm-check');
+            cmpgn = await models.Campaign.findByPk((shurl.campaignId), {
+                attributes: ['name'], 
+            })
+            //   seencmpgn = true;
+            utm = '?utm_source=tracksend&utm_medium=tracksend&utm_campaign=' + cmpgn.name;
+        }
+        res.redirect(shurl.url + utm);
+    })
+
+};
+
+exports.browser = function(req, res) {
+
+    var surl = req.params.surl;
+    var cmpgn;
+
+    console.log('we show: surl = ' + surl);
     
     models.Shortlink.findOne({
         where: { 
