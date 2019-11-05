@@ -59,7 +59,7 @@ exports.sms = async function(req, res) {
     .then(async () => {
         //  finally, redirect to client URL
         let utm = '';
-        console.log('pre-utm-check; cid = ' + shurl.campaignId);
+        console.log('pre-utm-check; cid = ' + shurl.campaignId + ' -- ' + JSON.stringify(shurl));
         
         if(shurl.has_utm) {
             console.log('post-utm-check');
