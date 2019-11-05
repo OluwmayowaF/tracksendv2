@@ -7,7 +7,6 @@ exports.sms = async function(req, res) {
     var surl = req.params.surl;
     var curl = req.params.curl;
     var seencmpgn = false;
-    var cmpgn;
 
     console.log('we show: surl = ' + surl + '; curl = ' + curl);
     
@@ -61,11 +60,11 @@ exports.sms = async function(req, res) {
     let utm = '';
     console.log('pre-utm-check; cid = ' + pro[0][0].campaignId + ' -- ' + JSON.stringify(pro[0]));
     
-    if(shurl.has_utm) {
+    var cmpgn = await models.Campaign.findByPk((pro[0][0].campaignId), {
+        attributes: ['name'], 
+    })
+    if(cmpgn.has_utm) {
         console.log('post-utm-check');
-        cmpgn = await models.Campaign.findByPk((pro[0][0].campaignId), {
-            attributes: ['name'], 
-        })
         //   seencmpgn = true;
         utm = '?utm_source=tracksend&utm_medium=tracksend&utm_campaign=' + cmpgn.name;
     }
