@@ -52,25 +52,24 @@ exports.sms = async function(req, res) {
     
     //  update msg clicks and date (if first time)
     var mysqlTimestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-    pro[0][0].update({
+    await pro[0][0].update({
         clickcount: Sequelize.literal('clickcount + 1'),
         ...((pro[0][0].firstclicktime == null) ? {firstclicktime: mysqlTimestamp} : {})
     })
-    .then(async () => {
-        //  finally, redirect to client URL
-        let utm = '';
-        console.log('pre-utm-check; cid = ' + shurl.campaignId + ' -- ' + JSON.stringify(shurl));
-        
-        if(shurl.has_utm) {
-            console.log('post-utm-check');
-            cmpgn = await models.Campaign.findByPk((shurl.campaignId), {
-                attributes: ['name'], 
-            })
-            //   seencmpgn = true;
-            utm = '?utm_source=tracksend&utm_medium=tracksend&utm_campaign=' + cmpgn.name;
-        }
-        res.redirect(shurl.url + utm);
-    })
+
+    //  finally, redirect to client URL
+    let utm = '';
+    console.log('pre-utm-check; cid = ' + pro[0][0].campaignId + ' -- ' + JSON.stringify(pro[0]));
+    
+    if(shurl.has_utm) {
+        console.log('post-utm-check');
+        cmpgn = await models.Campaign.findByPk((pro[0][0].campaignId), {
+            attributes: ['name'], 
+        })
+        //   seencmpgn = true;
+        utm = '?utm_source=tracksend&utm_medium=tracksend&utm_campaign=' + cmpgn.name;
+    }
+    res.redirect(shurl.url + utm);
 
 };
 
