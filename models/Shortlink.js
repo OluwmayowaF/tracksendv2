@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     url: DataTypes.STRING,
     // userId: DataTypes.INTEGER,
+    clickcount: DataTypes.INTEGER,
     status: DataTypes.INTEGER,
   }, {});
 

@@ -3,7 +3,8 @@ var router = express.Router();
 var redirectController = require('../controllers/RedirectController');
 
 // Home page route.
-router.get('/:surl/:curl', redirectController.index);
+router.get('/:surl/:curl', redirectController.sms);
+router.get('/:surl/', redirectController.browser);
 // router.get('/:surl', redirectController.error);
 // router.get('/error', redirectController.error);
 router.get('*', redirectController.error);
