@@ -36,7 +36,7 @@ exports.sms = async function(req, res) {
         shurl.update({
             clickcount: Sequelize.literal('clickcount + 1'),
         })
-    ])
+    ]);
     
     if(pro[0].length == 0) {
         console.log('ERROR IN MSG' + JSON.stringify(msg));
@@ -68,6 +68,28 @@ exports.sms = async function(req, res) {
         //   seencmpgn = true;
         utm = '?utm_source=tracksend&utm_medium=tracksend&utm_campaign=' + cmpgn.name;
     }
+
+    var ssh = await shurl.getMessages({
+        where: {
+            contactlink: curl,
+        }
+    });
+
+    console.log('================ssh====================');
+    console.log(JSON.stringify(ssh));
+    console.log('====================================');
+
+    var shh = await models.Shortlink.findOne({
+        where: { 
+            shorturl: surl,
+        },
+        // attributes: 
+    });
+
+    console.log('===============shh=====================');
+    console.log(JSON.stringify(shh));
+    console.log('====================================');
+
     res.redirect(shurl.url + utm);
 
 };
