@@ -58,11 +58,11 @@ exports.sms = async function(req, res) {
 
     //  finally, redirect to client URL
     let utm = '';
-    console.log('pre-utm-check; cid = ' + pro[0][0].campaignId + ' -- ' + JSON.stringify(pro[0]));
     
     var cmpgn = await models.Campaign.findByPk((pro[0][0].campaignId), {
-        attributes: ['name'], 
+        attributes: ['name','has_utm'], 
     })
+    console.log('pre-utm-check; cid = ' + cmpgn.has_utm + ' -- ' + JSON.stringify(cmpgn));
     if(cmpgn.has_utm) {
         console.log('post-utm-check');
         //   seencmpgn = true;
