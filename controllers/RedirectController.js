@@ -66,7 +66,7 @@ exports.sms = async function(req, res) {
     if(cmpgn.has_utm) {
         console.log('post-utm-check');
         //   seencmpgn = true;
-        utm = '?utm_source=tracksend&utm_medium=tracksend&utm_campaign=' + cmpgn.name;
+        utm = '?utm_source=tracksend&utm_medium=sms&utm_campaign=' + cmpgn.name;
     }
 
     var ssh = await shurl.getMessages({
@@ -101,68 +101,20 @@ exports.browser = function(req, res) {
 
     console.log('we show: surl = ' + surl);
     
-    models.Shortlink.findOne({
-        where: { 
-            shorturl: surl,
+    models.Shortlink.update(
+        {
+            clickcount: Sequelize.literal('clickcount + 1'),
         },
-        // attributes: 
-    })
-    .then((shurl) => {
-        //  retrieve msg
-        if(shurl == null) {
-            console.log('ERROR IN SHURL: ' + JSON.stringify(shurl));
-            
-            res.render('pages/redirect-error', {
-                page: '',
-        
-            });
-            return;
+        {
+            where: { 
+                shorturl: surl,
+            }
         }
-    
-        shurl.getMessages({
-            where: {
-                contactlink: curl,
-            }
-        })
-        .then((msg) => {
-
-            if(msg.length == 0) {
-                console.log('ERROR IN MSG' + JSON.stringify(msg));
-                
-                res.render('pages/redirect-error', {
-                    page: '',
-            
-                });
-                return;
-            }
-            console.log('this is: ' + JSON.stringify(msg));
-            
-            //  update msg clicks and date (if first time)
-            /* if(msg.firstclicktime == null) {
-                var mysqlTimestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-                msg[0].update({
-                    firstclicktime: mysqlTimestamp,
-                })
-            } */
-            var mysqlTimestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-            msg[0].update({
-                clickcount: Sequelize.literal('clickcount + 1'),
-                ...((msg.firstclicktime == null) ? {firstclicktime: mysqlTimestamp} : {})
-            })
-            .then(async () => {
-                //  finally, redirect to client URL
-                let utm = '';
-                if(shurl.has_utm) {
-                    cmpgn = await models.Campaign.findByPk((shurl.campaignId), {
-                        attributes: ['name'], 
-                    })
-                 //   seencmpgn = true;
-                    utm = '?utm_source=tracksend&utm_medium=tracksend&utm_campaign=' + cmpgn.name;
-                }
-                res.redirect(shurl.url + utm);
-            })
-
-        })
+        // attributes: 
+    ).then((ret) => {
+        console.log('====================================');
+        console.log('RETURNED: ' + JSON.stringify(ret));
+        console.log('====================================');
     })
 
 };
