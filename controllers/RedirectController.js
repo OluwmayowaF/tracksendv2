@@ -69,7 +69,7 @@ exports.sms = async function(req, res) {
         utm = '?utm_source=tracksend&utm_medium=sms&utm_campaign=' + cmpgn.name;
     }
 
-    var ssh = await shurl.getMessages({
+   /*  var ssh = await shurl.getMessages({
         where: {
             contactlink: curl,
         }
@@ -88,7 +88,7 @@ exports.sms = async function(req, res) {
 
     console.log('===============shh=====================');
     console.log(JSON.stringify(shh));
-    console.log('====================================');
+    console.log('===================================='); */
 
     res.redirect(shurl.url + utm);
 
@@ -112,6 +112,8 @@ exports.browser = function(req, res) {
             console.log('====================================');
             console.log('RETURNED: ' + JSON.stringify(shurl));
             console.log('====================================');
+
+            res.redirect(shurl.url);
 
         })
 
