@@ -3,6 +3,9 @@ module.exports = function(req, res, next) {
   // If the user is logged in, continue with the request to the restricted route
   if (req.user && req.user.name == "t_i_w_e_x") {
 
+    console.log('====================================');
+    console.log('is admin');
+    console.log('====================================');
     const db = require('../cfg/db');
     return db.query(
       "SELECT balance FROM users " +
@@ -11,6 +14,9 @@ module.exports = function(req, res, next) {
     })
     .then(async (balance) => {
 
+      console.log('====================================');
+      console.log('working working!!');
+      console.log('====================================');
       res.locals.balance = balance[0][0].balance ? balance[0][0].balance : 0;
       return next();
 
