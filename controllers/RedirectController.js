@@ -101,20 +101,20 @@ exports.browser = function(req, res) {
 
     console.log('we show: surl = ' + surl);
     
-    models.Shortlink.update(
-        {
-            clickcount: Sequelize.literal('clickcount + 1'),
-        },
-        {
+    models.Shortlink.findOne({
             where: { 
                 shorturl: surl,
             }
-        }
-        // attributes: 
-    ).then((ret) => {
-        console.log('====================================');
-        console.log('RETURNED: ' + JSON.stringify(ret));
-        console.log('====================================');
+    }).then((shurl) => {
+        shurl.update({
+            clickcount: Sequelize.literal('clickcount + 1'),
+        }) .then(() => {
+            console.log('====================================');
+            console.log('RETURNED: ' + JSON.stringify(shurl));
+            console.log('====================================');
+
+        })
+
     })
 
 };
