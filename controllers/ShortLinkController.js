@@ -12,7 +12,7 @@ exports.index = (req, res) => {
         "SELECT " + 
         "   *, " +
         "   (SELECT `name` FROM `campaigns` t1 WHERE t1.`shortlinkId` = tt.`id` ORDER BY createdAt DESC LIMIT 1) AS cmpgn, " + 
-        "   (SELECT COUNT(`clickcount`) FROM `messages` t2 WHERE t2.`shortlinkId` = tt.id) AS clicks " +
+        "   (SELECT SUM(`clickcount`) FROM `messages` t2 WHERE t2.`shortlinkId` = tt.id) AS clicks " +
         "FROM `shortlinks` tt " +
         "WHERE tt.`userId` = :uid " +
         "AND tt.`status` = 1", {
