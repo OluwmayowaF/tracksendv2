@@ -108,7 +108,7 @@ exports.browser = function(req, res) {
     }).then((shurl) => {
         shurl.update({
             clickcount: Sequelize.literal('clickcount + 1'),
-        }) .then(() => {
+        }).then(() => {
             console.log('====================================');
             console.log('RETURNED: ' + JSON.stringify(shurl));
             console.log('====================================');
