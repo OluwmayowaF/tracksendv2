@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
 
   // Group.belongsToMany(Contact, { through: { model: ContactGroup, unique: false }, foreignKey: 'groupId' });
-  // Group.belongsTo(User); oh yeah
+  // Group.belongsTo(User); oh yeah yo!
 
   Shortlink.associate = function (models) {
     // models.Group.belongsToMany(models.Contact, { through: models.ContactGroup, foreignKey: 'groupId' });
