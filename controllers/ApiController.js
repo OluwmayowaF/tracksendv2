@@ -548,10 +548,14 @@ console.log('555555');
                 if(req.body.shorturl) {
                     var shorturl = await models.Shortlink.findByPk(req.body.shorturl);
                 }
+                console.log('====================================');
+                console.log('cmpan is: ' + req.body.message) ;
+                console.log('====================================');
                 var message  = req.body.message
                     .replace(/\[firstname\]/g, kont.firstname)
                     .replace(/\[lastname\]/g, kont.lastname)
                     .replace(/\[email\]/g, kont.email)
+                    // .replace(/\[url\]/g, 'https://tsn.go/' + (shorturl ? shorturl.shorturl : '') + '/' + uid)
                     .replace(/\[url\]/g, 'https://tsn.go/' + shorturl.shorturl + '/' + uid)
                     .replace(/&nbsp;/g, ' ');
 
