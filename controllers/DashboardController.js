@@ -55,7 +55,7 @@ exports.index = (req, res) => {
             },
             include: [{
                 model: models.Message, 
-                limit: 5,
+                limit: 5, 
                 order: [ 
                     ['createdAt', 'DESC']
                 ],

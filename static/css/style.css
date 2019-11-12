@@ -15695,6 +15695,7 @@ img.mfp-img {
     border: solid 1px #bbb;
     border-radius: 3px;
     box-shadow: 2px 2px 5px #ccc;
+    background-color: white;
 	}
 	.compose_options_box > li {
 		display: inline-block;
@@ -15945,6 +15946,14 @@ img.mfp-img {
     border-radius: 5px;
     box-shadow: -2px -2px 5px #999 inset;
     cursor: pointer;
+	}
+
+	#tab1a .add-listing-section {
+    background-color: #fffcf1;
+	}
+
+	#tab2a .add-listing-section {
+    background-color: #f7fffa;
 	}
 
 	@media (max-width:803px) {
