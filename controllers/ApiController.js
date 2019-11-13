@@ -555,8 +555,8 @@ console.log('555555');
                     .replace(/\[firstname\]/g, kont.firstname)
                     .replace(/\[lastname\]/g, kont.lastname)
                     .replace(/\[email\]/g, kont.email)
-                    // .replace(/\[url\]/g, 'https://tsn.go/' + (shorturl ? shorturl.shorturl : '') + '/' + uid)
-                    .replace(/\[url\]/g, 'https://tsn.go/' + shorturl.shorturl + '/' + uid)
+                    .replace(/\[url\]/g, 'https://tsn.go/' + (shorturl ? shorturl.shorturl : '') + '/' + uid)
+                    // .replace(/\[url\]/g, 'https://tsn.go/' + shorturl.shorturl + '/' + uid)
                     .replace(/&nbsp;/g, ' ');
 
                 let cc = getSMSCount(message);
