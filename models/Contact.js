@@ -3,26 +3,27 @@
 module.exports = (sequelize, DataTypes) => {
   const Contact = sequelize.define('contact', {
     id: {
-      type: DataTypes.INTEGER,
+      type:       DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
-    firstname: DataTypes.STRING,
-    lastname: DataTypes.STRING,
+    firstname:    DataTypes.STRING,
+    lastname:     DataTypes.STRING,
     phone: {
-      type: DataTypes.STRING,
+      type:       DataTypes.STRING,
       unique: 'phone_user_composite',
     },
     userId: {
-      type: DataTypes.INTEGER,
+      type:       DataTypes.INTEGER,
       unique: 'phone_user_composite',
     },
     groupId: {
-      type: DataTypes.INTEGER,
+      type:       DataTypes.INTEGER,
       unique: 'phone_user_composite',
     },
-    email: DataTypes.STRING,
-    status: DataTypes.INTEGER,
+    email:        DataTypes.STRING,
+    do_whatsapp:  DataTypes.INTEGER,
+    status:       DataTypes.INTEGER,
   })
 
   // Contact.belongsToMany(Group, { through: ContactGroup, foreignKey: 'contactId' });

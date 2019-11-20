@@ -85,7 +85,7 @@ exports.index = (req, res) => {
             where: { 
                 userId: user_id,
             },
-            // group: ['phone']
+            attributes: [[Sequelize.literal('DISTINCT `phone`'), 'phone']]
         }), 
         /* models.Message.count({
             where: { 

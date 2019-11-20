@@ -14,6 +14,7 @@
 {{!-- <link rel="stylesheet" href="/css/plugins/mtr-datepicker.min.css">
 <link rel="stylesheet" href="/css/plugins/mtr-datepicker.default-theme.min.css"> --}}
 <link rel="stylesheet" href="/css/bootstrap-datetimepicker.min.css">
+<link rel="stylesheet" href="/css/select2.min.css">
 </head>
 
 <body>
@@ -48,9 +49,9 @@
 				</div>
 
 				<!-- Main Navigation -->
-				<div id="dash_title">
+				<div id="dash_title" style="text-transform: uppercase">
 					{{#if page.length }}
-						{{ page }}
+						{{ campaign_type }} {{ grouptype }} {{ page }}
 					{{else}}
 						URL Error! <i class="im im-icon-Crying" style="text-shadow: none; color: #ff4a21"></i>
 					{{/if}}
@@ -115,6 +116,7 @@
 <!-- Scripts
 ================================================== -->
 <script type="text/javascript" src="/scripts/jquery-2.2.0.min.js"></script>
+<script type="text/javascript" src="/scripts/select2.full.min.js"></script>
 <script type="text/javascript" src="/scripts/mmenu.min.js"></script>
 <script type="text/javascript" src="/scripts/moment.min.js"></script>
 <script type="text/javascript" src="/scripts/chosen.min.js"></script>

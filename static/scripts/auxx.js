@@ -409,16 +409,16 @@ $(document).ready(function() {
 
 	var st_select_searchterm = '';
 	var done = "raaaa";
-	if (typeof $('.select-search').select2 === "function") 
+	if (typeof $('.search_clients').select2 === "function") 
     // safe to use the function
-	$('.select-search').select2({
-		placeholder: "Enter the name",
-		minimumInputLength: 3,
+	$('.search_clients').select2({
+		placeholder: "Type in client name or ID",
+		minimumInputLength: 2,
 		multiple: false,
 //		closeOnSelect: false,
 //   		id: function(orgs){return {id: orgs.orgid};},
 		ajax: {
-			url: _getGlobals.SERVICE_HOST+'providers',
+			url: _getGlobals.SERVICE_HOST+'getclients',
 			dataType: 'json',
 			quietMillis: 100,
 			data: function (term, page) { // page is the one-based page number tracked by Select2
@@ -430,19 +430,32 @@ $(document).ready(function() {
 //					apikey: "ju6z9mjyajq2djue3gbvv26t" // please do not use so this example keeps working
 				};
 			},
-			results: function(data){
+			/* processResults: function (data) {
+				return {
+					results: data.items
+				};
+			}, */
 			
-				// var more = (page * 3) < data.total; // whether or not there are more results available
-	 
-				// notice we return the value of more so Select2 knows if more results can be loaded
-				// return {results: data, more: more};
-				return {results: data};
-			}
+		},
+		templateResult: function(data, container){
+			
+			// var more = (page * 3) < data.total; // whether or not there are more results available
+	
+			// notice we return the value of more so Select2 knows if more results can be loaded
+			// return {results: data, more: more};
+			console.log('====================================');
+			console.log('templating...');
+			console.log('====================================');
+			var $result = $("<span></span>");
+			// $result.html("<b>" + data.id + ": " + data.text);
+			$result.html("<b>" + data.id + ": " + "</b>" + data.text);
+
+			return $result;// {results: data};
 		},
 		 // omitted for brevity, see the source of this page
 		templateSelection: function (dat) { 
 
-			if(st_select_searchterm != '' && st_select_searchterm != this.me) {
+			/* if(st_select_searchterm != '' && st_select_searchterm != this.me) {
 				$('#providername').val(dat.text);
 				if($('#same_prov_loc_chk').is(':checked')) {
 					$('#same_prov_loc_chk').click();
@@ -459,8 +472,8 @@ $(document).ready(function() {
 					}
 				}
 				this.me = st_select_searchterm;
-			}
-			return dat.text;
+			} */
+			return dat.id + ": " + dat.text;
 		}, // omitted for brevity, see the source of this page
 //		dropdownCssClass: "bigdrop", //"select2-result-selectable", // apply css that makes the dropdown taller
 //		escapeMarkup: function (m) { return m; } // we do not want to escape markup since we are displaying html in results
@@ -489,6 +502,22 @@ console.log('====================================');
 		}
 
 		_getContacts(opt, '');
+	
+	})
+
+	$('#sel_contact_grouptype').on('change', function(e) {
+		$we = $(this);
+		if($we.hasClass('_plain')) return;
+
+		var opt = $we.val();
+		var txt = '';//$('#sel_contact_grouptype:selected').text();
+
+		console.log('efasd sfdasdfasdf sfdasd...'+txt);
+
+		$('#show_contacts_pane').hide();			
+		$('.lists #contact_list').html('');			
+
+		_getGroups(opt, txt);
 	
 	})
 
@@ -554,6 +583,8 @@ console.log('====================================');
 					let dat;
 
 					//	set contacts result group name title
+					$('#grp_typ_name').text($('#sel_contact_grouptype:selected').text());
+					console.log('DASDSDAS' + $('#sel_contact_grouptype:selected').text());
 					if(searchall) {
 
 						/* data.forEach(el => {
@@ -709,6 +740,63 @@ console.log('====================================');
 		});
 	}
 
+	function _getGroups(opt, txt) {
+
+		var arg;
+
+		$('._loader').show();
+		
+		$.ajax({
+			type: 'GET',
+			url: _getGlobals.SERVICE_HOST + 'getgroups?grptype=' + opt,
+			contentType: 'application/json; charset=utf-8',
+			// data: json_form_reg,
+			success: function( data ) {
+
+				$('#search_conts_box #search_conts').val('');
+				$('#group_contact_count').text('');
+			
+				$('#grp_typ_name').text(txt);
+				$('#group_name').text('');
+
+				$('#_group_info').hide();
+				$('#_group_info #_desc').text('');
+				$('#_group_info #_dnds').text('');
+				$('#_group_info #_ndnds').text('');
+				$('#_group_info #_unverifs').text('');
+				$('#_group_info #_conts').text('');
+				$('#_group_info #_cdate').text('');
+				$('#_group_info #_udate').text('');
+
+				$('#sel_contact_group').html('');
+				data.forEach(g => {
+					if($('#sel_contact_group').find('option').length === 0) {
+						$('#sel_contact_group').append('<option disabled selected>Choose...</option>');
+					}
+					if(g.name == '[Uncategorized]')
+					$('#sel_contact_group').append('<option disabled>--------------------------</option>');
+					$('#sel_contact_group').append('<option value="'+ g.id +'">'+ g.name +'</option>');
+				});
+				if($('#sel_contact_group').find('option').length === 0) {
+						$('#sel_contact_group').append('<option disabled selected>No groups created.</option>');	
+				}
+
+				$('#sel_contact_group').trigger('chosen:updated');
+
+			},
+			error: function(resp, dd, ww) {
+				$('._loader').hide();
+				// $butt.removeAttr('disabled');
+				// $butt.closest('div').find('.loading_icon').hide();
+			}
+		}).done(function(){
+			$('._loader').hide();
+			// $butt.removeAttr('disabled');
+			// $butt.closest('div').find('.loading_icon').hide();
+		});
+	}
+
+	
 	$('.trigger_off').on('click', function (e) {
 		$('._blink').fadeOut(70).fadeIn(70).fadeOut(70).fadeIn(70);
 	})

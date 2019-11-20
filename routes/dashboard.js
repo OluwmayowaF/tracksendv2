@@ -12,6 +12,7 @@ const topupRouter = require('./topups');
 const shortLinkRouter = require('./shortlinks');
 const uploadRouter = require('./upload');
 const profileRouter = require('./profile');
+const integrationRouter = require('./integrations');
 
 // const app = express();
 // app.use(express.static(path.join(__dirname, 'static')));
@@ -43,6 +44,7 @@ module.exports = function(app) {
   app.use('/dashboard/topups', isAuthenticated, topupRouter);
   app.use('/dashboard/upload', isAuthenticated, uploadRouter);
   app.use('/dashboard/profile', isAuthenticated, profileRouter);
+  app.use('/dashboard/integrations', isAuthenticated, integrationRouter);
   app.get('/dashboard/m_a_n_u_a_l', isAdministrator, dashboardController.manualget);
   // app.get('/dashboard/m_a_n_u_a_l', isAdministrator, (req, res) => {
   //   res.send('yeaaah');

@@ -15665,7 +15665,7 @@ img.mfp-img {
     margin-bottom: 20px;
 	}
 	
-	.editable_div {
+	.editable_div, .editable_div1 {
 		margin-bottom: 22px;
     padding: 12px 22px;
     border: solid 1px #ccc;
@@ -15675,7 +15675,7 @@ img.mfp-img {
 		word-break: break-all;
 	}
 
-	.editable_div span.arg {
+	.editable_div span.arg, .editable_div1 span.arg {
     color: yellow;
     background-color: #444;
     display: inline-block;
@@ -15954,6 +15954,36 @@ img.mfp-img {
 
 	#tab2a .add-listing-section {
     background-color: #f7fffa;
+	}
+
+	.tabs-container.campaigntypes .tab-content {
+		display: none !important;
+	}
+	.tabs-container.campaigntypes .tab-content.sms_SMS {
+		display: inline-block !important;
+	}
+	.tabs-container.campaigntypes .tab-content.whatsapp_WhatsApp {
+		display: inline-block !important;
+	}
+
+	.select2-container {
+		width: 100% !important;
+		margin-bottom: 20px !important;
+	}
+
+	.select2-container--default .select2-selection--single {
+    border: 1px solid #dbdbdb !important;
+    height: 51px !important;
+	}
+
+	.select2-container--default .select2-selection--single > span {
+    height: 51px !important;
+    line-height: 51px !important;
+	}
+
+	.select2-search input {
+		height: 40px;
+		margin: 0;
 	}
 
 	@media (max-width:803px) {

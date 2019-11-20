@@ -10,9 +10,41 @@ exports.index = function(req, res) {
     res.send('NOT IMPLEMENTED: Site Home Page');
 };
 
-// Display list of all contacts.
-exports.groupList = function(req, res) {
-    res.send('NOT IMPLEMENTED: Contact list');
+// Display Groups List Based on Selection of Group Type .. NOT DONE
+exports.getGroups = async (req, res) => {
+
+    var user_id = req.user.id;
+    var lnkgrp = req.params.lnkgrp;
+    var gtype = req.query.grptype;
+
+    var grps = await models.Group.findAll({ 
+        where: { 
+            userId: user_id,
+            name: {
+                [Sequelize.Op.ne]: '[Uncategorized]',
+            },
+            mediatypeId: gtype
+        },
+        order: [ 
+            ['createdAt', 'DESC']
+        ]
+    });
+
+    if(gtype == 1) {
+        var non = await models.Group.findAll({ 
+            where: { 
+                userId: user_id,
+                name: '[Uncategorized]',
+            },
+        });
+    } else {
+        var non = null;
+    }
+
+    if(non) grps.push(non[0]);
+
+    res.send(grps); 
+
 };
 
 // Display detail page for a specific contact.
@@ -113,6 +145,33 @@ exports.getContacts = async (req, res) => {
 
         res.send(q); 
     }
+
+}
+
+// Display detail page for a specific contact.
+exports.getClients = async (req, res) => {
+
+    var q = req.query.q.term, r;
+    
+    console.log('yes ttt: ' + q);
+    
+    r = await sequelize.query(
+        "SELECT id, name AS text FROM users " +
+        "WHERE (" + 
+            " id LIKE :tt OR " +
+            " name LIKE :tt " + 
+        ") " +
+        "LIMIT 100 ",
+        {
+            replacements: {
+                tt: '%' + q + '%',
+            },
+            type: sequelize.QueryTypes.SELECT,
+        },
+    );
+
+    res.send({"results": r}); 
+    
 
 }
 
@@ -389,6 +448,7 @@ exports.generateUrl = (req, res) => {
 }
 
 exports.analyseCampaign = (req, res) => {
+
     try {
         var user_id = req.user.id;
     } catch {
@@ -794,7 +854,6 @@ exports.loadCampaign = (req, res) => {
     });
 
 }
-
 
 exports.smsNotify = (req, res) => {
     

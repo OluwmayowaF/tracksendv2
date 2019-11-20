@@ -11,7 +11,7 @@ const Op = Sequelize.Op;
 var buff = Buffer.from(tracksend_user + ':' + tracksend_pwrd);
 var base64encode = buff.toString('base64');
 
-exports.index = (req, res) => {
+exports.smsindex = (req, res) => {
     var user_id = req.user.id;
 
 
@@ -19,10 +19,11 @@ exports.index = (req, res) => {
         
     Promise.all([
         sequelize.query(
-            "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, IF(status = 1, 'Active', 'Error') AS status, campaigns.createdAt FROM campaigns " +
+            "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, IF(status = 1, 'Active', 'Error') AS status, campaigns.createdAt " +
+            "FROM campaigns " +
             "LEFT OUTER JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
             "LEFT OUTER JOIN groups ON groups.id = campaign_groups.groupId " +
-            "WHERE campaigns.userId = :uid " +
+            "WHERE campaigns.userId = :uid AND campaigns.mediatypeId = 1 " +
             "GROUP BY campaigns.id " +
             "ORDER BY campaigns.createdAt DESC ", {
                 replacements: {
@@ -105,6 +106,7 @@ exports.index = (req, res) => {
         res.render('pages/dashboard/campaigns', { 
             page: 'Campaigns',
             campaigns: true,
+            campaign_type: "SMS",
             flashtype, flash,
 
             args: {
@@ -115,6 +117,99 @@ exports.index = (req, res) => {
                 nosenderids,
                 noasenderids,
                 nocontacts,
+                shorturl,
+            }
+        });
+    });
+};
+
+exports.waindex = (req, res) => {
+    var user_id = req.user.id;
+
+
+    console.log('showing page...'); 
+        
+    Promise.all([
+        sequelize.query(
+            "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, IF(status = 1, 'Active', 'Error') AS status, campaigns.createdAt " +
+            "FROM campaigns " +
+            "LEFT OUTER JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
+            "LEFT OUTER JOIN groups ON groups.id = campaign_groups.groupId " +
+            "WHERE campaigns.userId = :uid AND campaigns.mediatypeId = 2 " +
+            "GROUP BY campaigns.id " +
+            "ORDER BY campaigns.createdAt DESC ", {
+                replacements: {
+                    uid: user_id,
+                },
+                type: sequelize.QueryTypes.SELECT,
+            },
+        ),/*  
+        models.Sender.findAll({     //  get all sender ids for display in form
+            where: { 
+                userId: user_id,
+                status: 1
+            },
+            order: [ 
+                ['createdAt', 'DESC']
+            ]
+        }),  */
+        models.Group.findAll({      //  get all groups for display in form, except uncategorized group
+            where: { 
+                userId: user_id,
+                name: {
+                    [Sequelize.Op.ne]: '[Uncategorized]',
+                },
+                mediatypeId: 2
+            },
+            order: [ 
+                ['createdAt', 'DESC']
+            ]
+        }),
+        models.Group.findAll({      //  get only the uncategorized group
+            where: { 
+                userId: user_id,
+                name: '[Uncategorized]',
+            },
+            mediatypeId: 2
+        }),
+        models.Shortlink.findAll({ 
+            where: { 
+                userId: user_id,
+                status: 1
+            },
+            order: [    
+                // ['status', 'DESC'],
+                ['createdAt', 'DESC']
+            ]
+        }),    
+    ]).then(([cpns, grps, non, shorturl]) => {
+        var ngrp = non[0].id;
+
+        // console.log('====================================');
+        // console.log('cpns: ' + JSON.stringify(cpns) + ', sids: ' + JSON.stringify(sids) + ', grps: ' + JSON.stringify(grps) + ', csender: ' + csender + ', casender: ' + casender + ', ccontact' + ccontact);
+        // console.log('====================================');
+        // if(!csender) var nosenderids = true; else var nosenderids = false;
+        // if(!casender) var noasenderids = true; else var noasenderids = false;
+        // if(!ccontact) var nocontacts = true; else var nocontacts = false;
+
+        var flashtype, flash = req.flash('error');
+        if(flash.length > 0) {
+            flashtype = "error";           
+        } else {
+            flashtype = "success";
+            flash = req.flash('success');
+        }
+
+        res.render('pages/dashboard/campaigns', { 
+            page: 'Campaigns',
+            campaigns: true,
+            campaign_type: "WhatsApp",
+            flashtype, flash,
+
+            args: {
+                cpns,
+                grps,
+                ngrp,
                 shorturl,
             }
         });

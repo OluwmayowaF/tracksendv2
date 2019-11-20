@@ -8,7 +8,12 @@
 			</ul>
 			
 			<ul data-submenu-title="Campaigns">
-				<li {{#if campaigns}} class="active" {{/if}}><a href="/dashboard/campaigns"><i class="sl sl-icon-layers"></i> Campaigns</a></li>
+				<li {{#if campaigns}} class="active" {{/if}}><a><i class="sl sl-icon-layers"></i> Campaigns</a>
+					<ul>
+						<li {{#if smscampaigns}} class="active" {{/if}}><a href="/dashboard/campaigns/sms"><i class="fa fa-commenting-o"></i> SMS</a></li>
+						<li {{#if wacampaigns}} class="active" {{/if}}><a href="/dashboard/campaigns/whatsapp"><i class="fa fa-whatsapp"></i> WhatsApp</a></li>
+					</ul>
+				</li>
 				<li {{#if senderids}} class="active" {{/if}}><a href="/dashboard/senderids"><i class="fa fa-tags"></i> Sender ID</a></li>
 				<li {{#if shortlinks}} class="active" {{/if}}><a href="/dashboard/shorturls"><i class="sl sl-icon-link"></i> Short URL</a></li>
 			</ul>
@@ -21,7 +26,12 @@
 					</ul>	
 				</li>
 				<li {{#if contactlist}} class="active" {{/if}}><a href="/dashboard/contacts/list"><i class="im im-icon-Folder-Archive"></i> View Contacts</a></li>
-				<li {{#if groups}} class="active" {{/if}}><a href="/dashboard/contacts/groups/list"><i class="fa fa-users"></i> Groups</a></li>
+				<li {{#if groups}} class="active" {{/if}}><a><i class="fa fa-users"></i> Groups</a>
+					<ul>
+						<li {{#if smsgroups}} class="active" {{/if}}><a href="/dashboard/contacts/groups/sms"><i class="fa fa-commenting-o"></i> SMS</a></li>
+						<li {{#if wagroups}} class="active" {{/if}}><a href="/dashboard/contacts/groups/whatsapp"><i class="fa fa-whatsapp"></i> WhatsApp</a></li>
+					</ul>
+				</li>
 			</ul>	
 
 			<ul data-submenu-title="Account">

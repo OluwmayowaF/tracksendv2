@@ -84,8 +84,11 @@
 									<br>
 									<!-- Status -->
 									<div class="col-md-12">
-										<h5>Enter Client ID</h5>
-										<input type="number" name="clientid" maxlength="10" required placeholder="Client ID">
+										<h5>Select Client</h5>
+										{{!-- <input type="text" id="search_clients" maxlength="20" required placeholder="Client Name or ID"> --}}
+										<select class="search_clients" name="clientid" id="search_clients" required width="100%">
+										</select>
+										{{!-- <input type="hidden" name="clientid" id="clientid"> --}}
 										<h5>Amount (N)</h5>
 										<input type="number" name="amount" maxlength="50" id="amount_entry" required>
 										<div class="topup_info">
@@ -165,7 +168,6 @@
 				<div id="add-listing">
 				</div>
 			</div>
-
 			<!-- Copyrights -->
 			<div class="col-md-12">
 				<div class="copyrights">© 2019 Tracksend. All Rights Reserved.</div>
