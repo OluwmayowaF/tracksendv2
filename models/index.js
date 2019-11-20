@@ -17,6 +17,7 @@ const models = {
   CampaignGroup: sequelize.import('./CampaignGroup'),
   Shortlink:  sequelize.import('./ShortLink'),
   Message:    sequelize.import('./Message'),
+  Mediatype:  sequelize.import('./MediaType'),
   Settingsnetwork:  sequelize.import('./SettingsNetwork'),
   Settingsuserbilling:  sequelize.import('./SettingsUserBilling'),
   Settingstopuprate:  sequelize.import('./SettingsTopupRate'),

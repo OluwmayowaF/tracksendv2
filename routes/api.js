@@ -14,7 +14,9 @@ var db = require("../models");
 var passport = require("../config/passport");
 //
 module.exports = function(app) {
+  app.get ('/api/getgroups',        apiController.getGroups);
   app.get ('/api/groupconts',       apiController.getContacts);
+  app.get ('/api/getclients',       apiController.getClients);
   app.post('/api/savesenderid',     apiController.saveSenderId);
   app.get ('/api/delsenderid',      apiController.delSenderId);
   app.post('/api/savegroup',        apiController.saveGroup);

@@ -41,24 +41,26 @@
 						<div class="row with-forms">
 							<br>
 							<!-- Status -->
-							<div class="col-md-12">
-								<h5>Select Group </h5>
+							<div class="col-md-6">
+								<h5>Group Type </h5>
+								<input type="hidden" id="linked_grouptyp_id" value="{{ args.defgtyp }}">
 								<input type="hidden" id="linked_group_id" value="{{ args.lnkgrp }}">
-								<select class="chosen-select-no-single" name="group" id="sel_contact_group">
+								<select class="chosen-select-no-single" name="grouptype" id="sel_contact_grouptype">
 									<option></option>
-									<option value="{{ args.ngrp }}">[Uncategorized]</option>
-								{{#if args.grps.length}}
-									{{!-- <option label="blank" value="0">Select Group</option> --}}
-									<option disabled>--------------------------------------</option>
-									{{#each args.grps}}
-									<option value="{{ id }}">{{ name }}</option>
+								{{#if args.grptyps.length}}
+									{{#each args.grptyps}}
+										<option value="{{ id }}">{{ name }}</option>
 									{{/each}}
-									<option disabled>--------------------------------------</option>
-									<option value="-1">All Groups</option>
-									{{!-- <option value="-2">No Groups</option> --}}
 								{{else}}
 									<option disabled>No Groups created yet</option>
 								{{/if}}
+								</select>
+							</div>
+							<div class="col-md-6">
+								<h5>Select Group </h5>
+								<input type="hidden" id="linked_group_id" value="{{ args.lnkgrp }}">
+								<select class="chosen-select-no-single" name="group" id="sel_contact_group">
+									<option disabled>Select Group Type</option>
 								</select>
 							</div>
 
@@ -118,7 +120,7 @@
 							<br>
 							<!-- Status -->
 							<div class="col-md-12 lists">
-								<h5 style="position: relative">Group: <span id="group_name" style="weight: bold"></span> | Contacts: <span class="items_count" id="group_contact_count" style="weight: bold"></span> <i class="sl sl-icon-refresh _loader"></i></h5>
+								<h5 style="position: relative"><span id="grp_typ_name"></span></span>Group: <span id="group_name" style="weight: bold"></span> | Contacts: <span class="items_count" id="group_contact_count" style="weight: bold"></span> <i class="sl sl-icon-refresh _loader"></i></h5>
 								<div class="input-group mb-3" id="search_conts_box">
 									<input type="text" class="form-control" name="search_conts" id="search_conts" placeholder="Search Contacts..." style="width: 92%; display: inline; height: 35px; padding: 10px; font-size: 0.9em;">
 									<span class="input-group-append">

@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true
     },
-    type: DataTypes.STRING,
+    mediatypeId: DataTypes.INTEGER,
     clickcount: DataTypes.INTEGER,
     deliverytime: DataTypes.DATE,
     readtime: DataTypes.DATE,
@@ -22,6 +22,9 @@ module.exports = (sequelize, DataTypes) => {
 
   Message.associate = function (models) {
     // models.Group.belongsToMany(models.Contact, { through: models.ContactGroup, foreignKey: 'groupId' });
+    Message.belongsTo(models.Mediatype, {
+      foreignKey: 'mediatypeId',
+    });
     Message.belongsTo(models.Shortlink, {
       foreignKey: 'shortlinkId',
     });

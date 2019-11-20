@@ -1,50 +1,32 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-  var Group = sequelize.define('group', {
+  var Mediatype = sequelize.define('mediatype', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
     },
-    name: {
-      type: DataTypes.STRING,
-      unique: 'group_user_composite',
-    },
-    userId: {
-      type: DataTypes.INTEGER,
-      unique: 'group_user_composite',
-    },
-    description: DataTypes.STRING,
-    mediatypeId: DataTypes.INTEGER,
-    count: DataTypes.INTEGER,
+    name: DataTypes.STRING,
   }, {});
 
-  // Group.belongsToMany(Contact, { through: { model: ContactGroup, unique: false }, foreignKey: 'groupId' });
-  // Group.belongsTo(User);
-
-  Group.associate = function (models) {
+  Mediatype.associate = function (models) {
     // models.Group.belongsToMany(models.Contact, { through: models.ContactGroup, foreignKey: 'groupId' });
-    Group.belongsTo(models.User, {
-      foreignKey: 'userId'
+    Mediatype.hasMany(models.Group, {
+      foreignKey: 'mediatypeId',
     });
-    Group.belongsTo(models.Mediatype, {
-      foreignKey: 'mediatypeId'
+    Mediatype.hasMany(models.Campaign, {
+      foreignKey: 'mediatypeId',
     });
-    Group.hasMany(models.Contact, { 
-      foreignKey: 'groupId' 
+    Mediatype.hasMany(models.Tmpcampaign, {
+      foreignKey: 'mediatypeId',
     });
-    /* Group.belongsToMany(models.Contact, { 
-      through: models.ContactGroup, 
-      foreignKey: 'groupId' 
-    }); */
-    Group.belongsToMany(models.Campaign, { 
-      through: models.CampaignGroup, 
-      foreignKey: 'groupId' 
+    Mediatype.hasMany(models.Message, {
+      foreignKey: 'mediatypeId',
     });
   }
 
-  return Group;
+  return Mediatype;
 }
 
 

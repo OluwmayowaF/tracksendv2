@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     skip_dnd:   DataTypes.STRING,
     has_utm:    DataTypes.INTEGER,
     units_used: DataTypes.DOUBLE,
+    mediatypeId: DataTypes.INTEGER,
   }, {});
 
   // Tmpcampaign.belongsToMany(Contact, { through: { model: ContactGroup, unique: false }, foreignKey: 'groupId' });
@@ -31,6 +32,9 @@ module.exports = (sequelize, DataTypes) => {
     // models.Tmpcampaign.belongsToMany(models.Contact, { through: models.ContactGroup, foreignKey: 'groupId' });
     Tmpcampaign.belongsTo(models.User, {
       foreignKey: 'userId'
+    });
+    Tmpcampaign.belongsTo(models.Mediatype, {
+      foreignKey: 'mediatypeId'
     });
     Tmpcampaign.belongsTo(models.Sender, {
       foreignKey: 'senderId'

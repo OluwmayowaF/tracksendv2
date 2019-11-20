@@ -8,47 +8,40 @@ exports.index = function(req, res) {
 };
 
 // Display list of all contacts
-exports.contactList = (req, res) => {
-    var user_id = req.user.id;
+exports.contactList = async (req, res) => {
     var lnkgrp = req.params.lnkgrp;
+    var defgtyp = null;
 
 
-    models.Group.findAll({ 
+    var grptyps = await models.Mediatype.findAll({
+        order: [ 
+            ['id', 'ASC']
+        ]
+    });
+
+    if(lnkgrp) {
+        defgtyp = await models.Group.findByPk(lnkgrp, {
+            attributes: ['mediatypeId']
+        });
+    }
+
+    /* var non = await models.Group.findAll({ 
         where: { 
             userId: user_id,
-            name: {
-                [Sequelize.Op.ne]: '[Uncategorized]',
-            }
+            name: '[Uncategorized]',
         },
-        order: [ 
-            ['createdAt', 'DESC']
-        ]
-    })
-    .then(grps => { 
-        
-        models.Group.findAll({ 
-            where: { 
-                userId: user_id,
-                name: '[Uncategorized]',
-            },
-        })
-        .then(non => { 
-            var ngrp = non[0].id;
-console.log('====================================');
-console.log('NON= ' + ngrp);
-console.log('====================================');
-            res.render('pages/dashboard/contact_list', {
-                page: 'CONTACTS',
-                contactlist: true,
+    }); */
 
-                args: {
-                    lnkgrp,
-                    grps,
-                    ngrp,
-                }
-            });
-        });
+    // var ngrp = non[0].id;
+    res.render('pages/dashboard/contact_list', {
+        page: 'CONTACTS',
+        contactlist: true,
 
+        args: {
+            lnkgrp,
+            grptyps,
+            defgtyp,
+        }
     });
 
 };
