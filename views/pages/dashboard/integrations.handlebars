@@ -1,0 +1,243 @@
+	<div class="dashboard-content">
+
+		<!-- Titlebar -->
+		<div id="titlebar">
+			<div class="row">
+				<div class="col-md-12">
+					<!-- Breadcrumbs -->
+					<nav id="breadcrumbs">
+						<ul>
+							<li><a href="/dashboard">Dashboard</a></li>
+							<li>Integrations</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+
+		{{#if flash}}
+			<div class="notification {{ flashtype }} closeable no-shadow">
+				<p><span style="text-transform: capitalize">{{ flashtype }}!</span> {{ flash }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
+
+			<div class="notification other3 closeable">
+				<p></p>
+				<a class="close"></a>
+			</div>
+
+		<div class="row">
+			<div class="col-lg-12"><div class="col-lg-12 page_box_header">WhatsApp<i class="sl sl-icon-refresh _loader"></i></div></div>
+			<div class="col-lg-12">
+
+				<div id="add-listing">
+				<form action="/dashboard/contacts/groups/add" method="POST">
+
+					<!-- Section -->
+					<div class="add-listing-section">
+
+						<!-- Row -->
+						<div class="row with-forms">
+							<div class="col-md-12 do_whatsapp" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
+								<h5 style="float: left">Activate WhatsApp Integration  </h5>
+								<label class="switch"><input type="checkbox" checked="" name="skip_dnd"><span class="slider round"></span></label>
+								<div class="clearfix"></div>
+							</div>
+						</div>
+						<!-- Row / End -->
+
+										
+						<div class="row with-forms">
+
+							<div class="col-md-12">
+								<h5>Compose Message <span id="msg_est_txt"></span><span>[ Chars: <span id="msg_char_count">9</span>; Msgs: <span id="msg_count">1</span> ]</span>
+									<ul class="compose_options_box checkboxes in-row">
+										<li id="ch-firstname">First Name</li>
+										<li id="ch-lastname">Last Name</li>
+										<li id="ch-email">Email</li>
+										<li id="ch-url">Short URL</li>
+										{{!-- <li id="ch-url"><a href="#url-setup-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1;" id="wwww"><i class="im im-icon-Two-Windows"></i> Short URL <i class="tip" data-tip-content="Create/Modify Short URL to insert into message"></i></a></li> --}}
+										<div class="clearfix"></div>
+									</ul>
+								</h5>
+								<div contenteditable="true" class="editable_div">Hello ...</div>
+								<input type="hidden" name="message" id="campaignmessage">
+							</div>
+
+							<div id="url-setup-box" class="zoom-anim-dialog mfp-hide">
+
+								<div class="small-dialog-header">
+									<h3>Short URL <b> Setup</b></h3>
+								</div>
+
+								<!--Tabs -->
+								<div class="sign-in-form style-1">
+
+									<div class="row with-forms">
+
+										<!-- Status -->
+										<div class="col-md-12">
+											<h5>Enter or Paste Your Link</h5>
+											<input type="text" name="full_link" id="long_url_link" maxlength="50" placeholder="http://www.">
+											<button type="submit" class="button preview create_short_url_btn" style="margin-top: 0">Create <i class="sl sl-icon-refresh"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
+										</div>
+
+
+										<div class="col-md-12" style="margin-top: 30px;">
+											<h5>Here's Your Short URL:  <span class="customize_url_btn" style="display: none">[ Customize ]</span></h5>
+											<div class="short_url_box">http://tsn.pub/<span id="_edit_span" class="_editable" maxlength="5">...</span><input style="display: none" type="text" name="myshorturl" id="_edit_text" placeholder="..." class="_editable" maxlength="10" readonly >
+												<input type="hidden" name="shorturlid" id="shorturlid" >
+											</div>
+											{{!-- <div class="short_url_box">https://tsn.go/
+											</div> --}}
+
+											<button type="button" class="button preview short_url_btn paste" style="margin-top: 0">Insert in Msg <i class="fa fa-paste"></i></button>
+											<button type="button" class="button preview short_url_btn done" style="margin-top: 0">OK <i class="fa fa-arrow-circle-right"></i></button>
+										</div>
+
+
+									</div>
+
+								</div>
+							</div>
+
+							{{!-- <div class="col-md-12">
+								<h5>Include Recipients <span>(separate numbers with commas; messages to these won't be tracked.)</span> </h5>
+								<input type="text" name="recipients" id="recipients" maxlength="200">
+							</div> --}}
+
+							<div class="col-md-12 with-forms">
+								<div class="col-md-6 ignore_dnd" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
+									<h5 style="float: left">Skip DND (Do-Not-Disturb) Contacts  <i class="tip" data-tip-content="This applies to contacts that has be confirmed to be DND based on feedback from previous message."></i> </h5>
+									<label class="switch"><input type="checkbox" checked="" name="skip_dnd"><span class="slider round"></span></label>
+									<div class="clearfix"></div>
+								</div>
+								<div class="col-md-5 add_utm" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px; float: right">
+									<h5 style="float: left">Add UTM Tags  <i class="tip" data-tip-content="Tags to help track source medium e.g. Facebook, Instagram, etc."></i> </h5>
+									<label class="switch"><input type="checkbox" checked="" name="add_utm"><span class="slider round"></span></label>
+									<div class="clearfix"></div>
+								</div>
+							</div>
+
+						</div>
+						
+						<div class="row with-forms">
+
+							<div class="col-md-12">
+								<h5>Compose Message <span id="msg_est_txt"></span><span>[ Chars: <span id="msg_char_count">9</span>; Msgs: <span id="msg_count">1</span> ]</span>
+									<ul class="compose_options_box checkboxes in-row">
+										<li id="ch-firstname">First Name</li>
+										<li id="ch-lastname">Last Name</li>
+										<li id="ch-email">Email</li>
+										<li id="ch-url">Short URL</li>
+										{{!-- <li id="ch-url"><a href="#url-setup-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1;" id="wwww"><i class="im im-icon-Two-Windows"></i> Short URL <i class="tip" data-tip-content="Create/Modify Short URL to insert into message"></i></a></li> --}}
+										<div class="clearfix"></div>
+									</ul>
+								</h5>
+								<div contenteditable="true" class="editable_div">Hello ...</div>
+								<input type="hidden" name="message" id="campaignmessage">
+							</div>
+
+							<div id="url-setup-box" class="zoom-anim-dialog mfp-hide">
+
+								<div class="small-dialog-header">
+									<h3>Short URL <b> Setup</b></h3>
+								</div>
+
+								<!--Tabs -->
+								<div class="sign-in-form style-1">
+
+									<div class="row with-forms">
+
+										<!-- Status -->
+										<div class="col-md-12">
+											<h5>Enter or Paste Your Link</h5>
+											<input type="text" name="full_link" id="long_url_link" maxlength="50" placeholder="http://www.">
+											<button type="submit" class="button preview create_short_url_btn" style="margin-top: 0">Create <i class="sl sl-icon-refresh"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
+										</div>
+
+
+										<div class="col-md-12" style="margin-top: 30px;">
+											<h5>Here's Your Short URL:  <span class="customize_url_btn" style="display: none">[ Customize ]</span></h5>
+											<div class="short_url_box">http://tsn.pub/<span id="_edit_span" class="_editable" maxlength="5">...</span><input style="display: none" type="text" name="myshorturl" id="_edit_text" placeholder="..." class="_editable" maxlength="10" readonly >
+												<input type="hidden" name="shorturlid" id="shorturlid" >
+											</div>
+											{{!-- <div class="short_url_box">https://tsn.go/
+											</div> --}}
+
+											<button type="button" class="button preview short_url_btn paste" style="margin-top: 0">Insert in Msg <i class="fa fa-paste"></i></button>
+											<button type="button" class="button preview short_url_btn done" style="margin-top: 0">OK <i class="fa fa-arrow-circle-right"></i></button>
+										</div>
+
+
+									</div>
+
+								</div>
+							</div>
+
+							{{!-- <div class="col-md-12">
+								<h5>Include Recipients <span>(separate numbers with commas; messages to these won't be tracked.)</span> </h5>
+								<input type="text" name="recipients" id="recipients" maxlength="200">
+							</div> --}}
+
+							<div class="col-md-12 with-forms">
+								<div class="col-md-6 ignore_dnd" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
+									<h5 style="float: left">Skip DND (Do-Not-Disturb) Contacts  <i class="tip" data-tip-content="This applies to contacts that has be confirmed to be DND based on feedback from previous message."></i> </h5>
+									<label class="switch"><input type="checkbox" checked="" name="skip_dnd"><span class="slider round"></span></label>
+									<div class="clearfix"></div>
+								</div>
+								<div class="col-md-5 add_utm" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px; float: right">
+									<h5 style="float: left">Add UTM Tags  <i class="tip" data-tip-content="Tags to help track source medium e.g. Facebook, Instagram, etc."></i> </h5>
+									<label class="switch"><input type="checkbox" checked="" name="add_utm"><span class="slider round"></span></label>
+									<div class="clearfix"></div>
+								</div>
+							</div>
+
+						</div>
+
+					</div>
+					<!-- Section / End -->
+
+				</form>
+				</div>
+			</div>
+
+			<div class="col-lg-12" id="show_contacts_pane" style="margin-top: 30px;" hidden>
+
+				<div id="add-listing">
+					<!-- Section -->
+					<div class="add-listing-section" style="background-color: inherit;">
+
+						<!-- Row --> 
+						<div class="row with-forms">
+							<br>
+							<!-- Status -->
+							<div class="col-md-12 lists">
+								<h5 style="position: relative"><span id="grp_typ_name"></span></span>Group: <span id="group_name" style="weight: bold"></span> | Contacts: <span class="items_count" id="group_contact_count" style="weight: bold"></span> <i class="sl sl-icon-refresh _loader"></i></h5>
+								<div class="input-group mb-3" id="search_conts_box">
+									<input type="text" class="form-control" name="search_conts" id="search_conts" placeholder="Search Contacts..." style="width: 92%; display: inline; height: 35px; padding: 10px; font-size: 0.9em;">
+									<span class="input-group-append">
+										<button class="btn btn-default" id="search_conts_btn">Search</button>
+									</span>
+								</div>
+								<ul id="contact_list">
+								</ul>
+							</div>
+
+						</div>
+						<!-- Row / End -->
+
+					</div>
+					<!-- Section / End -->
+				</div>
+			</div>
+
+			<!-- Copyrights -->
+			<div class="col-md-12">
+				<div class="copyrights">© 2019 Tracksend. All Rights Reserved.</div>
+			</div>
+
+		</div>
+
+	</div>
