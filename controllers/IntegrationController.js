@@ -1,22 +1,28 @@
 var models = require('../models');
 var request = require('request');
+const { INSTANCEID, TOKEN } = require('../config/cfg/chatapi')();
 
 exports.index = (req, res) => {
     var user_id = req.user.id;
+    var res_body = null;
 
     console.log('showing page...integrations...'); 
     // var flash = req.flash('success')
     // console.log('flash details are now: ' + flash); 
 
     // var url = 'https://eu2.chat-api.com/instance76984/sendMessage?token=mgnd0b9bpaehouf2';
-    var url = 'https://eu2.chat-api.com/instance76984/status?token=mgnd0b9bpaehouf2';
+    var url = 'https://eu2.chat-api.com/instance' + INSTANCEID + '/status?token=' + TOKEN;
     request.get(url, (error, res, body) => {
+        let body_ = JSON.parse(body);
+        res_body = body_.qrCode;
+
         console.log('====================================');
-        console.log(JSON.stringify(error + res + body));
+        console.log('res_body: ' + body_.qrCode);
         console.log('====================================');
+
     });
 
-    return;
+    // return;
 
     console.log('groups are: ' + JSON.stringify(url));
     var flashtype, flash = req.flash('error');
@@ -34,6 +40,7 @@ exports.index = (req, res) => {
 
         args: {
             sids: 'sids',
+            qrcode: res_body
         }
     });
 };
