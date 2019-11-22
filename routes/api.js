@@ -27,6 +27,7 @@ module.exports = function(app) {
   app.get ('/api/generateurl',      apiController.generateUrl);
   app.post('/api/analysecampaign',  apiController.analyseCampaign);
   app.get('/api/loadcampaign',      apiController.loadCampaign);
+  app.get('/api/getwhatsappqrode',  apiController.getWhatsAppQRCode);
   
   app.post('/api/sms/notify',        apiController.smsNotify);
 

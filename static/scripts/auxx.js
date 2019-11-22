@@ -1047,7 +1047,53 @@ console.log('====================================');
 
 })
 
+function activateWhatsApp(e) {
+	if(e != "do") {
+		//	when switch is first clicked before displaying message
+		let $sw = $(e);
 
+		if($sw.is(':checked')) {
+			$('#pre_activate_whatsapp').show();
+		} else {
+			$('#pre_activate_whatsapp').hide();
+			$('#pre_activate_whatsapp button').show();
+			$('#pre_activate_whatsapp .loading_icon').hide();
+		}
+	} else {
+		//	after 'Proceed' is clicked
+		$('#pre_activate_whatsapp button').hide();
+		$('#pre_activate_whatsapp .loading_icon').show();
+
+		$.ajax({
+			type: 'GET',
+			url: _getGlobals.SERVICE_HOST+'getwhatsappqrode',
+			contentType: 'application/json; charset=utf-8',
+			// data: json_form_reg,
+			success: function( data ) {
+
+				if(data.code == "exists");
+				else {
+					$('#img_whatsappqrcode').attr('src', data.code);
+					$('#whatsapp_qrcode').show();
+					$('#pre_activate_whatsapp').hide();
+				}
+				
+
+			},
+			error: function(resp, dd, ww) {
+				$we.closest('div').find('.loading_icon').hide();
+				// $butt.removeAttr('disabled');
+				// $butt.closest('div').find('.loading_icon').hide();
+			}
+		}).done(function(){
+			// $butt.removeAttr('disabled');
+			// $butt.closest('div').find('.loading_icon').hide();
+		});
+
+
+	}
+
+}
 
 function doDate() {
 	//console.log('EXECUTED!');

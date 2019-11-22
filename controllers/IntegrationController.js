@@ -1,34 +1,42 @@
 var models = require('../models');
-var request = require('request');
-const { INSTANCEID, TOKEN } = require('../config/cfg/chatapi')();
+const { default: axios } = require('axios');
+const { INSTANCEID, TOKEN , BINURL } = require('../config/cfg/chatapi')();
 
-exports.index = (req, res) => {
+exports.index = async (req, res) => {
     var user_id = req.user.id;
-    var res_body = null;
+    var active = false;
+    var qrcode = null;
+    var error = null;
 
     console.log('showing page...integrations...'); 
-    // var flash = req.flash('success')
-    // console.log('flash details are now: ' + flash); 
 
     // var url = 'https://eu2.chat-api.com/instance76984/sendMessage?token=mgnd0b9bpaehouf2';
     var url = 'https://eu2.chat-api.com/instance' + INSTANCEID + '/status?token=' + TOKEN;
-    request.get(url, (error, res, body) => {
-        let body_ = JSON.parse(body);
-        res_body = body_.qrCode;
+    // var url = BINURL;
+    try {
+        let resp = await axios.get(url);
+        let body = resp.data;
 
-        console.log('====================================');
-        console.log('res_body: ' + body_.qrCode);
-        console.log('====================================');
+        console.log('CODE RETRIEVED: ');// + JSON.stringify(resp))
+        
+        if(body.accountStatus && body.accountStatus == "authenticated") {
+            active = true;
+        } else if(body.qrCode) {
+            qrcode = body.qrCode;
+        }
 
-    });
+    } catch(e) {
+        console.log('CONNECTION ERROR: ' + e);
+        error = "remote";
+    }
+    
+    // let body_ = JSON.parse(resp.data);
 
     // return;
-
-    console.log('groups are: ' + JSON.stringify(url));
     var flashtype, flash = req.flash('error');
     if(flash.length > 0) {
         flashtype = "error";           
-    } else {
+    } else { 
         flashtype = "success";
         flash = req.flash('success');
     }
@@ -40,7 +48,9 @@ exports.index = (req, res) => {
 
         args: {
             sids: 'sids',
-            qrcode: res_body
+            active,
+            qrcode,
+            error,
         }
     });
 };

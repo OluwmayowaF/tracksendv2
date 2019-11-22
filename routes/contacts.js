@@ -8,8 +8,9 @@ router.get('/', contactController.index);
 router.get('/list', contactController.contactList);
 router.get('/list/:lnkgrp', contactController.contactList);
 router.get('/new', contactController.newContact);
-router.get('/groups/sms', groupController.listSMSGroup);
-router.get('/groups/whatsapp', groupController.listWAGroup);
+router.get('/groups/', groupController.listGroup);
+router.get('/groups/sms', groupController.listSMSGroup);  //  redundant for now
+router.get('/groups/whatsapp', groupController.listWAGroup);  //  redundant for now
 // router.get('/groups', groupController.groupList);
 
 router.post('/add', contactController.addContact);
