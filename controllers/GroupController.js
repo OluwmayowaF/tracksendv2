@@ -7,6 +7,47 @@ exports.index = function(req, res) {
 
 
 // Display detail page for a specific contact. 
+exports.listGroup = (req, res) => {
+    var user_id = req.user.id;
+
+    // ContactGroup.findAll()
+    // ContactGroup.findAll({ where: { userId: { [Op.eq]: req.query.uid} }})
+    models.Group.findAll({ 
+        where: { 
+            userId: user_id,
+            name: {
+                [Sequelize.Op.ne]: '[Uncategorized]',
+            },
+        },
+        order: [ 
+            ['createdAt', 'DESC']
+        ]
+    })
+    .then(grps => {
+        // console.log('groups are: ' + JSON.stringify(grps) + '; flash: ' + req.flash('error'));
+
+        var flashtype, flash = req.flash('error');
+        if(flash.length > 0) {
+            flashtype = "error";           
+        } else {
+            flashtype = "success";
+            flash = req.flash('success');
+        }
+
+        res.render('pages/dashboard/new_group', {
+            page: 'CONTACT GROUPS',
+            groups: true,
+            grouptype: '',
+            flashtype, flash,
+
+            args: {
+                grps: grps,
+            }
+        });
+    });
+
+}
+
 exports.listSMSGroup = (req, res) => {
     var user_id = req.user.id;
 

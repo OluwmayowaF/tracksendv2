@@ -15957,7 +15957,7 @@ img.mfp-img {
 	}
 
 	.tabs-container.campaigntypes .tab-content {
-		display: none !important;
+		/* display: none !important; */
 	}
 	.tabs-container.campaigntypes .tab-content.sms_SMS {
 		display: inline-block !important;

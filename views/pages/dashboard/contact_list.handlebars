@@ -41,26 +41,14 @@
 						<div class="row with-forms">
 							<br>
 							<!-- Status -->
-							<div class="col-md-6">
-								<h5>Group Type </h5>
-								<input type="hidden" id="linked_grouptyp_id" value="{{ args.defgtyp }}">
-								<input type="hidden" id="linked_group_id" value="{{ args.lnkgrp }}">
-								<select class="chosen-select-no-single" name="grouptype" id="sel_contact_grouptype">
-									<option></option>
-								{{#if args.grptyps.length}}
-									{{#each args.grptyps}}
-										<option value="{{ id }}">{{ name }}</option>
-									{{/each}}
-								{{else}}
-									<option disabled>No Groups created yet</option>
-								{{/if}}
-								</select>
-							</div>
-							<div class="col-md-6">
+							<div class="col-md-12">
 								<h5>Select Group </h5>
 								<input type="hidden" id="linked_group_id" value="{{ args.lnkgrp }}">
 								<select class="chosen-select-no-single" name="group" id="sel_contact_group">
-									<option disabled>Select Group Type</option>
+									<option disabled>Select Group</option>
+									{{#each args.grps}}
+									<option value="{{ id }}">{{ name }}</option>
+									{{/each}}
 								</select>
 							</div>
 

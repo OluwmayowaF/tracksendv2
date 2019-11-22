@@ -855,6 +855,29 @@ exports.loadCampaign = (req, res) => {
 
 }
 
+exports.getWhatsAppQRCode = async (req, res) => {
+    const { default: axios } = require('axios');
+    const { INSTANCEID, TOKEN } = require('../config/cfg/chatapi')();
+    
+    var qrcode = null;
+
+    var url = 'https://eu2.chat-api.com/instance' + INSTANCEID + '/status?token=' + TOKEN;
+    const resp = await axios.get(url);
+    
+    let body = resp.data;
+
+    if(body.accountStatus && body.accountStatus == "authenticated") {
+        res.send({
+            code : 'exists'
+        });
+    } else if(body.qrCode) {
+        qrcode = body.qrCode;
+        res.send({
+            code : qrcode
+        });
+    }
+}
+
 exports.smsNotify = (req, res) => {
     
     console.log('[[====================================');
