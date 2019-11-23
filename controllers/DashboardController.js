@@ -187,7 +187,7 @@ exports.index = (req, res) => {
             if(ACCUMULATE_CONTACTS) acc_c += con_sub_6;    //   count of contacts before 6 months
             
             return sequelize.query(
-                "SELECT MONTH(createdAt) MONTH, COUNT(*) COUNT " + 
+                "SELECT MONTH(createdAt) MONTH, COUNT(*) COUNT, ANY_VALUE(phone) " + 
                 "FROM contacts " +
                 "WHERE userId = (:id) " +
                 "AND createdAt > DATE_SUB(now(), INTERVAL 6 MONTH) " +
