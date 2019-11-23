@@ -242,8 +242,19 @@ exports.index = (req, res) => {
         console.log('qqq= '+messages.length);
         
         console.log('====================================');
-        console.log('CGROUP: '+ ccount);
+        console.log('CGROUP: '+ JSON.stringify(ccount));
         console.log('====================================');
+
+        let c_array = ccount;
+        ccount = 0;
+        c_array.forEach(c => {
+            ccount += c.count;
+        });;
+
+        console.log('====================================');
+        console.log('NEW CCOUNT = ' + ccount);
+        console.log('====================================');
+
         if(!messages.length) nocampaigns = true;
         if(!ccount) nocontacts = true;
         if(!csender) nosenderids = true;
