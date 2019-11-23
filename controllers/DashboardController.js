@@ -122,7 +122,7 @@ exports.index = (req, res) => {
             if(ACCUMULATE_MESSAGES) acc_m += msg_sub_6;    //   count of msgs before 6 months
             
             return sequelize.query(
-                "SELECT MONTH(messages.createdAt) MONTH, COUNT(*) COUNT, ANY_VALUE() " + 
+                "SELECT MONTH(messages.createdAt) MONTH, COUNT(*) COUNT " + 
                 "FROM messages " +
                 "JOIN campaigns ON messages.campaignId = campaigns.id " +
                 "WHERE campaigns.userId = (:id) " +
