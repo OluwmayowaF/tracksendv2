@@ -1063,7 +1063,7 @@ function activateWhatsApp(e) {
 		//	after 'Proceed' is clicked
 		$('#pre_activate_whatsapp button').hide();
 		$('#pre_activate_whatsapp .loading_icon').show();
-
+return;
 		$.ajax({
 			type: 'GET',
 			url: _getGlobals.SERVICE_HOST+'getwhatsappqrode',
