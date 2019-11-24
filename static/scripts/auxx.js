@@ -1048,6 +1048,7 @@ console.log('====================================');
 })
 
 function activateWhatsApp(e) {
+	// e.preventDefault();
 	if(e != "do") {
 		//	when switch is first clicked before displaying message
 		let $sw = $(e);
@@ -1062,8 +1063,8 @@ function activateWhatsApp(e) {
 	} else {
 		//	after 'Proceed' is clicked
 		$('#pre_activate_whatsapp button').hide();
-		$('#pre_activate_whatsapp .loading_icon').show();
-return;
+		$('#pre_activate_whatsapp .loading_icon').css('display', 'inline-block');
+		
 		$.ajax({
 			type: 'GET',
 			url: _getGlobals.SERVICE_HOST+'getwhatsappqrode',
