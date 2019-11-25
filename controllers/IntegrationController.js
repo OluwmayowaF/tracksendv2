@@ -1,16 +1,20 @@
 var models = require('../models');
-const { default: axios } = require('axios');
-const { INSTANCEID, TOKEN , BINURL } = require('../config/cfg/chatapi')();
+var { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
+
+// const { default: axios } = require('axios');
+// const { INSTANCEID, TOKEN , BINURL } = require('../config/cfg/chatapi')();
 
 exports.index = async (req, res) => {
     var user_id = req.user.id;
-    var active = false;
-    var qrcode = null;
-    var error = null;
+    var qrcode = null; 
 
     console.log('showing page...integrations...'); 
 
-    // var url = 'https://eu2.chat-api.com/instance76984/sendMessage?token=mgnd0b9bpaehouf2';
+    let status = await getWhatsAppStatus(user_id);
+    var active = status.active;
+    var error = status.error;
+
+    /* // var url = 'https://eu2.chat-api.com/instance76984/sendMessage?token=mgnd0b9bpaehouf2';
     var url = 'https://eu2.chat-api.com/instance' + INSTANCEID + '/status?token=' + TOKEN;
     // var url = BINURL;
     try {
@@ -29,7 +33,7 @@ exports.index = async (req, res) => {
         console.log('CONNECTION ERROR: ' + e);
         error = "remote";
     }
-    
+     */
     // let body_ = JSON.parse(resp.data);
 
     // return;

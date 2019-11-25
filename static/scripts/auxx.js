@@ -1064,7 +1064,7 @@ function activateWhatsApp(e) {
 		//	after 'Proceed' is clicked
 		$('#pre_activate_whatsapp button').hide();
 		$('#pre_activate_whatsapp .loading_icon').css('display', 'inline-block');
-		
+
 		$.ajax({
 			type: 'GET',
 			url: _getGlobals.SERVICE_HOST+'getwhatsappqrode',
