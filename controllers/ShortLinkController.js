@@ -1,27 +1,66 @@
 const sequelize = require('../config/cfg/db');
 var models = require('../models');
 
-exports.index = (req, res) => {
+exports.index = async (req, res) => {
     var user_id = req.user.id;
 
     console.log('showing page...'); 
     // var flash = req.flash('success')
     // console.log('flash details are now: ' + flash); 
 
-    sequelize.query(
+    /* var sids =  await sequelize.query(
         "SELECT " + 
         "   *, " +
         "   (SELECT `name` FROM `campaigns` t1 WHERE t1.`shortlinkId` = tt.`id` ORDER BY createdAt DESC LIMIT 1) AS cmpgn, " + 
         "   (SELECT SUM(`clickcount`) FROM `messages` t2 WHERE t2.`shortlinkId` = tt.id) AS clicks " +
         "FROM `shortlinks` tt " +
         "WHERE tt.`userId` = :uid " +
-        "AND tt.`status` = 1", {
+        "AND tt.`status` = 1 " +
+        "ORDER BY tt.createdAt DESC ", {
             replacements: {
                 uid: user_id,
             },
             type: sequelize.QueryTypes.SELECT,
         },
-    )
+    ); */
+
+    var sids =  await sequelize.query(
+        "SELECT " + 
+        "   tt.*, " +
+        "   IFNULL(t1.`name`, '[none]') cmpgn, " + 
+        "   MAX(t1.`createdAt`), " + 
+        "   SUM(t2.`clickcount`) clicks " +
+        "FROM `shortlinks` tt " +
+        "LEFT OUTER JOIN `campaigns` t1 " +
+        "ON t1.`shortlinkId` = tt.`id` " +
+        "LEFT OUTER JOIN `messages` t2 " +
+        "ON t2.`campaignId` = t1.`id` " +
+        "WHERE tt.`userId` = :uid " +
+        "AND tt.`status` = 1 " +
+        "GROUP BY tt.id " +
+        "ORDER BY tt.createdAt DESC ", {
+            replacements: {
+                uid: user_id,
+            },
+            type: sequelize.QueryTypes.SELECT,
+        },
+    );
+
+    /* var sids_ =  await sequelize.query(
+        "SELECT " + 
+        "   *, " +
+        "   (SELECT `name` FROM `campaigns` t1 WHERE t1.`shortlinkId` = tt.`id` ORDER BY createdAt DESC LIMIT 1) AS cmpgn, " + 
+        "   (SELECT SUM(`clickcount`) FROM `messages` t2 WHERE t2.`shortlinkId` = tt.id) AS clicks " +
+        "FROM `shortlinks` tt " +
+        "WHERE tt.`userId` = :uid " +
+        "AND tt.`status` = 1 " +
+        "ORDER BY tt.createdAt DESC ", {
+            replacements: {
+                uid: user_id,
+            },
+            type: sequelize.QueryTypes.SELECT,
+        },
+    ); */
     /* models.Shortlink.findAll({ 
         where: { 
             userId: user_id,
@@ -45,26 +84,26 @@ exports.index = (req, res) => {
             ['createdAt', 'DESC']
         ]
     }) */
-    .then((sids) => {
-        console.log('groups are: ' + JSON.stringify(sids));
-        var flashtype, flash = req.flash('error');
-        if(flash.length > 0) { 
-            flashtype = "error";           
-        } else {
-            flashtype = "success";
-            flash = req.flash('success');
+
+    console.log('groups are: ' + JSON.stringify(sids));
+    var flashtype, flash = req.flash('error');
+    if(flash.length > 0) { 
+        flashtype = "error";           
+    } else {
+        flashtype = "success";
+        flash = req.flash('success');
+    }
+
+    res.render('pages/dashboard/shortlinks', {
+        page: 'Short URLs',
+        shortlinks: true,
+        flashtype, flash,
+
+        args: {
+            sids: sids,
         }
-
-        res.render('pages/dashboard/shortlinks', {
-            page: 'Short URLs',
-            shortlinks: true,
-            flashtype, flash,
-
-            args: {
-                sids: sids,
-            }
-        });
     });
+    
 };
 
 
