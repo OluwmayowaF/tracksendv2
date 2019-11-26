@@ -27,9 +27,10 @@ exports.index = async (req, res) => {
     var sids =  await sequelize.query(
         "SELECT " + 
         "   tt.*, " +
-        "   IFNULL(t1.`name`, '[none]') cmpgn, " + 
-        "   MAX(t1.`createdAt`), " + 
-        "   SUM(t2.`clickcount`) clicks " +
+        // "   IFNULL(t1.`name`, '[none]') cmpgn, " + 
+        // "   MAX(t1.`createdAt`), " + 
+        "   SUM(t2.`clickcount`) clicks, " +
+        "   GROUP_CONCAT(DISTINCT t1.`name` ORDER BY t1.`createdAt` SEPARATOR ', ') " +
         "FROM `shortlinks` tt " +
         "LEFT OUTER JOIN `campaigns` t1 " +
         "ON t1.`shortlinkId` = tt.`id` " +

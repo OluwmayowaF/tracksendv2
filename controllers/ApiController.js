@@ -845,7 +845,6 @@ console.log('555555');
 
 }
 
-
 exports.analyseCampaign = async (req, res) => {
 
     try {
@@ -946,59 +945,46 @@ exports.analyseCampaign = async (req, res) => {
             }
             async function getCharge(prefix, ctry) {
 
-                var results = await sequelize.query(
+                var res_charge = await sequelize.query(
                     "SELECT units FROM settingsuserbillings " +
                     "JOIN settingsnetworks ON settingsuserbillings.settingsnetworkId = settingsnetworks.id " +
                     "WHERE settingsuserbillings.userId = (:id) " +
                     "AND settingsnetworks.prefix = '" + prefix + "'", {
                         replacements: {id: user_id},
                     }
-                )
-                .then(async (res_charge) => {
+                );
 
-                    console.log('RES!!!' + JSON.stringify(res_charge));
-                    // console.log('RES!!!' + res_charge[0][0].units);
+                console.log('RES!!!' + JSON.stringify(res_charge));
+                // console.log('RES!!!' + res_charge[0][0].units);
 
-                    if(res_charge[0][0] && res_charge[0][0].units) {
-                        console.log('444444');
-                        return res_charge[0][0].units;
-                        
-                    } else {
+                if(res_charge[0][0] && res_charge[0][0].units) {
+                    console.log('444444');
+                    var results = res_charge[0][0].units;
+                    
+                } else {
 
-                        let results_ = await models.Settingsnetwork.findAll({
-                            /* include: [{
-                                model: models.Settingsdefaultbilling, 
-                                attributes: ['units'], 
-                                raw: true,
-                                // through: { }
-                            }], */
-                            where: { 
-                                prefix: prefix,
-                                countryId: ctry,
-                            },
-                            attributes: ['unitscharge'], 
-                            limit: 1,
-                        })
-                        .then((res_rcharge) => {
-                            console.log('RRES!!!' + JSON.stringify(res_rcharge));
-                            console.log('RRES!!!' + res_rcharge.map((r) => r.unitscharge));
-                            return res_rcharge.map((r) => r.unitscharge);
-                        })
-                        .catch((err) => {
-                            console.log('1ERROR!!!' + JSON.stringify(err));
-                        });
-
-                        return results_;
-    console.log('555555');
-                    }
-
-                })
-                .error((r) => {
-                    console.log("Error: Please try again later");
-                    res.send({
-                        response: "Error: Please try again later",
+                    let res_rcharge = await models.Settingsnetwork.findAll({
+                        /* include: [{
+                            model: models.Settingsdefaultbilling, 
+                            attributes: ['units'], 
+                            raw: true,
+                            // through: { }
+                        }], */
+                        where: { 
+                            prefix: prefix,
+                            countryId: ctry,
+                        },
+                        attributes: ['unitscharge'], 
+                        limit: 1,
                     });
-                })
+
+                    console.log('RRES!!!' + JSON.stringify(res_rcharge));
+                    console.log('RRES!!!' + res_rcharge.map((r) => r.unitscharge));
+                    var results = res_rcharge.map((r) => r.unitscharge);
+
+                    // return results_;
+                    console.log('555555');
+                }
 
                 return results;
             }                                                     
