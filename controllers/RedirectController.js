@@ -39,7 +39,7 @@ exports.sms = async function(req, res) {
     ]);
     
     if(pro[0].length == 0) {
-        console.log('ERROR IN MSG' + JSON.stringify(msg));
+        // console.log('ERROR IN MSG' + JSON.stringify(msg));
         
         res.render('pages/redirect-error', {
             page: '',
@@ -109,14 +109,8 @@ exports.browser = function(req, res) {
         shurl.update({
             clickcount: Sequelize.literal('clickcount + 1'),
         }).then(() => {
-            console.log('====================================');
-            console.log('RETURNED: ' + JSON.stringify(shurl));
-            console.log('====================================');
-
             res.redirect(shurl.url);
-
         })
-
     })
 
 };
