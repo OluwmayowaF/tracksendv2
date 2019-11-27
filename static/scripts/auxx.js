@@ -175,7 +175,7 @@ $(document).ready(function() {
 	$('.create_short_url_btn').on('click', function (e) {
 
 		var $we = $(this);
-		var url = $('#long_url_link').val();
+		var url = encodeURIComponent($('#long_url_link').val());
 		
 		if(url.length < 5) {
 			alert('Kindly enter valid Link');
@@ -194,8 +194,7 @@ $(document).ready(function() {
 		$s_.show();
 
 		var urlid = '&id=' + $('#shorturlid').val();
-
-
+		
 		$.ajax({
 			type: 'GET',
 			url: _getGlobals.SERVICE_HOST+'generateurl'+'?url='+url+urlid,

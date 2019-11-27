@@ -487,6 +487,9 @@ exports.generateUrl = (req, res) => {
 
     var uid, url = req.query.url;//, id = req.query.id;
 
+    console.log('====================================');
+    console.log("URL = " + url);
+    console.log('====================================');
     uid = makeId(3);
 
     checkId(uid);
