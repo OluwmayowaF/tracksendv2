@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     deliverytime: DataTypes.DATE,
     readtime: DataTypes.DATE,
     firstclicktime: DataTypes.DATE,
+    message_id: DataTypes.STRING,
     status: DataTypes.INTEGER,
   }, {});
 
