@@ -94,7 +94,7 @@
 						<ul class="tabs-nav">
 							<li style="padding: 8px; background-color: #e8e8e8; border-radius: 0 0 10px 10px;">Select Campaign Type: </li>
 							<li class="active"><a href="#tab1a"><i class="fa fa-commenting-o"></i> SMS</a></li>
-							{{!-- <li class=""><a href="#tab2a"><i class="fa fa-whatsapp"></i> WHATSAPP</a></li> --}}
+						  {{#if has_whatsapp}}	<li class=""><a href="#tab2a"><i class="fa fa-whatsapp"></i> WHATSAPP</a></li> {{/if}}
 							<li class="" style="display: none"><a href="#tab3a"><i class="sl sl-icon-bubbles"></i> PREMIUM</a></li>
 						</ul>
 
@@ -102,7 +102,7 @@
 						<div class="tabs-container campaigntypes">
 							{{!-- <div class="tab-content" id="tab1a" style="display: inline-block;"> --}}
 							<div class="tab-content sms_{{ campaign_type }}" id="tab1a" >
-								<form action="/dashboard/campaigns/add" method="POST" id="campaign_form">
+								<form action="/dashboard/campaigns/add" method="POST" id="campaign_form_sms">
 									<input type="hidden" name="type" value="sms">
 
 									<!-- Section -->
@@ -176,7 +176,7 @@
 
 											<div class="col-md-12">
 												<h5>Compose Message <span id="msg_est_txt"></span><span>[ Chars: <span id="msg_char_count">9</span>; Msgs: <span id="msg_count">1</span> ]</span>
-													<ul class="compose_options_box checkboxes in-row">
+													<ul class="compose_options_box checkboxes in-row"><span style="font-size: 0.7em;">Insert: </span>
 														<li id="ch-firstname">First Name</li>
 														<li id="ch-lastname">Last Name</li>
 														<li id="ch-email">Email</li>
@@ -185,7 +185,7 @@
 														<div class="clearfix"></div>
 													</ul>
 												</h5>
-												<div contenteditable="true" class="editable_div">Hello ...</div>
+												<div contenteditable="true" class="editable_div _sms" onfocus="this.value = this.value;">Hello ...</div>
 												<input type="hidden" name="message" id="campaignmessage">
 											</div>
 
@@ -237,8 +237,8 @@
 													<label class="switch"><input type="checkbox" checked="" name="skip_dnd"><span class="slider round"></span></label>
 													<div class="clearfix"></div>
 												</div>
-												<div class="col-md-5 add_utm" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px; float: right">
-													<h5 style="float: left">Add UTM Tags  <i class="tip" data-tip-content="Tags to help track source medium e.g. Facebook, Instagram, etc."></i> </h5>
+												<div class="col-md-5 add_utm" hidden style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px; float: right">
+													<h5 style="float: left">Add UTM Tags To URL  <i class="tip" data-tip-content="Tags to help track source medium e.g. Facebook, Instagram, etc."></i> </h5>
 													<label class="switch"><input type="checkbox" checked="" name="add_utm"><span class="slider round"></span></label>
 													<div class="clearfix"></div>
 												</div>
@@ -329,7 +329,7 @@
 							</div>
 
 							<div class="tab-content whatsapp_{{ campaign_type }}" id="tab2a">
-								<form action="/dashboard/campaigns/add" method="POST" id="campaign_form">
+								<form action="/dashboard/campaigns/add" method="POST" id="campaign_form_wa">
 									<input type="hidden" name="type" value="whatsapp">
 									<!-- Section -->
 									<div class="add-listing-section">
@@ -366,29 +366,22 @@
 												</select>
 											</div>
 
-											{{!-- <div class="col-md-6">
-												<h5>Schedule Delivery </h5>
-												<input type='text' class="form-control" id="datepicker1" name="datepicker" />
-												<input type="hidden" id="schedule" name="schedule" />
+											<div class="col-md-6">
+												<h5>Send Method </h5>
+												<select class="chosen-select-no-single" name="wa_send_method" id="wa_send_method" required>
+													<option label="blank" value="0">Select</option>
+													<option value="1">Send Message Directly to Individual Contacts</option>
+													<option value="2" selected>Send To WhatsApp Groups</option>
+												</select>
 											</div>
-
+											
 										</div>
-										
+
 										<div class="row with-forms">
 
-											<div class="col-md-6">
-												<h5>Sender ID </h5>
-												<select class="chosen-select-no-single" name="sender" id="sel_sender_id1" required>
-													<option label="blank" value="0">Select ID</option>
-													{{#each args.sids}}
-													<option value="{{ id }}">{{ name }}</option>
-													{{/each}}
-												</select>
-											</div> --}}
-
-											<div class="col-md-6">
+											<div class="col-md-12">
 												<h5>Short URL </h5>
-												<select class="chosen-select-no-single" name="shorturl" id="sel_short_url1" required>
+												<select class="chosen-select-no-single" name="shorturl" id="sel_short_url" required>
 													<option label="blank" value="0">Select</option>
 													{{#each args.shorturl}}
 													<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
@@ -398,21 +391,22 @@
 											
 										</div>
 										
+
 										<div class="row with-forms">
 
 											<div class="col-md-12">
-												<h5>Compose Message <span id="msg_est_txt1"></span>{{!-- <span>[ Chars: <span id="msg_char_count1">9</span>; Msgs: <span id="msg_count1">1</span> ]</span> --}}
-													<ul class="compose_options_box checkboxes in-row">
-														<li id="ch-firstname">First Name</li>
-														<li id="ch-lastname">Last Name</li>
-														<li id="ch-email">Email</li>
+												<h5>Compose Message <span id="msg_est_txt"></span>{{!-- <span>[ Chars: <span id="msg_char_count1">9</span>; Msgs: <span id="msg_count1">1</span> ]</span> --}}
+													<ul class="compose_options_box checkboxes in-row"><span style="font-size: 0.7em;">Insert: </span>
+														<li id="ch-firstname" style="display: none;">First Name</li>
+														<li id="ch-lastname" style="display: none;">Last Name</li>
+														<li id="ch-email" style="display: none;">Email</li>
 														<li id="ch-url">Short URL</li>
 														{{!-- <li id="ch-url"><a href="#url-setup-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1;" id="wwww"><i class="im im-icon-Two-Windows"></i> Short URL <i class="tip" data-tip-content="Create/Modify Short URL to insert into message"></i></a></li> --}}
 														<div class="clearfix"></div>
 													</ul>
 												</h5>
-												<div contenteditable="true" class="editable_div1">Hello ...</div>
-												<input type="hidden" name="message" id="campaignmessage1">
+												<div contenteditable="true" class="editable_div _wa">Hello ...</div>
+												<input type="hidden" name="message" id="campaignmessage">
 											</div>
 
 											<div id="url-setup-box1" class="zoom-anim-dialog mfp-hide">
@@ -458,8 +452,8 @@
 											</div> --}}
 
 											<div class="col-md-12 with-forms">
-												<div class="col-md-12 add_utm" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px; float: right">
-													<h5 style="float: left">Add UTM Tags  <i class="tip" data-tip-content="Tags to help track source medium e.g. Facebook, Instagram, etc."></i> </h5>
+												<div class="col-md-12 add_utm" hidden style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px; float: right">
+													<h5 style="float: left">Add UTM Tags To URL  <i class="tip" data-tip-content="Tags to help track source medium e.g. Facebook, Instagram, etc."></i> </h5>
 													<label class="switch"><input type="checkbox" checked="" name="add_utm"><span class="slider round"></span></label>
 													<div class="clearfix"></div>
 												</div>
@@ -470,77 +464,9 @@
 
 										<div class="_form_errors _e_analyse" style="display:none; margin-top: 10px"></div>
 
-										<input type="hidden" name="analysis_id" id="analysis_id1" value="0">
-									<div><button type="submit" class="button preview" id="analyse_btn1">Analyse <i class="im im-icon-Gears-2"></i></button> <span class="loading_icon fa fa-hourglass-2"></span><span style="margin-left: 5px" class="activity_status"></span></div>
-									<a href="#analysis-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1; visibility: hidden;" id="click_analysis_box1"><i class="im im-icon-Two-Windows"></i> Show Analysis</a>
-											<div id="analysis-box" class="zoom-anim-dialog mfp-hide">
-
-												<div class="small-dialog-header" style="margin-bottom: 15px">
-													<h3>Campaign  <b>Summary</b></h3>
-												</div>
-
-												<!--Tabs -->
-												<div class="sign-in-form style-1">
-
-													<div class="row with-forms">
-
-														<!-- Status -->
-														<div class="col-md-12">
-															<h5>Campaign Name: </h5><span id="cpm_summary_name1">--</span>
-														</div>
-
-														<div class="col-md-12">
-															<h5>Sender ID: </h5><span id="cpm_summary_sender1">--</span>
-														</div>
-
-														<div class="col-md-12">
-															<h5>Message: </h5><span id="cpm_summary_msg1">--</span>
-														</div>
-
-														<div class="col-md-12">
-															<h5>To: </h5><span id="cpm_summary_to1">--</span>
-														</div>
-
-														<div class="col-md-12">
-															<h5>Send Time: </h5><span id="cpm_summary_time1">Immediately</span>
-														</div>
-
-														<div class="col-md-12 sepr"></div>
-														
-														<div class="col-md-12">
-															<h5>Number of Recipients: </h5><span id="cpm_summary_recp1">--</span>
-														</div>
-
-														<div class="col-md-12">
-															<h5>Total Messages: </h5><span id="cpm_summary_count1">--</span>
-														</div>
-
-														<div class="col-md-12">
-															<h5>Average Message(s) per Recipient: </h5><span id="cpm_summary_avg1">--</span>
-														</div>
-
-														<div class="col-md-12">
-															<h5>Total Units Charge: </h5><span id="cpm_units_chrg1" style="font-weight: bold">--</span>
-														</div>
-
-														<div class="col-md-12 sepr"></div>
-														
-														<div class="col-md-12">
-															<h5>Available Balance: </h5><span id="cpm_units_balance1" style="font-weight: bold">--</span>
-														</div>
-
-														<div class="col-md-12 sepr"></div>
-														
-														<button type="button" class="button preview campaign_summary_btn cancel" style="margin-top: 0">Cancel <i class="fa fa-close"></i></button>
-														<button type="button" class="button preview campaign_summary_btn send" style="margin-top: 0">Send <i class="fa fa-send"></i></button>
-
-													</div>
-
-												</div>
-											</div>
-
-
-
+										{{!-- <input type="hidden" name="analysis_id" id="analysis_id1" value="0"> --}}
+									<div>
+										<button type="submit" class="button preview campaign_send_btn" id="sendmsg_btn">Send <i class="fa fa-send"></i></button> <span class="loading_icon fa fa-hourglass-2"></span><span style="margin-left: 5px" class="activity_status"></span></div>
 									</div>
 									<!-- Section / End -->
 

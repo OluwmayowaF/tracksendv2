@@ -474,7 +474,7 @@ exports.delContact = async (req, res) => {
 }
 
 exports.generateUrl = (req, res) => {
-
+    
     try {
         var user_id = req.user.id;
         if(user_id.length == 0)  throw "error";
@@ -687,7 +687,6 @@ exports.analyseCampaign_ = (req, res) => {
                         });
 
                         return results_;
-console.log('555555');
                     }
 
                 })

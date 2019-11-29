@@ -7,6 +7,7 @@ const _ = require('lodash');
 const Sequelize = require('sequelize');
 const sequelize = require('../config/cfg/db');
 const Op = Sequelize.Op;
+var { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
 
 var buff = Buffer.from(tracksend_user + ':' + tracksend_pwrd);
 var base64encode = buff.toString('base64');
@@ -15,7 +16,7 @@ exports.index = (req, res) => {
     var user_id = req.user.id;
 
 
-    console.log('showing page...'); 
+    console.log('showing page...' + JSON.stringify(req.user)); 
         
     Promise.all([
         sequelize.query(
@@ -85,7 +86,7 @@ exports.index = (req, res) => {
                 ['createdAt', 'DESC']
             ]
         }),    
-    ]).then(([cpns, sids, grps, non, csender, casender, ccontact, shorturl]) => {
+    ]).then(async ([cpns, sids, grps, non, csender, casender, ccontact, shorturl]) => {
         var ngrp = non[0].id;
 
         console.log('====================================');
@@ -103,10 +104,23 @@ exports.index = (req, res) => {
             flash = req.flash('success');
         }
 
+        let status = await getWhatsAppStatus(user_id);
+        await models.User.update(
+            {
+                wa_active: status.active ? 1 : 0,
+            },
+            {
+                where: {
+                    id: user_id,
+                }
+            }
+        )
+
         res.render('pages/dashboard/campaigns', { 
             page: 'Campaigns',
             campaigns: true,
             campaign_type: '',
+            has_whatsapp: status.active,
             flashtype, flash,
 
             args: {
@@ -334,12 +348,16 @@ exports.add = async (req, res) => {
 
     //  RETRIEVE CAMPAIGN DETAILS FROM TEMPORARY TABLE
     var info = await models.Tmpcampaign.findByPk(tempid);
-    if(!info) {
+
+    if(req.body.type == "whatsapp") {
+        doWhatsApp();
+        return;
+    } else if(!info) {
         console.log('INVALID OPERATION!');
         
         return;
     }
-
+    //  ...continues here if type-sms and has been analysed
     //  GET USER BALANCE
     var user_balance = await models.User.findByPk(user_id, {
         attributes: ['balance'], 
@@ -500,6 +518,7 @@ exports.add = async (req, res) => {
                         var uid = makeId(3);
                         var exists = await models.Message.findAll({
                             where: { 
+                                campaignId: cpn.id,
                                 contactlink: uid,
                             },
                         })
@@ -560,7 +579,7 @@ exports.add = async (req, res) => {
                                 "notifyUrl" : m_notifyUrl,
                                 "notifyContentType" : m_notifyContentType,
                                 "validityPeriod" : m_validityPeriod,
-                            };
+                            }; 
                             
                             console.log('UNSINGLE MESSAGE ENTRY CREATE DONE.');
                             return msgfull;
@@ -768,7 +787,249 @@ exports.add = async (req, res) => {
 			 result += characters.charAt(Math.floor(Math.random() * charactersLength));
 		}
 		return result;
-	}
+    }
+
+    async function doWhatsApp() {
+        var API = require('../config/cfg/chatapi')();
+        const { default: axios } = require('axios');
+        var qs = require('qs');
+        
+        try {
+            var sendmethod = parseInt(req.body.wa_send_method);
+
+            console.log('====================================');
+            console.log('ALL SENT = ' + JSON.stringify(req.body));
+            console.log('====================================');
+            //  create campaign
+            var cpn = await models.Campaign.create({
+                name: req.body.name,
+                description: req.body.description,
+                userId: user_id,
+                senderId: req.body.senderId,
+                shortlinkId: req.body.shorturl,
+                message: req.body.message,
+                schedule: (req.body.datepicker) ? req.body.schedule : null, //req.body.schedule,
+                recipients: req.body.recipients,
+                has_utm: req.body.has_utm,
+                mediatypeId: 2, //  '2' for whatsapp
+            });
+            
+            var HAS_SURL = (req.body.shorturl) ? true : false;
+            
+            var groups = req.body.group;
+            if (groups != 0 && !Array.isArray(groups)) groups = [groups];
+            
+            console.log('req.body.group = ' + groups + '; json = ' + JSON.stringify(groups));
+
+            if (groups == 0) throw "1001";
+            var everything = [];
+            var k = 0;
+
+            if (sendmethod === 1) {
+                var dd = await models.Group.findAll({
+                    include: [{
+                        model: models.Contact, 
+                        where: {
+                            do_whatsapp: true
+                        }
+                    }],
+                    where: {
+                        id: {
+                            [Op.in]: groups,
+                        },
+                        userId: req.user.id,
+                    },
+                })
+
+                //  merge contacts from all groups...
+                console.log('====================================');
+                console.log('GROUP OUTPUT = ' + JSON.stringify(dd));
+                console.log('====================================');
+
+                if(dd.length == 0) throw "1002";
+
+                var arr = [];
+                dd.forEach(async (el) => {
+                    arr = arr.concat(el.contacts);
+
+                    console.log('group kan...');
+                    
+                    await models.CampaignGroup.create({
+                        campaignId: cpn.id,
+                        groupId: el.id,
+                    });
+                });
+
+                //  remove duplicates
+                var contacts = _.uniqBy(arr, 'phone');
+
+                console.log('start processing...');
+                
+                //  loop through all the batches
+                for (let i = 0; i < contacts.length; i++) {
+
+                    console.log('====================================');
+                    console.log('kontakt 1 is = ' + JSON.stringify(contacts[i]));
+                    console.log('====================================');
+                    everything.push(await sendWhatsAppMessage(contacts[i]), "single");
+                }
+        
+                //  finally redirect back to page
+                console.log('END... NEW PAGE!');
+            } else {
+                for (let i = 0; i < groups.length; i++) {
+                    console.log('====================================');
+                    console.log('kontakt 2 is = ' + JSON.stringify(groups[i]));
+                    console.log('====================================');
+                    everything.push(await sendWhatsAppMessage(groups[i]), "group");
+                    // await sendWhatsAppMessage(contacts[i]);
+                }
+            }
+
+            Promise.all(everything)
+            .then((data) => {
+                console.log('====================================');
+                console.log();
+                console.log('====================================');
+
+                req.flash('success', 'Campaign created successfully. Messages sent out');
+                var backURL = req.header('Referer') || '/';
+                res.redirect(backURL);
+
+            })
+            
+        } catch(e) {
+            console.log('====================================');
+            console.log('ERROR OCCURRED: ' + e);
+            console.log('====================================');
+
+            await cpn.destroy();
+            let emsg = 'Sorry an error occurred. Please try again or contact Admin.';
+
+            if(e == '1001') emsg = 'No valid Group was selected. Please try again.';
+            if(e == '1002') emsg = 'No WhatsApp Contact was selected. Kindly try again with appropriate Group(s)';
+            // if(e == '1001') emsg = 'No WhatsApp Contact was selected. Kindly try again with appropriate Group(s)';
+
+            req.flash('error', emsg); 
+            var backURL = req.header('Referer') || '/';
+            res.redirect(backURL);
+        }
+
+        async function sendWhatsAppMessage(kont, typ) {
+
+            if(typ == "group") {
+                console.log('====================================');
+                console.log('GROOUUUPPPOOOOOOOOO');
+                console.log('====================================');
+                //  { SEND_GROUP_MESSAGES_TO_CHAT-API }
+                return;
+
+            }
+            k++;
+            console.log('*******   Aggregating Contact #' + k + ':...' + JSON.stringify(kont) + '   ********' + typ);
+            
+            // return new Promise(resolve => {
+
+            //create contact codes
+            var args = {};
+
+            if(HAS_SURL) {
+                console.log('GET UNIQUE ID!!!');
+                
+                args = await getUniqueId();
+
+            } else {
+                args = {
+                    sid : null,
+                    slk : null,
+                    cid: null, 
+                }
+            }
+            console.log('====================================');
+            console.log('ARGS: ' + JSON.stringify(args));
+            console.log('====================================');
+            console.log('NEXT: Promise.all Done');
+            
+            return await send(args, kont);
+
+            // })
+        }
+
+        async function getUniqueId() {
+
+            do {
+
+                var uid = makeId(3);
+                var exists = await models.Message.findAll({
+                    where: { 
+                        campaignId: cpn.id,
+                        contactlink: uid,
+                    },
+                })
+                .error((r) => {
+                    console.log("Error: Please try again later");
+                })
+                    // if(uid.length)
+                
+            } while (exists.length);
+            console.log('UID = ' + uid);
+            let shrtlnk = await models.Shortlink.findByPk(req.body.shorturl);
+            return {
+                sid : shrtlnk.id,
+                slk : shrtlnk.shorturl,
+                cid: uid, 
+            };
+
+        }
+        
+        async function send(args, kont) {
+            await cpn.createMessage({
+                shortlinkId: args.sid,
+                contactlink: args.cid,
+                contactId: kont.id,
+            })
+
+            console.log('MESSAGE ENTRY CREATE STARTED.');
+                                                
+            let updatedmessage  = req.body.message
+            .replace(/\[firstname\]/g, kont.firstname)
+            .replace(/\[lastname\]/g, kont.lastname)
+            .replace(/\[email\]/g, kont.email)
+            .replace(/\[url\]/g, 'http://tsn.pub/' + args.slk + '/' + args.cid)
+            .replace(/&nbsp;/g, ' ');
+
+            //  { SEND_SINGLE_MESSAGES_TO_CHAT-API }
+
+            let tophone = kont.countryId + kont.phone.substr(1);
+            console.log('====================================');
+            console.log(tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken);
+            console.log('====================================');
+            sendSingleMsg(tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken)
+
+            // console.log("Error: Please try again later");
+                        
+        }
+
+        async function sendSingleMsg(phone, body, instanceid, token) {
+            let url = "https://api.chat-api.com/instance" + instanceid + "/sendMessage?token=" + token;
+
+            const new_resp = await axios({
+                method: 'POST',
+                url,
+                data: qs.stringify({
+                    "phone": phone,
+                    "body": body
+                }),
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+
+            console.log('====================================');
+            console.log('WHATSAPP RESP: ' + JSON.stringify(new_resp.data));
+            console.log('====================================');
+        }
+    }
 
 }
 

@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       unique: 'phone_user_composite',
     },
     email:        DataTypes.STRING,
-    do_whatsapp:  DataTypes.INTEGER,
+    do_whatsapp:  DataTypes.BOOLEAN,
     status:       DataTypes.INTEGER,
   })
 

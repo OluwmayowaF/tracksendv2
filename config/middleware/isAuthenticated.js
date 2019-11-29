@@ -17,7 +17,7 @@ module.exports = function(req, res, next) {
     .catch((err) => {
         console.log('2ERROR!!!' + JSON.stringify(err));
       res.locals.balance = '??';
-      return next();
+      return next(); 
     });
 
   }

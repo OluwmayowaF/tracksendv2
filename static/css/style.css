@@ -11230,6 +11230,7 @@ a.close-list-item {
 	right: 40px;
 	top: 30px;
 	z-index: 100;
+	margin-bottom: 15px;
 }
 .add-listing-section .ignore_dnd label.switch, .add-listing-section .add_utm label.switch {
 	position: relative;
@@ -15665,7 +15666,7 @@ img.mfp-img {
     margin-bottom: 20px;
 	}
 	
-	.editable_div, .editable_div1 {
+	.editable_div {
 		margin-bottom: 22px;
     padding: 12px 22px;
     border: solid 1px #ccc;
@@ -15675,7 +15676,7 @@ img.mfp-img {
 		word-break: break-all;
 	}
 
-	.editable_div span.arg, .editable_div1 span.arg {
+	.editable_div span.arg {
     color: yellow;
     background-color: #444;
     display: inline-block;
