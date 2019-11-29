@@ -983,10 +983,11 @@ exports.add = async (req, res) => {
         }
         
         async function send(args, kont) {
-            await cpn.createMessage({
+            let nmsg = await cpn.createMessage({
                 shortlinkId: args.sid,
                 contactlink: args.cid,
                 contactId: kont.id,
+                mediatypeId: 2,
             })
 
             console.log('MESSAGE ENTRY CREATE STARTED.');
@@ -1002,15 +1003,15 @@ exports.add = async (req, res) => {
 
             let tophone = kont.countryId + kont.phone.substr(1);
             console.log('====================================');
-            console.log(tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken);
+            console.log(nmsg, tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken);
             console.log('====================================');
-            sendSingleMsg(tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken)
+            sendSingleMsg(nmsg, tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken)
 
             // console.log("Error: Please try again later");
                         
         }
 
-        async function sendSingleMsg(phone, body, instanceid, token) {
+        async function sendSingleMsg(msg, phone, body, instanceid, token) {
             let url = "https://api.chat-api.com/instance" + instanceid + "/sendMessage?token=" + token;
 
             const new_resp = await axios({
@@ -1026,8 +1027,16 @@ exports.add = async (req, res) => {
             })
 
             console.log('====================================');
-            console.log('WHATSAPP RESP: ' + JSON.stringify(new_resp.data));
+            console.log('WHATSAPP RESP: ' + JSON.stringify(new_resp.data) + '| msginfo = ' + msg + '; ID : ' + new_resp.data.id);
             console.log('====================================');
+
+            await msg.update({
+                message_id: new_resp.data.id,
+            }).then(() => {
+                console.log('====================================');
+                console.log('MSG UPDATED');
+                console.log('====================================');
+            })
         }
     }
 

@@ -213,6 +213,14 @@ const whatsappHandlers = () => {
                 code : 'exists',
                 error,
             });
+        } else if(body.accountStatus && body.accountStatus == "loading") {
+            console.log('====================================');
+            console.log('333333333');
+            console.log('====================================');
+            return ({
+                code : 'exists',
+                error,
+            });
         } else if(body.qrCode) {  
             console.log('====================================');
             console.log('44444444444');
