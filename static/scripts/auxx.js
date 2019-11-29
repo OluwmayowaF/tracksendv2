@@ -12,6 +12,7 @@ var _getGlobals = {
  
 $(document).ready(function() {
 	var campaign_confirmed = false;
+	var whatsapp_campaign = false;
 
 
 	$('form').submit((e) => {
@@ -35,7 +36,16 @@ $(document).ready(function() {
 		return true;
 	})
 
-	$('.editable_div').on('keyup', countChars);
+	$('.editable_div._sms').on('keyup', (e) => {
+		/* if(e.shiftKey){ //enter && shift
+			e.preventDefault(); //Prevent default browser behavior
+			console.log('====================================');
+			console.log('sdasdads');
+			console.log('====================================');
+	}		//$(e.target).html($(e.target).html().replace(/<br>$/g, ' '));
+		$(e.target)[0].selectionStart = $(e.target)[0].selectionEnd = $(e.target).val().length; */
+		countChars(e);
+	} );
 
 	//	FOR CALCULATION OF TOPUPS 
 	var topupbands = [];
@@ -52,7 +62,8 @@ $(document).ready(function() {
 	//	...end
 
 	function countChars(e) {
-		var $we = $('.editable_div');
+		var $we = $('.editable_div._sms');
+
 		var sp = $we.find('span.arg').length;
 		var ch = 0;
 		var msgs = 0;
@@ -62,7 +73,7 @@ $(document).ready(function() {
 
 		//	count chars 
 		if(sp > 0) {
-			var $dd = $('.editable_div').clone();
+			var $dd = $('.editable_div._sms').clone();
 			$dd.find('span.arg').remove();
 			ch = $dd.text().length  + (sp * 15);
 			console.log('with sp = ' + sp + '; alls = ' + ch);
@@ -155,20 +166,23 @@ $(document).ready(function() {
 				t = 'url';
 				id = 'url-in';
 				
-				if(!($('#sel_short_url').val() > 0)) {
+				if(!($wh.closest('form').find('#sel_short_url').val() > 0)) {
 					alert('Please select the Short URL to insert from above.');
 					return false;
 				}
+
+				$wh.closest('form').find('.add_utm').show('fade');
 				break;
 		}
 
-		pasteDiv(id, t);
+		pasteDiv(id, t, $wh);
 		countChars();
 
 	})
-	function pasteDiv(id, t) {
+	function pasteDiv(id, t, $wh) {
 		// $('.editable_div').html($('.editable_div').html() + '<span spellcheck="false" contenteditable="false" id="'+id+'">'+t+'</span>');
-		$('.editable_div').html($('.editable_div').html() + '<span class="arg" spellcheck="false" contenteditable="false">'+t+'</span>');
+		$wh.closest('.col-md-12').find('.editable_div').html($wh.closest('.col-md-12').find('.editable_div').html().replace(/<br>$/g, ' '));
+		$wh.closest('.col-md-12').find('.editable_div').html($wh.closest('.col-md-12').find('.editable_div').html() + '<span class="arg" spellcheck="false" contenteditable="false">'+t+'</span>&nbsp;');
 		// $('.editable_div').focus();
 	}
 
@@ -301,24 +315,39 @@ $(document).ready(function() {
 
 		if($(this).hasClass('send')) {
 			campaign_confirmed = true;
-			$('#campaign_form').submit();
+			$('#campaign_form_sms').submit();
 			$('.activity_status').text('Sending...').show();
 		}
 
 	})
 
-	$('#campaign_form').submit(function (e) {
+	$('.campaign_send_btn').on('click', function(e) {
 
-		var $butt = $('#analyse_btn');
-		$('._form_errors').hide();
-		$('._e_analyse').hide();
+		campaign_confirmed = true;
+		whatsapp_campaign = true;
+		$(this).closest('form').submit();
+		$(this).closest('form').find('.activity_status').text('Sending...').show();
+		$(this).closest('div').find('.loading_icon').show();
+
+	})
+
+	$('.campaigntypes form').submit(function (e) {
+
+		var $me = $(this);
+		var $butt = $me.find('#analyse_btn');
+		
+		$me.find('._form_errors').hide();
+		$me.find('._e_analyse').hide();
 		$butt.closest('div').find('.loading_icon').show();
+		
+		console.log('====================================');
+		console.log('sending...');
+		console.log('====================================');
+		if (campaign_confirmed && !whatsapp_campaign) return true;
+		
 		$butt.closest('div').find('.activity_status').text('Analyzing...');
-		
-		if (campaign_confirmed) return true;
-		
 
-		var msg_ = $('.editable_div').html();
+		var msg_ = $me.find('.editable_div').html();
 		msg_ = msg_.replace(/<span class="arg" spellcheck="false" contenteditable="false">firstname<\/span>/g, '[firstname]')
 					.replace(/<span class="arg" spellcheck="false" contenteditable="false">lastname<\/span>/g, '[lastname]')
 					.replace(/<span class="arg" spellcheck="false" contenteditable="false">email<\/span>/g, '[email]')
@@ -327,18 +356,19 @@ $(document).ready(function() {
 					.replace(/<span style="color: rgb\(112, 112, 112\); font-size: 15px; background-color: rgb\(255, 255, 255\); display: inline !important;">/g, '')
 					.replace(/<\/span>/g, '');
 
-		var $dd = $('.editable_div').clone();
+		var $dd = $me.find('.editable_div').clone();
 		$dd.html(msg_);
 		var msg = $dd.text();
-		$('#campaignmessage').val(msg);
-		let w = moment($('#datepicker').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
+		$me.find('#campaignmessage').val(msg);
+		let w = moment($me.find('#datepicker').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
 		console.log('====================================');
 		console.log('tz: ' + w);
 		console.log('====================================');
-		$('#schedule').val(moment.utc(w, 'YYYY-MM-DD HH:mm:ss Z').format('YYYY-MM-DD HH:mm:ss'));
+		$me.find('#schedule').val(moment.utc(w, 'YYYY-MM-DD HH:mm:ss Z').format('YYYY-MM-DD HH:mm:ss'));
 		// $('#datepicker').val();
+		if (campaign_confirmed && whatsapp_campaign) return true;
 
-		$me = $('#campaign_form');
+		// $me = $('#campaign_form');
 		
 		var json_campaign_login = JSON.stringify($me.serializeObject()); 
 
@@ -353,10 +383,10 @@ $(document).ready(function() {
 				console.log(data);
 
 				$('#analysis_id').val(data.tmpid);
-				$('#analysis-box #cpm_summary_name').text($('#campaign_name').val());
-				$('#analysis-box #cpm_summary_sender').text($('#sel_sender_id option:selected').text());
+				$('#analysis-box #cpm_summary_name').text($me.find('#campaign_name').val());
+				$('#analysis-box #cpm_summary_sender').text($me.find('#sel_sender_id option:selected').text());
 				$('#analysis-box #cpm_summary_msg').text(msg);
-				$('#analysis-box #cpm_summary_to').text($('#sel_contact_group option:selected').text());
+				$('#analysis-box #cpm_summary_to').text($me.find('#sel_contact_group option:selected').text());
 				$('#analysis-box #cpm_summary_recp').text(data.contactcount);
 				$('#analysis-box #cpm_summary_count').text(data.msgcount);
 				$('#analysis-box #cpm_summary_avg').text(parseInt(data.msgcount)/parseInt(data.contactcount));
@@ -389,8 +419,8 @@ $(document).ready(function() {
 				// $butt.removeAttr('disabled');
 				$butt.closest('div').find('.loading_icon').hide();
 				$butt.closest('div').find('.activity_status').text('');
-				$('._form_errors._e_analyse').text('An error occurred. Please try again, or refresh page.');
-				$('._form_errors._e_analyse').show();
+				$me.find('._form_errors._e_analyse').text('An error occurred. Please try again, or refresh page.');
+				$me.find('._form_errors._e_analyse').show();
 			}
 		}).done(function(){
 			// $butt.removeAttr('disabled');
@@ -405,6 +435,23 @@ $(document).ready(function() {
 	var hideTimer = window.setTimeout(() => {
 		$('.to_hide').fadeOut();
 	}, 1000);
+
+	$('#wa_send_method').on('change', function(e) {
+		
+		var $we = $(this).closest('form');
+
+		if($(this).val() == 1) {
+			$we.find('#ch-firstname').show();
+			$we.find('#ch-lastname').show();
+			$we.find('#ch-email').show();
+		} else {
+			$we.find('#ch-firstname').hide();
+			$we.find('#ch-lastname').hide();
+			$we.find('#ch-email').hide();
+		}
+
+	})
+
 
 	var st_select_searchterm = '';
 	var done = "raaaa";
@@ -1071,7 +1118,15 @@ function activateWhatsApp(e) {
 			// data: json_form_reg,
 			success: function( data ) {
 
-				if(data.code == "exists");
+				if(data.code == "exists") {
+
+				}
+				else if(data.error) {
+					// $('#img_whatsappqrcode').attr('src', data.code);
+					alert('Server error occurred. Please try again later or contact Admin.');
+					$('#whatsapp_qrcode').hide();
+					$('#pre_activate_whatsapp').show();
+				}
 				else {
 					$('#img_whatsappqrcode').attr('src', data.code);
 					$('#whatsapp_qrcode').show();
