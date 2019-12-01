@@ -158,6 +158,24 @@ const whatsappHandlers = () => {
                     instance_id = instance_info.id;
                     api_url = instance_info.apiUrl;
                     api_token =  instance_info.token;
+
+                    //  set webhook for instance
+                    let wb_url = api_url + "/webhook?token=" + api_token;
+                    const set_wbhk = await axios({
+                        method: 'POST',
+                        url: wb_url,
+                        data: qs.stringify({
+                            "webhookUrl": "http://dev2.tracksend.co/api/whatsapphook",
+                        }),
+                        headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                        }
+                    });
+
+                    console.log('====================================');
+                    console.log('WEBHOOK: ' + JSON.stringify(set_wbhk.data));
+                    console.log('====================================');
+    
                     
                 } else if(new_resp.data.error) {
                     console.log('====================================');
