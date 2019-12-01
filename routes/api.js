@@ -29,6 +29,7 @@ module.exports = function(app) {
   app.get('/api/loadcampaign',      apiController.loadCampaign);
   app.get('/api/getwhatsappqrode',  apiController.getWhatsAppQRCode);
   app.get('/api/whatsapphook',      apiController.whatsAppNotify);
+  app.post('/api/whatsapphook',      apiController.whatsAppNotify_);
   
   app.post('/api/sms/notify',        apiController.smsNotify);
 
