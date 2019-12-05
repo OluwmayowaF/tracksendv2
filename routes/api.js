@@ -29,9 +29,9 @@ module.exports = function(app) {
   app.get('/api/loadcampaign',      apiController.loadCampaign);
   app.get('/api/getwhatsappqrode',  apiController.getWhatsAppQRCode);
   app.get('/api/whatsapphook',      apiController.whatsAppNotify);
-  app.post('/api/whatsapphook',      apiController.whatsAppNotify_);
+  app.post('/api/whatsapphook',     apiController.whatsAppNotify_);
   
-  app.post('/api/sms/notify',        apiController.smsNotify);
+  app.post('/api/sms/notify',       apiController.smsNotify);
 
   // Using the passport.authenticate middleware with our local strategy.
   // If the user has valid login credentials, send them to the members page.

@@ -99,7 +99,7 @@ exports.browser = function(req, res) {
     var surl = req.params.surl;
     var cmpgn;
 
-    console.log('we show: surl = ' + surl);
+    console.log('we show: surl = ' + surl + 'headers.referer = ' + req.headers.referer);
     
     models.Shortlink.findOne({
             where: { 
