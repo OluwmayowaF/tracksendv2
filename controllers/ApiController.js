@@ -1351,7 +1351,7 @@ exports.whatsAppNotify = (req, res) => {
     console.log('GET CHATAPI RESPONSE: ' + JSON.stringify(req.body));
     console.log('====================================]]');
 
-    res.status(200);
+    res.sendStatus(200);
 
 
 }
@@ -1361,7 +1361,7 @@ exports.whatsAppNotify_ = (req, res) => {
     console.log('POST CHATAPI RESPONSE: ' + JSON.stringify(req.body));
     console.log('====================================]]');
 
-    res.status(200);
+    res.sendStatus(200);
 
 }
 
