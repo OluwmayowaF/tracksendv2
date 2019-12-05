@@ -133,7 +133,7 @@ exports.addContact = (req, res) => {
     models.User.findByPk(userId).then(async user => {
         try {
             // if(req.body.phone.length < 3) throw "Invalid Phone Number";
-            if(!(req.body.phone = phoneval(req.body.phone))) throw "Invalid";
+            if(!(req.body.phone = phoneval(req.body.phone, req.body.country))) throw "Invalid";
             if(req.body.group == -1) {
                 console.log('creating new contact and group');
                 var group = await user.createGroup(req.body);
