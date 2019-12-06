@@ -28,8 +28,8 @@ module.exports = function(app) {
   app.post('/api/analysecampaign',  apiController.analyseCampaign);
   app.get('/api/loadcampaign',      apiController.loadCampaign);
   app.get('/api/getwhatsappqrode',  apiController.getWhatsAppQRCode);
-  app.get('/api/whatsapphook',      apiController.whatsAppNotify);
-  app.post('/api/whatsapphook',     apiController.whatsAppNotify_);
+  app.get('/api/whatsapphooks',      apiController.whatsAppNotify);
+  app.post('/api/whatsapphooks',     apiController.whatsAppNotify_);
   
   app.post('/api/sms/notify',       apiController.smsNotify);
 
