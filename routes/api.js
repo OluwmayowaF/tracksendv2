@@ -26,13 +26,14 @@ module.exports = function(app) {
   app.get ('/api/delcontact',       apiController.delContact);
   app.get ('/api/generateurl',      apiController.generateUrl);
   app.post('/api/analysecampaign',  apiController.analyseCampaign);
-  app.get('/api/loadcampaign',      apiController.loadCampaign);
-  app.get('/api/getwhatsappqrode',  apiController.getWhatsAppQRCode);
-  app.get('/api/whatsapphooks',      apiController.whatsAppNotify);
-  app.post('/api/whatsapphooks',     apiController.whatsAppNotify_);
-  
+  app.get ('/api/loadcampaign',     apiController.loadCampaign);
+  app.get ('/api/getwhatsappqrode', apiController.getWhatsAppQRCode);
+
   app.post('/api/sms/notify',       apiController.smsNotify);
 
+  app.post('/api/whatsapphooks',    apiController.whatsAppNotify);
+  app.get ('/api/whatsapphooks',    apiController.whatsAppNotify_);
+  
   // Using the passport.authenticate middleware with our local strategy.
   // If the user has valid login credentials, send them to the members page.
   // Otherwise the user will be sent an error
