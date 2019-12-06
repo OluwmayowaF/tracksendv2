@@ -165,7 +165,7 @@ const whatsappHandlers = () => {
                         method: 'POST',
                         url: wb_url,
                         data: qs.stringify({
-                            "webhookUrl": "http://dev2.tracksend.co/api/whatsapphook",
+                            "webhookUrl": "http://dev2.tracksend.co/api/whatsapphook?token=" + api_token,
                         }),
                         headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'

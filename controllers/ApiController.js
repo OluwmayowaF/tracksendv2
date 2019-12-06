@@ -1361,7 +1361,8 @@ exports.whatsAppNotify_ = (req, res) => {
     console.log('POST CHATAPI RESPONSE: ' + JSON.stringify(req.body));
     console.log('====================================]]');
 
-    res.sendStatus(200);
+    // res.sendStatus(200);
+    res.send({data: "done"});
 
 }
 
