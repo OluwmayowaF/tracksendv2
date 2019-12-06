@@ -1348,16 +1348,6 @@ exports.smsNotify = (req, res) => {
 exports.whatsAppNotify = (req, res) => {
     
     /* console.log('[[====================================');
-    console.log('GET CHATAPI RESPONSE: ' + JSON.stringify(req.body));
-    console.log('====================================]]'); */
-
-    res.sendStatus("ok");
-
-
-}
-exports.whatsAppNotify_ = (req, res) => {
-    
-    /* console.log('[[====================================');
     console.log('POST CHATAPI RESPONSE: ' + JSON.stringify(req.body));
     console.log('====================================]]'); */
 
@@ -1366,4 +1356,14 @@ exports.whatsAppNotify_ = (req, res) => {
 
 }
 
+exports.whatsAppNotify_ = (req, res) => {
+    
+    /* console.log('[[====================================');
+    console.log('GET CHATAPI RESPONSE: ' + JSON.stringify(req.body));
+    console.log('====================================]]'); */
+
+    res.sendStatus("alright");
+
+
+}
 
