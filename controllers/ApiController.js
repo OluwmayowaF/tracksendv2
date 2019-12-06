@@ -1347,22 +1347,22 @@ exports.smsNotify = (req, res) => {
 
 exports.whatsAppNotify = (req, res) => {
     
-    console.log('[[====================================');
+    /* console.log('[[====================================');
     console.log('GET CHATAPI RESPONSE: ' + JSON.stringify(req.body));
-    console.log('====================================]]');
+    console.log('====================================]]'); */
 
-    res.sendStatus(200);
+    res.sendStatus("ok");
 
 
 }
 exports.whatsAppNotify_ = (req, res) => {
     
-    console.log('[[====================================');
+    /* console.log('[[====================================');
     console.log('POST CHATAPI RESPONSE: ' + JSON.stringify(req.body));
-    console.log('====================================]]');
+    console.log('====================================]]'); */
 
     // res.sendStatus(200);
-    res.send({data: "done"});
+    res.send("ok");
 
 }
 
