@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const moment = require('moment');
 var models = require('../models');
 
-exports.sms = async function(req, res) {
+exports.campaign = async function(req, res) {
 
     var surl = req.params.surl;
     var curl = req.params.curl;
