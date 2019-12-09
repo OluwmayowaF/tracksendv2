@@ -4,6 +4,9 @@ var models = require('../models');
 
 exports.campaign = async function(req, res) {
 
+    console.log('====================================');
+    console.log('entry1');
+    console.log('====================================');
     var surl = req.params.surl;
     var curl = req.params.curl;
     var seencmpgn = false;
@@ -96,6 +99,10 @@ exports.campaign = async function(req, res) {
 
 exports.browser = async function(req, res) {
 
+
+    console.log('====================================');
+    console.log('entry2');
+    console.log('====================================');
     var surl = req.params.surl;
     var cmpgn;
 
