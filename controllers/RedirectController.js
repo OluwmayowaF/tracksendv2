@@ -94,24 +94,34 @@ exports.campaign = async function(req, res) {
 
 };
 
-exports.browser = function(req, res) {
+exports.browser = async function(req, res) {
 
     var surl = req.params.surl;
     var cmpgn;
 
     console.log('we show: surl = ' + surl + 'headers.referer = ' + req.headers.referer);
     
-    models.Shortlink.findOne({
+    var shurl = await models.Shortlink.findOne({
             where: { 
                 shorturl: surl,
             }
-    }).then((shurl) => {
+    });
+
+    if(shurl == null) {
+        console.log('ERROR IN SHURL: ' + JSON.stringify(shurl));
+        
+        res.render('pages/redirect-error', {
+            page: '',
+    
+        });
+        return;
+    } else {
         shurl.update({
             clickcount: Sequelize.literal('clickcount + 1'),
         }).then(() => {
             res.redirect(shurl.url);
         })
-    })
+    }
 
 };
 
