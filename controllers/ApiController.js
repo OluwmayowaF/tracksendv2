@@ -1347,9 +1347,9 @@ exports.smsNotify = (req, res) => {
 
 exports.whatsAppNotify = (req, res) => {
     
-    /* console.log('[[====================================');
-    console.log('POST CHATAPI RESPONSE: ' + JSON.stringify(req.body));
-    console.log('====================================]]'); */
+    console.log('[[====================================');
+    console.log('POST CHATAPI RESPONSE: ...');// + JSON.stringify(req.body));
+    console.log('====================================]]');
 
     // res.sendStatus(200);
     res.send("ok");
