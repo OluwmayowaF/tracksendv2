@@ -1012,7 +1012,7 @@ exports.add = async (req, res) => {
         }
 
         async function sendSingleMsg(msg, phone, body, instanceid, token) {
-            let url = "https://api.chat-api.com/instance" + instanceid + "/sendMessage?token=" + token;
+            let url = "https://api.chat-api.com/instance" + instanceid + "/message?token=" + token;
 
             const new_resp = await axios({
                 method: 'POST',
@@ -1022,6 +1022,7 @@ exports.add = async (req, res) => {
                     "body": body
                 }),
                 headers: {
+                //   'Content-Type': 'application/json'
                   'Content-Type': 'application/x-www-form-urlencoded'
                 }
             })
