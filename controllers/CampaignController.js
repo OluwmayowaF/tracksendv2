@@ -810,7 +810,7 @@ exports.add = async (req, res) => {
                 message: req.body.message,
                 schedule: (req.body.datepicker) ? req.body.schedule : null, //req.body.schedule,
                 recipients: req.body.recipients,
-                has_utm: req.body.has_utm,
+                has_utm: (req.body.add_utm && req.body.add_utm == "on") ? 1 : 0,
                 mediatypeId: 2, //  '2' for whatsapp
             });
             
@@ -1002,9 +1002,9 @@ exports.add = async (req, res) => {
             //  { SEND_SINGLE_MESSAGES_TO_CHAT-API }
 
             let tophone = kont.countryId + kont.phone.substr(1);
-            console.log('====================================');
-            console.log(nmsg, tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken);
-            console.log('====================================');
+            // console.log('====================================');
+            // console.log(nmsg, tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken);
+            // console.log('====================================');
             sendSingleMsg(nmsg, tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken)
 
             // console.log("Error: Please try again later");
@@ -1022,8 +1022,8 @@ exports.add = async (req, res) => {
                     "body": body
                 }),
                 headers: {
-                //   'Content-Type': 'application/json'
-                  'Content-Type': 'application/x-www-form-urlencoded'
+                  'Content-Type': 'application/json'
+                //   'Content-Type': 'application/x-www-form-urlencoded'
                 }
             })
 
