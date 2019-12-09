@@ -7,7 +7,7 @@ router.get('/:surl/:curl', redirectController.campaign);
 router.get('/:surl', redirectController.browser);
 // router.get('/:surl', redirectController.error);
 // router.get('/error', redirectController.error);
-router.get('*', redirectController.error);
+router.get('*', redirectController.redirect);
 
 
 module.exports = router;
