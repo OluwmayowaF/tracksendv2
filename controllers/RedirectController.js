@@ -133,7 +133,7 @@ exports.browser = async function(req, res) {
 };
 
 exports.redirect = function(req, res) {
-    console.log('error page q');
+    console.log('just redirecting...');
     
     res.redirect('https://tracksend.co');
 

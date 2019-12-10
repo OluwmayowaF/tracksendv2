@@ -14,6 +14,9 @@ module.exports = (sequelize, DataTypes) => {
     Country.hasMany(models.Contact, {
       foreignKey: 'countryId'
     });
+    Country.hasMany(models.Tmpoptin, {
+      foreignKey: 'countryId'
+    });
     Country.hasMany(models.Settingsnetwork, {
       foreignKey: 'countryId'
     });
