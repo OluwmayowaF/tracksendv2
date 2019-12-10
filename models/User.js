@@ -78,6 +78,10 @@ module.exports = function(sequelize, DataTypes) {
       // as: "groups", 
       foreignKey: 'userId' 
     });
+    User.hasMany(models.Tmpoptin, { 
+      // as: "groups", 
+      foreignKey: 'userId' 
+    });
     User.hasMany(models.Settingsuserbilling, { 
       // as: "groups", 
       foreignKey: 'userId' 

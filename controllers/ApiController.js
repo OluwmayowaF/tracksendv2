@@ -5,6 +5,7 @@ const CHARS_PER_SMS = 160;
 const _ = require('lodash');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
+var whatsappController = require('../controllers/WhatsAppController');
 
 exports.index = function(req, res) {
     res.send('NOT IMPLEMENTED: Site Home Page');
@@ -1213,35 +1214,6 @@ exports.loadCampaign = (req, res) => {
 
 }
 
-exports.getWhatsAppQRCode = async (req, res) => {
-
-    var { whatsAppRetrieveOrCreateInstance } = require('../my_modules/whatsappHandlers')();
-
-    try {
-        var user_id = req.user.id;
-        if(user_id.length == 0)  throw "error";
-    } catch (e) {
-        res.send({
-            error: "Authentication Error!!!"
-        });
-        return;
-    }
-
-    var qrcode = null;
-
-    console.log('showing page...integrations...'); 
-
-    let status = await whatsAppRetrieveOrCreateInstance(user_id);
-    var code = status.code;
-    var error = status.error;
-
-    res.send({
-        code,
-        error,
-    })
-
-}
-
 exports.smsNotify = (req, res) => {
     
     console.log('[[====================================');
@@ -1345,25 +1317,15 @@ exports.smsNotify = (req, res) => {
 
 }
 
-exports.whatsAppNotify = (req, res) => {
-    
-    console.log('[[====================================');
-    console.log('POST CHATAPI RESPONSE: ...');// + JSON.stringify(req.body));
-    console.log('====================================]]');
-
-    // res.sendStatus(200);
-    res.send("ok");
-
+exports.getWhatsAppQRCode = async (req, res) => {
+    whatsappController.getQRCode(req, res);
 }
 
-exports.whatsAppNotify_ = (req, res) => {
-    
-    /* console.log('[[====================================');
-    console.log('GET CHATAPI RESPONSE: ' + JSON.stringify(req.body));
-    console.log('====================================]]'); */
+exports.whatsAppNotify = (req, res) => {
+    whatsappController.notifyAck(req, res);
+}
 
-    res.sendStatus("alright");
-
-
+exports.whatsAppOptIn = async (req, res) => {
+    whatsappController.preOptIn(req, res);
 }
 

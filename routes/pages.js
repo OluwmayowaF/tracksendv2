@@ -9,6 +9,7 @@ const randgen = require('../my_modules/randgen');
 
 
 const redirectRouter = require('../routes/redirect');
+const whatsAppRouter = require('../routes/whatsapp');
 
 module.exports = function(app) {
   //
@@ -21,7 +22,7 @@ module.exports = function(app) {
   app.get('/post-migration/tiwex', async (req, res) => {
 
     res.send('ERROR OOOOOOOOOOOO');
-    // return;
+    return;
 
     //  create default '[uncategorized]' group for all existing users ... AND ... send them all emails to change their passwords
     console.log('====================================');
@@ -145,6 +146,10 @@ module.exports = function(app) {
   });
 
   app.get('/sanitize-contacts/tiwex', async (req, res) => {
+
+    res.send('ERROR OOOOOOOOOOOO');
+    return;
+
     const Sequelize = require('sequelize');
     var kk = 0;
     const phoneValidity = (phone) => {
@@ -392,6 +397,8 @@ module.exports = function(app) {
   });
 
   app.use('/redirect', redirectRouter);
+
+  app.use('/WhatsApp', whatsAppRouter);
   
 };
 

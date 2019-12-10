@@ -8,6 +8,7 @@ const Sequelize = require('sequelize');
 const sequelize = require('../config/cfg/db');
 const Op = Sequelize.Op;
 var { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
+var phoneformat = require('../my_modules/phoneformat');
 
 var buff = Buffer.from(tracksend_user + ':' + tracksend_pwrd);
 var base64encode = buff.toString('base64');
@@ -376,7 +377,7 @@ exports.add = async (req, res) => {
 
     console.log('form details are now: ' + JSON.stringify(info)); 
 
-    var originalmessage  = info.message.replace(/[^\x00-\x7F]/g, "");;
+    var originalmessage  = info.message.replace(/[^\x00-\x7F]/g, "");
                             // .replace(/<span spellcheck="false" contenteditable="false">firstname<\/span>/g, '[firstname]')
                             // .replace(/<span spellcheck="false" contenteditable="false">lastname<\/span>/g, '[lastname]')
                             // .replace(/<span spellcheck="false" contenteditable="false">email<\/span>/g, '[email]')
@@ -555,7 +556,7 @@ exports.add = async (req, res) => {
 
                         if(SINGLE_MSG) {
                             var msgto = {
-                                "to": kont.countryId + kont.phone.substr(1),
+                                "to": phoneformat(kont.phone, kont.countryId),
                                 "messageId": shrt.id,
                             }
                             
@@ -565,7 +566,7 @@ exports.add = async (req, res) => {
                             var msgfull = {
                                 "from" : m_from,
                                 "destinations" : [{
-                                    "to": kont.countryId + kont.phone.substr(1),
+                                    "to": phoneformat(kont.phone, kont.countryId),
                                     "messageId": shrt.id,
                                 }],
                                 "text" : updatedmessage,
@@ -793,6 +794,7 @@ exports.add = async (req, res) => {
         var API = require('../config/cfg/chatapi')();
         const { default: axios } = require('axios');
         var qs = require('qs');
+        var whatsappSendMessage = require('../my_modules/whatsappSendMessage');
         
         try {
             var sendmethod = parseInt(req.body.wa_send_method);
@@ -1001,31 +1003,33 @@ exports.add = async (req, res) => {
 
             //  { SEND_SINGLE_MESSAGES_TO_CHAT-API }
 
-            let tophone = kont.countryId + kont.phone.substr(1);
+            let tophone = phoneformat(kont.phone, kont.countryId);
             // console.log('====================================');
             // console.log(nmsg, tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken);
             // console.log('====================================');
-            sendSingleMsg(nmsg, tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken)
+            sendSingleMsg(nmsg, tophone, updatedmessage, req.user.wa_instanceurl, req.user.wa_instancetoken)
 
             // console.log("Error: Please try again later");
                         
         }
 
-        async function sendSingleMsg(msg, phone, body, instanceid, token) {
-            let url = "https://api.chat-api.com/instance" + instanceid + "/message?token=" + token;
+        async function sendSingleMsg(msg, phone, body, instanceurl, token) {
+            let new_resp = await whatsappSendMessage(phone, body, instanceurl, token);
+            // let url = instanceurl + "message?token=" + token;
+// console.log('URL IS = ' + url);
 
-            const new_resp = await axios({
+            /* const new_resp = await axios({
                 method: 'POST',
                 url,
-                data: qs.stringify({
+                data: {
                     "phone": phone,
                     "body": body
-                }),
+                },
                 headers: {
                   'Content-Type': 'application/json'
                 //   'Content-Type': 'application/x-www-form-urlencoded'
                 }
-            })
+            }) */
 
             console.log('====================================');
             console.log('WHATSAPP RESP: ' + JSON.stringify(new_resp.data) + '| msginfo = ' + msg + '; ID : ' + new_resp.data.id);

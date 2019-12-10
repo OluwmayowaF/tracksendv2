@@ -1,0 +1,31 @@
+	<div class="dashboard-content">
+
+		<div class="row">
+
+			<div class="pageerror">
+				<div style="text-align: center; margin-bottom: 40px"><h3>Welcome back. Please select the groups that you're interested in.</h3></div>
+				<div class="row with-forms">
+
+					<div class="col-md-12">
+						<h5>Select Group(s) </h5>
+						<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" required multiple>
+							<option label="blank" value="0">Select Group</option>
+							{{#each grps}}
+							<option value="{{ id }}">{{ name }}</option>
+							{{/each}}
+							<option disabled>--------------------------------------</option>
+							<option value="-1">All Groups</option>
+						</select>
+					</div>
+
+				</div>
+			</div>
+
+			<!-- Copyrights -->
+			<div class="col-md-12">
+				<div class="copyrights">© 2019 Tracksend. All Rights Reserved.</div>
+			</div>
+
+		</div>
+
+	</div>
