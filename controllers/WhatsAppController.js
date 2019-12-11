@@ -105,6 +105,16 @@ exports.postOptin = async function(req, res) {
         attributes: ['userId'],
     });
 
+    if(uid == null) {
+        console.log('ERROR IN CODE');
+        
+        res.render('pages/redirect-error', {
+            page: '',
+    
+        });
+        return;
+    } 
+
     console.log('====================================');
     console.log('user id = ' + uid + '; json... ' + JSON.stringify(uid));
     console.log('====================================');
