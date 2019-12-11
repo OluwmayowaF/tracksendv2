@@ -121,10 +121,14 @@ exports.postOptin = async function(req, res) {
 
     let getgroups = await models.Group.findAll({
         where: {
-            userId: uid,
+            userId: uid.userId,
         },
         attributes: ['id', 'name'],
     })
+
+    console.log('====================================');
+    console.log('groups ' + JSON.stringify(getgroups));
+    console.log('====================================');
 
     res.render('pages/dashboard/whatsappcompleteoptin', {
         _page: 'WhatsApp Opt-In',
