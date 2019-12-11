@@ -94,7 +94,9 @@ exports.preOptIn = async (req, res) => {
 
 exports.postOptin = async function(req, res) {
 
-    let ucode = req.params.code;
+    let ucode = req.query.code;
+    console.log('code = ' + ucode);
+    
 
     let uid = await models.User.findOne({
         where: {
