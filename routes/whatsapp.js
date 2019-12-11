@@ -4,7 +4,7 @@ var whatsappController = require('../controllers/WhatsAppController');
 
 // Home page route.
 // router.get('/optin', whatsappController.optin);
-router.get('/optin/:curl', whatsappController.postOptin);
+router.get('/optin', whatsappController.postOptin);
 
 
 module.exports = router;
