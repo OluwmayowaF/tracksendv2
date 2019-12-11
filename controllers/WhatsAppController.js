@@ -98,7 +98,7 @@ exports.postOptin = async function(req, res) {
     console.log('code = ' + ucode);
     
 
-    let uid = await models.User.findOne({
+    let uid = await models.Tmpoptin.findOne({
         where: {
             misc: ucode,
         },
