@@ -127,7 +127,7 @@ exports.postOptin = async function(req, res) {
     })
 
     res.render('pages/dashboard/whatsappcompleteoptin', {
-        page: 'WhatsApp Opt-In',
+        _page: 'WhatsApp Opt-In',
         grps: getgroups,
 
     });
