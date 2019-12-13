@@ -8,8 +8,8 @@
 					<form id="join_form" action="/WhatsApp/complete" enctype="application/x-www-form-urlencoded">
 						<div class="col-md-12">
 							<h5>Select Group(s) </h5>
+							<input type="hidden" name="code" value="{{ ucode }}" />
 							<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" required multiple>
-								<input type="hidden" name="code" value="{{ ucode }}" />
 								<option label="blank" value="0">Select Group</option>
 								{{#each grps}}
 								<option value="{{ id }}">{{ name }}</option>
