@@ -109,7 +109,7 @@ exports.browser = async function(req, res) {
     var cmpgn;
 
     console.log('1. we show: surl = ' + surl + 'headers.referer = ' + req.headers.referer);
-    console.log('2. we show: surl = ' + surl + 'headers.referer = ' + req.headers('Referer'));
+    console.log('2. we show: surl = ' + surl + 'headers.referer = ' + req.header('Referer'));
     
     var shurl = await models.Shortlink.findOne({
             where: { 
