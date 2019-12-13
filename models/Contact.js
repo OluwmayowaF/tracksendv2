@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     email:        DataTypes.STRING,
     do_whatsapp:  DataTypes.BOOLEAN,
     status:       DataTypes.INTEGER,
+    misc:         DataTypes.STRING,
   })
 
   // Contact.belongsToMany(Group, { through: ContactGroup, foreignKey: 'contactId' });

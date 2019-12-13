@@ -5,18 +5,20 @@
 			<div class="pageerror">
 				<div style="text-align: center; margin-bottom: 40px"><h3>Welcome back. Please select the groups that you're interested in.</h3></div>
 				<div class="row with-forms">
-
-					<div class="col-md-12">
-						<h5>Select Group(s) </h5>
-						<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" required multiple>
-							<option label="blank" value="0">Select Group</option>
-							{{#each grps}}
-							<option value="{{ id }}">{{ name }}</option>
-							{{/each}}
-							<option disabled>--------------------------------------</option>
-							<option value="-1">All Groups</option>
-						</select>
-					</div>
+					<form enctype="" id="join_form" action="/WhatsApp/complete">
+						<div class="col-md-12">
+							<h5>Select Group(s) </h5>
+							<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" required multiple>
+								<input type="hidden" name="code" value="{{ ucode }}" />
+								<option label="blank" value="0">Select Group</option>
+								{{#each grps}}
+								<option value="{{ id }}">{{ name }}</option>
+								{{/each}}
+								<option disabled>--------------------------------------</option>
+								<option value="-1">All Groups</option>
+							</select>
+						</div>
+					</form>
 					<button type="submit" class="button preview">Done <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
 
 				</div>
