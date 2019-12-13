@@ -102,6 +102,9 @@ exports.preOptIn = async (req, res) => {
         let new_resp = await whatsappSendMessage(phone, body, user.wa_instanceurl, user.wa_instancetoken);
 
     } catch(e) {
+        console.log('====================================');
+        console.log('erroooooooooooooer: ' + JSON.stringify(e));
+        console.log('====================================');
         if(e.name == 'SequelizeUniqueConstraintError') {
             res.send({
                 status: "error",
