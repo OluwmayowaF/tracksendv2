@@ -12,7 +12,9 @@ exports.campaign = async function(req, res) {
     var seencmpgn = false;
 
     console.log('we show: surl = ' + surl + '; curl = ' + curl);
-    
+    console.log('1. we show: surl = ' + surl + 'headers.referer = ' + req.headers.referer);
+    console.log('2. we show: surl = ' + surl + 'headers.referer = ' + req.headers('Referer'));
+
     var shurl = await models.Shortlink.findOne({
         where: { 
             shorturl: surl,
@@ -106,7 +108,8 @@ exports.browser = async function(req, res) {
     var surl = req.params.surl;
     var cmpgn;
 
-    console.log('we show: surl = ' + surl + 'headers.referer = ' + req.headers.referer);
+    console.log('1. we show: surl = ' + surl + 'headers.referer = ' + req.headers.referer);
+    console.log('2. we show: surl = ' + surl + 'headers.referer = ' + req.headers('Referer'));
     
     var shurl = await models.Shortlink.findOne({
             where: { 
