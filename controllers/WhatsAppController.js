@@ -205,30 +205,38 @@ exports.completeOptin = async function(req, res) {
                     userId: kont.userId,
                     groupId: grp,
                     countryId: kont.countryId,
-                    do_whatsapp: true,
+                    do_whatsapp: 1,
                 });
             } catch(e) {
                 if(e.name == 'SequelizeUniqueConstraintError') {
-                    models.Contact.update(
-                        {
-                            do_whatsapp: true
-                        },
-                        {
-                            where: {
-                                userId: kont.userId,
-                                groupId: grp,
-                                countryId: kont.countryId,
-                                phone: kont.phone,
+                    try{
+                        await models.Contact.update(
+                            {
+                                do_whatsapp: 1
+                            },
+                            {
+                                where: {
+                                    userId: kont.userId,
+                                    groupId: grp,
+                                    countryId: kont.countryId,
+                                    phone: kont.phone,
+                                }
                             }
-                        }
-                    )
+                        )
+                    } catch(e) {
+                        console.log('====================================');
+                        console.log('inside inside error' + JSON.stringify(e));
+                        console.log('====================================');
+                    }
                 }
             }
         });
-
+        console.log('after insert/update');
+        
         //  delete contact's uncategorized record
         await models.Contact.findByPk(kont.id).destroy();
-
+        console.log('after destroy');
+        
         //  send success message to user
         let user = await models.User.findByPk(kont.userId);
         let phone = phoneformat(kont.phone, kont.countryId);
