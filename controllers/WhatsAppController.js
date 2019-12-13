@@ -181,7 +181,7 @@ exports.completeOptin = async function(req, res) {
     var whatsappSendMessage = require('../my_modules/whatsappSendMessage');
     var phoneformat = require('../my_modules/phoneformat');
     let ucode = req.body.code;
-    console.log('code = ' + ucode);
+    console.log('code = ' + ucode + 'grps = ' + req.body.groups);
     
     try {
         //  get new contact's saved details
@@ -196,7 +196,7 @@ exports.completeOptin = async function(req, res) {
         }
 
         //  create contact-group records
-        await req.body.grps.forEach(async grp => {
+        await req.body.groups.forEach(async grp => {
             try {
                 await models.Contact.create({
                     firstname: kont.firstname,
