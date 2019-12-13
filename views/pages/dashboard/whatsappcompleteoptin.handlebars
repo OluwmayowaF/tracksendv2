@@ -6,7 +6,7 @@
 				<div class="pageerror" style="margin-left: 50px; margin-right: 50px">
 					<div style="text-align: center; margin-bottom: 40px"><h3>Welcome back. Please select the groups that you're interested in.</h3></div>
 					<div class="row with-forms">
-						<form id="join_form" action="/WhatsApp/complete" enctype="application/x-www-form-urlencoded">
+						<form method="POST" id="join_form" action="/WhatsApp/complete" enctype="application/x-www-form-urlencoded">
 							<div class="col-md-12">
 								<h5>Select Group(s) </h5>
 								<input type="hidden" name="code" value="{{ ucode }}" />
