@@ -3,7 +3,7 @@
 		<div class="row">
 
 			{{#if grps }}
-				<div class="pageerror">
+				<div class="pageerror" style="margin-left: 50px; margin-right: 50px">
 					<div style="text-align: center; margin-bottom: 40px"><h3>Welcome back. Please select the groups that you're interested in.</h3></div>
 					<div class="row with-forms">
 						<form id="join_form" action="/WhatsApp/complete" enctype="application/x-www-form-urlencoded">
@@ -18,9 +18,9 @@
 									<option disabled>--------------------------------------</option>
 									<option value="-1">All Groups</option>
 								</select>
+								<button type="submit" class="button preview">Finish <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
 							</div>
 						</form>
-						<button type="submit" class="button preview">Done <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
 
 					</div>
 				</div>
