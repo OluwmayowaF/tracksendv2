@@ -51,6 +51,7 @@ exports.preOptIn = async (req, res) => {
 
     const randgen = require('../my_modules/randgen');
     var whatsappSendMessage = require('../my_modules/whatsappSendMessage');
+    var phoneval = require('../my_modules/phonevalidate');
     var phoneformat = require('../my_modules/phoneformat');
 
     //  for the sake of it, the only useful part of the 'clientid' is the third part of it... which is the client's userId
@@ -61,12 +62,34 @@ exports.preOptIn = async (req, res) => {
     console.log('====================================]]');
 
     try {
+        //  get user details
         let user = await models.User.findByPk(uid);
-        let uniquecode = await randgen('misc', models.Tmpoptin, 5, 'fullalphnum');
-        let kont = await user.createTmpoptin({
+
+        if(!user) throw {
+            name: 'requesterror',
+        };
+
+        if(!(req.body.phone = phoneval(req.body.phone, req.body.country))) throw {
+            name: 'phoneerror',
+        };
+
+        //  get user's default [uncategorized] group id
+        let grpid = await models.Group.findOne({
+            where: {
+                userId: uid,
+                name: '[Uncategorized]',
+            },
+            attributes: ['id']
+        })
+        
+        let uniquecode = await randgen('misc', models.Contact, 5, 'fullalphnum');
+        // let kont = await user.createTmpoptin({
+        let kont = await models.Contact.create({
             firstname: req.body.fullname.split(' ')[0],
             lastname: req.body.fullname.split(' ')[1],
             phone: req.body.phone,
+            userId: uid,
+            groupId: grpid.id,
             countryId: req.body.country,
             misc: uniquecode,
         })
@@ -82,7 +105,21 @@ exports.preOptIn = async (req, res) => {
         if(e.name == 'SequelizeUniqueConstraintError') {
             res.send({
                 status: "error",
-                msg: "You've already opted in.",
+                msg: "Your opt-in request already submitted.",
+            });
+            return;
+        }
+        else if(e.name == 'requesterror') {
+            res.send({
+                status: "error",
+                msg: "There's an error with your request, kindly contact website admin.",
+            });
+            return;
+        }
+        else if(e.name == 'phoneerror') {
+            res.send({
+                status: "error",
+                msg: "There's an error the Phone Number, kindly check again.",
             });
             return;
         }
@@ -98,7 +135,7 @@ exports.postOptin = async function(req, res) {
     console.log('code = ' + ucode);
     
 
-    let uid = await models.Tmpoptin.findOne({
+    let uid = await models.Contact.findOne({
         where: {
             misc: ucode,
         },
@@ -133,8 +170,98 @@ exports.postOptin = async function(req, res) {
     res.render('pages/dashboard/whatsappcompleteoptin', {
         _page: 'WhatsApp Opt-In',
         grps: getgroups,
-
+        ucode,
     });
+
+
+}
+
+exports.completeOptin = async function(req, res) {
+
+    var whatsappSendMessage = require('../my_modules/whatsappSendMessage');
+    var phoneformat = require('../my_modules/phoneformat');
+    let ucode = req.body.code;
+    console.log('code = ' + ucode);
+    
+    try {
+        //  get new contact's saved details
+        let kont = await models.Contact.findOne({
+            where: {
+                misc: ucode,
+            },
+        });
+
+        if(!kont) throw {
+            name: "requesterror"
+        }
+
+        //  create contact-group records
+        await req.body.grps.forEach(async grp => {
+            try {
+                await models.Contact.create({
+                    firstname: kont.firstname,
+                    lastname: kont.lastname,
+                    phone: kont.phone,
+                    userId: kont.userId,
+                    groupId: grp,
+                    countryId: kont.countryId,
+                    do_whatsapp: true,
+                });
+            } catch(e) {
+                if(e.name == 'SequelizeUniqueConstraintError') {
+                    models.Contact.update(
+                        {
+                            do_whatsapp: true
+                        },
+                        {
+                            where: {
+                                userId: kont.userId,
+                                groupId: grp,
+                                countryId: kont.countryId,
+                                phone: kont.phone,
+                            }
+                        }
+                    )
+                }
+            }
+        });
+
+        //  delete contact's uncategorized record
+        await models.Contact.findByPk(kont.id).destroy();
+
+        //  send success message to user
+        let user = await models.User.findByPk(kont.userId);
+        let phone = phoneformat(kont.phone, kont.countryId);
+        let body = 'Thanks ' + kont.firstname + '. Opt-in to ' + user.name + ' WhatsApp platform compeleted successfully.';
+        let new_resp = await whatsappSendMessage(phone, body, user.wa_instanceurl, user.wa_instancetoken);
+
+    } catch(e) {
+        if(e.name == 'SequelizeUniqueConstraintError') {
+            res.send({
+                status: "error",
+                msg: "Your opt-in request already submitted.",
+            });
+            return;
+        }
+        else if(e.name == 'requesterror') {
+            res.send({
+                status: "error",
+                msg: "There's an error with your request, kindly contact website admin.",
+            });
+            return;
+        }
+        else if(e.name == 'phoneerror') {
+            res.send({
+                status: "error",
+                msg: "There's an error the Phone Number, kindly check again.",
+            });
+            return;
+        } else {
+            console.log('====================================');
+            console.log('ERRORa: ' + JSON.stringify(e));
+            console.log('====================================');
+        }
+    }
 
 
 }
