@@ -208,14 +208,14 @@ exports.completeOptin = async function(req, res) {
                     userId: kont.userId,
                     groupId: grp,
                     countryId: kont.countryId,
-                    do_whatsapp: 1,
+                    do_whatsapp: true,
                 });
             } catch(e) {
                 if(e.name == 'SequelizeUniqueConstraintError') {
                     try{
                         await models.Contact.update(
                             {
-                                do_whatsapp: 1
+                                do_whatsapp: true
                             },
                             {
                                 where: {
@@ -237,7 +237,9 @@ exports.completeOptin = async function(req, res) {
         console.log('after insert/update');
         
         //  delete contact's uncategorized record
-        await models.Contact.findByPk(kont.id).destroy();
+        let killk = await models.Contact.findByPk(kont.id);
+        console.log('pre kill');
+        await killk.destroy();
         console.log('after destroy');
         
         //  send success message to user
