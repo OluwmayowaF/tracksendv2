@@ -76,7 +76,7 @@ $(document).ready(function() {
 					if(data.status == "error") {
 						alert(data.msg);
 					} else {
-						alert('Successfully opted in.');
+						alert('Successfully submitted. A WhatsApp message has been sent to you.');
 					} 
 					
 				},
