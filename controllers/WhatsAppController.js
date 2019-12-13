@@ -235,6 +235,11 @@ exports.completeOptin = async function(req, res) {
         let body = 'Thanks ' + kont.firstname + '. Opt-in to ' + user.name + ' WhatsApp platform compeleted successfully.';
         let new_resp = await whatsappSendMessage(phone, body, user.wa_instanceurl, user.wa_instancetoken);
 
+        res.render('pages/dashboard/whatsappcompleteoptin', {
+            _page: 'WhatsApp Opt-In',
+            grps: null,
+        });
+    
     } catch(e) {
         if(e.name == 'SequelizeUniqueConstraintError') {
             res.send({
