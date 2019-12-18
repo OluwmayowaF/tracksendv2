@@ -999,6 +999,7 @@ exports.add = async (req, res) => {
                 contactlink: args.cid,
                 contactId: kont.id,
                 mediatypeId: 2,
+                status: 1,
             })
 
             console.log('MESSAGE ENTRY CREATE STARTED.');
