@@ -72,7 +72,6 @@ require("./routes/pages")(app);
 // app.use('/dashboard', dashboardRouter);
 // app.use('/api', apiRouter);
 
-
 //  init database
 const db = require('./config/cfg/db');
 db.authenticate()

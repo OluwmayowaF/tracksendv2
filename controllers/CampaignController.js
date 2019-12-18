@@ -1,6 +1,7 @@
 var models = require('../models');
 // import { because } from './../models/User';
 var moment = require('moment');
+var scheduler = require('node-schedule');
 const request = require('request');
 const {tracksend_user, tracksend_pwrd, tracksend_base_url} = require('../config/cfg/infobip')();
 const _ = require('lodash');
@@ -351,7 +352,15 @@ exports.add = async (req, res) => {
     var info = await models.Tmpcampaign.findByPk(tempid);
 
     if(req.body.type == "whatsapp") {
-        doWhatsApp();
+        if(req.body.schedulewa.length > 7) {
+            //  schedule sending WhatsApp message
+            let ts = moment(req.body.schedulewa, 'YYYY-MM-DD HH:mm:ss');
+            console.log('date = ' + ts);
+            var date = new Date(ts);
+            // let fn;
+            var j = scheduler.scheduleJob(date, doWhatsApp);
+        } else doWhatsApp();
+
         return;
     } else if(!info) {
         console.log('INVALID OPERATION!');
@@ -1043,6 +1052,7 @@ exports.add = async (req, res) => {
                 console.log('====================================');
             })
         }
+
     }
 
 }

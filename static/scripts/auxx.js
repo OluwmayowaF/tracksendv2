@@ -200,6 +200,16 @@ $(document).ready(function() {
 		
 		// $('#schedule').val(e.timeStamp);
 	});
+	if($('#datepickerwa').length) $('#datepickerwa').datetimepicker({
+		// inline: true,
+		// sideBySide: true
+		collapse: true
+	}).on('dp.change', function (e) {
+		// alert(e.timeStamp);
+		console.log('TM: ' + JSON.stringify(e));
+		
+		// $('#schedule').val(e.timeStamp);
+	});
   
   $('#new_contact_group').on('change', function(e) {
     if($(this).val() == -1) {
@@ -440,22 +450,24 @@ $(document).ready(function() {
 		var msg = $dd.text();
 		$me.find('#campaignmessage').val(msg);
 		let w = moment($me.find('#datepicker').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
+		let wwa = moment($me.find('#datepickerwa').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
 		console.log('====================================');
-		console.log('tz: ' + w);
+		console.log('tz: ' + wwa);
 		console.log('====================================');
 		$me.find('#schedule').val(moment.utc(w, 'YYYY-MM-DD HH:mm:ss Z').format('YYYY-MM-DD HH:mm:ss'));
+		$me.find('#schedulewa').val(moment.utc(wwa, 'YYYY-MM-DD HH:mm:ss Z').format('YYYY-MM-DD HH:mm:ss'));
 		// $('#datepicker').val();
 		if (campaign_confirmed && whatsapp_campaign) return true;
 
 		// $me = $('#campaign_form');
 		
-		var json_campaign_login = JSON.stringify($me.serializeObject()); 
+		var json_campaign_add = JSON.stringify($me.serializeObject()); 
 
 		$.ajax({
 			type: 'POST',
 			url: _getGlobals.SERVICE_HOST+'analysecampaign',
 			contentType: 'application/json',
-			data: json_campaign_login,
+			data: json_campaign_add,
 				// data: json_form_reg,
 			success: function( data ) {
 

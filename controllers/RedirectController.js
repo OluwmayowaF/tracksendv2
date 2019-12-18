@@ -126,11 +126,35 @@ exports.browser = async function(req, res) {
         });
         return;
     } else {
-        shurl.update({
+        await shurl.update({
             clickcount: Sequelize.literal('clickcount + 1'),
-        }).then(() => {
-            res.redirect(shurl.url);
+        });
+
+        //  track referer
+        const refererlist = [
+            /facebook.com/,
+            /instagram.com/,
+            /twitter.com/,
+            /linkedin.com/,
+            /pinterest.com/,
+        ];
+          
+        let referer = req.headers.referer;// 'https://www.facebook.com';//req.headers.referer;
+        let ref_ = /other/;
+        refererlist.some(rx => {
+        if(rx.test(referer)) ref_ = rx;
+        });
+
+        let ref = (new RegExp(ref_)).source;
+        console.log('referer = ' + ref);
+
+        //    and store in db
+        models.Linkreferer.create({
+            shortlinkId: shurl.id,
+            referer: ref,
         })
+
+        res.redirect(shurl.url);
     }
 
 };
