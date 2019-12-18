@@ -351,6 +351,19 @@
 
 										<div class="row with-forms">
 
+											<div class="col-md-12">
+												<h5>Send Method </h5>
+												<select class="chosen-select-no-single" name="wa_send_method" id="wa_send_method" required>
+													<option label="blank" value="0">Select</option>
+													<option value="1">Send Message Directly to Individual Contacts</option>
+													<option value="2" selected>Send To WhatsApp Groups</option>
+												</select>
+											</div>
+											
+										</div>
+
+										<div class="row with-forms">
+
 											<div class="col-md-6">
 												<h5>Select Group(s) </h5>
 												<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group1" required multiple>
@@ -367,12 +380,9 @@
 											</div>
 
 											<div class="col-md-6">
-												<h5>Send Method </h5>
-												<select class="chosen-select-no-single" name="wa_send_method" id="wa_send_method" required>
-													<option label="blank" value="0">Select</option>
-													<option value="1">Send Message Directly to Individual Contacts</option>
-													<option value="2" selected>Send To WhatsApp Groups</option>
-												</select>
+												<h5>Schedule Delivery </h5>
+												<input type='text' class="form-control" id="datepickerwa" name="datepickerwa" />
+												<input type="hidden" id="schedulewa" name="schedulewa" />
 											</div>
 											
 										</div>
