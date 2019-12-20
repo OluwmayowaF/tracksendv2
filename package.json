@@ -20,6 +20,7 @@
     "fast-csv": "^3.1.0",
     "handlebars-helpers": "^0.10.0",
     "helper-date": "^1.0.1",
+    "inbound": "0.0.6",
     "jade": "^1.11.0",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.2.7",
