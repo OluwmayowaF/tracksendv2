@@ -7,16 +7,42 @@
 
 */
 
+var models = require('../models');
 const { default: axios } = require('axios');
 var qs = require('qs');
+var moment = require('moment');
+var scheduler = require('node-schedule');
 
-const whatsappSendMessage =  async (phone, body, instanceurl, token) => {
-  let url = instanceurl + "/message?token=" + token;
-  console.log('====================================');
-  console.log('STARTING SEDNDING...' + url);
-  console.log('====================================');
+const whatsappSendMessage =  async (phone, body, instanceurl, token, contactid=null, msgid=null, schedule=null) => {
 
-  const new_resp = await axios({
+  if(contactid) {
+    const unsubscribelink = 'https://dev2.tracksend.co/whatsapp/unsubscribe/' + contactid;
+    body += '\n\nTo Opt Out from this particular message list, kindly click: ' + unsubscribelink;
+  }
+
+  console.log('====================================');
+  console.log('whatsapp schedule = ' + schedule);
+  console.log('====================================');
+  if(schedule.length > 6) {
+    //  schedule sending WhatsApp message
+    let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss');
+    console.log('date = ' + ts);
+    var date = new Date(ts);
+    // let fn;
+    scheduler.scheduleJob(date, send);
+
+  } else {
+    send();
+  }
+
+  async function send() {
+
+    let url = instanceurl + "/message?token=" + token;
+    console.log('====================================');
+    console.log('STARTING SEDNDING...' + url);
+    console.log('====================================');
+
+    const new_resp = await axios({
       method: 'POST',
       url,
       // data: qs.stringify({
@@ -28,13 +54,34 @@ const whatsappSendMessage =  async (phone, body, instanceurl, token) => {
         'Content-Type': 'application/json'
       //   'Content-Type': 'application/x-www-form-urlencoded'
       }
-  })
+    })
 
-  console.log('====================================');
-  console.log('WHATSAPP RESP: ' + JSON.stringify(new_resp.data) + '| ; ID : ' + new_resp.data.id);
-  console.log('====================================');
+    console.log('====================================');
+    console.log('WHATSAPP RESP: ' + JSON.stringify(new_resp.data) + '| ; ID : ' + new_resp.data.id);
+    console.log('====================================');
 
-  return new_resp;
+    if(new_resp.data) {
+      console.log('====================================');
+      console.log('WHATSAPP RESP: ' + JSON.stringify(new_resp.data) + '| msgid = ' + msgid + '; ID : ' + new_resp.data.id);
+      console.log('====================================');
+    }
+
+    if(msgid) await models.Message.update(
+      {
+          message_id: new_resp.data.id,
+      }, {
+        where: {
+          id: msgid
+        }
+      }
+    );
+
+    console.log('====================================');
+    console.log('MSG UPDATED');
+    console.log('====================================');
+    // return new_resp;
+
+  }
 
 }
 

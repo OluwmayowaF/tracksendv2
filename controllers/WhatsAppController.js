@@ -5,7 +5,7 @@ const CHARS_PER_SMS = 160;
 const _ = require('lodash');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-var models = require('../models');
+var whatsappSendMessage = require('../my_modules/whatsappSendMessage');
 
 exports.getQRCode = async (req, res) => {
 
@@ -50,7 +50,6 @@ exports.notifyAck = (req, res) => {
 exports.preOptIn = async (req, res) => {
 
     const randgen = require('../my_modules/randgen');
-    var whatsappSendMessage = require('../my_modules/whatsappSendMessage');
     var phoneval = require('../my_modules/phonevalidate');
     var phoneformat = require('../my_modules/phoneformat');
 
@@ -181,7 +180,6 @@ exports.postOptin = async function(req, res) {
 
 exports.completeOptin = async function(req, res) {
 
-    var whatsappSendMessage = require('../my_modules/whatsappSendMessage');
     var phoneformat = require('../my_modules/phoneformat');
     let ucode = req.body.code;
     console.log('code = ' + ucode + 'grps = ' + req.body.groups);
