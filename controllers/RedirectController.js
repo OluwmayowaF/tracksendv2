@@ -61,6 +61,30 @@ exports.campaign = async function(req, res) {
         ...((pro[0][0].firstclicktime == null) ? {firstclicktime: mysqlTimestamp} : {})
     })
 
+    //  track referer
+    const refererlist = [
+        /facebook.com/,
+        /instagram.com/,
+        /twitter.com/,
+        /linkedin.com/,
+        /pinterest.com/,
+    ];
+        
+    let referer = req.headers.referer;// 'https://www.facebook.com';//req.headers.referer;
+    let ref_ = (req.headers.referer == '') ? /direct/ : /other/;
+    refererlist.some(rx => {
+    if(rx.test(referer)) ref_ = rx;
+    });
+
+    let ref = (new RegExp(ref_)).source;
+    console.log('referer = ' + ref);
+
+    //    and store in db
+    models.Linkreferer.create({
+        shortlinkId: shurl.id,
+        referer: ref,
+    })
+    
     //  finally, redirect to client URL
     let utm = '';
     
@@ -140,13 +164,13 @@ exports.browser = async function(req, res) {
         ];
           
         let referer = req.headers.referer;// 'https://www.facebook.com';//req.headers.referer;
-        let ref_ = /other/;
+        let ref_ = (req.headers.referer == '') ? /direct/ : /other/;
         refererlist.some(rx => {
         if(rx.test(referer)) ref_ = rx;
         });
 
         let ref = (new RegExp(ref_)).source;
-        console.log('referer = ' + ref);
+        ref = ref.replace('.com', '');
 
         //    and store in db
         models.Linkreferer.create({
