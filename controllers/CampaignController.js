@@ -1,7 +1,6 @@
 var models = require('../models');
 // import { because } from './../models/User';
 var moment = require('moment');
-var scheduler = require('node-schedule');
 const request = require('request');
 const {tracksend_user, tracksend_pwrd, tracksend_base_url} = require('../config/cfg/infobip')();
 const _ = require('lodash');
@@ -352,14 +351,7 @@ exports.add = async (req, res) => {
     var info = await models.Tmpcampaign.findByPk(tempid);
 
     if(req.body.type == "whatsapp") {
-        if(req.body.schedulewa.length > 7) {
-            //  schedule sending WhatsApp message
-            let ts = moment(req.body.schedulewa, 'YYYY-MM-DD HH:mm:ss');
-            console.log('date = ' + ts);
-            var date = new Date(ts);
-            // let fn;
-            var j = scheduler.scheduleJob(date, doWhatsApp);
-        } else doWhatsApp();
+        doWhatsApp();
 
         return;
     } else if(!info) {
@@ -1017,41 +1009,14 @@ exports.add = async (req, res) => {
             // console.log('====================================');
             // console.log(nmsg, tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken);
             // console.log('====================================');
-            sendSingleMsg(nmsg, tophone, updatedmessage, req.user.wa_instanceurl, req.user.wa_instancetoken)
+            sendSingleMsg(nmsg, tophone, updatedmessage, req.user.wa_instanceurl, req.user.wa_instancetoken, kont.id, req.body.schedulewa);
 
             // console.log("Error: Please try again later");
                         
         }
 
-        async function sendSingleMsg(msg, phone, body, instanceurl, token) {
-            let new_resp = await whatsappSendMessage(phone, body, instanceurl, token);
-            // let url = instanceurl + "message?token=" + token;
-// console.log('URL IS = ' + url);
-
-            /* const new_resp = await axios({
-                method: 'POST',
-                url,
-                data: {
-                    "phone": phone,
-                    "body": body
-                },
-                headers: {
-                  'Content-Type': 'application/json'
-                //   'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            }) */
-
-            console.log('====================================');
-            console.log('WHATSAPP RESP: ' + JSON.stringify(new_resp.data) + '| msginfo = ' + msg + '; ID : ' + new_resp.data.id);
-            console.log('====================================');
-
-            await msg.update({
-                message_id: new_resp.data.id,
-            }).then(() => {
-                console.log('====================================');
-                console.log('MSG UPDATED');
-                console.log('====================================');
-            })
+        async function sendSingleMsg(msg, phone, body, instanceurl, token, kid, schedule) {
+            let new_resp = await whatsappSendMessage(phone, body, instanceurl, token, kid, msg.id, schedule);
         }
 
     }
