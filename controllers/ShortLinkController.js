@@ -143,3 +143,53 @@ exports.add = async (req, res) => {
     res.redirect(backURL);
 
 };
+
+
+exports.details = async (req, res) => {
+    var user_id = req.user.id;
+
+    let sid = req.params.id;
+    console.log('showing page...'); 
+    var sids =  await sequelize.query(
+        "SELECT " + 
+        "   tt.*, " +
+        "   t1.referer referer, " +
+        "   COUNT(t1.id) rcount " +
+        "FROM `shortlinks` tt " +
+        "LEFT OUTER JOIN `linkreferers` t1 " +
+        "ON t1.`shortlinkId` = tt.`id` " +
+        "WHERE tt.`userId` = :uid " +
+        "AND tt.`id` = :sid " +
+        "GROUP BY t1.referer " +
+        "ORDER BY rcount DESC ", {
+            replacements: {
+                uid: user_id,
+                sid: sid, 
+            },
+            type: sequelize.QueryTypes.SELECT,
+        },
+    );
+
+
+    console.log('groupees are: ' + JSON.stringify(sids));
+    
+    var flashtype, flash = req.flash('error');
+    if(flash.length > 0) { 
+        flashtype = "error";           
+    } else {
+        flashtype = "success";
+        flash = req.flash('success');
+    }
+
+    res.render('pages/dashboard/shortlink', {
+        page: 'Short URLs',
+        shortlinks: true,
+        flashtype, flash,
+
+        args: {
+            sids: sids,
+        }
+    });
+    
+};
+
