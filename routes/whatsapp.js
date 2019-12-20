@@ -7,5 +7,7 @@ var whatsappController = require('../controllers/WhatsAppController');
 router.get('/optin', whatsappController.postOptin);
 router.post('/complete', whatsappController.completeOptin);
 
+router.get('/optout/:kid', whatsappController.preOptout);
+router.post('/optout', whatsappController.postOptout);
 
 module.exports = router;

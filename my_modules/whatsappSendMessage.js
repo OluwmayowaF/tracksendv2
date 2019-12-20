@@ -16,7 +16,7 @@ var scheduler = require('node-schedule');
 const whatsappSendMessage =  async (phone, body, instanceurl, token, contactid=null, msgid=null, schedule=null) => {
 
   if(contactid) {
-    const unsubscribelink = 'https://dev2.tracksend.co/whatsapp/unsubscribe/' + contactid;
+    const unsubscribelink = 'https://dev2.tracksend.co/whatsapp/optout/' + contactid;
     body += '\n\nTo Opt Out from this particular message list, kindly click: ' + unsubscribelink;
   }
   console.log('====================================');

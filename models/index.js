@@ -17,6 +17,7 @@ const models = {
   CampaignGroup: sequelize.import('./CampaignGroup'),
   Shortlink:    sequelize.import('./ShortLink'),
   Linkreferer:  sequelize.import('./LinkReferer'),
+  Optout:       sequelize.import('./Optout'),
   Message:      sequelize.import('./Message'),
   Mediatype:    sequelize.import('./MediaType'),
   Settingsnetwork:  sequelize.import('./SettingsNetwork'),
