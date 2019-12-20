@@ -19,6 +19,9 @@ const whatsappSendMessage =  async (phone, body, instanceurl, token, contactid=n
     const unsubscribelink = 'https://dev2.tracksend.co/whatsapp/unsubscribe/' + contactid;
     body += '\n\nTo Opt Out from this particular message list, kindly click: ' + unsubscribelink;
   }
+  console.log('====================================');
+  console.log('schedule.................... = ' + schedule);
+  console.log('====================================');
 
   let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss');
   if(schedule.length > 6 && schedule != 'Invalid date' && ts != NaN) {
