@@ -894,8 +894,8 @@ exports.add = async (req, res) => {
                 console.log('====================================');
                 console.log();
                 console.log('====================================');
-
-                req.flash('success', 'Campaign created successfully. Messages sent out');
+                let _msgmsg = (req.body.schedulewa == 'Invalid date') ? 'Messages sent out' : 'Messages would be sent out at ' + req.body.schedulewa;
+                req.flash('success', 'Campaign created successfully. ' + _msgmsg);
                 var backURL = req.header('Referer') || '/';
                 res.redirect(backURL);
 
