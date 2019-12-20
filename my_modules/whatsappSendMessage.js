@@ -20,14 +20,14 @@ const whatsappSendMessage =  async (phone, body, instanceurl, token, contactid=n
     body += '\n\nTo Opt Out from this particular message list, kindly click: ' + unsubscribelink;
   }
 
-  if(schedule.length > 6) {
+  let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss');
+  if(schedule.length > 6 && schedule != 'Invalid date' && ts != NaN) {
     //  schedule sending WhatsApp message
     
     console.log('====================================');
     console.log('whatsapp schedule.................... = ' + schedule);
     console.log('====================================');
 
-    let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss');
     console.log('date = ' + ts);
     var date = new Date(ts);
     // let fn;
