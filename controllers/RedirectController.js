@@ -169,14 +169,14 @@ exports.browser = async function(req, res) {
         if(rx.test(referer)) ref_ = rx;
         });
 
-        let ref = (new RegExp(ref_)).source;
+        let ref = (new RegExp(ref_)).source; 
         ref = ref.replace('.com', '');
 
         //    and store in db
         models.Linkreferer.create({
             shortlinkId: shurl.id,
             referer: ref,
-        })
+        }) 
 
         res.redirect(shurl.url);
     }

@@ -15726,6 +15726,12 @@ img.mfp-img {
 		background-color: #eee;
 	}
 
+	.content_attachments {
+		border-top: dashed 1px #ccc;
+		margin-top: 20px;
+		padding-top: 10px;
+	}
+
 	.short_url_box {
 		border: solid 1px #336065;
 		margin-bottom: 15px;
@@ -15987,6 +15993,28 @@ img.mfp-img {
 		margin: 0;
 	}
 
+	#emoji_list {
+		position: absolute;
+		background-color: white;
+		border: solid 1px #ccc;
+		border-radius: 4px;
+		font-size: 1.4em;
+	}
+	#emoji_list ul {
+    margin: 0;
+		padding: 0;
+		column-count: 4;
+		column-gap: 0;
+		max-height: 218px;
+		overflow: auto;
+	}
+	#emoji_list ul li {
+		list-style: none;
+		border: none;
+		padding: 7px;
+	}
+
+	
 	@media (max-width:803px) {
 		.compose_options_box {
 			margin: 20px 12px 10px 12px;

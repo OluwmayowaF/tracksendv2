@@ -1,3 +1,6 @@
+// import EmojiButton from '@joeattardi/emoji-button';
+// import { json, JSON } from "sequelize/types";
+
 // JavaScript Document
 //var SERVICE_HOST = "http://localhost/directory/services/";
 
@@ -8,6 +11,12 @@ var _getGlobals = {
 	SMS_SIZE_MSG2 : 150,
 	SMS_SIZE_MSG3 : 150,
 	SMS_SIZE_MSG4 : 150,
+	editable_node: null,
+	editable_sel: null,
+	editable_range: null,
+	editable_start: null,
+	// editable_position: 0,
+	// editable_offset: null,
 };
  
 $(document).ready(function() {
@@ -98,6 +107,106 @@ $(document).ready(function() {
 		$(this).find('span.loading_icon').show();
 	})
 
+	// const picker = new EmojiButton();
+	// $('.editable_div').on('blur', function (e) {
+	// $('#wa_contenteditable').on('keyup mouseup', function (e) {
+	$('#wa_contenteditable').on('blur keyup mouseup', function (e) {
+		e.preventDefault();
+
+		setGetSelectionThings('editable_div');
+		/* let parent_node_class = 'editable_div';
+		let editable_sel = window.getSelection();
+		let editable_range = editable_sel.getRangeAt(0);
+		let editable_node = editable_range.startContainer;
+		console.log('====================================');
+		console.log('node = ' + editable_node.nodeValue + ' | ' + editable_node.nodeType + ' | parentnode_id = ' + editable_node.parentElement.id + ' | parentnode_class = ' + editable_node.parentElement.className);
+		console.log('====================================');
+
+		//	check if getSelection is working from proper node
+		if(editable_node.parentElement.className.indexOf(parent_node_class) == -1) return;
+
+		_getGlobals.editable_sel = editable_sel;// = window.getSelection();
+		_getGlobals.editable_range = editable_range;// = _getGlobals.editable_sel.getRangeAt(0);
+		_getGlobals.editable_node = editable_node;// = _getGlobals.editable_range.startContainer;
+		_getGlobals.editable_start = _getGlobals.editable_range.startOffset;
+	
+		return true; */
+		/* var el = document.getElementById('wa_contenteditable');
+		let p = getCaretPosition(el);
+		// _getGlobals.editable_position = p[1];
+		_getGlobals.editable_node = p[0];
+		_getGlobals.editable_offset = p[1];
+		console.log('position = ' + _getGlobals.editable_position); 
+		// var el = $(e.target)[0];
+		/* var el = document.getElementById('wa_contenteditable');
+		
+		console.log('====================================');
+		console.log('...leaving me...' + $(el.childNodes[0]).prop('selectionStart') + '; nodes = ' + el.childNodes.length);
+		console.log('====================================');
+		return true;
+		// node_walk: walk the element tree, stop when func(node) returns false 
+		/* function node_walk(node, func) { 
+			var result = func(node); 
+			for(node = node.firstChild; result !== false && node; node = node.nextSibling) 
+				result = node_walk(node, func); 
+			return result; 
+		}; // getCaretPosition: return [start, end] as offsets to elem.textContent that 
+		// correspond to the selected portion of text 
+		// (if start == end, caret is at given position and no text is selected) 
+		/* function getCaretPosition(elem) { 
+			var sel = window.getSelection(); 
+			var cum_length = [0, 0]; 
+			if(sel.anchorNode == elem) {
+				cum_length = [sel.anchorOffset, sel.focusOffset]; //extentOffset
+			} 	else { 
+				var nodes_to_find = [sel.anchorNode, sel.focusNode]; //extentNode
+				if(!elem.contains(sel.anchorNode) || !elem.contains(sel.focusNode)) //extentNode
+				// if(0) {
+				{
+					console.log('return null');
+				
+					// return 'undefined'; 
+					return [null,0]; 
+				} else { 
+					var found = [0,0]; 
+					var i; 
+					node_walk(elem, function(node) { 
+						for(i = 0; i < 2; i++) { 
+							if(node == nodes_to_find[i]) { 
+								found[i] = true; 
+								if(found[i == 0 ? 1 : 0]) 
+								console.log('return false');
+								
+								return false; 
+								// return [null,0];
+								// all done 
+							} 
+						} 
+						if(node.textContent && !node.firstChild) { 
+							for(i = 0; i < 2; i++) { 
+								if(!found[i]) 
+									cum_length[i] += node.textContent.length; 
+							} 
+						} 
+					}); 
+					cum_length[0] += sel.anchorOffset; 
+					cum_length[1] += sel.focusOffset; //extentOffset
+					// console.log('node is : ' + JSON.stringify(sel.focusNode));
+					
+				} 
+			} 
+			if(cum_length[0] <= cum_length[1]) {
+				// return cum_length; 
+				return [sel.focusNode, sel.focusOffset]; 
+			}
+			console.log('nodetype is : ' + sel.focusNode.nodeType + 'nodevalue is : ' + sel.focusNode.nodeValue + 'nodeoffset is : ' + sel.focusOffset);
+			sel.focusNode.nodeValue = 'yeye';
+			console.log('nodetype is : ' + sel.focusNode.nodeType + 'nodevalue is : ' + sel.focusNode.nodeValue + 'nodeoffset is : ' + sel.focusOffset);
+			return [sel.focusNode, sel.focusOffset];
+			// return [cum_length[1], cum_length[0]]; 
+		} */
+	})
+	
 	$('#new_contact_form, #csv_upload_form').submit(function (e) {
 		$('._form_errors._e_consent').hide();
 		$('._form_errors._e_consent').text('');
@@ -259,20 +368,40 @@ $(document).ready(function() {
 					return false;
 				}
 
-				$wh.closest('form').find('.add_utm').show('fade');
+				// $wh.closest('form').find('.add_utm').show('fade');
 				break;
+			case 'ch-emoji':
+				t = 'emoji';
+				id = 'url-in';
+				
+				$wh.closest('form').find('#emoji_list').toggle();
+				// picker.pickerVisible ? picker.hidePicker() : picker.showPicker();
 		}
-
+		// return;
 		pasteDiv(id, t, $wh);
 		countChars();
 
 	})
 	function pasteDiv(id, t, $wh) {
+		if(t == 'emoji') return;
 		// $('.editable_div').html($('.editable_div').html() + '<span spellcheck="false" contenteditable="false" id="'+id+'">'+t+'</span>');
-		$wh.closest('.col-md-12').find('.editable_div').html($wh.closest('.col-md-12').find('.editable_div').html().replace(/<br>$/g, ' '));
-		$wh.closest('.col-md-12').find('.editable_div').html($wh.closest('.col-md-12').find('.editable_div').html() + '<span class="arg" spellcheck="false" contenteditable="false">'+t+'</span>&nbsp;');
+		insertText(id, 'arg', t, 'span');//+'">'+t+'</span>','h');
+		// $wh.closest('.col-md-12').find('.editable_div').html($wh.closest('.col-md-12').find('.editable_div').html().replace(/<br>$/g, ' '));
+		// $wh.closest('.col-md-12').find('.editable_div').html($wh.closest('.col-md-12').find('.editable_div').html() + '<span class="arg" spellcheck="false" contenteditable="false">'+t+'</span>&nbsp;');
 		// $('.editable_div').focus();
 	}
+
+	$('#ch-emoji #emoji_list li').on('click', function (e) {
+		console.log('emoji = ' + $(this).text());
+		
+		let txt = $(this).text().replace('&#', '0');
+		console.log('====================================');
+		console.log('SDASD = ' + txt);
+		console.log('====================================');
+		// insertText(null, null, String.fromCodePoint(txt), 'emoji');
+		insertText(null, null, txt, 'emoji');
+
+	})
 
 	$('.create_short_url_btn').on('click', function (e) {
 
@@ -1615,4 +1744,120 @@ function _mod(numer,denom) {
 	var intt = Math.floor(numer / denom);
 	return (numer - intt); 
 }
+
+function insertText(id, cls, txt, typ) {
+	let newestNode, shift;
+
+	// _getGlobals.editable_node.parentElement.focus();
+	if(typ == 'span') {
+		let newel = document.createElement("span");
+		newel.innerHTML = txt;
+		newel.setAttribute('id', id);
+		newel.setAttribute('class', cls);
+		newel.setAttribute('contenteditable', 'false');
+		newel.setAttribute('spellcheck', 'false');
+		newestNode = document.createTextNode(' ');
+		_getGlobals.editable_range.insertNode(newestNode);
+		_getGlobals.editable_range.insertNode(newel);
+		_getGlobals.editable_range.collapse();
+		shift = 1;
+	} else if(typ == 'emoji') {
+		newestNode = document.createTextNode(txt);
+		_getGlobals.editable_range.insertNode(newestNode);
+		_getGlobals.editable_range.collapse();
+		shift = 2;
+	}
+
+	// _getGlobals.editable_range.setStart(_getGlobals.editable_node, _getGlobals.editable_start + shift);
+	console.log('====================================');
+	console.log('node = ' + newestNode.nodeValue + ' | ' + newestNode.nodeType + ' | parentnode_id = ' + newestNode.parentElement.id + ' | parentnode_class = ' + newestNode.parentElement.className);
+	console.log('====================================');
+	_getGlobals.editable_sel = window.getSelection();
+	_getGlobals.editable_range = _getGlobals.editable_sel.getRangeAt(0);
+	_getGlobals.editable_range.setStart(newestNode, shift);
+	_getGlobals.editable_range.collapse(true);
+	_getGlobals.editable_sel.removeAllRanges();
+	_getGlobals.editable_sel.addRange(_getGlobals.editable_range);
+	_getGlobals.editable_start = shift;
+	// setGetSelectionThings('editable_div');
+
+
+	/* if(typ == 'input') {
+		// let cursorPos = $obj.prop('selectionStart');
+		// let textBefore = v.substring(0, cursorPos);
+		let v = $(obj).val(); 
+		let cursorPos = _getGlobals.editable_position;
+		console.log('====================================');
+		console.log('yeyePos = ' + cursorPos);
+		console.log('====================================');
+		let textBefore = v.substring(0, cursorPos);
+		let textAfter = v.substring(cursorPos, v.length);
+		$(obj).val(textBefore + txt + textAfter);
+	} else {
+		// let cursorPos = $obj.prop('selectionStart');
+		// let cursorPos = _getGlobals.editable_position;
+		let cursorPos = _getGlobals.editable_offset;
+		console.log('====================================');
+		console.log('cursorPos = ' + cursorPos);
+		console.log('====================================');
+		// let v = $(obj).html();
+		let v = _getGlobals.editable_node.nodeValue;
+		let textBefore = v.substring(0, cursorPos);
+		let textAfter = v.substring(cursorPos, v.length);
+		// $(obj).html(textBefore + txt + textAfter);
+		_getGlobals.editable_node.nodeValue = textBefore + txt + textAfter;
+		$(obj).html($(obj).text());
+	} */
+
+
+	/* HTMLTextAreaElement.prototype.insertAtCaret = function (text) { 
+		text = text || ''; 
+		if (document.selection) { 
+			// IE 
+			this.focus(); 
+			var sel = document.selection.createRange(); 
+			sel.text = text; 
+		} else if (this.selectionStart || this.selectionStart === 0) { 
+			// Others 
+			var startPos = this.selectionStart; 
+			var endPos = this.selectionEnd; 
+			this.value = this.value.substring(0, startPos) + text + this.value.substring(endPos, this.value.length); 
+			this.selectionStart = startPos + text.length; 
+			this.selectionEnd = startPos + text.length; 
+		} else { 
+			this.value += text; 
+		} 
+	}; */
+
+
+	/* let ob = document.getElementById('wa_contenteditable');
+	let range = document.createRange();
+	let sel = window.getSelection();
+	console.log('====================================');
+	console.log(' nodes = ' + ob.childNodes.length); 
+	console.log('====================================');
+	range.setStart(ob.childNodes[0], _getGlobals.editable_position + len);
+	range.collapse(true);
+	sel.removeAllRanges();
+	sel.addRange(range); */
+
+}
+function setGetSelectionThings(parent_node_class) {
+	let editable_sel = window.getSelection();
+	let editable_range = editable_sel.getRangeAt(0);
+	let editable_node = editable_range.startContainer;
+
+	//	check if getSelection is working from proper node
+	if(editable_node.parentElement.className.indexOf(parent_node_class) == -1) return;
+
+	_getGlobals.editable_sel = editable_sel;// = window.getSelection();
+	_getGlobals.editable_range = editable_range;// = _getGlobals.editable_sel.getRangeAt(0);
+	_getGlobals.editable_node = editable_node;// = _getGlobals.editable_range.startContainer;
+	_getGlobals.editable_start = _getGlobals.editable_range.startOffset;
+
+	console.log('====================================');
+	console.log('positionn = ' + _getGlobals.editable_start);
+	console.log('====================================');
+}
+
 
