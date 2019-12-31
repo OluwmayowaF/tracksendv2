@@ -94,7 +94,8 @@
 						<ul class="tabs-nav">
 							<li style="padding: 8px; background-color: #e8e8e8; border-radius: 0 0 10px 10px;">Select Campaign Type: </li>
 							<li class="active"><a href="#tab1a"><i class="fa fa-commenting-o"></i> SMS</a></li>
-						  {{#if has_whatsapp}}	<li class=""><a href="#tab2a"><i class="fa fa-whatsapp"></i> WHATSAPP</a></li> {{/if}}
+						  {{!-- {{#if has_whatsapp}}	<li class=""><a href="#tab2a"><i class="fa fa-whatsapp"></i> WHATSAPP</a></li> {{/if}} --}}
+						  <li class=""><a href="#tab2a"><i class="fa fa-whatsapp"></i> WHATSAPP</a></li>
 							<li class="" style="display: none"><a href="#tab3a"><i class="sl sl-icon-bubbles"></i> PREMIUM</a></li>
 						</ul>
 
@@ -411,11 +412,88 @@
 														<li id="ch-lastname" style="display: none;">Last Name</li>
 														<li id="ch-email" style="display: none;">Email</li>
 														<li id="ch-url">Short URL</li>
+														<li id="ch-emoji" class="tooltip top" title="Add emoji" style="color: #469965; font-size: 0.8em;"><i class="sl sl-icon-emotsmile"></i>
+															<div id="emoji_list" hidden>
+																<ul>
+																	<li>&#x1F601</li>
+																	<li>&#x1F602</li>
+																	<li>&#x1F603</li>
+																	<li>&#x1F604</li>
+																	<li>&#x1F605</li>
+																	<li>&#x1F606</li>
+																	<li>&#x1F607</li>
+																	<li>&#x1F608</li>
+																	<li>&#x1F609</li>
+																	<li>&#x1F60A</li>
+																	<li>&#x1F60B</li>
+																	<li>&#x1F60C</li>
+																	<li>&#x1F60D</li>
+																	<li>&#x1F60E</li>
+																	<li>&#x1F60F</li>
+																	<li>&#x1F612</li>
+																	<li>&#x1F613</li>
+																	<li>&#x1F614</li>
+																	<li>&#x1F615</li>
+																	<li>&#x1F616</li>
+																	<li>&#x1F617</li>
+																	<li>&#x1F618</li>
+																	<li>&#x1F61A</li>
+																	<li>&#x1F61C</li>
+																	<li>&#x1F61D</li>
+																	<li>&#x1F61E</li>
+																	<li>&#x1F620</li>
+																	<li>&#x1F621</li>
+																	<li>&#x1F622</li>
+																	<li>&#x1F623</li>
+																	<li>&#x1F624</li>
+																	<li>&#x1F625</li>
+																	<li>&#x1F628</li>
+																	<li>&#x1F629</li>
+																	<li>&#x1F62A</li>
+																	<li>&#x1F62B</li>
+																	<li>&#x1F62D</li>
+																	<li>&#x1F630</li>
+																	<li>&#x1F631</li>
+																	<li>&#x1F632</li>
+																	<li>&#x1F633</li>
+																	<li>&#x1F635</li>
+																	<li>&#x1F637</li>
+																	<li>&#x1F638</li>
+																	<li>&#x1F638</li>
+																	<li>&#x1F639</li>
+																	<li>&#x1F63A</li>
+																	<li>&#x1F63B</li>
+																	<li>&#x1F63C</li>
+																	<li>&#x1F63D</li>
+																	<li>&#x1F63E</li>
+																	<li>&#x1F640</li>
+																	<li>&#x1F645</li>
+																	<li>&#x1F646</li>
+																	<li>&#x1F647</li>
+																	<li>&#x1F648</li>
+																	<li>&#x1F649</li>
+																	<li>&#x1F64A</li>
+																	<li>&#x1F64B</li>
+																	<li>&#x1F64C</li>
+																	<li>&#x1F64D</li>
+																	<li>&#x1F64E</li>
+																	<li>&#x1F64F</li>
+																</ul>
+															</div>
+														</li>
+														<li class="tooltip top" title="Add image" style="color: #469965; font-size: 0.8em;"><i class="sl sl-icon-camera"></i></li>
+														<input type="file" name="att_img" id="att_img">
+														<li class="tooltip top" title="Add video" style="color: #469965; font-size: 0.8em;"><i class="sl sl-icon-camrecorder"></i></li>
+														<input type="file" name="att_vid" id="att_vid">
 														{{!-- <li id="ch-url"><a href="#url-setup-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1;" id="wwww"><i class="im im-icon-Two-Windows"></i> Short URL <i class="tip" data-tip-content="Create/Modify Short URL to insert into message"></i></a></li> --}}
 														<div class="clearfix"></div>
 													</ul>
 												</h5>
-												<div contenteditable="true" class="editable_div _wa">Hello ...</div>
+												{{!-- <div class="top_joiner">see... <span style="margin: 0 5px;"><i class="sl sl-icon-emotsmile"></i></span>|<span style="margin: 0 5px;"><i class="sl sl-icon-camera"></i></span>|<span style="margin: 0 5px;"><i class="sl sl-icon-camrecorder"></i></span></div> --}}
+												<div contenteditable="true" class="editable_div _wa" id="wa_contenteditable">Hello ...
+
+													<div class="content_attachments" contenteditable="false">:</div>
+												</div>
 												<input type="hidden" name="message" id="campaignmessage">
 											</div>
 
@@ -555,7 +633,7 @@
 							<li style="flex: 3">{{ units_used }}</li>
 							<li style="flex: 3">{{formatDate createdAt "short"}}</li>
 							<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
-								<span style="flex: 1; text-align:center" class="copy_item_btn"><span class="tooltip top" title="Duplicate" style="cursor: pointer"><i class="fa fa-copy"></i></span></span>&nbsp; |&nbsp; 
+								{{!-- <span style="flex: 1; text-align:center" class="copy_item_btn"><span class="tooltip top" title="Duplicate" style="cursor: pointer"><i class="fa fa-copy"></i></span></span>&nbsp; |&nbsp;  --}}
 								<span style="flex: 1; text-align:center" class="del_item_btn"><span class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></span></span>
 							</li>							
 							</li>

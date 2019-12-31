@@ -6,6 +6,7 @@ const Sequelize = require('sequelize');
 exports.index = (req, res) => {
     const ACCUMULATE_MESSAGES = true;
     const ACCUMULATE_CONTACTS = true;
+    const ACCUMULATE_OPTOUTS = true;
 
     var user_id = req.user.id;
 
@@ -14,7 +15,8 @@ exports.index = (req, res) => {
     var nocampaigns = false;
 
     var acc_m = 0;    //  accumulating msgs
-    var acc_c = 0;    //  accumulating msgs
+    var acc_c = 0;    //  accumulating contacts
+    var acc_o = 0;    //  accumulating optouts
 
 
     console.log('showing page...'); 
@@ -87,6 +89,11 @@ exports.index = (req, res) => {
             },
             attributes: [[Sequelize.literal('DISTINCT `phone`'), 'phone']],
             group: ['phone']
+        }), 
+        models.Optout.count({
+            where: { 
+                userId: user_id,
+            },
         }), 
         /* models.Message.count({
             where: { 
@@ -238,11 +245,75 @@ exports.index = (req, res) => {
                 return arr;
             })  
         }),
-    ]).then(([summary, messages, cgroup, csender, ccount, mcount, mgrowth, cgrowth]) => {
+        sequelize.query(
+            "SELECT COUNT(id) AS optouts FROM optouts " +
+            "WHERE userId = (:id) " +
+            "AND createdAt < DATE_SUB(now(), INTERVAL 6 MONTH) ", {
+                replacements: {id: user_id},
+                type: sequelize.QueryTypes.SELECT,
+            },
+        ).then(([results, metadata]) => {
+            console.log('opts1 is = ' + JSON.stringify(results));
+
+            var opt_sub_6 = results.optouts;
+            if(ACCUMULATE_OPTOUTS) acc_o += opt_sub_6;    //   count of contacts before 6 months
+            
+            return sequelize.query(
+                "SELECT MONTH(createdAt) MONTH, COUNT(*) COUNT " + 
+                "FROM optouts " +
+                "WHERE userId = (:id) " +
+                "AND createdAt > DATE_SUB(now(), INTERVAL 6 MONTH) " +
+                "GROUP BY 1 " +
+                "ORDER BY 1 ", {
+                    replacements: {id: user_id},
+                    // type: sequelize.QueryTypes.SELECT,
+                },
+            ).then(([results, metadata]) => {
+                console.log('optgrowtht is = ' + JSON.stringify(results) + '...' + results.length);
+
+                var arr = []; 
+
+                var init = parseInt(moment().format('M'));   
+                var initd = 5;   // for the first month of the last 6 months
+                var initt = (init - initd < 1) ? init - initd + 12 : init - initd;   
+
+                for(var r = 0; r < 6; r++) {
+                    var i = null;
+
+                    results.forEach(res => {
+                        if(res.MONTH == initt) {
+                            acc_o = (ACCUMULATE_OPTOUTS) ? acc_o + res.COUNT : res.COUNT;
+                            var _init = (init < res.MONTH) ? init - res.MONTH + 12 : init - res.MONTH;
+                            i = {
+                                "MONTH" : moment().subtract(_init, 'months').format('MMM-YY'),
+                                "COUNT" : acc_o,                            
+                            };
+
+                        }
+                    });
+                    if(!i) {
+                        i = { 
+                            "MONTH" : moment().subtract(initd, 'months').format('MMM-YY'),
+                            "COUNT" : acc_o,
+                        };
+                    }
+    console.log("results= "+ JSON.stringify(i));
+
+                    arr.push(i)
+                    initt = (initt + 1 > 12) ? initt + 1 - 12 : initt + 1;
+                    initd--;
+                };
+                console.log('new array : ' +    JSON.stringify(arr));
+                
+                
+                return arr;
+            })  
+        }),
+    ]).then(([summary, messages, cgroup, csender, ccount, ocount, mcount, mgrowth, cgrowth, ogrowth]) => {
         console.log('qqq= '+messages.length);
         
         console.log('====================================');
-        console.log('CGROUP: '+ JSON.stringify(ccount));
+        console.log('OPTOUTS: '+ JSON.stringify(ocount));
         console.log('====================================');
 
         let c_array = ccount;
@@ -265,9 +336,11 @@ exports.index = (req, res) => {
         console.log('groups2 are: ' + JSON.stringify(csender));
         console.log('groups3 are: ' + JSON.stringify(ccount));
         console.log('groups4 are: ' + JSON.stringify(mcount));
-        console.log('groups8 are: ' + messages.map((res) => res.name));
-        console.log('groups9 are: ' + JSON.stringify(mgrowth));
-        console.log('groups10 are: ' + JSON.stringify(cgrowth));
+        console.log('groups5 are: ' + JSON.stringify(ocount));
+        console.log('groups6 are: ' + messages.map((res) => res.name));
+        console.log('groups7 are: ' + JSON.stringify(mgrowth));
+        console.log('groups8 are: ' + JSON.stringify(cgrowth));
+        console.log('groups9 are: ' + JSON.stringify(ogrowth));
 
         var flashtype, flash = req.flash('error');
         if(flash.length > 0) {
@@ -296,10 +369,12 @@ exports.index = (req, res) => {
                 clicks: summary.clicks,
                 messages,
                 ccount,
+                ocount,
                 mcount,
                 ctr: ((parseInt(summary.delivered) == 0) ? '0' : (parseInt(summary.clickc) * 100/parseInt(summary.delivered))),
 
                 mgrowth: JSON.stringify(mgrowth),
+                ogrowth: JSON.stringify(ogrowth),
                 cgrowth: JSON.stringify(cgrowth),
             }
         }); 

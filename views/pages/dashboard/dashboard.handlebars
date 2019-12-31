@@ -48,14 +48,14 @@
 		{{/if}}
 
 		<div class="row">
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="notification notice margin-bottom-30 no-shadow" style="border: outset 2px; border-radius: 10px 10px 0 0;">
 					{{!-- <p>Your Last Campaign: <strong>" {{ args.latestcampaign }} "</strong></p> --}}
 					<p>Your Last Campaign <i class="tip" data-tip-content='" {{ args.latestcampaign }} "'></i></p>
 					<a class="close" href="#"></a>
 				</div>
 			</div>
-			<div class="col-md-8">
+			<div class="col-md-9">
 				<div class="notification notice margin-bottom-30 no-shadow" style="border: outset 2px; border-radius: 10px 10px 0 0; background-color: #e5f0f3;">
 					<p><strong>Activities So Far...</strong> </p>
 					<a class="close" href="#"></a>
@@ -71,8 +71,10 @@
 		<input type="hidden" name="" id="values_messages" value="{{ args.messages }}">
 		<input type="hidden" name="" id="values_ccount" value="{{ args.ccount }}">
 		<input type="hidden" name="" id="values_mcount" value="{{ args.mcount }}">
+		<input type="hidden" name="" id="values_ocount" value="{{ args.ocount }}">
 
 		<input type="hidden" name="" id="values_mgrowth" value="{{ args.mgrowth }}">
+		<input type="hidden" name="" id="values_ogrowth" value="{{ args.ogrowth }}">
 		<input type="hidden" name="" id="values_cgrowth" value="{{ args.cgrowth }}">
 
 
@@ -80,7 +82,7 @@
 		<div class="row">
 		{{#if args.nocampaigns}}
 
-			<div class="col-lg-4 col-md-6">
+			<div class="col-lg-3 col-md-6">
 				<div class="dashboard-stat color-1">
 					<div class="dashboard-stat-content"><h4>0</h4> <span>Campaigns</span></div>
 					<div class="dashboard-stat-icon"><i class="im im-icon-Mouse-2"></i></div>
@@ -90,7 +92,7 @@
 		{{else}}
 
 			<!-- Item -->
-			<div class="col-lg-4 col-md-6">
+			<div class="col-lg-3 col-md-6">
 				<div class="dashboard-stat color-1">
 					{{!-- <div class="dashboard-stat-content" style="width: 38%; left: 25px; border-right: inset 1px;"><h4>{{formatNumber args.clicks }}</h4> <span>Total Clicks</span></div>
 					<div class="dashboard-stat-content" style="width: 33%; left: 170px;"><h4>{{ args.ctr }}</h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div> --}}
@@ -109,7 +111,7 @@
 
 		{{/if}}
 		
-			<div class="col-lg-4 col-md-6">
+			<div class="col-lg-3 col-md-6">
 				<div class="dashboard-stat color-2">
 					<div class="dashboard-stat-content"><h4>{{ args.mcount }}</h4> <span>Total Messages Sent</span></div>
 					<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
@@ -121,16 +123,28 @@
 				<canvas id="mGrowth" height="300"></canvas>
 			</div>
 
-			<div class="col-lg-4 col-md-6">
+			<div class="col-lg-3 col-md-6">
+				{{!-- <div class="dashboard-stat color-2">
+					<div class="dashboard-stat-content"><h4>{{ args.mcount }}</h4> <span>Total Messages Sent</span></div>
+					<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
+				</div> --}}
+				<div class="dashboard-stat color-3">
+					<div class="dashboard-stat-content"><h4>{{formatNumber args.ccount }}</h4> <span>Total Contacts</span></div>
+					<div class="dashboard-stat-icon"><i class="im im-icon-Add-UserStar"></i></div>
+				</div>
+				<canvas id="cGrowth" height="300"></canvas>
+			</div>
+
+			<div class="col-lg-3 col-md-6">
 				{{!-- <div class="dashboard-stat color-2">
 					<div class="dashboard-stat-content"><h4>{{ args.mcount }}</h4> <span>Total Messages Sent</span></div>
 					<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
 				</div> --}}
 				<div class="dashboard-stat color-4">
-					<div class="dashboard-stat-content"><h4>{{formatNumber args.ccount }}</h4> <span>Total Contacts</span></div>
-					<div class="dashboard-stat-icon"><i class="im im-icon-Add-UserStar"></i></div>
+					<div class="dashboard-stat-content"><h4>{{formatNumber args.ocount }}</h4> <span>Total WhatsApp Optouts</span></div>
+					<div class="dashboard-stat-icon"><i class="im im-icon-End-2"></i></div>
 				</div>
-				<canvas id="cGrowth" height="300"></canvas>
+				<canvas id="oGrowth" height="300"></canvas>
 			</div>
 
 			<!-- Item -->
@@ -266,6 +280,7 @@
 		var undeliverable = document.getElementById('values_undeliverable').value;
 		var msggrowth = 		JSON.parse(document.getElementById('values_mgrowth').value)
 		var congrowth = 		JSON.parse(document.getElementById('values_cgrowth').value)
+		var optgrowth = 		JSON.parse(document.getElementById('values_ogrowth').value)
 						
 		console.log('args rowth : ' + JSON.stringify(msggrowth));
 
@@ -298,7 +313,7 @@
 			options: {
 				responsive: true,
 				legend: {
-					position: 'right',
+					position: 'bottom',
 				},
 				title: {
 					display: true,
@@ -337,6 +352,39 @@
 				title: {
 					display: true,
 					text: 'Outbound Messages Growth (6 Months)'
+				},
+				animation: {
+					animateScale: true,
+					animateRotate: true
+				},
+			}
+		};
+
+		var config_ogrowth = {
+			type: 'line',
+			data: {
+				labels: optgrowth.map((dat) => {
+						return dat.MONTH;
+					}),
+				datasets: [{
+					data: optgrowth.map((dat) => {
+						return dat.COUNT;
+					}),
+					backgroundColor: [
+                'rgba(65, 193, 65, 1)',
+					],
+					label: 'Opt-Outs',
+					fill: 'start',
+				}],
+			},
+			options: {
+				responsive: true,
+				legend: {
+					position: 'top',
+				},
+				title: {
+					display: true,
+					text: 'WhatsApp OptOut Growth (6 Months)'
 				},
 				animation: {
 					animateScale: true,
@@ -385,6 +433,8 @@
 			window.myGraph1 = new Chart(ctx2, config_mgrowth);
 			var ctx3 = document.getElementById('cGrowth').getContext('2d');
 			window.myGraph2 = new Chart(ctx3, config_cgrowth);
+			var ctx4 = document.getElementById('oGrowth').getContext('2d');
+			window.myGraph3 = new Chart(ctx4, config_ogrowth);
 		};
 
 	</script>
