@@ -100,34 +100,33 @@ exports.preOptIn = async (req, res) => {
 
         let new_resp = await whatsappSendMessage(phone, body, user.wa_instanceurl, user.wa_instancetoken);
 
+        // res.sendStatus(200);
+        res.send("ok"); 
+
     } catch(e) {
         console.log('====================================');
-        console.log('erroooooooooooooer: ' + JSON.stringify(e));
+        console.log('erroooooooooooooer: ' + JSON.stringify(e.name));
         console.log('====================================');
         if(e.name == 'SequelizeUniqueConstraintError') {
             res.send({
                 status: "error",
                 msg: "Your opt-in request already submitted.",
             });
-            return;
         }
         else if(e.name == 'requesterror') {
             res.send({
                 status: "error",
                 msg: "There's an error with your request, kindly contact website admin.",
             });
-            return;
         }
         else if(e.name == 'phoneerror') {
             res.send({
                 status: "error",
                 msg: "There's an error the Phone Number, kindly check again.",
             });
-            return;
         }
+        return;
     }
-    // res.sendStatus(200);
-    res.send("ok"); 
 
 }
 
