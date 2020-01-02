@@ -24,7 +24,7 @@ const whatsappSendMessage =  async (phone, body, instanceurl, token, contactid=n
   console.log('====================================');
 
   let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss');
-  if(schedule.length > 6 && schedule != 'Invalid date' && ts != NaN) {
+  if(schedule && schedule.length > 6 && schedule != 'Invalid date' && ts != NaN) {
     //  schedule sending WhatsApp message
     
     console.log('====================================');
