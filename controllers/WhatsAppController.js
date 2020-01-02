@@ -106,6 +106,7 @@ exports.preOptIn = async (req, res) => {
     } catch(e) {
         console.log('====================================');
         console.log('erroooooooooooooer: ' + JSON.stringify(e.name));
+        console.log('erroooooooooooooer: ' + e);
         console.log('====================================');
         if(e.name == 'SequelizeUniqueConstraintError') {
             res.send({
