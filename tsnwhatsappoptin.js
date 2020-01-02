@@ -12,11 +12,11 @@
 			return false;
 		}
 
-		var html = '<div id="" class="tsn_container" style="width: 60%; display: block; text-align: center;">' + 
+		var html = '<div id="" class="tsn_container">' + 
 									' Here we go...' +
 									'<input type="checkbox" id="optin" name="optin" />' +
 									'<label for="optin">Opt in for WhatsApp Communications</label>' +
-									'<div id="" class="tsn_form_box" style="display: none; text-align: center;"> Here we go...' +
+									'<div id="" class="tsn_form_box"> Here we go...' +
 										'<form enctype="" id="tsn_form" action="">' +
 											'<input type="hidden" name="clientid" value="' + API_KEY + '" />' +
 											'<input type="text" name="fullname" id="" placeholder="Enter your full name" required />' +
@@ -25,7 +25,7 @@
 												'<option value="234">Nigeria</option>' +
 												'<option value="225">Cote D\'Ivoire</option>' +
 											'</select>' +
-											'<button type="submit" name="done" style="height: 3em; width: 50%; border-radius: 10px;">Submit</button>' +
+											'<button type="submit" name="done">Submit</button>' +
 										'</form>' +
 									'</div>' +
 								'</div>';
@@ -44,7 +44,7 @@
 
 			var $me = $(this);
 			var json_save_form = JSON.stringify($me.serializeObject()); 
-			console.log('json', json_save_form);
+			// console.log('json', json_save_form);
 			
 			// var $butt = $me.find('input.button');
 			// $butt.attr('disabled','disabled');

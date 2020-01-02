@@ -342,6 +342,8 @@ exports.preOptout = async (req, res) => {
     
     } catch(e) {
         console.log('====================================');
+        console.log('error: ' + e.name);
+        console.log('error: ' + JSON.stringify(e));
         console.log('error: ' + e);
         console.log('====================================');
         res.render('pages/redirect-error', {

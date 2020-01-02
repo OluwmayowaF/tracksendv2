@@ -1,6 +1,8 @@
 const Sequelize = require('sequelize');
 const moment = require('moment');
 var models = require('../models');
+// const referrer = require('referrer');
+var Referer = require('referer-parser');
 
 exports.campaign = async function(req, res) {
 
@@ -168,10 +170,19 @@ exports.browser = async function(req, res) {
         refererlist.some(rx => {
         if(rx.test(referer)) ref_ = rx;
         });
+        console.log('====================================');
+        console.log('host url is: ' + req.protocol + '://' + req.get('host'));
+        console.log('====================================');
+        var r = new Referer(req.headers.referer);
+        console.log('====================================');
+        console.log('pluggedin url = ' + JSON.stringify(r));
+        console.log('====================================');
+
 
         let ref = (new RegExp(ref_)).source; 
         ref = ref.replace('.com', '');
-
+        console.log('normal ref: ' + ref);
+        
         //    and store in db
         models.Linkreferer.create({
             shortlinkId: shurl.id,

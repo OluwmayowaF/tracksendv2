@@ -20,7 +20,7 @@ const homeRouter = require('./routes/home');
 const dashboardRouter = require('./routes/dashboard');
 const apiRouter = require('./routes/api');
 
-const app = express();
+const app = express(); 
 
 var sessionStore = new session.MemoryStore;
 
@@ -51,7 +51,6 @@ console.log('path is: ' + __dirname);
 app.use(session({ secret: "keyboard cat", resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
-
 // app.locals.djt = 'talowanbe!';
 
 //  set routes
