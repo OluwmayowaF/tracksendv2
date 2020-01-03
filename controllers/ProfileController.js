@@ -59,43 +59,40 @@ exports.update = (req, res) => {
 };
 
 // Display detail page for a specific contact.
-exports.pwrdupdate = (req, res) => {
+exports.pwrdupdate = async (req, res) => {
     var user_id = req.user.id;
 
-    models.User.findByPk(user_id)
-    .then(user => { 
+    let user = await models.User.findByPk(user_id)
 
-        if(req.body.new_password == req.body.new_password_confirmation) {
-            console.log('CONFIRMED1: ' + req.body.new_password);
-            console.log('CONFIRMED2: ' + req.body.new_password_confirmation);
-            
-            var new_password = bcrypt.hashSync(req.body.new_password, bcrypt.genSaltSync(10), null);
-            if (user.validPassword(req.body.password)) {
-                console.log('VALIDATED');
-                user.update({
-                    password: new_password
-                })
-                .then(() => {
-                    console.log('UPDATED');
-                    req.login(user, function(err) {
-                        if (err) { 
-                            return next(err); 
-                        }
-                        req.flash('success', 'Password update successfully');
-                        return res.redirect('/dashboard/profile');
-                    });
-                })
+    if(req.body.new_password == req.body.new_password_confirmation) {
+        console.log('CONFIRMED1: ' + req.body.new_password);
+        console.log('CONFIRMED2: ' + req.body.new_password_confirmation);
+        
+        var new_password = bcrypt.hashSync(req.body.new_password, bcrypt.genSaltSync(10), null);
+        if (user.validPassword(req.body.password)) {
+            console.log('VALIDATED');
+            let upd = await user.update({
+                password: new_password
+            })
 
-            } else {
-                req.flash('error', 'Incorrect password. Kindly relogin.');
-                res.redirect('/logout');
-            }
-            
+            console.log('UPDATED');
+            req.login(user, function(err) {
+                if (err) { 
+                    return next(err); 
+                }
+                req.flash('success', 'Password update successfully');
+                return res.redirect('/dashboard/profile');
+            });
+
         } else {
-            req.flash('error', 'Password mismatch. Please enter again.');
-            res.redirect('/dashboard/profile');
+            req.flash('error', 'Incorrect password. Kindly relogin.');
+            res.redirect('/logout');
         }
-    });
+        
+    } else {
+        req.flash('error', 'Password mismatch. Please enter again.');
+        res.redirect('/dashboard/profile');
+    }
 
 }
 
