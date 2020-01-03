@@ -12,7 +12,7 @@ const redirectRouter = require('../routes/redirect');
 const whatsAppRouter = require('../routes/whatsapp');
 
 module.exports = function(app) {
-  //
+
   app.get('/', (req, res) => 
     {
       var backURL = 'http://tracksend.co'; // req.header('Referer') || '/';
@@ -86,11 +86,11 @@ module.exports = function(app) {
 
           // send mail with defined transport object
           var info = await transporter.sendMail({
-              from: '"Spaceba" <info@spaceba.com>', // sender address
+              from: '"Tracksend" <info@tracksend.com>', // sender address
               to: '"' + usr.name + '" <' + usr.email + '>', // list of receivers
               subject: 'Hallo ✔', // Subject line
-              text: 'Hello ' + usr.name + ', <br><br>Spaceba has upgraded it\'s systems in order to serve you better. As a result, all users are required to update their passwords. Here\'s your password update link: https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + id, // plain text body
-              html: '<b>Hello ' + usr.name + '</b>, <br><br>Spaceba has upgraded it\'s systems in order to serve you better. As a result, all users are required to update their passwords. Here\'s your password update link: https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + id, // html body
+              text: 'Hello ' + usr.name + ', <br><br>Tracksend has upgraded it\'s systems in order to serve you better. As a result, all users are required to update their passwords. Here\'s your password update link: https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + id, // plain text body
+              html: '<b>Hello ' + usr.name + '</b>, <br><br>Tracksend has upgraded it\'s systems in order to serve you better. As a result, all users are required to update their passwords. Here\'s your password update link: https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + id, // html body
           });
 
           console.log('Message sent: %s', info.messageId);
@@ -263,7 +263,76 @@ module.exports = function(app) {
     //  THE END!
   });
 
+  app.get('/account/update/forgotpassword', async (req, res) => {
+
+    res.render('pages/forgotpassword', {
+      layout: 'main1',
+      page: 'Password Reset',
+    });
+
+  });
+
+  app.post('/account/update/forgotpassword', async (req, res) => {
+
+    const scheduler = require('node-schedule');
+    let dur = 60 * 60 * 1000; //  1 hour
+
+    let token = await randgen('token', models.User, 64, 'fullalphnum');
+    let usr = await models.User.findOne(
+      {
+        where: {
+          email: req.body.email,
+        }
+      }
+    )
+
+    if(!usr) {
+      //  return error
+      return;
+    }
+
+    usr.update({
+      token
+    })
+    var transporter = nodemailer.createTransport({
+      host: 'smtp.ethereal.email',
+      port: 587,
+      secure: false, // true for 465, false for other ports
+      auth: {
+          user: 'rahsaan.hilll@ethereal.email', // generated ethereal user
+          pass: 'fts9U7Q2Q8QUbvrdxw' // generated ethereal password
+      },
+      //  remove this if you're using a real SMTP service...
+      tls: {
+        rejectUnauthorized: false
+      }
+    })
+
+    // send mail with defined transport object
+    var info = await transporter.sendMail({
+      from: '"Tracksend" <info@tracksend.com>', // sender address
+      to: '"' + usr.name + '" <' + usr.email + '>', // list of receivers
+      subject: 'Hallo ✔', // Subject line
+      text: 'Hello ' + usr.name + ', <br><br>You have indicated that you\'ve forgotten your Tracksend password, and therefore requested a password reset. If you wish to carry on with this, kindly follow the link: https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + token + '; else please ignore this mail. The provided link would be invalid after one hour. Thanks.', // plain text body
+      html: '<b>Hello ' + usr.name + '</b>, <br><br>You have indicated that you\'ve forgotten your Tracksend password, and therefore requested a password reset. If you wish to carry on with this, kindly follow the link: https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + token + '; else please ignore this mail. The provided link would be invalid after one hour.<br><br><br> Thanks,<br>Tracksend.', // html body
+    });
   
+    //  set scheduler to delete token after one hour
+    var date = Date.now() + dur;
+    
+    scheduler.scheduleJob(date, () => {
+      usr.update({
+        token: ''
+      })
+    });
+
+    res.render('pages/forgotpassword', {
+      layout: 'main1',
+      page: 'Password Reset',
+    });
+
+  });
+
   app.get('/account/update/password/:email/:token', async (req, res) => {
 
     var email = req.params.email;
@@ -290,7 +359,7 @@ module.exports = function(app) {
     var cpassword = req.body.confirm_password;
 
     console.log('hehe');
-    
+
     if(password == cpassword) {
       
       models.User.findAll({
@@ -342,17 +411,12 @@ module.exports = function(app) {
         console.log('====================================');
       })
 
-      
     } else {
         req.flash('error', 'Password mismatch. Please enter again.');
         res.redirect('/dashboard/profile');
     }
 
-
-    
-
   });
-
 
   app.get('/login', (req, res) => {
     if(req.user) {
@@ -399,7 +463,7 @@ module.exports = function(app) {
   app.use('/redirect', redirectRouter);
 
   app.use('/WhatsApp', whatsAppRouter);
-  
+
 };
 
 
