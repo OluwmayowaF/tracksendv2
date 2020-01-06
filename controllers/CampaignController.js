@@ -15,8 +15,7 @@ var base64encode = buff.toString('base64');
 
 exports.index = (req, res) => {
     var user_id = req.user.id;
-
-
+    
     console.log('showing page...' + JSON.stringify(req.user)); 
         
     Promise.all([
