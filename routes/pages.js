@@ -263,9 +263,25 @@ module.exports = function(app) {
 
   app.get('/account/update/forgotpassword', async (req, res) => {
 
+    /* var flashtype, flash = req.flash('error');
+    if(flash.length > 0) { 
+        flashtype = "error";           
+    } else {
+        flashtype = "success";
+        flash = req.flash('success');
+    } */
+
     res.render('pages/forgotpassword', {
       layout: 'main1',
       page: 'Password Reset',
+      flash: {
+        type: req.flash('type'),
+        msg: req.flash('msg'),
+      },
+
+      args: {
+        show_input: true,
+      }
     });
 
   });
@@ -274,59 +290,98 @@ module.exports = function(app) {
 
     const scheduler = require('node-schedule');
     let dur = 60 * 60 * 1000; //  1 hour
+    let show_input = true;
 
-    let token = await randgen('token', models.User, 64, 'fullalphnum');
-    let usr = await models.User.findOne(
-      {
-        where: {
-          email: req.body.email,
+
+    try {
+      let usr = await models.User.findOne(
+        {
+          where: {
+            email: req.body.email,
+          }
         }
-      }
-    )
+      )
 
-    if(!usr) {
-      //  return error
-      return;
+      if(usr) {
+        //  return error
+
+        let token = await randgen('token', models.User, 64, 'fullalphnum');
+        usr.update({
+          token
+        })
+
+        try {
+          var transporter = nodemailer.createTransport({
+            host: 'smtp.ethereal.email',
+            port: 587,
+            secure: false, // true for 465, false for other ports
+            auth: {
+                user: 'rahsaan.hilll@ethereal.email', // generated ethereal user
+                pass: 'fts9U7Q2Q8QUbvrdxw' // generated ethereal password
+            },
+            //  remove this if you're using a real SMTP service...
+            tls: {
+              rejectUnauthorized: false
+            }
+          })
+
+          // send mail with defined transport object
+          var info = await transporter.sendMail({
+            from: '"Tracksend" <info@tracksend.com>', // sender address
+            to: '"' + usr.name + '" <' + usr.email + '>', // list of receivers
+            subject: 'Hallo ✔', // Subject line
+            text: 'Hello ' + usr.name + ', <br><br>You have indicated that you\'ve forgotten your Tracksend password, and therefore requested a password reset. If you wish to carry on with this, kindly follow the link: https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + token + '; else please ignore this mail. The provided link would be invalid after one hour. Thanks.', // plain text body
+            html: '<b>Hello ' + usr.name + '</b>, <br><br>You have indicated that you\'ve forgotten your Tracksend password, and therefore requested a password reset. If you wish to carry on with this, kindly follow the link: https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + token + '; else please ignore this mail. The provided link would be invalid after one hour.<br><br><br> Thanks,<br>Tracksend.', // html body
+          });
+        } catch(e) {
+          console.log('====================================');
+          console.log('Mailing error: ' + e);
+          console.log('====================================');
+          throw('MAIL ERROR');
+        }
+      
+        //  set scheduler to delete token after one hour
+        var date = Date.now() + dur;
+        
+        scheduler.scheduleJob(date, () => {
+          usr.update({
+            token: ''
+          })
+        });
+
+        req.flash('type', 'success');
+        req.flash('msg', 'A password reset link has been sent to your email.');
+
+        show_input = false;
+        // return res.redirect('/dashboard/profile');
+      } else {
+        req.flash('type', 'error');
+        req.flash('msg', 'Sorry, the email address you provided does not belong to a registered account. Kindly check again.');
+
+        show_input = true;
+      }
+    } catch(e) {
+      console.log('====================================');
+      console.log('ERROR: ' + e);
+      console.log('====================================');
+
+      req.flash('type', 'error');
+      req.flash('msg', 'Sorry, an error occurred. Kindly contact site admin or try again later.');
+
+      show_input = true;
     }
-
-    usr.update({
-      token
-    })
-    var transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      secure: false, // true for 465, false for other ports
-      auth: {
-          user: 'rahsaan.hilll@ethereal.email', // generated ethereal user
-          pass: 'fts9U7Q2Q8QUbvrdxw' // generated ethereal password
-      },
-      //  remove this if you're using a real SMTP service...
-      tls: {
-        rejectUnauthorized: false
-      }
-    })
-
-    // send mail with defined transport object
-    var info = await transporter.sendMail({
-      from: '"Tracksend" <info@tracksend.com>', // sender address
-      to: '"' + usr.name + '" <' + usr.email + '>', // list of receivers
-      subject: 'Hallo ✔', // Subject line
-      text: 'Hello ' + usr.name + ', <br><br>You have indicated that you\'ve forgotten your Tracksend password, and therefore requested a password reset. If you wish to carry on with this, kindly follow the link: https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + token + '; else please ignore this mail. The provided link would be invalid after one hour. Thanks.', // plain text body
-      html: '<b>Hello ' + usr.name + '</b>, <br><br>You have indicated that you\'ve forgotten your Tracksend password, and therefore requested a password reset. If you wish to carry on with this, kindly follow the link: https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + token + '; else please ignore this mail. The provided link would be invalid after one hour.<br><br><br> Thanks,<br>Tracksend.', // html body
-    });
-  
-    //  set scheduler to delete token after one hour
-    var date = Date.now() + dur;
-    
-    scheduler.scheduleJob(date, () => {
-      usr.update({
-        token: ''
-      })
-    });
 
     res.render('pages/forgotpassword', {
       layout: 'main1',
       page: 'Password Reset',
+      flash: {
+        type: req.flash('type'),
+        msg: req.flash('msg'),
+      },
+
+      args: {
+        show_input,
+      }
     });
 
   });
