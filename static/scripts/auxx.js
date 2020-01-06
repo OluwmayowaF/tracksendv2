@@ -23,8 +23,11 @@ $(document).ready(function() {
 	var campaign_confirmed = false;
 	var whatsapp_campaign = false;
 
-	
-	createBox('place_it_here', '3443453_57445254_10_342');
+	try {
+		createBox('place_it_here', '3443453_57445254_10_342');
+	} catch(e) {
+		console.log("Tracksend Box Error: " + e);
+	}
 
 	$('form').submit((e) => {
 		// if($(e.target).find('span.loading_icon').is(':visible')) return false;
