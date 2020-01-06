@@ -187,7 +187,9 @@ exports.details = async (req, res) => {
         flashtype, flash,
 
         args: {
-            sids: sids,
+            clickcount: sids[0].clickcount,
+            ctr: '100',
+            sids,
         }
     });
     
