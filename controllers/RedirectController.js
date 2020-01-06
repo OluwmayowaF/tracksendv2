@@ -1,8 +1,8 @@
 const Sequelize = require('sequelize');
 const moment = require('moment');
 var models = require('../models');
+const getUrlReferer = require('../my_modules/getUrlReferer');
 // const referrer = require('referrer');
-var Referer = require('referer-parser');
 
 exports.campaign = async function(req, res) {
 
@@ -63,29 +63,7 @@ exports.campaign = async function(req, res) {
         ...((pro[0][0].firstclicktime == null) ? {firstclicktime: mysqlTimestamp} : {})
     })
 
-    //  track referer
-    const refererlist = [
-        /facebook.com/,
-        /instagram.com/,
-        /twitter.com/,
-        /linkedin.com/,
-        /pinterest.com/,
-    ];
-        
-    let referer = req.headers.referer;// 'https://www.facebook.com';//req.headers.referer;
-    let ref_ = (req.headers.referer == '') ? /direct/ : /other/;
-    refererlist.some(rx => {
-    if(rx.test(referer)) ref_ = rx;
-    });
-
-    let ref = (new RegExp(ref_)).source;
-    console.log('referer = ' + ref);
-
-    //    and store in db
-    models.Linkreferer.create({
-        shortlinkId: shurl.id,
-        referer: ref,
-    })
+    getUrlReferer(req, shurl.id);
     
     //  finally, redirect to client URL
     let utm = '';
@@ -156,38 +134,7 @@ exports.browser = async function(req, res) {
             clickcount: Sequelize.literal('clickcount + 1'),
         });
 
-        //  track referer
-        const refererlist = [
-            /facebook.com/,
-            /instagram.com/,
-            /twitter.com/,
-            /linkedin.com/,
-            /pinterest.com/,
-        ];
-          
-        let referer = req.headers.referer;// 'https://www.facebook.com';//req.headers.referer;
-        let ref_ = (req.headers.referer == '') ? /direct/ : /other/;
-        refererlist.some(rx => {
-            if(rx.test(referer)) ref_ = rx;
-        });
-        console.log('====================================');
-        console.log('host url is: ' + req.protocol + '://' + req.get('host'));
-        console.log('====================================');
-        var r = new Referer(req.headers.referer, req.protocol + '://' + req.get('host'));
-        console.log('====================================');
-        console.log('pluggedin url = ' + JSON.stringify(r));
-        console.log('====================================');
-
-
-        let ref = (new RegExp(ref_)).source; 
-        ref = ref.replace('.com', '');
-        console.log('normal ref: ' + ref);
-        
-        //    and store in db
-        models.Linkreferer.create({
-            shortlinkId: shurl.id,
-            referer: ref,
-        }) 
+        getUrlReferer(req, shurl.id);          
 
         res.redirect(shurl.url);
     }

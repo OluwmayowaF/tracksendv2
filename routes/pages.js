@@ -140,8 +140,6 @@ module.exports = function(app) {
     })
 
     res.send('DONE!!!');
-
-
     //  THE END!
   });
 
@@ -350,6 +348,7 @@ module.exports = function(app) {
     });
 
   });
+
 
   app.post('/account/update/password/', async (req, res) => {
 
