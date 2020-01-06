@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
     },
     referer: DataTypes.STRING,
+    medium: DataTypes.STRING,
   }, {});
 
   Linkreferer.associate = function (models) {
