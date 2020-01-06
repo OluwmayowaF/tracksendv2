@@ -168,12 +168,12 @@ exports.browser = async function(req, res) {
         let referer = req.headers.referer;// 'https://www.facebook.com';//req.headers.referer;
         let ref_ = (req.headers.referer == '') ? /direct/ : /other/;
         refererlist.some(rx => {
-        if(rx.test(referer)) ref_ = rx;
+            if(rx.test(referer)) ref_ = rx;
         });
         console.log('====================================');
         console.log('host url is: ' + req.protocol + '://' + req.get('host'));
         console.log('====================================');
-        var r = new Referer(req.headers.referer);
+        var r = new Referer(req.headers.referer, req.protocol + '://' + req.get('host'));
         console.log('====================================');
         console.log('pluggedin url = ' + JSON.stringify(r));
         console.log('====================================');
