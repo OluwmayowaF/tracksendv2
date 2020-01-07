@@ -15674,6 +15674,7 @@ img.mfp-img {
     box-shadow: 0 0 5px #eee;
 		outline: none;
 		word-break: break-all;
+		min-height: 53px;
 	}
 
 	.editable_div span.arg {
@@ -15730,6 +15731,15 @@ img.mfp-img {
 		border-top: dashed 1px #ccc;
 		margin-top: 20px;
 		padding-top: 10px;
+		/* font-size: 2em; */
+		/* letter-spacing: 0.3em; */
+	}
+
+	.att_file_name {
+		/* white-space: nowrap; */
+		max-width: 50%;
+		text-overflow: ellipsis;
+		overflow: hidden;
 	}
 
 	.short_url_box {

@@ -37,9 +37,10 @@ $(document).ready(function() {
 	// const picker = new EmojiButton();
 	// $('.editable_div').on('blur', function (e) {
 	// $('#wa_contenteditable').on('keyup mouseup', function (e) {
-	$('#wa_contenteditable').on('blur keyup mouseup', function (e) {
+	$('.editable_div').on('blur keyup mouseup', function (e) {
 		e.preventDefault();
-
+		console.log('11111111111111');
+		
 		setGetSelectionThings('editable_div');
 		/* let parent_node_class = 'editable_div';
 		let editable_sel = window.getSelection();
@@ -265,9 +266,9 @@ $(document).ready(function() {
 		// if($(e.target).attr('name') != 'check') return;
 
 		var $wh = $(this);
-		var inp = $wh.attr('id');
+		var inp = $wh.attr('class');
 		// if(inp != 'ch-url') return;
-		console.log('you selected: ' + $(e.target).attr('id'));
+		console.log('you selected: ' + $(e.target).attr('class'));
 		var t, id;
 
 		switch (inp) {
@@ -304,11 +305,62 @@ $(document).ready(function() {
 				$wh.closest('form').find('#emoji_list').toggle();
 				// picker.pickerVisible ? picker.hidePicker() : picker.showPicker();
 		}
-		// return;
-		pasteDiv(id, t, $wh);
-		countChars();
 
+		inp = $wh.attr('id');
+		if(id == null) {
+			let wha = ($(this).attr('id') == 'add_img_butt') ? 'image' : 'video';
+			let whb = ($(this).attr('id') == 'add_img_butt') ? 'im-icon-Photo' : 'im-icon-Video-4';
+			let init = ($('.content_attachments input').length == 0) ? true : false;
+			$('.content_attachments').html('<input type="file" name="att_file" id="att_file" accept="'+ wha +'/*" hidden>');
+
+			$('.content_attachments #att_file').click(() => {
+				$('.content_attachments #att_file').change(() => {
+					if($('.content_attachments #att_file').val()) {
+						// $('.content_attachments').html('<input type="file" name="att_file" id="att_file" accept="'+ wha +'/*" hidden>');
+						console.log('file = ' + $('.content_attachments #att_file').val());
+						
+						$('.content_attachments').css('display','flex');
+						$('.content_attachments').append('Attachment: <i class="im '+ whb +'" style="font-size:2em;margin: 0 5px;"></i> <span class="att_file_name">' + $('.content_attachments #att_file').val() + '</span> [ <a href="#" style="color:red;color:red;font-size:0.7em;">remove</a> ]');
+					} else {
+						console.log('NO-FILE');
+						
+						$('.content_attachments').html('');
+					}
+				})
+			});
+			$('.content_attachments #att_file').click();
+
+			/* $('#att_img, #att_vid').off('change');
+			$('#att_img, #att_vid').on('change', () => {
+				if($('#att_img, #att_vid').val()) {
+					$('.content_attachments').show(); 
+					console.log('id = ' + $(this).attr('id'));
+					 
+				}
+			}) */
+
+			switch(inp) {
+				case 'clr_msg_butt':
+					if(window.confirm('Clear message?')) {
+						$wh.closest('form').find('.editable_div').html('').focus();
+					}
+					break;
+				case 'add_img_butt':
+					// $('#att_img').click();
+					$wh.closest('form').find('.editable_div').focus();
+					break;
+				case 'add_vid_butt':
+					// $('#att_vid').click();
+					$wh.closest('form').find('.editable_div').focus();
+					break;
+			}
+		} else {
+				// return;
+				pasteDiv(id, t, $wh);
+				countChars();
+		}
 	})
+
 	function pasteDiv(id, t, $wh) {
 		if(t == 'emoji') return;
 		// $('.editable_div').html($('.editable_div').html() + '<span spellcheck="false" contenteditable="false" id="'+id+'">'+t+'</span>');
@@ -318,7 +370,7 @@ $(document).ready(function() {
 		// $('.editable_div').focus();
 	}
 
-	$('#ch-emoji #emoji_list li').on('click', function (e) {
+	$('.ch-emoji #emoji_list li').on('click', function (e) {
 		console.log('emoji = ' + $(this).text());
 		
 		let txt = $(this).text().replace('&#', '0');
@@ -395,7 +447,6 @@ $(document).ready(function() {
 				$('.short_url_box #shorturlid').val(data.id);
 				$('.short_url_box').addClass('ready') ;
 				$('.customize_url_btn').show('fade') ;
-
 
 			},
 			error: function(resp, dd, ww) {
@@ -492,10 +543,10 @@ $(document).ready(function() {
 		$butt.closest('div').find('.activity_status').text('Analyzing...');
 
 		var msg_ = $me.find('.editable_div').html();
-		msg_ = msg_.replace(/<span class="arg" spellcheck="false" contenteditable="false">firstname<\/span>/g, '[firstname]')
-					.replace(/<span class="arg" spellcheck="false" contenteditable="false">lastname<\/span>/g, '[lastname]')
-					.replace(/<span class="arg" spellcheck="false" contenteditable="false">email<\/span>/g, '[email]')
-					.replace(/<span class="arg" spellcheck="false" contenteditable="false">url<\/span>/g, '[url]')
+		msg_ = msg_.replace(/<span id="firstname-in" class="arg" spellcheck="false" contenteditable="false">firstname<\/span>/g, '[firstname]')
+					.replace(/<span id="lastname-in" class="arg" spellcheck="false" contenteditable="false">lastname<\/span>/g, '[lastname]')
+					.replace(/<span id="email-in" class="arg" spellcheck="false" contenteditable="false">email<\/span>/g, '[email]')
+					.replace(/<span id="url-in" class="arg" spellcheck="false" contenteditable="false">url<\/span>/g, '[url]')
 					.replace(/&nbsp;/g, ' ')
 					.replace(/<span style="color: rgb\(112, 112, 112\); font-size: 15px; background-color: rgb\(255, 255, 255\); display: inline !important;">/g, '')
 					.replace(/<\/span>/g, '');
@@ -587,13 +638,13 @@ $(document).ready(function() {
 		var $we = $(this).closest('form');
 
 		if($(this).val() == 1) {
-			$we.find('#ch-firstname').show();
-			$we.find('#ch-lastname').show();
-			$we.find('#ch-email').show();
+			$we.find('.ch-firstname').show();
+			$we.find('.ch-lastname').show();
+			$we.find('.ch-email').show();
 		} else {
-			$we.find('#ch-firstname').hide();
-			$we.find('#ch-lastname').hide();
-			$we.find('#ch-email').hide();
+			$we.find('.ch-firstname').hide();
+			$we.find('.ch-lastname').hide();
+			$we.find('.ch-email').hide();
 		}
 
 	})
@@ -1773,6 +1824,7 @@ function setGetSelectionThings(parent_node_class) {
 	let editable_sel = window.getSelection();
 	let editable_range = editable_sel.getRangeAt(0);
 	let editable_node = editable_range.startContainer;
+	console.log('22222222222222222');
 
 	//	check if getSelection is working from proper node
 	if(editable_node.parentElement.className.indexOf(parent_node_class) == -1) return;
