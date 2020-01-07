@@ -94,8 +94,8 @@
 						<ul class="tabs-nav">
 							<li style="padding: 8px; background-color: #e8e8e8; border-radius: 0 0 10px 10px;">Select Campaign Type: </li>
 							<li class="active"><a href="#tab1a"><i class="fa fa-commenting-o"></i> SMS</a></li>
-						  {{#if has_whatsapp}}	<li class=""><a href="#tab2a"><i class="fa fa-whatsapp"></i> WHATSAPP</a></li> {{/if}}
-						  {{!-- <li class=""><a href="#tab2a"><i class="fa fa-whatsapp"></i> WHATSAPP</a></li> --}}
+						  {{!-- {{#if has_whatsapp}}	<li class=""><a href="#tab2a"><i class="fa fa-whatsapp"></i> WHATSAPP</a></li> {{/if}} --}}
+						  <li class=""><a href="#tab2a"><i class="fa fa-whatsapp"></i> WHATSAPP</a></li>
 							<li class="" style="display: none"><a href="#tab3a"><i class="sl sl-icon-bubbles"></i> PREMIUM</a></li>
 						</ul>
 
@@ -142,7 +142,7 @@
 											</div>
 
 											<div class="col-md-6">
-												<h5>Schedule Delivery </h5>
+												<h5>Schedule Delivery  <span>[ optional ]</span> </h5>
 												<input type='text' class="form-control" id="datepicker" name="datepicker" />
 												<input type="hidden" id="schedule" name="schedule" />
 											</div>
@@ -162,7 +162,7 @@
 											</div>
 
 											<div class="col-md-6">
-												<h5>Short URL </h5>
+												<h5>Short URL <span>[ optional ]</span> </h5>
 												<select class="chosen-select-no-single" name="shorturl" id="sel_short_url" required>
 													<option label="blank" value="0">Select</option>
 													{{#each args.shorturl}}
@@ -178,15 +178,16 @@
 											<div class="col-md-12">
 												<h5>Compose Message <span id="msg_est_txt"></span><span>[ Chars: <span id="msg_char_count">9</span>; Msgs: <span id="msg_count">1</span> ]</span>
 													<ul class="compose_options_box checkboxes in-row"><span style="font-size: 0.7em;">Insert: </span>
-														<li id="ch-firstname">First Name</li>
-														<li id="ch-lastname">Last Name</li>
-														<li id="ch-email">Email</li>
-														<li id="ch-url">Short URL</li>
-														{{!-- <li id="ch-url"><a href="#url-setup-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1;" id="wwww"><i class="im im-icon-Two-Windows"></i> Short URL <i class="tip" data-tip-content="Create/Modify Short URL to insert into message"></i></a></li> --}}
+														<li class="ch-firstname">First Name</li>
+														<li class="ch-lastname">Last Name</li>
+														<li class="ch-email">Email</li>
+														<li class="ch-url">Short URL</li>
+														<li class="tooltip top" id="clr_msg_butt" title="Clear message" style="color: red; font-size: 0.8em;"><i class="sl sl-icon-ban"></i></li>
+														{{!-- <li class="ch-url"><a href="#url-setup-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1;" id="wwww"><i class="im im-icon-Two-Windows"></i> Short URL <i class="tip" data-tip-content="Create/Modify Short URL to insert into message"></i></a></li> --}}
 														<div class="clearfix"></div>
 													</ul>
 												</h5>
-												<div contenteditable="true" class="editable_div _sms" onfocus="this.value = this.value;">Hello ...</div>
+												<div contenteditable="true" class="editable_div _sms">Hello ...</div>
 												<input type="hidden" name="message" id="campaignmessage">
 											</div>
 
@@ -356,8 +357,8 @@
 												<h5>Send Method </h5>
 												<select class="chosen-select-no-single" name="wa_send_method" id="wa_send_method" required>
 													<option label="blank" value="0">Select</option>
-													<option value="1">Send Message Directly to Individual Contacts</option>
-													<option value="2" selected>Send To WhatsApp Groups</option>
+													<option value="1" selected>Send Message Directly to Individual Contacts</option>
+													<option value="2">Send To WhatsApp Groups</option>
 												</select>
 											</div>
 											
@@ -381,7 +382,7 @@
 											</div>
 
 											<div class="col-md-6">
-												<h5>Schedule Delivery </h5>
+												<h5>Schedule Delivery  <span>[ optional ]</span> </h5>
 												<input type='text' class="form-control" id="datepickerwa" name="datepickerwa" />
 												<input type="hidden" id="schedulewa" name="schedulewa" />
 											</div>
@@ -391,7 +392,7 @@
 										<div class="row with-forms">
 
 											<div class="col-md-12">
-												<h5>Short URL </h5>
+												<h5>Short URL  <span>[ optional ]</span> </h5>
 												<select class="chosen-select-no-single" name="shorturl" id="sel_short_url" required>
 													<option label="blank" value="0">Select</option>
 													{{#each args.shorturl}}
@@ -408,11 +409,11 @@
 											<div class="col-md-12">
 												<h5>Compose Message <span id="msg_est_txt"></span>{{!-- <span>[ Chars: <span id="msg_char_count1">9</span>; Msgs: <span id="msg_count1">1</span> ]</span> --}}
 													<ul class="compose_options_box checkboxes in-row"><span style="font-size: 0.7em;">Insert: </span>
-														<li id="ch-firstname" style="display: none;">First Name</li>
-														<li id="ch-lastname" style="display: none;">Last Name</li>
-														<li id="ch-email" style="display: none;">Email</li>
-														<li id="ch-url">Short URL</li>
-														<li id="ch-emoji" class="tooltip top" title="Add emoji" style="color: #469965; font-size: 0.8em;"><i class="sl sl-icon-emotsmile"></i>
+														<li class="ch-firstname">First Name</li>
+														<li class="ch-lastname">Last Name</li>
+														<li class="ch-email">Email</li>
+														<li class="ch-url">Short URL</li>
+														<li class="ch-emoji" class="tooltip top" title="Add emoji" style="color: #469965; font-size: 0.8em;"><i class="sl sl-icon-emotsmile"></i>
 															<div id="emoji_list" hidden>
 																<ul>
 																	<li>&#x1F601</li>
@@ -481,19 +482,20 @@
 																</ul>
 															</div>
 														</li>
-														<li class="tooltip top" title="Add image" style="color: #469965; font-size: 0.8em;"><i class="sl sl-icon-camera"></i></li>
-														<input type="file" name="att_img" id="att_img" hidden>
-														<li class="tooltip top" title="Add video" style="color: #469965; font-size: 0.8em;"><i class="sl sl-icon-camrecorder"></i></li>
-														<input type="file" name="att_vid" id="att_vid" hidden>
-														{{!-- <li id="ch-url"><a href="#url-setup-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1;" id="wwww"><i class="im im-icon-Two-Windows"></i> Short URL <i class="tip" data-tip-content="Create/Modify Short URL to insert into message"></i></a></li> --}}
+														<li class="tooltip top " id="add_img_butt" title="Add image" style="color: #469965; font-size: 0.8em;"><i class="sl sl-icon-camera"></i></li>
+														{{!-- <input type="file" name="att_img" id="att_img" accept="image/*" hidden> --}}
+														<li class="tooltip top " id="add_vid_butt" title="Add video" style="color: #469965; font-size: 0.8em;"><i class="sl sl-icon-camrecorder"></i></li>
+														{{!-- <input type="file" name="att_vid" id="att_vid" accept="video/*" hidden> --}}
+														<li class="tooltip top " id="clr_msg_butt" title="Clear message" style="color: red; font-size: 0.8em;"><i class="sl sl-icon-ban"></i></li>
+														{{!-- <li class="ch-url"><a href="#url-setup-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1;" id="wwww"><i class="im im-icon-Two-Windows"></i> Short URL <i class="tip" data-tip-content="Create/Modify Short URL to insert into message"></i></a></li> --}}
 														<div class="clearfix"></div>
 													</ul>
 												</h5>
 												{{!-- <div class="top_joiner">see... <span style="margin: 0 5px;"><i class="sl sl-icon-emotsmile"></i></span>|<span style="margin: 0 5px;"><i class="sl sl-icon-camera"></i></span>|<span style="margin: 0 5px;"><i class="sl sl-icon-camrecorder"></i></span></div> --}}
-												<div contenteditable="true" class="editable_div _wa" id="wa_contenteditable">Hello ...
+												<div contenteditable="true" class="editable_div _wa" id="">Hello ...
 
 												</div>
-												<div class="content_attachments" contenteditable="false">:</div>
+												<div class="content_attachments" contenteditable="false" hidden><span style="letter-spacing: normal;font-size: initial;color:#aaa">Attachment: </span> </div>
 												<input type="hidden" name="message" id="campaignmessage">
 											</div>
 

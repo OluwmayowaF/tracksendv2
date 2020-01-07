@@ -816,7 +816,7 @@ exports.add = async (req, res) => {
                 mediatypeId: 2, //  '2' for whatsapp
             });
             
-            var HAS_SURL = (req.body.shorturl) ? true : false;
+            var HAS_SURL = (!req.body.shorturl || req.body.shorturl == '0') ? false : true;
             
             var groups = req.body.group;
             if (groups != 0 && !Array.isArray(groups)) groups = [groups];
@@ -977,8 +977,8 @@ exports.add = async (req, res) => {
             console.log('UID = ' + uid);
             let shrtlnk = await models.Shortlink.findByPk(req.body.shorturl);
             return {
-                sid : shrtlnk.id,
-                slk : shrtlnk.shorturl,
+                sid : shrtlnk? shrtlnk.id : null,
+                slk : shrtlnk? shrtlnk.shorturl: null,
                 cid: uid, 
             };
 
