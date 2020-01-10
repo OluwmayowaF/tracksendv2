@@ -1160,6 +1160,31 @@ console.log('====================================');
 
 		})
 
+		$('.cpy_lnk_btn').off('click');
+		$('.cpy_lnk_btn').on('click', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+
+			var $btn = $(this); //console.log('btn = ' + $btn.attr('class'));
+			var $item = $btn.closest('.list_item');
+			var $div = $item.find('.dv_desc');
+
+			var range = document.createRange();
+			// range.selectNode(document.getElementById("a"));
+			range.selectNode($div[0]);
+			window.getSelection().removeAllRanges(); // clear current selection
+			window.getSelection().addRange(range); // to select text
+			document.execCommand("copy");
+			window.getSelection().removeAllRanges();// to deselect
+			console.log('====================================');
+			console.log('COPIED TEXT');
+			console.log('====================================');
+			$('.notification.other3').removeClass('success error').addClass('success');
+			$('.notification.other3 p').text('Short link copied.');
+			$('.notification.other3').css('opacity',100);
+			$('.notification.other3').show();
+})
+
 		$('.save_edit_btn').off('click');
 		$('.save_edit_btn').on('click', function(e) {
 			var $btn = $(this);
