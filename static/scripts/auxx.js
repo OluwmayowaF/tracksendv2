@@ -308,6 +308,14 @@ $(document).ready(function() {
 
 		inp = $wh.attr('id');
 		if(id == null) {
+
+			if(inp == 'clr_msg_butt') {
+				if(window.confirm('Clear message?')) {
+					$wh.closest('form').find('.editable_div').html('').focus();
+				}
+				return;
+			}
+
 			let wha = ($(this).attr('id') == 'add_img_butt') ? 'image' : 'video';
 			let whb = ($(this).attr('id') == 'add_img_butt') ? 'im-icon-Photo' : 'im-icon-Video-4';
 			let init = ($('.content_attachments input').length == 0) ? true : false;
@@ -320,7 +328,14 @@ $(document).ready(function() {
 						console.log('file = ' + $('.content_attachments #att_file').val());
 						
 						$('.content_attachments').css('display','flex');
-						$('.content_attachments').append('Attachment: <i class="im '+ whb +'" style="font-size:2em;margin: 0 5px;"></i> <span class="att_file_name">' + $('.content_attachments #att_file').val() + '</span> [ <a href="#" style="color:red;color:red;font-size:0.7em;">remove</a> ]');
+						$('.content_attachments').append('Attachment: <i class="im '+ whb +'" style="font-size:2em;margin: 0 5px;"></i> <span class="att_file_name">' + $('.content_attachments #att_file').val() + '</span> [ <span id="remove_attachment" style="color:red;color:red;font-size:0.7em;cursor:pointer"> remove </span> ]');
+
+						$('#remove_attachment').click(() => {
+							console.log('GO!');
+							
+							$('.content_attachments').hide();
+							$('.content_attachments').html('');
+						})
 					} else {
 						console.log('NO-FILE');
 						
@@ -329,7 +344,7 @@ $(document).ready(function() {
 				})
 			});
 			$('.content_attachments #att_file').click();
-
+			
 			/* $('#att_img, #att_vid').off('change');
 			$('#att_img, #att_vid').on('change', () => {
 				if($('#att_img, #att_vid').val()) {
@@ -340,11 +355,6 @@ $(document).ready(function() {
 			}) */
 
 			switch(inp) {
-				case 'clr_msg_butt':
-					if(window.confirm('Clear message?')) {
-						$wh.closest('form').find('.editable_div').html('').focus();
-					}
-					break;
 				case 'add_img_butt':
 					// $('#att_img').click();
 					$wh.closest('form').find('.editable_div').focus();
@@ -538,6 +548,8 @@ $(document).ready(function() {
 		console.log('====================================');
 		console.log('sending...');
 		console.log('====================================');
+
+		//	check if it's not a whatsapp campaign
 		if (campaign_confirmed && !whatsapp_campaign) return true;
 		
 		$butt.closest('div').find('.activity_status').text('Analyzing...');
@@ -563,11 +575,16 @@ $(document).ready(function() {
 		$me.find('#schedule').val(moment.utc(w, 'YYYY-MM-DD HH:mm:ss Z').format('YYYY-MM-DD HH:mm:ss'));
 		$me.find('#schedulewa').val(moment.utc(wwa, 'YYYY-MM-DD HH:mm:ss Z').format('YYYY-MM-DD HH:mm:ss'));
 		// $('#datepicker').val();
+
+		var json_campaign_add = JSON.stringify($me.serializeObject()); 
+		console.log('====================================');
+		console.log('ALL FORM: ' + json_campaign_add);
+		console.log('====================================');
+		//	check if it's a whatsapp campaign
 		if (campaign_confirmed && whatsapp_campaign) return true;
 
 		// $me = $('#campaign_form');
 		
-		var json_campaign_add = JSON.stringify($me.serializeObject()); 
 
 		$.ajax({
 			type: 'POST',

@@ -289,6 +289,9 @@ module.exports = function(app) {
   app.post('/account/update/forgotpassword', async (req, res) => {
 
     const scheduler = require('node-schedule');
+    const Mailgun = require('mailgun').Mailgun;
+    var mg = new Mailgun('f45dfc3b827fa2f77a8888137d2ed186-baa55c84-6cbfd1d6');
+
     let dur = 60 * 60 * 1000; //  1 hour
     let show_input = true;
 
@@ -311,7 +314,7 @@ module.exports = function(app) {
         })
 
         try {
-          var transporter = nodemailer.createTransport({
+          /* var transporter = nodemailer.createTransport({
             host: 'smtp.ethereal.email',
             port: 587,
             secure: false, // true for 465, false for other ports
@@ -332,7 +335,22 @@ module.exports = function(app) {
             subject: 'Hallo ✔', // Subject line
             text: 'Hello ' + usr.name + ', <br><br>You have indicated that you\'ve forgotten your Tracksend password, and therefore requested a password reset. If you wish to carry on with this, kindly follow the link: https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + token + '; else please ignore this mail. The provided link would be invalid after one hour. Thanks.', // plain text body
             html: '<b>Hello ' + usr.name + '</b>, <br><br>You have indicated that you\'ve forgotten your Tracksend password, and therefore requested a password reset. If you wish to carry on with this, kindly follow the link: https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + token + '; else please ignore this mail. The provided link would be invalid after one hour.<br><br><br> Thanks,<br>Tracksend.', // html body
-          });
+          }); */
+
+          mg.sendText('Tracksend <info@tracksend.com>',   //  sender
+            [ usr.name + ' <' + usr.email + '>'],         //  [recipient(s)]
+            'Password Reset Link',                        //  subject
+            'Hello ' + usr.name + ', <br><br>You have indicated that you\'ve forgotten your Tracksend password,    ' +
+            'and therefore requested a password reset. If you wish to carry on with this, kindly follow the link:  ' + 
+            'https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + token + '; else please ignore ' +
+            'this mail. The provided link would be invalid after one hour. Thanks.',                           //  content
+            // 'noreply@example.com', {},
+            function(err) {
+              if (err) console.log('Error! Error!!: ' + err);
+              else     console.log('Success');
+            }
+          );
+          
         } catch(e) {
           console.log('====================================');
           console.log('Mailing error: ' + e);

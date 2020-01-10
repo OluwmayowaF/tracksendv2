@@ -331,7 +331,7 @@
 							</div>
 
 							<div class="tab-content whatsapp_{{ campaign_type }}" id="tab2a">
-								<form action="/dashboard/campaigns/add" method="POST" id="campaign_form_wa">
+								<form action="/dashboard/campaigns/add" method="POST" id="campaign_form_wa" enctype="multipart/form-data">
 									<input type="hidden" name="type" value="whatsapp">
 									<!-- Section -->
 									<div class="add-listing-section">
@@ -499,43 +499,6 @@
 												<input type="hidden" name="message" id="campaignmessage">
 											</div>
 
-											<div id="url-setup-box1" class="zoom-anim-dialog mfp-hide">
-
-												<div class="small-dialog-header">
-													<h3>Short URL <b> Setup</b></h3>
-												</div>
-
-												<!--Tabs -->
-												<div class="sign-in-form style-1">
-
-													<div class="row with-forms">
-
-														<!-- Status -->
-														<div class="col-md-12">
-															<h5>Enter or Paste Your Link</h5>
-															<input type="text" name="full_link" id="long_url_link1" maxlength="50" placeholder="http://www.">
-															<button type="submit" class="button preview create_short_url_btn" style="margin-top: 0">Create <i class="sl sl-icon-refresh"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
-														</div>
-
-
-														<div class="col-md-12" style="margin-top: 30px;">
-															<h5>Here's Your Short URL:  <span class="customize_url_btn" style="display: none">[ Customize ]</span></h5>
-															<div class="short_url_box">http://tsn.pub/<span id="_edit_span1" class="_editable" maxlength="5">...</span><input style="display: none" type="text" name="myshorturl" id="_edit_text1" placeholder="..." class="_editable" maxlength="10" readonly >
-																<input type="hidden" name="shorturlid" id="shorturlid1" >
-															</div>
-															{{!-- <div class="short_url_box">https://tsn.go/
-															</div> --}}
-
-															<button type="button" class="button preview short_url_btn paste" style="margin-top: 0">Insert in Msg <i class="fa fa-paste"></i></button>
-															<button type="button" class="button preview short_url_btn done" style="margin-top: 0">OK <i class="fa fa-arrow-circle-right"></i></button>
-														</div>
-
-
-													</div>
-
-												</div>
-											</div>
-
 											{{!-- <div class="col-md-12">
 												<h5>Include Recipients <span>(separate numbers with commas; messages to these won't be tracked.)</span> </h5>
 												<input type="text" name="recipients" id="recipients" maxlength="200">
@@ -636,7 +599,7 @@
 							<li style="flex: 3">{{formatDate createdAt "short"}}</li>
 							<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
 								{{!-- <span style="flex: 1; text-align:center" class="copy_item_btn"><span class="tooltip top" title="Duplicate" style="cursor: pointer"><i class="fa fa-copy"></i></span></span>&nbsp; |&nbsp;  --}}
-								<span style="flex: 1; text-align:center" class="del_item_btn"><span class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></span></span>
+								<span style="flex: 1; text-align:center;align-items: center;display: flex;" class="del_item_btn"><span class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></span></span>
 							</li>							
 							</li>
 						</ul>

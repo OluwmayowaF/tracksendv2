@@ -97,11 +97,11 @@
 									<li class="list_item _hd" style="font-weight: bolder">
 										<ul class="saved_item">
 											<input type="hidden" class="cid" value="'+i.id+'" />
-											<li style="flex: 6">Destination</li>
-											<li style="flex: 4">Short URL</li>
-											<li style="flex: 6">Most Recent Campaigns</li>
+											<li style="flex: 8">Destination</li>
+											<li style="flex: 6">Short URL</li>
+											{{!-- <li style="flex: 6">Most Recent Campaigns</li> --}}
 											<li style="flex: 3">Clicks</li>
-											<li style="flex: 3">Created</li>
+											<li style="flex: 5">Created</li>
 											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; text-align: center; font-size: 2em; line-height: 0.3;">
 												...
 											</li>
@@ -113,13 +113,14 @@
 									<li class="list_item" data-wh="senderid">
 										<ul class="saved_item">
 											<input type="hidden" class="cid" value="'+i.id+'" />
-											<li style="flex: 6" class="dv_name">{{ url }}</li>
-											<li style="flex: 4" class="dv_desc">http://tsn.pub/{{ shorturl }}</li>
-											<li style="flex: 6" class="dv_status">{{ cmpgn }}</li>
+											<li style="flex: 8" class="dv_name">{{ url }}</li>
+											<li style="flex: 6" class="dv_desc">http://tsn.pub/{{ shorturl }}</li>
+											{{!-- <li style="flex: 6" class="dv_status">{{ cmpgn }}</li> --}}
 											<li style="flex: 3" class="dv_updated">{{ clickcount }}</li>
-											<li style="flex: 3">{{formatDate createdAt "short"}}</li>
+											<li style="flex: 5">{{formatDate createdAt "short"}}</li>
 											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
-												<span style="flex: 1; text-align:center" class="del_item_btn"><span class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></span></span>
+												<span style="flex: 1; text-align:center;align-items: center;display: flex;" class="del_item_btn"><span class="tooltip top" title="Copy short link" style="cursor: pointer"><i class="fa fa-copy"></i></span></span>
+												<span style="flex: 1; text-align:center;align-items: center;border-left: solid 1px;padding-left: 3px;margin-left: 3px;display: flex;" class="del_item_btn"><span class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></span></span>
 											</li>
 										</ul>
 									</li>

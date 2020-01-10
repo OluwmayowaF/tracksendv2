@@ -354,6 +354,10 @@ exports.add = async (req, res) => {
 
         return;
     } else if(!info) {
+        console.log('====================================');
+        console.log('RECEIVED DATA: ' + JSON.stringify(req.body));
+        console.log('RECEIVED FILE: ' + JSON.stringify(req.files));
+        console.log('====================================');
         console.log('INVALID OPERATION!');
         
         return;
@@ -378,11 +382,6 @@ exports.add = async (req, res) => {
     console.log('form details are now: ' + JSON.stringify(info)); 
 
     var originalmessage  = info.message.replace(/[^\x00-\x7F]/g, "");
-                            // .replace(/<span spellcheck="false" contenteditable="false">firstname<\/span>/g, '[firstname]')
-                            // .replace(/<span spellcheck="false" contenteditable="false">lastname<\/span>/g, '[lastname]')
-                            // .replace(/<span spellcheck="false" contenteditable="false">email<\/span>/g, '[email]')
-                            // .replace(/<span spellcheck="false" contenteditable="false">url<\/span>/g, '[url]');
-    // console.log('schedule is: ' + schedule);
     
     var schedule_ = (info.schedule) ? moment(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss') : null;  //  for DB
     var schedule = (info.schedule) ? moment(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DDTHH:mm:ss.000Z') : null;   //  for infobip
@@ -801,6 +800,7 @@ exports.add = async (req, res) => {
 
             console.log('====================================');
             console.log('ALL SENT = ' + JSON.stringify(req.body));
+            console.log('FILE? = ' + JSON.stringify(req.files));
             console.log('====================================');
             //  create campaign
             var cpn = await models.Campaign.create({
