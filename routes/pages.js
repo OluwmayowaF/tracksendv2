@@ -292,9 +292,8 @@ module.exports = function(app) {
 
     // const Mailgun = require('mailgun').Mailgun;
     // var mg = new Mailgun('f45dfc3b827fa2f77a8888137d2ed186-baa55c84-6cbfd1d6');
-    var api_key = 'f45dfc3b827fa2f77a8888137d2ed186-baa55c84-6cbfd1d6';
-    var domain = 'mg.tracksend.co';
-    const mailgun = require('mailgun-js')({apiKey: api_key, domain: domain});
+    var mgauth = require('../config/cfg/mailgun')();
+    const mailgun = require('mailgun-js')({apiKey: mgauth.APIKEY, domain: mgauth.DOMAIN});
 
     let dur = 60 * 60 * 1000; //  1 hour
     let show_input = true;
