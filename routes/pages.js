@@ -272,7 +272,7 @@ module.exports = function(app) {
     } */
 
     res.render('pages/forgotpassword', {
-      layout: 'main1',
+      layout: 'main',
       page: 'Password Reset',
       flash: {
         type: req.flash('type'),
@@ -289,8 +289,12 @@ module.exports = function(app) {
   app.post('/account/update/forgotpassword', async (req, res) => {
 
     const scheduler = require('node-schedule');
-    const Mailgun = require('mailgun').Mailgun;
-    var mg = new Mailgun('f45dfc3b827fa2f77a8888137d2ed186-baa55c84-6cbfd1d6');
+
+    // const Mailgun = require('mailgun').Mailgun;
+    // var mg = new Mailgun('f45dfc3b827fa2f77a8888137d2ed186-baa55c84-6cbfd1d6');
+    var api_key = 'f45dfc3b827fa2f77a8888137d2ed186-baa55c84-6cbfd1d6';
+    var domain = 'mg.tracksend.co';
+    const mailgun = require('mailgun-js')({apiKey: api_key, domain: domain});
 
     let dur = 60 * 60 * 1000; //  1 hour
     let show_input = true;
@@ -337,7 +341,7 @@ module.exports = function(app) {
             html: '<b>Hello ' + usr.name + '</b>, <br><br>You have indicated that you\'ve forgotten your Tracksend password, and therefore requested a password reset. If you wish to carry on with this, kindly follow the link: https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + token + '; else please ignore this mail. The provided link would be invalid after one hour.<br><br><br> Thanks,<br>Tracksend.', // html body
           }); */
 
-          mg.sendText('Tracksend <info@tracksend.com>',   //  sender
+          /* mg.sendText('Tracksend <info@tracksend.com>',   //  sender
             [ usr.name + ' <' + usr.email + '>'],         //  [recipient(s)]
             'Password Reset Link',                        //  subject
             'Hello ' + usr.name + ', <br><br>You have indicated that you\'ve forgotten your Tracksend password,    ' +
@@ -349,8 +353,24 @@ module.exports = function(app) {
               if (err) console.log('Error! Error!!: ' + err);
               else     console.log('Success');
             }
-          );
-          
+          ); */
+
+
+          var data = {
+            from: 'Tracksend <info@tracksend.com>',
+            to: usr.name + ' <' + usr.email + '>',
+            subject: 'Password Reset Link',
+            text: 'Hello ' + usr.name + ', <br><br>You have indicated that you\'ve forgotten your Tracksend password,    ' +
+            'and therefore requested a password reset. If you wish to carry on with this, kindly follow the link:  ' + 
+            'https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + token + '; else please ignore ' +
+            'this mail. The provided link would be invalid after one hour. Thanks.',
+          };
+           
+          mailgun.messages().send(data, function (error, body) {
+            console.log('error: ' + JSON.stringify(error));
+            console.log('body: ' + JSON.stringify(body));
+          });
+
         } catch(e) {
           console.log('====================================');
           console.log('Mailing error: ' + e);
@@ -390,7 +410,7 @@ module.exports = function(app) {
     }
 
     res.render('pages/forgotpassword', {
-      layout: 'main1',
+      layout: 'main',
       page: 'Password Reset',
       flash: {
         type: req.flash('type'),

@@ -25,7 +25,7 @@
     "inbound": "0.0.6",
     "jade": "^1.11.0",
     "jsonwebtoken": "^8.5.1",
-    "mailgun": "^0.5.0",
+    "mailgun-js": "^0.22.0",
     "mongodb": "^3.2.7",
     "mongoose": "^5.6.4",
     "multer": "^1.4.2",
