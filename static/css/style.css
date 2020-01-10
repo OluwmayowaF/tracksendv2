@@ -15736,10 +15736,25 @@ img.mfp-img {
 	}
 
 	.att_file_name {
-		/* white-space: nowrap; */
-		max-width: 50%;
+		white-space: nowrap;
+		max-width: 400px;
 		text-overflow: ellipsis;
 		overflow: hidden;
+	}
+	@media (max-width:800px) {
+		.att_file_name {
+			max-width: 300px;
+		}
+	}
+	@media (max-width:500px) {
+		.att_file_name {
+			max-width: 150px;
+		}
+	}
+	@media (max-width:300px) {
+		.att_file_name {
+			display: hidden;
+		}
 	}
 
 	.short_url_box {
