@@ -295,6 +295,12 @@ header.fullwidth .container {
 	width: 35%;
 	display: inline-block;
 }
+.right-side ._link:not(:last-child) {
+    display: inline-block;
+    margin-right: 10px;
+    border-right: solid 1px;
+    padding-right: 10px;
+}
 
 /* mobile fix */
 @media (min-width: 1025px) and (max-width: 1239px)  {
