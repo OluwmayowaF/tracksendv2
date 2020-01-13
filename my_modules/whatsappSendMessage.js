@@ -13,7 +13,8 @@ var qs = require('qs');
 var moment = require('moment');
 var scheduler = require('node-schedule');
 
-const whatsappSendMessage =  async (phone, body, instanceurl, token, contactid=null, msgid=null, schedule=null) => {
+// const whatsappSendMessage =  async (typ, phone, body, instanceurl, token, contactid=null, msgid=null, schedule=null, filename=null, caption=null) => {
+const whatsappSendMessage =  async (typ, phone, body, instanceid, token, contactid=null, msgid=null, schedule=null, filename=null, caption=null) => {
 
   if(contactid) {
     const unsubscribelink = 'https://dev2.tracksend.co/whatsapp/optout/' + contactid;
@@ -41,51 +42,82 @@ const whatsappSendMessage =  async (phone, body, instanceurl, token, contactid=n
   }
 
   async function send() {
+    let new_resp;
+    try {
+      if(typ == 'message') {
+        // let url = instanceurl + "sendMessage?token=" + token;
+        let url = 'https://api.chat-api.com/instance' + instanceid + "/sendMessage?token=" + token;
+        console.log('====================================');
+        console.log('STARTING SEDNDING...' + url);
+        console.log('====================================');
 
-    let url = instanceurl + "/message?token=" + token;
-    console.log('====================================');
-    console.log('STARTING SEDNDING...' + url);
-    console.log('====================================');
+        new_resp = await axios({
+          method: 'POST',
+          url,
+          // data: qs.stringify({
+          data: {
+              "phone": phone,
+              "body": body
+          },
+          headers: {
+            'Content-Type': 'application/json'
+          //   'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        })
+      } else if(typ == 'file') {
+        // let url = instanceurl + "sendFile?token=" + token;
+        let url = 'https://api.chat-api.com/instance' + instanceid + "/sendFile?token=" + token;
+        console.log('====================================');
+        console.log('STARTING FILE SEDNDING...' + url);
+        console.log('====================================');
 
-    const new_resp = await axios({
-      method: 'POST',
-      url,
-      // data: qs.stringify({
-      data: {
-          "phone": phone,
-          "body": body
-      },
-      headers: {
-        'Content-Type': 'application/json'
-      //   'Content-Type': 'application/x-www-form-urlencoded'
+        new_resp = await axios({
+          method: 'POST',
+          url,
+          // data: qs.stringify({
+          data: {
+              "phone": phone,
+              "body": body,
+              "filename": filename,
+              "caption": caption,
+          },
+          headers: {
+            'Content-Type': 'application/json'
+            // 'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        })
       }
-    })
-
-    console.log('====================================');
-    console.log('WHATSAPP RESP: ' + JSON.stringify(new_resp.data) + '| ; ID : ' + new_resp.data.id);
-    console.log('====================================');
-
-    if(new_resp.data) {
+      
       console.log('====================================');
-      console.log('WHATSAPP RESP: ' + JSON.stringify(new_resp.data) + '| msgid = ' + msgid + '; ID : ' + new_resp.data.id);
+      console.log('WHATSAPP RESP: ' + JSON.stringify(new_resp.data) + '| ; ID : ' + new_resp.data.id);
       console.log('====================================');
-    }
 
-    if(msgid) await models.Message.update(
-      {
-          message_id: new_resp.data.id,
-      }, {
-        where: {
-          id: msgid
+      if(new_resp.data) {
+        console.log('====================================');
+        console.log('WHATSAPP RESP: ' + JSON.stringify(new_resp.data) + '| msgid = ' + msgid + '; ID : ' + new_resp.data.id);
+        console.log('====================================');
+      }
+
+      if(msgid) await models.Message.update(
+        {
+            message_id: new_resp.data.id,
+        }, {
+          where: {
+            id: msgid
+          }
         }
+      );
+
+      console.log('====================================');
+      console.log('MSG UPDATED');
+      console.log('====================================');
+      // return new_resp;
+      } catch(e) {
+        console.log('====================================');
+        console.log('errorwa: ' + e);
+        console.log('errorwa: ' + JSON.stringify(e));
+        console.log('====================================');
       }
-    );
-
-    console.log('====================================');
-    console.log('MSG UPDATED');
-    console.log('====================================');
-    // return new_resp;
-
   }
 
 }

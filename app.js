@@ -3,6 +3,7 @@ const exphbs = require('express-handlebars');
 const { hbs } = require('./my_modules/handlebarhelpers')();
 const bodyParser = require('body-parser');
 const path = require('path');
+const fileUpload = require('express-fileupload');
 // const http = require('http');
 // var handlebars = require('handlebars');
 // Requiring passport as we've configured it
@@ -31,6 +32,7 @@ const PORT = process.env.PORT || 3000;
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 
+app.use(fileUpload());
 app.use(cookieParser('secret'));
 app.use(session({
   cookie: { maxAge: (365 * 24 * 60 * 60 * 1000) },

@@ -24,7 +24,7 @@ $(document).ready(function() {
 	var whatsapp_campaign = false;
 
 	try {
-		createBox('place_it_here', '3443453_57445254_10_342');
+		createBox('place_it_here', 'GGGk4XndliwBmnFbC5ukOfx78Fgpwvlk');
 	} catch(e) {
 		console.log("Tracksend Box Error: " + e);
 	}
@@ -162,6 +162,10 @@ $(document).ready(function() {
 		countChars(e);
 	} );
 
+	$('.add_optout #add_optout').on('change', (e) => {
+		countChars(e);
+	});
+
 	//	FOR CALCULATION OF TOPUPS 
 	var topupbands = [];
 	$('.rates_list div._rates').each(function (i, el) {
@@ -176,9 +180,9 @@ $(document).ready(function() {
 		console.log('q: ' + JSON.stringify(topupbands));
 	//	...end
 
-	function countChars(e) {
+	function countChars(e) {	//	note that 'e' argument is not to be used, as this refers to divergent types of objects
 		var $we = $('.editable_div._sms');
-
+		var $sw = $('.add_optout #add_optout');
 		var sp = $we.find('span.arg').length;
 		var ch = 0;
 		var msgs = 0;
@@ -198,6 +202,11 @@ $(document).ready(function() {
 			ch = $we.text().length;
 			console.log('no sp; alls = ' + ch);
 		} 
+
+		if($sw.is(':checked')) {
+			ch += 30;
+		}
+		
 		console.error('ch = ' + ch);
 
 		//	count msgs
@@ -296,7 +305,8 @@ $(document).ready(function() {
 					return false;
 				}
 
-				// $wh.closest('form').find('.add_utm').show('fade');
+				$wh.closest('form').find('.add_utm').show('fade');
+				
 				break;
 			case 'ch-emoji':
 				t = 'emoji';
@@ -312,6 +322,7 @@ $(document).ready(function() {
 			if(inp == 'clr_msg_butt') {
 				if(window.confirm('Clear message?')) {
 					$wh.closest('form').find('.editable_div').html('').focus();
+					countChars(e);
 				}
 				return;
 			}
@@ -1168,7 +1179,7 @@ console.log('====================================');
 			var $btn = $(this); //console.log('btn = ' + $btn.attr('class'));
 			var $item = $btn.closest('.list_item');
 			var $div = $item.find('.dv_desc');
-
+			
 			var range = document.createRange();
 			// range.selectNode(document.getElementById("a"));
 			range.selectNode($div[0]);

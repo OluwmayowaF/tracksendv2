@@ -51,6 +51,7 @@ exports.index = async (req, res) => {
         flashtype, flash,
 
         args: {
+            apikey: req.user.api_key,
             sids: 'sids',
             active,
             qrcode,

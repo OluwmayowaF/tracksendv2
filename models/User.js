@@ -27,6 +27,11 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING,
       allowNull: false
     },
+    api_key: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: 'api_key',
+    },
     name:             DataTypes.STRING,
     phone:            DataTypes.STRING,
     business:         DataTypes.STRING,

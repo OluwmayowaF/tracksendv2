@@ -50,9 +50,15 @@ module.exports = function(app) {
   // how we configured our Sequelize User Model. If the user is created successfully, proceed to log the user in,
   // otherwise send back an error
 
-  app.post("/api/register", function(req, res) {
+  app.post("/api/register", async function(req, res) {
+    const randgen = require('../my_modules/randgen');
+    let pk = await randgen('api_key', db.User, 50, 'fullalphnum', '_');
 
-    console.log(req.body);
+    console.log(req.body); 
+    req.body.api_key = pk;
+    console.log('====================================');
+    console.log(JSON.stringify(req.body));
+    console.log('====================================');
     db.User.create(req.body).then(function(user) {
       // res.redirect(307, "/api/login");
       console.log('111111');

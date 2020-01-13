@@ -7901,6 +7901,9 @@ body .notification strong { border: none; }
 	top: 0;
 	cursor: pointer;
 }
+.notification.closeable._pk a.close:before {
+	top: -9px;
+}
 
 .notification.other {
 	position: absolute;
@@ -11238,7 +11241,7 @@ a.close-list-item {
 	z-index: 100;
 	margin-bottom: 15px;
 }
-.add-listing-section .ignore_dnd label.switch, .add-listing-section .add_utm label.switch {
+.add-listing-section .ignore_dnd label.switch, .add-listing-section .add_utm label.switch, .add-listing-section .add_optout label.switch {
 	position: relative;
 	right: auto;
 	top: 4px;

@@ -94,8 +94,8 @@
 						<ul class="tabs-nav">
 							<li style="padding: 8px; background-color: #e8e8e8; border-radius: 0 0 10px 10px;">Select Campaign Type: </li>
 							<li class="active"><a href="#tab1a"><i class="fa fa-commenting-o"></i> SMS</a></li>
-						  {{#if has_whatsapp}}	<li class=""><a href="#tab2a"><i class="fa fa-whatsapp"></i> WHATSAPP</a></li> {{/if}}
-						  {{!-- <li class=""><a href="#tab2a"><i class="fa fa-whatsapp"></i> WHATSAPP</a></li> --}}
+						  {{!-- {{#if has_whatsapp}}	<li class=""><a href="#tab2a"><i class="fa fa-whatsapp"></i> WHATSAPP</a></li> {{/if}} --}}
+						  <li class=""><a href="#tab2a"><i class="fa fa-whatsapp"></i> WHATSAPP</a></li>
 							<li class="" style="display: none"><a href="#tab3a"><i class="sl sl-icon-bubbles"></i> PREMIUM</a></li>
 						</ul>
 
@@ -233,13 +233,18 @@
 												<input type="text" name="recipients" id="recipients" maxlength="200">
 											</div> --}}
 
-											<div class="col-md-12 with-forms">
+											<div class="col-md-12 with-forms" style="box-sizing: inherit;">
 												<div class="col-md-6 ignore_dnd" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
 													<h5 style="float: left">Skip DND (Do-Not-Disturb) Contacts  <i class="tip" data-tip-content="This applies to contacts that has be confirmed to be DND based on feedback from previous message."></i> </h5>
 													<label class="switch"><input type="checkbox" checked="" name="skip_dnd"><span class="slider round"></span></label>
 													<div class="clearfix"></div>
 												</div>
-												<div class="col-md-5 add_utm" hidden style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px; float: right">
+												<div class="col-md-6 add_optout" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
+													<h5 style="float: left">Add 'Unsubscribe' Link to Message  <i class="tip" data-tip-content="This would insert a link at the end your SMS with which the recipient can unsubscribe from receiving your future SMS"></i> </h5>
+													<label class="switch"><input type="checkbox" id="add_optout" name="add_optout"><span class="slider round"></span></label>
+													<div class="clearfix"></div>
+												</div>
+												<div class="col-md-6 add_utm" hidden style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px;">
 													<h5 style="float: left">Add UTM Tags To URL  <i class="tip" data-tip-content="Tags to help track source medium e.g. Facebook, Instagram, etc."></i> </h5>
 													<label class="switch"><input type="checkbox" checked="" name="add_utm"><span class="slider round"></span></label>
 													<div class="clearfix"></div>
@@ -319,13 +324,8 @@
 
 												</div>
 											</div>
-
-
-
 									</div>
 									<!-- Section / End -->
-
-
 
 								</form>
 							</div>
