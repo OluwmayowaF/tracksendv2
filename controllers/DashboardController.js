@@ -2,8 +2,9 @@ var models = require('../models');
 var moment = require('moment');
 const sequelize = require('../config/cfg/db');
 const Sequelize = require('sequelize');
+const randgen = require('../my_modules/randgen');
 
-exports.index = (req, res) => {
+exports.index = async(req, res) => {
     const ACCUMULATE_MESSAGES = true;
     const ACCUMULATE_CONTACTS = true;
     const ACCUMULATE_OPTOUTS = true;
@@ -18,6 +19,20 @@ exports.index = (req, res) => {
     var acc_c = 0;    //  accumulating contacts
     var acc_o = 0;    //  accumulating optouts
 
+    //  check if user has api_key and create
+    if(!req.user.api_key || req.user.api_key.length == 0) {
+        let pk = await randgen('api_key', models.User, 50, 'fullalphnum', '_');
+
+        await models.User.update({
+            api_key: pk
+        },
+        {
+            where: {
+                id: req.user.id
+            }
+        })
+        req.user.api_key = pk;
+    }
 
     console.log('showing page...'); 
     
