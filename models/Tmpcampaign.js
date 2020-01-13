@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     status:     DataTypes.INTEGER,
     skip_dnd:   DataTypes.STRING,
     has_utm:    DataTypes.INTEGER,
+    add_optout: DataTypes.INTEGER,
     units_used: DataTypes.DOUBLE,
     mediatypeId: DataTypes.INTEGER,
   }, {});

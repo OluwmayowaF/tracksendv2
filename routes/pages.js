@@ -9,6 +9,7 @@ const randgen = require('../my_modules/randgen');
 
 
 const redirectRouter = require('../routes/redirect');
+const smsRouter = require('../routes/sms');
 const whatsAppRouter = require('../routes/whatsapp');
 
 module.exports = function(app) {
@@ -553,6 +554,7 @@ module.exports = function(app) {
 
   app.use('/redirect', redirectRouter);
 
+  app.use('/sms', smsRouter);
   app.use('/WhatsApp', whatsAppRouter);
 
 };

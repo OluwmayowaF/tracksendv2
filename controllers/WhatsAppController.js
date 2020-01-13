@@ -315,7 +315,7 @@ exports.preOptout = async (req, res) => {
         let kont = await models.Contact.findByPk(kid, {
             include: [{
                 model: models.User, 
-                attributes: ['name']
+                attributes: ['name', 'business']
             },{
                 model: models.Group, 
                 attributes: ['name']
@@ -342,7 +342,7 @@ exports.preOptout = async (req, res) => {
             flash = req.flash('success');
         }
 
-        res.render('pages/dashboard/whatsappcompleteoptout', {
+        res.render('pages/whatsappcompleteoptout', {
             _page: 'WhatsApp Opt-Out',
             flashtype, flash,
 
@@ -351,6 +351,7 @@ exports.preOptout = async (req, res) => {
                 kid,
                 groupname: kont.group.name,
                 username: kont.user.name,
+                business: kont.user.business,
             }
         });
     
@@ -417,7 +418,7 @@ exports.postOptout = async (req, res) => {
             platform: 'WhatsApp',
         })
 
-        res.render('pages/dashboard/whatsappcompleteoptout', {
+        res.render('pages/whatsappcompleteoptout', {
             _page: 'WhatsApp Opt-Out',
 
             args: {}
@@ -444,14 +445,6 @@ exports.postOptout = async (req, res) => {
         req.flash('error', errmsg);
         var backURL = req.header('Referer') || '/';
         res.redirect(backURL);
-
-        /* res.render('pages/dashboard/whatsappcompleteoptout', {
-            _page: 'WhatsApp Opt-Out',
-
-            args: {
-                error: errmsg
-            }
-        }); */
 
     }
 

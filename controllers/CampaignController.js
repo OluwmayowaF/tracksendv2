@@ -383,6 +383,12 @@ exports.add = async (req, res) => {
     
     var schedule_ = (info.schedule) ? moment(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss') : null;  //  for DB
     var schedule = (info.schedule) ? moment(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DDTHH:mm:ss.000Z') : null;   //  for infobip
+
+    var unsubmsg = '';
+    if(req.body.add_optout && req.body.add_optout == "on") {
+        unsubmsg = '\n\nTo unsubscribe, click: https://dev2.tracksend.co/sms/optout/';
+    }
+
     
     //  create campaign
     Promise.all([models.Campaign.create({
@@ -428,9 +434,14 @@ exports.add = async (req, res) => {
                                             [Sequelize.Op.ne] : 3
                                         }
                                     }
-                                ]
+                                ],
+                                do_sms: true
                             }
-                        } : {}
+                        } : {
+                            where: {
+                                do_sms: true
+                            }
+                        }
                         )
                 }],
                 where: {
@@ -550,6 +561,8 @@ exports.add = async (req, res) => {
                         .replace(/\[email\]/g, kont.email)
                         .replace(/\[url\]/g, 'http://tsn.pub/' + args.slk + '/' + args.cid)
                         .replace(/&nbsp;/g, ' ');
+
+                        updatedmessage += (unsubmsg.length == 0) ? unsubmsg : unsubmsg + kont.id;
 
                         if(SINGLE_MSG) {
                             var msgto = {
