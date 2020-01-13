@@ -54,15 +54,19 @@ exports.preOptIn = async (req, res) => {
     var phoneformat = require('../my_modules/phoneformat');
 
     //  for the sake of it, the only useful part of the 'clientid' is the third part of it... which is the client's userId
-    let uid = req.body.clientid.split('_')[2];
+    let key = req.body.clientid;
 
     console.log('[[====================================');
-    console.log('OPT-IN DATA: ...' + JSON.stringify(req.body) + 'UID = ' + uid);
+    console.log('OPT-IN DATA: ...' + JSON.stringify(req.body));
     console.log('====================================]]');
 
     try {
         //  get user details
-        let user = await models.User.findByPk(uid);
+        let user = await models.User.findOne({
+            where: {
+                api_key: key,
+            }
+        });
 
         if(!user) throw {
             name: 'requesterror',
@@ -75,7 +79,7 @@ exports.preOptIn = async (req, res) => {
         //  get user's default [uncategorized] group id
         let grpid = await models.Group.findOne({
             where: {
-                userId: uid,
+                userId: user.id,
                 name: '[Uncategorized]',
             },
             attributes: ['id']
@@ -87,7 +91,7 @@ exports.preOptIn = async (req, res) => {
             firstname: req.body.fullname.split(' ')[0],
             lastname: req.body.fullname.split(' ')[1],
             phone: req.body.phone,
-            userId: uid,
+            userId: user.id,
             groupId: grpid.id,
             countryId: req.body.country,
             misc: uniquecode,
@@ -98,7 +102,12 @@ exports.preOptIn = async (req, res) => {
         let body = 'Hello ' + req.body.fullname.split(' ')[0] + 
                    ', thanks for opting in to our WhatsApp platform. One last thing, please use this link to confirm and finish: ' + newurl;
 
-        let new_resp = await whatsappSendMessage(phone, body, user.wa_instanceurl, user.wa_instancetoken);
+        if(!user.wa_instanceurl || !user.wa_instancetoken) throw {
+            name: 'integrationerror',
+            del: kont
+        };
+
+        let new_resp = await whatsappSendMessage('message', phone, body, user.wa_instanceid, user.wa_instancetoken);
 
         // res.sendStatus(200);
         res.send("ok"); 
@@ -126,6 +135,13 @@ exports.preOptIn = async (req, res) => {
                 msg: "There's an error the Phone Number, kindly check again.",
             });
         }
+        else if(e.name == 'integrationerror') {
+            e.del.destroy();
+            res.send({
+                status: "error",
+                msg: "Error at Host, kindly contact website admin.",
+            });
+        }
         return;
     }
 
@@ -136,7 +152,6 @@ exports.postOptin = async function(req, res) {
     let ucode = req.query.code;
     console.log('code = ' + ucode);
     
-
     let uid = await models.Contact.findOne({
         where: {
             misc: ucode,
@@ -244,7 +259,7 @@ exports.completeOptin = async function(req, res) {
         let user = await models.User.findByPk(kont.userId);
         let phone = phoneformat(kont.phone, kont.countryId);
         let body = 'Thanks ' + kont.firstname + '. Opt-in to ' + user.name + ' WhatsApp platform compeleted successfully.';
-        let new_resp = await whatsappSendMessage(phone, body, user.wa_instanceurl, user.wa_instancetoken);
+        let new_resp = await whatsappSendMessage('message', phone, body, user.wa_instanceid, user.wa_instancetoken);
 
         res.render('pages/dashboard/whatsappcompleteoptin', {
             _page: 'WhatsApp Opt-In',

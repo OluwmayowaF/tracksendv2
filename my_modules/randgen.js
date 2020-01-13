@@ -7,7 +7,7 @@
 
 */
 
-const randGen = (field, modl, len = 24, typ = 'num') => {
+const randGen = (field, modl, len = 24, typ = 'num', separator = '') => {
 
   var randomid = function (n, typ) {
     // console.log('number is = ' + n + '; type is = ' + typ);
@@ -20,7 +20,14 @@ const randGen = (field, modl, len = 24, typ = 'num') => {
     if(typ == 'fullalphnum')  arr = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
                                      'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
                                      '0','1','2','3','4','5','6','7','8','9'];
-
+    if(separator) {
+      let itr = Math.ceil(len / 8), i = 0;
+      do {
+        arr[arr.length] = separator;
+        i++;
+      } while (i <= itr)
+    }
+    
     var len = arr.length;
     var id = '';
     for (let i = 0; i < n; i++) {
@@ -34,6 +41,8 @@ const randGen = (field, modl, len = 24, typ = 'num') => {
   const doGenerate = () => {
 
     var id = randomid(len, typ)
+    if(!field && !modl) return id;
+    
     return modl.findAll({
       where: {
         [field]: id,
