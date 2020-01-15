@@ -1043,7 +1043,7 @@ exports.add = async (req, res) => {
                 await ofile.mv('tmp/whatsapp/'+tempfilename);  
                 
                 let nfile = await fs.readFileSync('tmp/whatsapp/'+tempfilename, { encoding: 'base64' });
-                nfile = 'data:' + ofile.mimetype + ';base64' + nfile;
+                nfile = 'data:' + ofile.mimetype + ';base64,' + nfile;
                 console.log('tepfile = ' + tempfilename + '; filenae = ' + filename + '; base64 = ' + nfile);
                 // sendSingleFile(nmsg, tophone, nfile, req.user.wa_instanceurl, req.user.wa_instancetoken, kont.id, req.body.schedulewa, filename, updatedmessage);
                 await whatsappSendMessage('file', tophone, nfile, req.user.wa_instanceid, req.user.wa_instancetoken, kont.id, nmsg.id, req.body.schedulewa, filename, updatedmessage);
