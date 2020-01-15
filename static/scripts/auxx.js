@@ -23,11 +23,11 @@ $(document).ready(function() {
 	var campaign_confirmed = false;
 	var whatsapp_campaign = false;
 
-	try {
+	/* try {
 		createBox('place_it_here', 'GGGk4XndliwBmnFbC5ukOfx78Fgpwvlk');
 	} catch(e) {
 		console.log("Tracksend Box Error: " + e);
-	}
+	} */
 
 	$('form').submit((e) => {
 		// if($(e.target).find('span.loading_icon').is(':visible')) return false;
