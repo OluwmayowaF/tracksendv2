@@ -560,9 +560,10 @@ exports.add = async (req, res) => {
                         .replace(/\[lastname\]/g, kont.lastname)
                         .replace(/\[email\]/g, kont.email)
                         .replace(/\[url\]/g, 'http://tsn.pub/' + args.slk + '/' + args.cid)
-                        .replace(/\\r/g, '')
-                        .replace(/\\n/g, '')
-                        .replace(/\\t/g, '')
+                        .replace(/\s{2,}/g, '')
+                        // .replace(/\\r/g, '')
+                        // .replace(/\\n/g, '')
+                        // .replace(/\\t/g, '')
                         .replace(/&nbsp;/g, ' ');
 
                         updatedmessage += (unsubmsg.length == 0) ? unsubmsg : unsubmsg + kont.id;
@@ -1014,9 +1015,10 @@ exports.add = async (req, res) => {
             .replace(/\[lastname\]/g, kont.lastname)
             .replace(/\[email\]/g, kont.email)
             .replace(/\[url\]/g, 'http://tsn.pub/' + args.slk + '/' + args.cid)
-            .replace(/\\r/g, '')
-            .replace(/\\n/g, '')
-            .replace(/\\t/g, '')
+            .replace(/\s{2,}/g, '')
+            // .replace(/\\r/g, '')
+            // .replace(/\\n/g, '')
+            // .replace(/\\t/g, '')
             .replace(/&nbsp;/g, ' ');
 
             //  { SEND_SINGLE_MESSAGES_TO_CHAT-API }
