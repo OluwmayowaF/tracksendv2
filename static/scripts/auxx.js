@@ -310,7 +310,7 @@ $(document).ready(function() {
 				break;
 			case 'ch-emoji':
 				t = 'emoji';
-				id = 'url-in';
+				id = 'emj-in';
 				
 				$wh.closest('form').find('#emoji_list').toggle();
 				// picker.pickerVisible ? picker.hidePicker() : picker.showPicker();
@@ -376,20 +376,10 @@ $(document).ready(function() {
 					break;
 			}
 		} else {
-				// return;
-				pasteDiv(id, t, $wh);
+				if(t != 'emoji') insertText(id, 'arg', t, 'span');
 				countChars();
 		}
 	})
-
-	function pasteDiv(id, t, $wh) {
-		if(t == 'emoji') return;
-		// $('.editable_div').html($('.editable_div').html() + '<span spellcheck="false" contenteditable="false" id="'+id+'">'+t+'</span>');
-		insertText(id, 'arg', t, 'span');//+'">'+t+'</span>','h');
-		// $wh.closest('.col-md-12').find('.editable_div').html($wh.closest('.col-md-12').find('.editable_div').html().replace(/<br>$/g, ' '));
-		// $wh.closest('.col-md-12').find('.editable_div').html($wh.closest('.col-md-12').find('.editable_div').html() + '<span class="arg" spellcheck="false" contenteditable="false">'+t+'</span>&nbsp;');
-		// $('.editable_div').focus();
-	}
 
 	$('.ch-emoji #emoji_list li').on('click', function (e) {
 		console.log('emoji = ' + $(this).text());
@@ -519,7 +509,7 @@ $(document).ready(function() {
 			var t = 'url';
 			var id = 'url-in';
 			
-			pasteDiv(id, t);
+			if(t != 'emoji') insertText(id, 'arg', t, 'span');
 		}
 
 		$.magnificPopup.close();
@@ -567,15 +557,19 @@ $(document).ready(function() {
 
 		var msg_ = $me.find('.editable_div').html();
 		msg_ = msg_.replace(/<span id="firstname-in" class="arg" spellcheck="false" contenteditable="false">firstname<\/span>/g, '[firstname]')
+					.replace(/<span id="firstname-in" class="arg" contenteditable="false" spellcheck="false">firstname<\/span>/g, '[firstname]')
 					.replace(/<span id="lastname-in" class="arg" spellcheck="false" contenteditable="false">lastname<\/span>/g, '[lastname]')
+					.replace(/<span id="lastname-in" class="arg" contenteditable="false" spellcheck="false">lastname<\/span>/g, '[lastname]')
 					.replace(/<span id="email-in" class="arg" spellcheck="false" contenteditable="false">email<\/span>/g, '[email]')
+					.replace(/<span id="email-in" class="arg" contenteditable="false" spellcheck="false">email<\/span>/g, '[email]')
 					.replace(/<span id="url-in" class="arg" spellcheck="false" contenteditable="false">url<\/span>/g, '[url]')
+					.replace(/<span id="url-in" class="arg" contenteditable="false" spellcheck="false">url<\/span>/g, '[url]')
 					.replace(/&nbsp;/g, ' ')
 					.replace(/<span style="color: rgb\(112, 112, 112\); font-size: 15px; background-color: rgb\(255, 255, 255\); display: inline !important;">/g, '')
 					.replace(/<\/span>/g, '');
 
 		var $dd = $me.find('.editable_div').clone();
-		$dd.html(msg_);
+		$dd.html(msg_); 
 		var msg = $dd.text();
 		$me.find('#campaignmessage').val(msg);
 		let w = moment($me.find('#datepicker').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
