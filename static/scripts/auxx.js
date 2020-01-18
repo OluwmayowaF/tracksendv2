@@ -568,6 +568,8 @@ $(document).ready(function() {
 					.replace(/<span style="color: rgb\(112, 112, 112\); font-size: 15px; background-color: rgb\(255, 255, 255\); display: inline !important;">/g, '')
 					.replace(/<\/span>/g, '');
 
+		console.log('adjustents...');
+		
 		var $dd = $me.find('.editable_div').clone();
 		$dd.html(msg_); 
 		var msg = $dd.text();
