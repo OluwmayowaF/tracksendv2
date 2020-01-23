@@ -7,7 +7,8 @@ const _ = require('lodash');
 const Sequelize = require('sequelize');
 const sequelize = require('../config/cfg/db');
 const Op = Sequelize.Op;
-const fs = require('fs');
+const fs = require('fs'); 
+
 var { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
 var phoneformat = require('../my_modules/phoneformat');
 const randgen = require('../my_modules/randgen');

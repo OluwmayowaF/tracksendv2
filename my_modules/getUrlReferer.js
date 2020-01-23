@@ -42,7 +42,8 @@ const getUrlReferer =  async (req, urlid) => {
           console.log('====================================');
           console.log('pluggedin url = ' + JSON.stringify(r.referer));
           console.log('====================================');
-          if(r.known) {
+
+          if(r.referer && r.known) {
               medium = r.medium;
               referer = r.referer;
           } else {

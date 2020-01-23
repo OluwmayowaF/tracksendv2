@@ -3,7 +3,8 @@
 	function createBox(client_container, API_KEY) {
 
 		// if(window.location )
-		var $container = $('.'+client_container).first(); 
+		var $container = $('#'+client_container).first(); 
+
 		if($container.closest('form').length > 0) {
 			console.log('===============================================================');
 			console.log('Tracksend Plugin Error: The container is located within a form.');
@@ -74,5 +75,23 @@
 		// vform.setAttribute('id', 'tracksend_box');
 		// vform.setAttribute('class', 'tsn_box');
 		// vform.inne
+
+		$.fn.serializeObject = function()
+		{
+				var o = {};
+				var a = this.serializeArray();
+				$.each(a, function() {
+						if (o[this.name] !== undefined) {
+								if (!o[this.name].push) {
+										o[this.name] = [o[this.name]];
+								}
+								o[this.name].push(this.value || '');
+						} else {
+								o[this.name] = this.value || '';
+						}
+				});
+				return o;
+		};
+
 	}
 

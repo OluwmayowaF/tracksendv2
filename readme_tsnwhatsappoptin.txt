@@ -11,3 +11,5 @@ STEPS:
    where 'place_it_here' is the "id" of the container "div" in which the necessary HTML codes is to be inserted, and
    'CLIENT_API_KEY' grabbed from 'Integrations' page on clients TrackSend account
 4. Finally, style elements to taste.
+
+NOTE: the container must not be within a form tag.

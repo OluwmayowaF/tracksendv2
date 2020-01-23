@@ -291,8 +291,6 @@ module.exports = function(app) {
 
     const scheduler = require('node-schedule');
 
-    // const Mailgun = require('mailgun').Mailgun;
-    // var mg = new Mailgun('f45dfc3b827fa2f77a8888137d2ed186-baa55c84-6cbfd1d6');
     var mgauth = require('../config/cfg/mailgun')();
     const mailgun = require('mailgun-js')({apiKey: mgauth.APIKEY, domain: mgauth.DOMAIN});
 

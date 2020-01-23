@@ -39,7 +39,9 @@ $(document).ready(function() {
 	// $('#wa_contenteditable').on('keyup mouseup', function (e) {
 	$('.editable_div').on('blur keyup mouseup', function (e) {
 		e.preventDefault();
-		console.log('11111111111111');
+
+		// console.log('11111111111111');
+
 		
 		setGetSelectionThings('editable_div');
 		/* let parent_node_class = 'editable_div';
@@ -195,7 +197,9 @@ $(document).ready(function() {
 			var $dd = $('.editable_div._sms').clone();
 			$dd.find('span.arg').remove();
 			ch = $dd.text().length  + (sp * 15);
-			console.log('with sp = ' + sp + '; alls = ' + ch);
+
+			// console.log('with sp = ' + sp + '; alls = ' + ch);
+
 			
 		} else {
 			// $we.html($we.text());
@@ -207,7 +211,9 @@ $(document).ready(function() {
 			ch += 30;
 		}
 		
-		console.error('ch = ' + ch);
+
+		// console.error('ch = ' + ch);
+
 
 		//	count msgs
 		if(ch <= _getGlobals.SMS_SIZE_MSG1) {
@@ -310,7 +316,7 @@ $(document).ready(function() {
 				break;
 			case 'ch-emoji':
 				t = 'emoji';
-				id = 'url-in';
+				id = 'emj-in';
 				
 				$wh.closest('form').find('#emoji_list').toggle();
 				// picker.pickerVisible ? picker.hidePicker() : picker.showPicker();
@@ -376,20 +382,11 @@ $(document).ready(function() {
 					break;
 			}
 		} else {
-				// return;
-				pasteDiv(id, t, $wh);
+
+				if(t != 'emoji') insertText(id, 'arg', t, 'span');
 				countChars();
 		}
 	})
-
-	function pasteDiv(id, t, $wh) {
-		if(t == 'emoji') return;
-		// $('.editable_div').html($('.editable_div').html() + '<span spellcheck="false" contenteditable="false" id="'+id+'">'+t+'</span>');
-		insertText(id, 'arg', t, 'span');//+'">'+t+'</span>','h');
-		// $wh.closest('.col-md-12').find('.editable_div').html($wh.closest('.col-md-12').find('.editable_div').html().replace(/<br>$/g, ' '));
-		// $wh.closest('.col-md-12').find('.editable_div').html($wh.closest('.col-md-12').find('.editable_div').html() + '<span class="arg" spellcheck="false" contenteditable="false">'+t+'</span>&nbsp;');
-		// $('.editable_div').focus();
-	}
 
 	$('.ch-emoji #emoji_list li').on('click', function (e) {
 		console.log('emoji = ' + $(this).text());
@@ -519,7 +516,7 @@ $(document).ready(function() {
 			var t = 'url';
 			var id = 'url-in';
 			
-			pasteDiv(id, t);
+			if(t != 'emoji') insertText(id, 'arg', t, 'span');
 		}
 
 		$.magnificPopup.close();
@@ -566,16 +563,23 @@ $(document).ready(function() {
 		$butt.closest('div').find('.activity_status').text('Analyzing...');
 
 		var msg_ = $me.find('.editable_div').html();
-		msg_ = msg_.replace(/<span id="firstname-in" class="arg" spellcheck="false" contenteditable="false">firstname<\/span>/g, '[firstname]')
-					.replace(/<span id="lastname-in" class="arg" spellcheck="false" contenteditable="false">lastname<\/span>/g, '[lastname]')
-					.replace(/<span id="email-in" class="arg" spellcheck="false" contenteditable="false">email<\/span>/g, '[email]')
-					.replace(/<span id="url-in" class="arg" spellcheck="false" contenteditable="false">url<\/span>/g, '[url]')
+
+		msg_ = msg_.replace(/<span[^<]*?class="arg"[^<]*firstname.*?<\/span>/g, '[firstname]')
+					.replace(/<span[^<]*?class="arg"[^<]*lastname.*?<\/span>/g, '[lastname]')
+					.replace(/<span[^<]*?class="arg"[^<]*email.*?<\/span>/g, '[email]')
+					.replace(/<span[^<]*?class="arg"[^<]*url.*?<\/span>/g, '[url]')
+					.replace(/^<div[^<]*?>/g, '')
+					.replace(/<div[^<]*?>/g, '<br>')
+					.replace(/<\/div>/g, '') 
 					.replace(/&nbsp;/g, ' ')
-					.replace(/<span style="color: rgb\(112, 112, 112\); font-size: 15px; background-color: rgb\(255, 255, 255\); display: inline !important;">/g, '')
+					.replace(/<span.*style=".*?">/g, '') 
 					.replace(/<\/span>/g, '');
 
+		console.log('ADJUSTED FILE... : ' + msg_);
+		
 		var $dd = $me.find('.editable_div').clone();
-		$dd.html(msg_);
+		$dd.html(msg_); 
+
 		var msg = $dd.text();
 		$me.find('#campaignmessage').val(msg);
 		let w = moment($me.find('#datepicker').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
@@ -1800,10 +1804,10 @@ function insertText(id, cls, txt, typ) {
 	}
 
 	// _getGlobals.editable_range.setStart(_getGlobals.editable_node, _getGlobals.editable_start + shift);
-	console.log('====================================');
-	console.log('node = ' + newestNode.nodeValue + ' | ' + newestNode.nodeType + ' | parentnode_id = ' + newestNode.parentElement.id + ' | parentnode_class = ' + newestNode.parentElement.className);
-	console.log('====================================');
-	_getGlobals.editable_sel = window.getSelection();
+	// console.log('====================================');
+	// console.log('node = ' + newestNode.nodeValue + ' | ' + newestNode.nodeType + ' | parentnode_id = ' + newestNode.parentElement.id + ' | parentnode_class = ' + newestNode.parentElement.className);
+	// console.log('====================================');
+        _getGlobals.editable_sel = window.getSelection();
 	_getGlobals.editable_range = _getGlobals.editable_sel.getRangeAt(0);
 	_getGlobals.editable_range.setStart(newestNode, shift);
 	_getGlobals.editable_range.collapse(true);
@@ -1877,7 +1881,9 @@ function setGetSelectionThings(parent_node_class) {
 	let editable_sel = window.getSelection();
 	let editable_range = editable_sel.getRangeAt(0);
 	let editable_node = editable_range.startContainer;
-	console.log('22222222222222222');
+
+	// console.log('22222222222222222');
+
 
 	//	check if getSelection is working from proper node
 	if(editable_node.parentElement.className.indexOf(parent_node_class) == -1) return;
@@ -1887,9 +1893,9 @@ function setGetSelectionThings(parent_node_class) {
 	_getGlobals.editable_node = editable_node;// = _getGlobals.editable_range.startContainer;
 	_getGlobals.editable_start = _getGlobals.editable_range.startOffset;
 
-	console.log('====================================');
-	console.log('positionn = ' + _getGlobals.editable_start);
-	console.log('====================================');
+	// console.log('====================================');
+	// console.log('positionn = ' + _getGlobals.editable_start);
+	// console.log('====================================');
 }
 
 
