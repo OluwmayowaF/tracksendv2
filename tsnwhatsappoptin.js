@@ -56,7 +56,7 @@
 		
 			$.ajax({
 				type: 'POST',
-				url: 'http://dev2.tracksend.co/api/whatsappoptin',
+				url: 'https://dev2.tracksend.co/api/whatsappoptin',
 				contentType: 'application/json; charset=utf-8',
 				data: json_save_form,
 				success: function( data ) {
