@@ -12,6 +12,7 @@ var apiController = require('../controllers/ApiController');
 // Requiring our models and passport as we've configured it
 var db = require("../models");
 var passport = require("../config/passport");
+var cors = require("cors");
 //
 module.exports = function(app) {
   app.get ('/api/getgroups',        apiController.getGroups);
@@ -28,7 +29,8 @@ module.exports = function(app) {
   app.post('/api/analysecampaign',  apiController.analyseCampaign);
   app.get ('/api/loadcampaign',     apiController.loadCampaign);
   app.get ('/api/getwhatsappqrode', apiController.getWhatsAppQRCode);
-  app.post ('/api/whatsappoptin',   apiController.whatsAppOptIn);
+  app.options ('/api/whatsappoptin', cors());
+  app.post ('/api/whatsappoptin', cors(), apiController.whatsAppOptIn);
 
   app.post('/api/sms/notify',       apiController.smsNotify);
 
