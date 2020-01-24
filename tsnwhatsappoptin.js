@@ -41,7 +41,11 @@
 		$container.find('form').submit(function (e) {
 			e.preventDefault();
 
-			var $me = $(this);
+			console.log('====================================');
+			console.log('submitting...');
+			console.log('====================================');
+
+			var $me = $container.find('form'); //$(this);
 			var json_save_form = JSON.stringify($me.serializeObject()); 
 			// console.log('json', json_save_form);
 			
