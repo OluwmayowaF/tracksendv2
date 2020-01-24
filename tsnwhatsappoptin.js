@@ -51,7 +51,7 @@
 		
 			$.ajax({
 				type: 'POST',
-				url: _getGlobals.SERVICE_HOST+'whatsappoptin',
+				url: 'http://dev2.tracksend.co/api/whatsappoptin',
 				contentType: 'application/json; charset=utf-8',
 				data: json_save_form,
 				success: function( data ) {
