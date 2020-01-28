@@ -3,6 +3,7 @@ var moment = require('moment');
 const sequelize = require('../config/cfg/db');
 const Sequelize = require('sequelize');
 const randgen = require('../my_modules/randgen');
+const { default: axios } = require('axios');
 
 exports.index = async(req, res) => {
     const ACCUMULATE_MESSAGES = true;
@@ -36,6 +37,30 @@ exports.index = async(req, res) => {
 
     console.log('showing page...'); 
     
+
+    try {
+        var resp = await axios.get('https://ipinfo.io?token=d79a26c84fa03a');
+
+        console.log('====================================');
+        console.log('RESPONSE TO URL = ' + JSON.stringify(resp.data));
+        console.log('====================================');
+    } catch (e) {
+        console.log('====================================');
+        console.log('ERROR TO URL = ' + JSON.stringify(e));
+        console.log('====================================');
+        return {
+            error: "Remote Connection Error!!!"
+        }
+    }
+
+
+
+
+
+
+
+
+
     Promise.all([
         sequelize.query(
             "SELECT * FROM ( SELECT COUNT(status) AS pending        FROM messages WHERE status = 0 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t1," +
