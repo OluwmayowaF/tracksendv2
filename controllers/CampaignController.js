@@ -11,6 +11,7 @@ const fs = require('fs');
 var { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
 var phoneformat = require('../my_modules/phoneformat');
 const randgen = require('../my_modules/randgen');
+var _message = require('../my_modules/output_messages');
 
 var buff = Buffer.from(tracksend_user + ':' + tracksend_pwrd);
 var base64encode = buff.toString('base64');
@@ -384,9 +385,9 @@ exports.add = async (req, res) => {
     var schedule_ = (info.schedule) ? moment(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss') : null;  //  for DB
     var schedule = (info.schedule) ? moment(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DDTHH:mm:ss.000Z') : null;   //  for infobip
 
-    var unsubmsg = '';
+    var UNSUBMSG = false;
     if(req.body.add_optout && req.body.add_optout == "on") {
-        unsubmsg = '\n\nTo unsubscribe, click: https://dev2.tracksend.co/sms/optout/';
+        UNSUBMSG = true; //_message('msg', 1091, ) '\n\nTo unsubscribe, click: https://dev2.tracksend.co/sms/optout/';
     }
 
     
@@ -566,7 +567,7 @@ exports.add = async (req, res) => {
                         // .replace(/\\t/g, '')
                         .replace(/&nbsp;/g, ' ');
 
-                        updatedmessage += (unsubmsg.length == 0) ? unsubmsg : unsubmsg + kont.id;
+                        updatedmessage += (UNSUBMSG) ? _message('msg', 1091, kont.countryId, kont.id) : '';
 
                         if(SINGLE_MSG) {
                             var msgto = {

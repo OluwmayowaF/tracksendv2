@@ -12,13 +12,15 @@ const { default: axios } = require('axios');
 var qs = require('qs');
 var moment = require('moment');
 var scheduler = require('node-schedule');
+var _message = require('../my_modules/output_messages');
 
 // const whatsappSendMessage =  async (typ, phone, body, instanceurl, token, contactid=null, msgid=null, schedule=null, filename=null, caption=null) => {
 const whatsappSendMessage =  async (typ, phone, body, instanceid, token, contactid=null, msgid=null, schedule=null, filename=null, caption=null) => {
 
   if(contactid) {
+    let kk = await models.User.findByPk(contactid);
     const unsubscribelink = 'https://dev2.tracksend.co/whatsapp/optout/' + contactid;
-    body += '\n\nTo Opt Out from this particular message list, kindly click: ' + unsubscribelink;
+    body += _message('msg', 1071, kk.countryId, unsubscribelink);
   }
   console.log('====================================');
   console.log('schedule.................... = ' + schedule);
