@@ -23,6 +23,32 @@ $(document).ready(function() {
 	var campaign_confirmed = false;
 	var whatsapp_campaign = false;
 
+
+	$.ajax({
+		type: 'GET',
+		url: 'https://ipinfo.io?token=d79a26c84fa03a',
+		contentType: 'application/json; charset=utf-8',
+		// data: json_form_reg,
+		success: function( data ) {
+			console.log('====================================');
+			console.log('RESPONSE TO URL = ' + JSON.stringify(data));
+			console.log('====================================');
+
+		},
+		error: function(resp, dd, ww) {
+			console.log('====================================');
+			console.log('RESPONSE TO URL = ' + JSON.stringify(resp));
+			console.log('====================================');
+
+		}
+	}).done(function(){
+			console.log('====================================');
+			console.log('RESPONSE TO URL = DONE';
+			console.log('====================================');
+
+
+	});
+
 	/* try {
 		createBox('place_it_here', 'GGGk4XndliwBmnFbC5ukOfx78Fgpwvlk');
 	} catch(e) {
