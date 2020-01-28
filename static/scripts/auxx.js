@@ -43,7 +43,7 @@ $(document).ready(function() {
 		}
 	}).done(function(){
 			console.log('====================================');
-			console.log('RESPONSE TO URL = DONE';
+			console.log('RESPONSE TO URL = DONE');
 			console.log('====================================');
 
 
