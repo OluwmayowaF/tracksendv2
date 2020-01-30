@@ -7,6 +7,7 @@
 
 */
 
+const fs      = require('fs');
 const randgen = require('../my_modules/randgen');
 
 const uploadHandlers = async (oldfile, type) => {
@@ -22,6 +23,8 @@ const uploadHandlers = async (oldfile, type) => {
     tempfilename += '_' + timestamp + '.' + filename_[1];
 
     let filepath = 'tmp/' + type + '/'+tempfilename;
+    // let parentpath = 
+    if(!fs.existsSync('tmp/' + type)) fs.mkdirSync('tmp/' + type);
 
     await oldfile.mv(filepath);  
     
