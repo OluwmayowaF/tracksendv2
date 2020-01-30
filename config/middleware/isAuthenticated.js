@@ -1,7 +1,8 @@
 // This is middleware for restricting routes a user is not allowed to visit if not logged in
 module.exports = function(req, res, next) {
   // If the user is logged in, continue with the request to the restricted route
-  if (req.user) {
+  var _message = require('../../my_modules/output_messages');
+if (req.user) {
     const db = require('../cfg/db');
     return db.query(
       "SELECT balance FROM users " +
@@ -23,7 +24,7 @@ module.exports = function(req, res, next) {
   }
   // If the user isn't' logged in, redirect them to the login page
   req.flash('type', 'error');
-  req.flash('msg', 'Please login to access page.');
+  req.flash('msg', _message('error', 1021, 234));
   return res.redirect("/login");
 };
 

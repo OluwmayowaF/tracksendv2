@@ -24,6 +24,10 @@ const _message = (type, msgcode, ctrycode=234, string1=null, string2=null, strin
           EN: "Authentication Error!",
           FR: "Erreur d'authentification!",
         },
+        1021: {
+          EN: "Please login to access page.",
+          FR: "Veuillez vous connecter pour accéder à cette page.",
+        },
         1030: {
           EN: "",
           FR: "",

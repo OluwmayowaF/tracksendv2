@@ -9,6 +9,7 @@ const sequelize = require('../config/cfg/db');
 const Op = Sequelize.Op;
 const fs = require('fs'); 
 var { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
+var uploadMyFile = require('../my_modules/uploadHandlers');
 var phoneformat = require('../my_modules/phoneformat');
 const randgen = require('../my_modules/randgen');
 var _message = require('../my_modules/output_messages');
@@ -1033,7 +1034,10 @@ exports.add = async (req, res) => {
                 // sendSingleMsg(nmsg, tophone, updatedmessage, req.user.wa_instanceurl, req.user.wa_instancetoken, kont.id, req.body.schedulewa);
                 await whatsappSendMessage('message', tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken, kont.id, nmsg.id, req.body.schedulewa);
             } else {
-                let ofile = req.files.att_file;
+
+                let uploadedfile = await uploadMyFile(req.files.att_file, 'whatsapp');
+
+                /* let ofile = req.files.att_file;
                 let filename_ = ofile.name.split('.'); 
                 let filename = filename_[0].substr(0, 20); 
                 filename = ((filename_[0] > filename) ? filename.substr(0, 14) + '_trunc' : filename) + '.' + filename_[1];
@@ -1041,15 +1045,19 @@ exports.add = async (req, res) => {
                 let tempfilename = await randgen('', '', 20, 'fullalphnum', '_');
                 var timestamp_ = new Date();
                 var timestamp = timestamp_.getTime();
-                tempfilename += '_' + timestamp + '.' + filename_[1];
+                tempfilename += '_' + timestamp + '.' + filename_[1]; 
 
-                await ofile.mv('tmp/whatsapp/'+tempfilename);  
+                await ofile.mv('tmp/whatsapp/'+tempfilename);  */
                 
-                let nfile = await fs.readFileSync('tmp/whatsapp/'+tempfilename, { encoding: 'base64' });
-                nfile = 'data:' + ofile.mimetype + ';base64,' + nfile;
-                console.log('tepfile = ' + tempfilename + '; filenae = ' + filename + '; base64 = ' + nfile);
+                // let nfile = await fs.readFileSync('tmp/whatsapp/'+tempfilename, { encoding: 'base64' });
+                // nfile = 'data:' + ofile.mimetype + ';base64,' + nfile;
+                // console.log('tepfile = ' + tempfilename + '; filenae = ' + filename + '; base64 = ' + nfile);
+                
+                let nfile = await fs.readFileSync(uploadedfile.filepath, { encoding: 'base64' });
+                nfile = 'data:' + uploadedfile.mimetype + ';base64,' + nfile;
+                // console.log('tepfile = ' + tempfilename + '; filenae = ' + filename + '; base64 = ' + nfile);
                 // sendSingleFile(nmsg, tophone, nfile, req.user.wa_instanceurl, req.user.wa_instancetoken, kont.id, req.body.schedulewa, filename, updatedmessage);
-                await whatsappSendMessage('file', tophone, nfile, req.user.wa_instanceid, req.user.wa_instancetoken, kont.id, nmsg.id, req.body.schedulewa, filename, updatedmessage);
+                await whatsappSendMessage('file', tophone, nfile, req.user.wa_instanceid, req.user.wa_instancetoken, kont.id, nmsg.id, req.body.schedulewa, uploadedfile.filename, updatedmessage);
             }
             /* console.log('====================================');
             console.log('RECEIVED DATA: ' + JSON.stringify(req.body));
