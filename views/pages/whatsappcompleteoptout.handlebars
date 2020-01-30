@@ -11,7 +11,7 @@
 
 			{{#if args.ctry }}
 			<div class="pageerror" style="margin-left: 50px; margin-right: 50px">
-				<div style="text-align: center; margin-bottom: 40px;"><h4>With a sad face, we ask for one last thing to confirm your Opt-Out of <br> <b>{{ args.username }}'s</b> <b>"{{ args.groupname }}"</b> WhatsApp group:<br><br> </h4></div>
+				<div style="text-align: center; margin-bottom: 40px;"><h4>{{ args._msg }}<br><br> </h4></div>
 				<div class="row with-forms">
 					<form method="POST" id="leave_form" action="/WhatsApp/optout" enctype="application/x-www-form-urlencoded">
 						<div class="col-md-12">
@@ -35,7 +35,7 @@
 			</div>
 			{{else }}
 				<div class="pageerror">
-					<div style="text-align: center; margin-bottom: 40px"><h3>Opt-out complete. Thanks.</h3></div>
+					<div style="text-align: center; margin-bottom: 40px"><h3>{{ args._msg }}</h3></div>
 				</div>
 			{{/if}}
 			<!-- Copyrights -->

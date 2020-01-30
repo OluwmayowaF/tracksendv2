@@ -2,9 +2,9 @@
 
 		<div class="row">
 
-			{{#if grps }}
+			{{#if args.grps }}
 				<div class="pageerror" style="margin-left: 50px; margin-right: 50px">
-					<div style="text-align: center; margin-bottom: 40px"><h3>Welcome back. Please select the groups that you're interested in.</h3></div>
+					<div style="text-align: center; margin-bottom: 40px"><h3>{{ args._msg }}</h3></div>
 					<div class="row with-forms">
 						<form method="POST" id="join_form" action="/WhatsApp/complete" enctype="application/x-www-form-urlencoded">
 							<div class="col-md-12">
@@ -12,7 +12,7 @@
 								<input type="hidden" name="code" value="{{ ucode }}" />
 								<select class="chosen-select-no-single _plain" name="groups" id="sel_contact_group" required multiple>
 									<option label="blank" value="0">Select Group</option>
-									{{#each grps}}
+									{{#each args.grps}}
 									<option value="{{ id }}">{{ name }}</option>
 									{{/each}}
 									<option disabled>--------------------------------------</option>
@@ -26,7 +26,7 @@
 				</div>
 			{{else }}
 				<div class="pageerror">
-					<div style="text-align: center; margin-bottom: 40px"><h3>Opt-in complete. Thanks again.</h3></div>
+					<div style="text-align: center; margin-bottom: 40px"><h3>{{ args._msg }}</h3></div>
 				</div>
 			{{/if}}
 			<!-- Copyrights -->

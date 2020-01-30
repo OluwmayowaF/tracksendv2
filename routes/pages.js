@@ -6,6 +6,7 @@ const sequelize = require('../config/cfg/db');
 var bcrypt = require("bcryptjs");
 const nodemailer = require('nodemailer');
 const randgen = require('../my_modules/randgen');
+var _message = require('../my_modules/output_messages');
 
 
 const redirectRouter = require('../routes/redirect');
@@ -546,7 +547,8 @@ module.exports = function(app) {
     req.logout();
     
     req.flash('type', 'success');
-    req.flash('msg', "You've been successfully logged out.");
+    req.flash('msg', _message('msg', 1020, 234));
+    // req.flash('msg', _message`$(msg)$(1020)$(234)`);
     res.redirect("/");
   });
 

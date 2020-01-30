@@ -1,5 +1,7 @@
 const Sequelize = require('sequelize');
 const dbauth = require('../config/cfg/dbauth')();
+var uploadMyFile = require('../my_modules/uploadHandlers');
+var phoneval = require('../my_modules/phonevalidate');
 
 var models      = require('../models');
 const fs        = require('fs');
@@ -108,7 +110,7 @@ exports.index = (req, res) => {
 
 }
 
-exports.do = (req, res) => {
+exports.do = async (req, res) => {
 
     console.log('showing page...'); 
     var user_id = req.user.id;
@@ -119,7 +121,24 @@ exports.do = (req, res) => {
     var has_headers = true;
     var rowcount = 0;
 
-    csv.parseFile(req.file.path)
+    if(!req.files || Object.keys(req.files).length === 0) {
+
+    }
+    let uploadedfile = await uploadMyFile(req.files.file, 'contacts');
+    // await ofile.mv('tmp/whatsapp/'+tempfilename);  
+
+    console.log('====================================');
+    // console.log('KEYS: ' + JSON.stringify(req.files));
+    console.log('KEYS: ' + JSON.stringify(uploadedfile));
+    // console.log('KEYS: ' + JSON.stringify(req.file));
+    // console.log('P1: ' + req.files.file.tempFilePath)
+    // console.log('P2: ' + req.files.file.path)
+    // console.log('P3: ' + req.file.path)
+    console.log('====================================');
+    // return;
+
+    // csv.parseFile(req.files.path)
+    csv.parseFile(uploadedfile.filepath)
     .on("data", function (data) {
 
         //  this is just to get the titles of the file... if user indicates titled file
@@ -151,10 +170,10 @@ exports.do = (req, res) => {
                 groupId = grp.id;
                 console.log('new group ID is: ' + groupId);
                 
-                var pth = req.file.path.split('\\')[2];
-                pth = (pth) ? pth : req.file.path.split('/')[2];
+                var pth = uploadedfile.filepath.split('\\')[2];
+                pth = (pth) ? pth : uploadedfile.filepath.split('/')[2];
                 console.log('====================================');
-                console.log('path file: ' + req.file.path + '; split: ' + pth);
+                console.log('path file: ' + uploadedfile.filepath + '; split: ' + pth);
                 console.log('====================================');
                 headers.push(pth);
                 headers.push(req.body.country);
@@ -173,13 +192,13 @@ exports.do = (req, res) => {
             })
         } else {
             console.log('====================================');
-            console.log('path : ' + req.file.path);
-            var pth = req.file.path.split('\\')[2];
+            console.log('path : ' + uploadedfile.filepath);
+            var pth = uploadedfile.filepath.split('\\')[2];
             console.log('====================================');
             console.log('path split: ' + pth);
-            pth = (pth) ? pth : req.file.path.split('/')[2];
+            pth = (pth) ? pth : uploadedfile.filepath.split('/')[2];
             console.log('====================================');
-            console.log('path file: ' + req.file.path + '; split: ' + pth);
+            console.log('path file: ' + uploadedfile.filepath + '; split: ' + pth);
             console.log('====================================');
             headers.push(pth);
             headers.push(req.body.country);
@@ -217,8 +236,8 @@ exports.validate = (req, res) => {
     var headers = '';
     var has_headers = true;
     var rowcount = 0;
-    var fpath = "tmp\\csv\\" + req.body.fid;
-    var fpath2 = "tmp/csv/" + req.body.fid;
+    var fpath = "tmp\\contacts\\" + req.body.fid;
+    var fpath2 = "tmp/contacts/" + req.body.fid;
     var rows_inp = req.body.row; 
     var rows_std = req.body.rows.split(','); 
     var rows_matched = []; 
@@ -271,8 +290,7 @@ exports.validate = (req, res) => {
 
             //  filter out corrupt entries
             var rows_trimmed = rows_matched.slice(0, 50000);   //  rows limit is 50,000
-            var rows_filtered = rows_trimmed.filter(validateCsvRow);
-            var rows_finetuned = rows_filtered.map(tunePhoneNums);
+            var rows_finetuned = rows_trimmed.filter(validateCsvRow);
  
             console.log('FINAL DATA: ' + rows_finetuned);
             console.log('t_error: ' + total_errors + '; e_errors: ' + email_errors + '; p_errors: ' + phone_errors);
@@ -329,6 +347,7 @@ exports.validate = (req, res) => {
         return;
     })
 
+    //  This function adds some relevant data to each row ['userId, groupId, countryId, status]
     function mapfn(row) {
 
         console.log('mapping row: ' + row);
@@ -370,15 +389,24 @@ exports.validate = (req, res) => {
 
         var fname = row[0];
         var lname = row[1];
-        var phone = row[2];
+        var phone = phoneval(row[2], row[6]);
         var email = row[3];
 console.log('PPPPPPPPPPPPPP: ' + phone);
 
+        if(phone) {
+            row[2] = phone;
+            return true;
+        } else {
+            total_errors++;
+            phone_errors++;
+            return false;
+        }
         //let r_e = checkEmail(email);
-        return (checkPhone(phone));
+        // return (checkPhone(phone));
 
         function checkPhone(ph) {
 console.log('00phone: ' + ph);
+            if(!ph) return false;
             if(ph.length > 0) {
                 let phone = ph
                         .replace(/ /g, '')
@@ -413,27 +441,6 @@ console.log('1phone: ' + phone);
             email_errors++;
             return false;
         }
-    }
-
-    function tunePhoneNums(row) {
-        var ph = row[2];
-
-        if(ph.length > 0) {
-            let phone = ph
-                    .replace(/ /g, '')
-                    .replace(/\-/g, '')
-                    .replace(/\./g, '')
-                    .replace(/\+/g, '');
-
-            if ((phone.length == 10) && (phone.substr(0, 1) != '0')) phone = '0' + phone;
-            if ((phone.length == 13) && (phone.substr(0, 3) == '234')) phone = '0' + phone.substr(-10);
-            if ((phone.length == 14) && (phone.substr(0, 4) == '2340')) phone = '0' + phone.substr(-10);
-
-            row[2] = phone;
-
-        }
-
-        return row;
     }
 
 }; 

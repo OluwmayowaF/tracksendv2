@@ -6,6 +6,7 @@ const _ = require('lodash');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 var whatsappSendMessage = require('../my_modules/whatsappSendMessage');
+var _message = require('../my_modules/output_messages');
 
 exports.getQRCode = async (req, res) => {
 
@@ -16,7 +17,7 @@ exports.getQRCode = async (req, res) => {
         if(user_id.length == 0)  throw "error";
     } catch (e) {
         res.send({
-            error: "Authentication Error!!!"
+            error: _message('error', 1010, 234),
         });
         return;
     }
@@ -99,8 +100,9 @@ exports.preOptIn = async (req, res) => {
 
         let newurl = 'https://dev2.tracksend.co/WhatsApp/optin?code='+uniquecode;
         let phone = phoneformat(req.body.phone, req.body.country);
-        let body = 'Hello ' + req.body.fullname.split(' ')[0] + 
-                   ', thanks for opting in to our WhatsApp platform. One last thing, please use this link to confirm and finish: ' + newurl;
+        // let body = 'Hello ' + req.body.fullname.split(' ')[0] + 
+        //            ', thanks for opting in to our WhatsApp platform. One last thing, please use this link to confirm and finish: ' + newurl;
+        let body = _message('msg', 1050, req.body.country, req.body.fullname.split(' ')[0], newurl);
 
         if(!user.wa_instanceurl || !user.wa_instancetoken) throw {
             name: 'integrationerror',
@@ -120,26 +122,26 @@ exports.preOptIn = async (req, res) => {
         if(e.name == 'SequelizeUniqueConstraintError') {
             res.send({
                 status: "error",
-                msg: "Your opt-in request already submitted.",
+                msg: _message('error', 1050, req.body.country),
             });
         }
         else if(e.name == 'requesterror') {
             res.send({
                 status: "error",
-                msg: "There's an error with your request, kindly contact website admin.",
+                msg: _message('error', 1060, req.body.country),
             });
         }
         else if(e.name == 'phoneerror') {
             res.send({
                 status: "error",
-                msg: "There's an error the Phone Number, kindly check again.",
+                msg: _message('error', 1070, req.body.country),
             });
         }
         else if(e.name == 'integrationerror') {
             e.del.destroy();
             res.send({
                 status: "error",
-                msg: "Error at Host, kindly contact website admin.",
+                msg: _message('error', 1010, req.body.country),
             });
         }
         return;
@@ -156,7 +158,7 @@ exports.postOptin = async function(req, res) {
         where: {
             misc: ucode,
         },
-        attributes: ['userId'],
+        attributes: ['userId', 'countryId'],
     });
 
     if(uid == null) {
@@ -186,8 +188,12 @@ exports.postOptin = async function(req, res) {
 
     res.render('pages/dashboard/whatsappcompleteoptin', {
         _page: 'WhatsApp Opt-In',
-        grps: getgroups,
         ucode,
+
+        args: {
+            grps: getgroups,
+            _msg: _message('msg', 1051, uid.countryId),
+        }
     });
 
 
@@ -199,14 +205,14 @@ exports.completeOptin = async function(req, res) {
     let ucode = req.body.code;
     console.log('code = ' + ucode + 'grps = ' + req.body.groups);
     
-    try {
-        //  get new contact's saved details
-        let kont = await models.Contact.findOne({
-            where: {
-                misc: ucode,
-            },
-        });
+    //  get new contact's saved details
+    let kont = await models.Contact.findOne({
+        where: {
+            misc: ucode,
+        },
+    });
 
+    try {
         if(!kont) throw {
             name: "requesterror"
         }
@@ -258,33 +264,37 @@ exports.completeOptin = async function(req, res) {
         //  send success message to user
         let user = await models.User.findByPk(kont.userId);
         let phone = phoneformat(kont.phone, kont.countryId);
-        let body = 'Thanks ' + kont.firstname + '. Opt-in to ' + user.name + ' WhatsApp platform compeleted successfully.';
+        let body = _message('msg', 1050, kont.countryId, kont.firstname, user.name);;
         let new_resp = await whatsappSendMessage('message', phone, body, user.wa_instanceid, user.wa_instancetoken);
 
         res.render('pages/dashboard/whatsappcompleteoptin', {
             _page: 'WhatsApp Opt-In',
-            grps: null,
+            
+            args: {
+                grps: null,
+                _msg: _message('msg', 1052, user.countryId),
+            }
         });
     
     } catch(e) {
         if(e.name == 'SequelizeUniqueConstraintError') {
             res.send({
                 status: "error",
-                msg: "Your opt-in request already submitted.",
+                msg: _message('error', 1050, kont.countryId),
             });
             return;
         }
         else if(e.name == 'requesterror') {
             res.send({
                 status: "error",
-                msg: "There's an error with your request, kindly contact website admin.",
+                msg: _message('error', 1060, 234),
             });
             return;
         }
         else if(e.name == 'phoneerror') {
             res.send({
                 status: "error",
-                msg: "There's an error the Phone Number, kindly check again.",
+                msg: _message('error', 1070, kont.countryId),
             });
             return;
         } else {
@@ -315,7 +325,7 @@ exports.preOptout = async (req, res) => {
         let kont = await models.Contact.findByPk(kid, {
             include: [{
                 model: models.User, 
-                attributes: ['name', 'business']
+                attributes: ['name', 'business', 'countryId']
             },{
                 model: models.Group, 
                 attributes: ['name']
@@ -349,13 +359,13 @@ exports.preOptout = async (req, res) => {
             args: {
                 ctry,
                 kid,
-                groupname: kont.group.name,
-                username: kont.user.name,
-                business: kont.user.business,
+                // groupname: kont.group.name,
+                // username: kont.user.name,
+                // business: kont.user.business,
+                _msg: _message('msg', 1070, kont.user.countryId, kont.user.business, kont.group.name),
             }
         });
-    
-    
+
     } catch(e) {
         console.log('====================================');
         console.log('error: ' + e.name);
@@ -421,7 +431,9 @@ exports.postOptout = async (req, res) => {
         res.render('pages/whatsappcompleteoptout', {
             _page: 'WhatsApp Opt-Out',
 
-            args: {}
+            args: {
+                _msg: _message('msg', 1080, req.body.country)
+            }
         });
 
     } catch(e) {
@@ -430,16 +442,16 @@ exports.postOptout = async (req, res) => {
         console.log('====================================');
         let errmsg;
         if(e.name == 'SequelizeUniqueConstraintError') {
-            errmsg = "A system error occured. Please try again later";
+            errmsg = _message('error', 1010, req.body.country);
         }
         else if(e.name == 'invalidoperation') {
-            errmsg = "The phone number you provided does not match this request. Please check and try again.";
+            errmsg = _message('error', 1080, req.body.country);
         }
         else if(e.name == 'phoneerror') {
-            errmsg = "There's an error with the provide phone number Please check and try again.";
+            errmsg = _message('error', 1070, req.body.country);
         }
         else if(e.name == 'notsubscribed') {
-            errmsg = "You did not opt in for this Group's messages or had already opted out.";
+            errmsg = _message('error', 1090, req.body.country);
         }
 
         req.flash('error', errmsg);

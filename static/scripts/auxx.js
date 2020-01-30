@@ -23,8 +23,19 @@ $(document).ready(function() {
 	var campaign_confirmed = false;
 	var whatsapp_campaign = false;
 
+	// navigator.geolocation.getCurrentPosition(positionSuccess, positionFailure, { enableHighAccuracy: true });
+	function positionSuccess(position) {
+		console.log('====================================');
+		console.log('POSITION: ' + JSON.stringify(position));
+		console.log('====================================');
+	}
+	function positionFailure(error) {
+		console.log('====================================');
+		console.log('POSITION error: ' + JSON.stringify(error.code));
+		console.log('====================================');
+	}
 
-	$.ajax({
+	/* $.ajax({
 		type: 'GET',
 		url: 'https://ipinfo.io?token=d79a26c84fa03a',
 		contentType: 'application/json; charset=utf-8',
@@ -45,9 +56,7 @@ $(document).ready(function() {
 			console.log('====================================');
 			console.log('RESPONSE TO URL = DONE');
 			console.log('====================================');
-
-
-	});
+	}); */
 
 	/* try {
 		createBox('place_it_here', 'GGGk4XndliwBmnFbC5ukOfx78Fgpwvlk');

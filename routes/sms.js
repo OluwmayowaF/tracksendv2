@@ -1,12 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var models = require('../models');
-var whatsappController = require('../controllers/WhatsAppController');
+var _message = require('../my_modules/output_messages');
 
 // Home page route.
 // router.get('/optin', whatsappController.optin);
-router.get('/optin', whatsappController.postOptin);
-router.post('/complete', whatsappController.completeOptin);
 
 router.get('/optout/:kid', async(req, res) => {
 
@@ -26,7 +24,7 @@ router.get('/optout/:kid', async(req, res) => {
       let kont = await models.Contact.findByPk(kid, {
           include: [{
               model: models.User, 
-              attributes: ['name', 'business']
+              attributes: ['name', 'business', 'countryId']
           },{
               model: models.Group, 
               attributes: ['name']
@@ -60,9 +58,10 @@ router.get('/optout/:kid', async(req, res) => {
           args: {
               ctry,
               kid,
-              groupname: kont.group.name,
-              username: kont.user.name,
-              business: kont.user.business,
+            //   groupname: kont.group.name,
+            //   username: kont.user.name,
+            //   business: kont.user.business,
+              _msg: _message('msg', 1090, kont.user.countryId, kont.user.business, kont.group.name),
           }
       });
   
@@ -131,40 +130,42 @@ router.post('/optout', async(req, res) => {
       res.render('pages/smscompleteoptout', {
           _page: 'SMS Opt-Out',
 
-          args: {}
-      });
-
-  } catch(e) {
-      console.log('====================================');
-      console.log('erroooooooooooooer: ' + JSON.stringify(e));
-      console.log('====================================');
-      let errmsg;
-      if(e.name == 'SequelizeUniqueConstraintError') {
-          errmsg = "A system error occured. Please try again later";
-      }
-      else if(e.name == 'invalidoperation') {
-          errmsg = "The phone number you provided does not match this request. Please check and try again.";
-      }
-      else if(e.name == 'phoneerror') {
-          errmsg = "There's an error with the provide phone number Please check and try again.";
-      }
-      else if(e.name == 'notsubscribed') {
-          errmsg = "You did not opt in for this Group's messages or had already opted out.";
-      }
-
-      req.flash('error', errmsg);
-      var backURL = req.header('Referer') || '/';
-      res.redirect(backURL);
-
-      /* res.render('pages/dashboard/whatsappcompleteoptout', {
-          _page: 'WhatsApp Opt-Out',
-
           args: {
-              error: errmsg
-          }
-      }); */
+            _msg: _message('msg', 1080, req.body.country)
+        }
+    });
 
-  }
+    } catch(e) {
+        console.log('====================================');
+        console.log('erroooooooooooooer: ' + JSON.stringify(e));
+        console.log('====================================');
+        let errmsg;
+        if(e.name == 'SequelizeUniqueConstraintError') {
+            errmsg = _message('error', 1010, req.body.country);
+        }
+        else if(e.name == 'invalidoperation') {
+        errmsg = _message('error', 1080, req.body.country);
+        }
+        else if(e.name == 'phoneerror') {
+            errmsg = _message('error', 1070, req.body.country);
+        }
+        else if(e.name == 'notsubscribed') {
+            errmsg = _message('error', 1090, req.body.country);
+        }
+
+        req.flash('error', errmsg);
+        var backURL = req.header('Referer') || '/';
+        res.redirect(backURL);
+
+        /* res.render('pages/dashboard/whatsappcompleteoptout', {
+            _page: 'WhatsApp Opt-Out',
+
+            args: {
+                error: errmsg
+            }
+        }); */
+
+    }
 
 });
 
