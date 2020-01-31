@@ -19,7 +19,7 @@ const models = {
   Linkreferer:  sequelize.import('./LinkReferer'),
   Optout:       sequelize.import('./Optout'),
   Message:      sequelize.import('./Message'),
-  Platformtype:    sequelize.import('./Platformtype'),
+  Platformtype:    sequelize.import('./PlatformType'),
   Settingsnetwork:  sequelize.import('./SettingsNetwork'),
   Settingsuserbilling:  sequelize.import('./SettingsUserBilling'),
   Settingstopuprate:  sequelize.import('./SettingsTopupRate'),
