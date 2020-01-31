@@ -40,7 +40,7 @@ exports.getQRCode = async (req, res) => {
 exports.notifyAck = (req, res) => {
     
     console.log('[[====================================');
-    console.log('POST CHATAPI RESPONSE: ...');// + JSON.stringify(req.body));
+    console.log('POST CHATAPI RESPONSE: ' + JSON.stringify(req.body));
     console.log('====================================]]');
 
     // res.sendStatus(200);

@@ -1024,6 +1024,7 @@ exports.add = async (req, res) => {
             .replace(/&nbsp;/g, ' ');
 
             //  { SEND_SINGLE_MESSAGES_TO_CHAT-API }
+                console.log('1 kont = ' + JSON.stringify(kont));
 
             let tophone = phoneformat(kont.phone, kont.countryId);
             // console.log('====================================');
@@ -1032,6 +1033,8 @@ exports.add = async (req, res) => {
 
             if(!req.files || Object.keys(req.files).length === 0) {
                 // sendSingleMsg(nmsg, tophone, updatedmessage, req.user.wa_instanceurl, req.user.wa_instancetoken, kont.id, req.body.schedulewa);
+                console.log('2 kont = ' + JSON.stringify(kont));
+                
                 await whatsappSendMessage('message', tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken, kont.id, nmsg.id, req.body.schedulewa);
             } else {
 
