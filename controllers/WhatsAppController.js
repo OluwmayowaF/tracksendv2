@@ -41,7 +41,7 @@ exports.notifyAck = (req, res) => {
     
     try {
         if(!req.body) throw "blank";
-        if(req.body.messages) console.log('...discarding "messages" response...');
+        if(req.body.messages) console.log('...discarding "messages" response...' + JSON.stringify(req.body.messages));
         else if(req.body.ack) {
             console.log('[[====================================');
             console.log('POST CHATAPI RESPONSE: ' + JSON.stringify(req.body));
