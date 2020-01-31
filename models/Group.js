@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       unique: 'group_user_composite',
     },
     description: DataTypes.STRING,
-    mediatypeId: DataTypes.INTEGER,
+    platformtypeId: DataTypes.INTEGER,
     count: DataTypes.INTEGER,
   }, {});
 
@@ -28,8 +28,8 @@ module.exports = (sequelize, DataTypes) => {
     Group.belongsTo(models.User, {
       foreignKey: 'userId'
     });
-    Group.belongsTo(models.Mediatype, {
-      foreignKey: 'mediatypeId'
+    Group.belongsTo(models.Platformtype, {
+      foreignKey: 'platformtypeId'
     });
     Group.hasMany(models.Contact, { 
       foreignKey: 'groupId' 

@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-  var Mediatype = sequelize.define('mediatype', {
+  var Platformtype = sequelize.define('platformtype', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -10,23 +10,23 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
   }, {});
 
-  Mediatype.associate = function (models) {
+  Platformtype.associate = function (models) {
     // models.Group.belongsToMany(models.Contact, { through: models.ContactGroup, foreignKey: 'groupId' });
-    Mediatype.hasMany(models.Group, {
-      foreignKey: 'mediatypeId',
+    Platformtype.hasMany(models.Group, {
+      foreignKey: 'platformtypeId',
     });
-    Mediatype.hasMany(models.Campaign, {
-      foreignKey: 'mediatypeId',
+    Platformtype.hasMany(models.Campaign, {
+      foreignKey: 'platformtypeId',
     });
-    Mediatype.hasMany(models.Tmpcampaign, {
-      foreignKey: 'mediatypeId',
+    Platformtype.hasMany(models.Tmpcampaign, {
+      foreignKey: 'platformtypeId',
     });
-    Mediatype.hasMany(models.Message, {
-      foreignKey: 'mediatypeId',
+    Platformtype.hasMany(models.Message, {
+      foreignKey: 'platformtypeId',
     });
   }
 
-  return Mediatype;
+  return Platformtype;
 }
 
 

@@ -59,7 +59,7 @@ exports.listSMSGroup = (req, res) => {
             name: {
                 [Sequelize.Op.ne]: '[Uncategorized]',
             },
-            mediatypeId: 1
+            platformtypeId: 1
         },
         order: [ 
             ['createdAt', 'DESC']
@@ -101,7 +101,7 @@ exports.listWAGroup = (req, res) => {
             name: {
                 [Sequelize.Op.ne]: '[Uncategorized]',
             },
-            mediatypeId: 2
+            platformtypeId: 2
         },
         order: [ 
             ['createdAt', 'DESC']

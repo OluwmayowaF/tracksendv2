@@ -51,7 +51,7 @@
 			<div class="col-md-3">
 				<div class="notification notice margin-bottom-30 no-shadow" style="border: outset 2px; border-radius: 10px 10px 0 0;">
 					{{!-- <p>Your Last Campaign: <strong>" {{ args.latestcampaign }} "</strong></p> --}}
-					<p>Your Last Campaign <i class="tip" data-tip-content='" {{ args.latestcampaign }} "'></i></p>
+					<p>Your Last Campaign <i class="tip" data-tip-content='" {{ args.latestcampaign.name }} " ({{ args.latestcampaign.platform }})'></i></p>
 					<a class="close" href="#"></a>
 				</div>
 			</div>
@@ -64,11 +64,15 @@
 			</div>
 		</div>
 
+		{{#if args.show_viewed}}
+		<input type="hidden" name="" id="values_viewed" value="{{ args.viewed }}">
+		{{/if}}
 		<input type="hidden" name="" id="values_delivered" value="{{ args.delivered }}">
 		<input type="hidden" name="" id="values_pending" value="{{ args.pending }}">
 		<input type="hidden" name="" id="values_failed" value="{{ args.failed }}">
 		<input type="hidden" name="" id="values_undeliverable" value="{{ args.undeliverable }}">
-		<input type="hidden" name="" id="values_messages" value="{{ args.messages }}">
+
+		<input type="hidden" name="" id="values_messages" value="{{ args.messageslastcmpg }}">
 		<input type="hidden" name="" id="values_ccount" value="{{ args.ccount }}">
 		<input type="hidden" name="" id="values_mcount" value="{{ args.mcount }}">
 		<input type="hidden" name="" id="values_ocount" value="{{ args.ocount }}">
@@ -274,6 +278,9 @@
 			return Math.round(Math.random() * 100);
 		};
 		
+		{{#if args.show_viewed}}
+		var viewed = 				document.getElementById('values_viewed').value;
+		{{/if}}
 		var delivered = 		document.getElementById('values_delivered').value;
 		var pending = 			document.getElementById('values_pending').value;
 		var failed = 				document.getElementById('values_failed').value;
@@ -289,21 +296,30 @@
 			data: {
 				datasets: [{
 					data: [
+						{{#if args.show_viewed}}
+						document.getElementById('values_viewed').value,
+						{{/if}}
 						document.getElementById('values_delivered').value,
 						document.getElementById('values_pending').value,
 						document.getElementById('values_failed').value,
 						document.getElementById('values_undeliverable').value,
 					],
 					backgroundColor: [
+								{{#if args.show_viewed}}
+                'rgba(49, 132, 174, 1)',
+								{{/if}}
                 'rgba(65, 193, 65, 1)',
                 'rgba(255, 174, 0, 1)',
                 //'rgba(202, 187, 170, 1)',
-                'rgba(222, 208, 191, 1)',
                 'rgba(255, 0, 0, 0.7)',
+                'rgba(222, 208, 191, 1)',
 					],
 					label: 'Dataset 1'
 				}],
 				labels: [
+					{{#if args.show_viewed}}
+					'Viewed',
+					{{/if}}
 					'Delivered',
 					'Pending',
 					'Failed',

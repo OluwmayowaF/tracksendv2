@@ -25,7 +25,7 @@ exports.index = (req, res) => {
         
     Promise.all([
         sequelize.query(
-            "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, IF(status = 1, 'Active', 'Error') AS status, campaigns.createdAt " +
+            "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, IF(status = 1, 'Active', 'Error') AS status, IF(campaigns.platformtypeId = 1, 'SMS', 'WhatsApp') AS platform, campaigns.createdAt " +
             "FROM campaigns " +
             "LEFT OUTER JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
             "LEFT OUTER JOIN groups ON groups.id = campaign_groups.groupId " +
@@ -154,7 +154,7 @@ exports.smsindex = (req, res) => {
             "FROM campaigns " +
             "LEFT OUTER JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
             "LEFT OUTER JOIN groups ON groups.id = campaign_groups.groupId " +
-            "WHERE campaigns.userId = :uid AND campaigns.mediatypeId = 1 " +
+            "WHERE campaigns.userId = :uid AND campaigns.platformtypeId = 1 " +
             "GROUP BY campaigns.id " +
             "ORDER BY campaigns.createdAt DESC ", {
                 replacements: {
@@ -266,7 +266,7 @@ exports.waindex = (req, res) => {
             "FROM campaigns " +
             "LEFT OUTER JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
             "LEFT OUTER JOIN groups ON groups.id = campaign_groups.groupId " +
-            "WHERE campaigns.userId = :uid AND campaigns.mediatypeId = 2 " +
+            "WHERE campaigns.userId = :uid AND campaigns.platformtypeId = 2 " +
             "GROUP BY campaigns.id " +
             "ORDER BY campaigns.createdAt DESC ", {
                 replacements: {
@@ -290,7 +290,7 @@ exports.waindex = (req, res) => {
                 name: {
                     [Sequelize.Op.ne]: '[Uncategorized]',
                 },
-                mediatypeId: 2
+                platformtypeId: 2
             },
             order: [ 
                 ['createdAt', 'DESC']
@@ -301,7 +301,7 @@ exports.waindex = (req, res) => {
                 userId: user_id,
                 name: '[Uncategorized]',
             },
-            mediatypeId: 2
+            platformtypeId: 2
         }),
         models.Shortlink.findAll({ 
             where: { 
@@ -831,7 +831,7 @@ exports.add = async (req, res) => {
                 schedule: (req.body.datepicker) ? req.body.schedule : null, //req.body.schedule,
                 recipients: req.body.recipients,
                 has_utm: (req.body.add_utm && req.body.add_utm == "on") ? 1 : 0,
-                mediatypeId: 2, //  '2' for whatsapp
+                platformtypeId: 2, //  '2' for whatsapp
             });
             
             var HAS_SURL = (!req.body.shorturl || req.body.shorturl == '0') ? false : true;
@@ -1007,8 +1007,8 @@ exports.add = async (req, res) => {
                 shortlinkId: args.sid,
                 contactlink: args.cid,
                 contactId: kont.id,
-                mediatypeId: 2,
-                status: 1,
+                platformtypeId: 2,
+                status: 0,
             })
 
             console.log('MESSAGE ENTRY CREATE STARTED.');
@@ -1105,10 +1105,11 @@ exports.view = (req, res) => {
             "              ( SELECT COUNT(status) AS delivered      FROM messages WHERE status = 1 AND campaignId = :cid ) t2," +
             "              ( SELECT COUNT(status) AS failed         FROM messages WHERE status = 2 AND campaignId = :cid ) t3," +
             "              ( SELECT COUNT(status) AS undeliverable  FROM messages WHERE (status = 3 OR status = 4) AND campaignId = :cid ) t4," +
-            "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE clickcount > 0 AND campaignId = :cid ) t5," + 
-            "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = :cid ) t6," + 
-            "              ( SELECT userId                          FROM campaigns WHERE id = :cid ) t7 " +
-            "WHERE t7.userId = :id" , {
+            "              ( SELECT COUNT(status) AS viewed         FROM messages WHERE status = 5 AND campaignId = :cid ) t5," +
+            "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE clickcount > 0 AND campaignId = :cid ) t6," + 
+            "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = :cid ) t7," + 
+            "              ( SELECT userId                          FROM campaigns WHERE id = :cid ) t8 " +
+            "WHERE t8.userId = :id" , {
                 replacements: {
                     cid: cmgnid,
                     id: user_id,
@@ -1171,8 +1172,8 @@ exports.view = (req, res) => {
         console.log('CONTA: ' + JSON.stringify(recipients));
         
         recipients = recipients.map(ii => {
-            let jj = JSON.stringify(ii);
-            var i = JSON.parse(jj);
+            // let jj = JSON.stringify(ii);
+            var i = JSON.parse(JSON.stringify(ii));
             var st = parseInt(i.status);
 
             if(i.contact == null && i.destination.length > 0) {
@@ -1204,6 +1205,9 @@ exports.view = (req, res) => {
                 case 4:
                     i.status = "Invalid"
                     break;
+                case 5:
+                    i.status = "Viewed"
+                    break;
             
                 default:
                     break;
@@ -1217,9 +1221,12 @@ exports.view = (req, res) => {
         console.log('====================================');
         var mname = cpgnrecp.map((r) => r.name);
         var mmsg = cpgnrecp.map((r) => r.message);
+
+        let cpgntype = cpgnrecp[0].platformtypeId == 1 ? "SMS" : "WhatsApp";
+        let show_viewed = cpgnrecp[0].platformtypeId == 1 ? false : true;
         
         res.render('pages/dashboard/campaign', { 
-            page: 'Campaign: "' + mname + '"', //'Campaigns',
+            page: '(' + cpgntype + ') Campaign: "' + mname + '"', //'Campaigns',
             campaigns: true,
 
             args: {
@@ -1227,6 +1234,8 @@ exports.view = (req, res) => {
                 pending: summary.pending,
                 failed: summary.failed, 
                 undeliverable: summary.undeliverable,
+                viewed: summary.viewed,
+                show_viewed,
                 clicks: summary.clicks,
                 recipients: recipients,
                 mname,

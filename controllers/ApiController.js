@@ -33,7 +33,7 @@ exports.getGroups = async (req, res) => {
             name: {
                 [Sequelize.Op.ne]: '[Uncategorized]',
             },
-            mediatypeId: gtype
+            platformtypeId: gtype
         },
         order: [ 
             ['createdAt', 'DESC']

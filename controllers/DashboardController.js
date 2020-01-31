@@ -44,8 +44,9 @@ exports.index = async(req, res) => {
             "              ( SELECT COUNT(status) AS delivered      FROM messages WHERE status = 1 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t2," +
             "              ( SELECT COUNT(status) AS failed         FROM messages WHERE status = 2 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t3," +
             "              ( SELECT COUNT(status) AS undeliverable  FROM messages WHERE status = 3 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t4," +
-            "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE clickcount > 0 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t5," +
-            "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t6", {
+            "              ( SELECT COUNT(status) AS viewed         FROM messages WHERE status = 5 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t5," +
+            "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE clickcount > 0 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t6," +
+            "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t7", {
                 replacements: {id: user_id},
                 type: sequelize.QueryTypes.SELECT,
             }
@@ -326,8 +327,8 @@ exports.index = async(req, res) => {
                 return arr;
             })  
         }),
-    ]).then(([summary, messages, cgroup, csender, ccount, ocount, mcount, mgrowth, cgrowth, ogrowth]) => {
-        console.log('qqq= '+messages.length);
+    ]).then(([summary, messageslastcmpg, cgroup, csender, ccount, ocount, mcount, mgrowth, cgrowth, ogrowth]) => {
+        console.log('qqq= '+messageslastcmpg.length);
         
         console.log('====================================');
         console.log('OPTOUTS: '+ JSON.stringify(ocount));
@@ -343,22 +344,26 @@ exports.index = async(req, res) => {
         console.log('NEW CCOUNT = ' + ccount);
         console.log('====================================');
 
-        if(!messages.length) nocampaigns = true;
+        if(!messageslastcmpg.length) nocampaigns = true;
         if(!ccount) nocontacts = true;
         if(!csender) nosenderids = true;
         
         console.log('groups1 are: ' + JSON.stringify(summary));
-        console.log('groups2 are: ' + JSON.stringify(messages));
+        console.log('groups2 are: ' + JSON.stringify(messageslastcmpg));
         console.log('groups2 are: ' + JSON.stringify(cgroup));
         console.log('groups2 are: ' + JSON.stringify(csender));
         console.log('groups3 are: ' + JSON.stringify(ccount));
         console.log('groups4 are: ' + JSON.stringify(mcount));
         console.log('groups5 are: ' + JSON.stringify(ocount));
-        console.log('groups6 are: ' + messages.map((res) => res.name));
+        console.log('groups6 are: ' + messageslastcmpg.map((res) => res.name));
         console.log('groups7 are: ' + JSON.stringify(mgrowth));
-        console.log('groups8 are: ' + JSON.stringify(cgrowth));
+        console.log('groups8 are: ' + JSON.stringify(cgrowth)); 
         console.log('groups9 are: ' + JSON.stringify(ogrowth));
 
+        let lastcpgnplatform = messageslastcmpg.map((res) => res.platformtypeId) == 1 ? "SMS" : "WhatsApp";
+        let show_viewed = messageslastcmpg.map((res) => res.platformtypeId) == 1 ? false : true;
+        console.log('______SHOW______:' + show_viewed);
+        
         var flashtype, flash = req.flash('error');
         if(flash.length > 0) {
             flashtype = "error";           
@@ -377,14 +382,18 @@ exports.index = async(req, res) => {
                 nocontacts: nocontacts,
                 nocampaigns: nocampaigns,
 
-                latestcampaign: messages.map((res) => res.name),
-
+                latestcampaign: {
+                    name: messageslastcmpg.map((res) => res.name),
+                    platform: lastcpgnplatform,
+                },
                 delivered: summary.delivered,
                 pending: summary.pending,
                 failed: summary.failed, 
                 undeliverable: summary.undeliverable,
+                viewed: summary.viewed,
+                show_viewed,
                 clicks: summary.clicks,
-                messages,
+                messageslastcmpg,
                 ccount,
                 ocount,
                 mcount,
