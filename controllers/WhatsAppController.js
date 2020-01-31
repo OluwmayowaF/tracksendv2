@@ -57,6 +57,7 @@ exports.notifyAck = (req, res) => {
                 models.Message.update(
                     {
                         deliverytime: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+                        status: 1,
                     },
                     {
                         where: {
@@ -66,10 +67,11 @@ exports.notifyAck = (req, res) => {
                 )
             }
             else if(ak.status == 'viewed') {
-            console.log('doing status iewd');
+            console.log('doing status viewd');
                 models.Message.update(
                     {
                         readtime: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+                        status: 5,
                     },
                     {
                         where: {

@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     status:     DataTypes.INTEGER,
     has_utm:    DataTypes.INTEGER,
     units_used: DataTypes.DOUBLE,
-    mediatypeId: DataTypes.INTEGER,
+    platformtypeId: DataTypes.INTEGER,
   }, {});
 
   // Campaign.belongsToMany(Contact, { through: { model: ContactGroup, unique: false }, foreignKey: 'groupId' });
@@ -30,8 +30,8 @@ module.exports = (sequelize, DataTypes) => {
     Campaign.belongsTo(models.User, {
       foreignKey: 'userId'
     });
-    Campaign.belongsTo(models.Mediatype, {
-      foreignKey: 'mediatypeId'
+    Campaign.belongsTo(models.Platformtype, {
+      foreignKey: 'platformtypeId'
     });
     Campaign.belongsTo(models.Sender, {
       foreignKey: 'senderId'

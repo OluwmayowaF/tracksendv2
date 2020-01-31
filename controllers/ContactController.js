@@ -14,7 +14,7 @@ exports.contactList = async (req, res) => {
     // var defgtyp = null;
 
 
-    /* var grptyps = await models.Mediatype.findAll({
+    /* var grptyps = await models.Platformtype.findAll({
         order: [ 
             ['id', 'ASC']
         ]
@@ -22,7 +22,7 @@ exports.contactList = async (req, res) => {
 
     /* if(lnkgrp) {
         defgtyp = await models.Group.findByPk(lnkgrp, {
-            attributes: ['mediatypeId']
+            attributes: ['platformtypeId']
         });
     } */
 

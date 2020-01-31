@@ -577,8 +577,9 @@
 					<li class="list_item _hd" style="font-weight: bolder">
 						<ul class="saved_item">
 							<li style="flex: 6">Name</li>
+							<li style="flex: 2">Platform</li>
 							<li style="flex: 2">Status</li>
-							<li style="flex: 8">Sent To</li>
+							<li style="flex: 6">Sent To</li>
 							<li style="flex: 3">Units</li>
 							<li style="flex: 3">Created</li>
 							<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; text-align: center; font-size: 2em; line-height: 0.3;">
@@ -593,8 +594,9 @@
 						<ul class="saved_item _clickable">
 							<form><input type="hidden" class="id" value="{{ id }}" /></form>
 							<li style="flex: 6">{{ name }}</li>
+							<li style="flex: 2">{{ platform }}</li>
 							<li style="flex: 2">{{ status }}</li>
-							<li style="flex: 8">{{ grpname }}</li>
+							<li style="flex: 6">{{ grpname }}</li>
 							<li style="flex: 3">{{ units_used }}</li>
 							<li style="flex: 3">{{formatDate createdAt "short"}}</li>
 							<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
