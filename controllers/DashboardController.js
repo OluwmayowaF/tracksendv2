@@ -552,8 +552,8 @@ exports.manualpost = async (req, res) => {
         
 
     } catch(err) {
-        console.log(err);
-        console.log('errorerr = ' + err);
+        console.error(err);
+        console.error('errorerr = ' + err);
         
         if(err.name == 'SequelizeUniqueConstraintError') {
             req.flash('error', 'Group Name already exists on your account.');

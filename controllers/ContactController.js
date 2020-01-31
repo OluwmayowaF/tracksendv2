@@ -161,7 +161,7 @@ exports.addContact = (req, res) => {
                 res.redirect(backURL);
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 if(err.name == 'SequelizeUniqueConstraintError') {
                     req.flash('error', 'Contact already exists.');
                 } else {
@@ -172,8 +172,8 @@ exports.addContact = (req, res) => {
             });
             
         } catch(err) {
-            console.log(err);
-            console.log('errorerr = ' + err);
+            console.error(err);
+            console.error('errorerr = ' + err);
             
             if(err.name == 'SequelizeUniqueConstraintError') {
                 req.flash('error', 'Group Name already exists on your account.');

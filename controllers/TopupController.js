@@ -231,9 +231,9 @@ exports.ref = (req, res) => {
         }); */
         });
     } catch (err) {
-        console.log('====================================');
-        console.log('ERROR : ' + err);
-        console.log('====================================');
+        console.error('====================================');
+        console.error('ERROR : ' + err);
+        console.error('====================================');
 
         req.flash('error', 'An error occurred during your payment. Kindly contact platform admin.');
         res.redirect('dashboard/topups/');

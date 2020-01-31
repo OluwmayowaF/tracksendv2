@@ -354,7 +354,7 @@ console.log('555555');
                             limit: 1,
                         })
                         .catch((err) => {
-                            console.log('ERROR!!!' + JSON.stringify(err));
+                            console.error('ERROR!!!' + JSON.stringify(err));
                             
                         });
       
@@ -387,7 +387,7 @@ console.log('666666');
                         return result;
                     })
                     .catch((err) => {
-                        console.log('ERROR!!!' + JSON.stringify(err));
+                        console.error('ERROR!!!' + JSON.stringify(err));
                         
                     })
                 }
@@ -445,13 +445,13 @@ console.log('EEEEE');
 
             })
             .catch((err) => {
-                console.log('ERROR!!!' + JSON.stringify(err));
+                console.error('ERROR!!!' + JSON.stringify(err));
                 
             });
 
         })
         .catch((err) => {
-            console.log('ERROR!!!' + JSON.stringify(err));
+            console.error('ERROR!!!' + JSON.stringify(err));
             
         })
 }

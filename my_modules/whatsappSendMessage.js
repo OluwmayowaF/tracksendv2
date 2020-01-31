@@ -97,11 +97,11 @@ const whatsappSendMessage =  async (typ, phone, body, instanceid, token, contact
       console.log('WHATSAPP RESP: ' + JSON.stringify(new_resp.data) + '| ; ID : ' + new_resp.data.id);
       console.log('====================================');
 
-      if(new_resp.data) {
-        console.log('====================================');
-        console.log('WHATSAPP RESP: ' + JSON.stringify(new_resp.data) + '| msgid = ' + msgid + '; ID : ' + new_resp.data.id);
-        console.log('====================================');
-      }
+      // if(new_resp.data) {
+      //   console.log('====================================');
+      //   console.log('WHATSAPP RESP: ' + JSON.stringify(new_resp.data) + '| msgid = ' + msgid + '; ID : ' + new_resp.data.id);
+      //   console.log('====================================');
+      // }
 
       if(msgid) await models.Message.update(
         {

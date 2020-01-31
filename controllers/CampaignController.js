@@ -755,7 +755,7 @@ exports.add = async (req, res) => {
                                         res.redirect(backURL);
                                     }
                                 } catch (err) {
-                                    console.log('THIS ERROR: ' + err);
+                                    console.error('THIS ERROR: ' + err);
             
                                     req.flash('error', 'An error occurred while sending out your Campaign. Please try again later or contact admin.');
                                     var backURL = req.header('Referer') || '/';
@@ -791,7 +791,7 @@ exports.add = async (req, res) => {
 
     })
     .catch((err) => {
-        console.log('BIG BIG ERROR: ' + err);
+        console.error('BIG BIG ERROR: ' + err);
     })
 
     return;
@@ -918,9 +918,9 @@ exports.add = async (req, res) => {
             })
             
         } catch(e) {
-            console.log('====================================');
-            console.log('ERROR OCCURRED: ' + e);
-            console.log('====================================');
+            console.error('====================================');
+            console.error('ERROR OCCURRED: ' + e);
+            console.error('====================================');
 
             await cpn.destroy();
             let emsg = 'Sorry an error occurred. Please try again or contact Admin.';

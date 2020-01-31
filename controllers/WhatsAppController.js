@@ -39,9 +39,45 @@ exports.getQRCode = async (req, res) => {
 
 exports.notifyAck = (req, res) => {
     
-    console.log('[[====================================');
-    console.log('POST CHATAPI RESPONSE: ' + JSON.stringify(req.body));
-    console.log('====================================]]');
+    try {
+        if(!req.body) throw "blank";
+        if(req.body.messages) console.log('...discarding "messages" response...');
+        else if(req.body.ack) {
+            console.log('[[====================================');
+            console.log('POST CHATAPI RESPONSE: ' + JSON.stringify(req.body));
+            console.log('====================================]]');
+            
+            let ak = req.body.ack[0]; console.log('dofy+='+JSON.stringify(ak));
+            
+            if(ak.status == 'delivered') {
+                models.Message.update(
+                    {
+                        delivery_time: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+                    },
+                    {
+                        where: {
+                            message_id: ak.id,
+                        }
+                    }
+                )
+            }
+            else if(ak.status == 'viewed') {
+                models.Message.update(
+                    {
+                        read_time: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+                    },
+                    {
+                        where: {
+                            message_id: ak.id,
+                        }
+                    }
+                )
+            }
+            else console.log('...discarding "sent" ack...');
+        }
+    } catch(e) {
+        console.error('WHATSAPP ACK ERROR: ' + e);
+    }
 
     // res.sendStatus(200);
     res.send("ok");
@@ -115,10 +151,10 @@ exports.preOptIn = async (req, res) => {
         res.send("ok"); 
 
     } catch(e) {
-        console.log('====================================');
-        console.log('erroooooooooooooer: ' + JSON.stringify(e.name));
-        console.log('erroooooooooooooer: ' + e);
-        console.log('====================================');
+        console.error('====================================');
+        console.error('erroooooooooooooer: ' + JSON.stringify(e.name));
+        console.error('erroooooooooooooer: ' + e);
+        console.error('====================================');
         if(e.name == 'SequelizeUniqueConstraintError') {
             res.send({
                 status: "error",
@@ -246,9 +282,9 @@ exports.completeOptin = async function(req, res) {
                             }
                         )
                     } catch(e) {
-                        console.log('====================================');
-                        console.log('inside inside error' + JSON.stringify(e));
-                        console.log('====================================');
+                        console.error('====================================');
+                        console.error('inside inside error' + JSON.stringify(e));
+                        console.error('====================================');
                     }
                 }
             }
@@ -298,9 +334,9 @@ exports.completeOptin = async function(req, res) {
             });
             return;
         } else {
-            console.log('====================================');
-            console.log('ERRORa: ' + JSON.stringify(e));
-            console.log('====================================');
+            console.error('====================================');
+            console.error('ERRORa: ' + JSON.stringify(e));
+            console.error('====================================');
         }
     }
 
@@ -367,11 +403,11 @@ exports.preOptout = async (req, res) => {
         });
 
     } catch(e) {
-        console.log('====================================');
-        console.log('error: ' + e.name);
-        console.log('error: ' + JSON.stringify(e));
-        console.log('error: ' + e);
-        console.log('====================================');
+        console.error('====================================');
+        console.error('error: ' + e.name);
+        console.error('error: ' + JSON.stringify(e));
+        console.error('error: ' + e);
+        console.error('====================================');
         res.render('pages/redirect-error', {
             page: '',
     
@@ -437,9 +473,9 @@ exports.postOptout = async (req, res) => {
         });
 
     } catch(e) {
-        console.log('====================================');
-        console.log('erroooooooooooooer: ' + JSON.stringify(e));
-        console.log('====================================');
+        console.error('====================================');
+        console.error('erroooooooooooooer: ' + JSON.stringify(e));
+        console.error('====================================');
         let errmsg;
         if(e.name == 'SequelizeUniqueConstraintError') {
             errmsg = _message('error', 1010, req.body.country);

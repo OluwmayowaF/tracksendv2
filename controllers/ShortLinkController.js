@@ -133,7 +133,7 @@ exports.add = async (req, res) => {
         req.flash('success', 'Short URL created successfully.');
 
     } catch(err) {
-        console.log('2BIG ERROR: ' + err);
+        console.error('2BIG ERROR: ' + err);
         if(err.name == 'SequelizeUniqueConstraintError')  {
             req.flash('error', 'Sorry, the customized URL already exists.');
         }
