@@ -47,12 +47,16 @@ exports.notifyAck = (req, res) => {
             console.log('POST CHATAPI RESPONSE: ' + JSON.stringify(req.body));
             console.log('====================================]]');
             
-            let ak = req.body.ack[0]; console.log('dofy+='+JSON.stringify(ak));
+            let ak = req.body.ack[0]; 
+            console.log('dofy+='+JSON.stringify(ak));
+            console.log('status 1+='+JSON.stringify(ak.status));
+            console.log('status 2+='+ak.status);
             
             if(ak.status == 'delivered') {
+            console.log('doing status del');
                 models.Message.update(
                     {
-                        delivery_time: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+                        deliverytime: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
                     },
                     {
                         where: {
@@ -62,9 +66,10 @@ exports.notifyAck = (req, res) => {
                 )
             }
             else if(ak.status == 'viewed') {
+            console.log('doing status iewd');
                 models.Message.update(
                     {
-                        read_time: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+                        readtime: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
                     },
                     {
                         where: {
@@ -72,6 +77,7 @@ exports.notifyAck = (req, res) => {
                         }
                     }
                 )
+            console.log('doing status+='+JSON.stringify(ak.status));
             }
             else console.log('...discarding "sent" ack...');
         }
