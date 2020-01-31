@@ -104,7 +104,7 @@ exports.index = (req, res) => {
             // group.createContact(req.body)
         })
         .catch((err) => {
-            console.log('ERROR: ' + err);
+            console.error('ERROR: ' + err);
         })
     }
 
