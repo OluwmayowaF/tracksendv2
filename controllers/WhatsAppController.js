@@ -304,7 +304,7 @@ exports.completeOptin = async function(req, res) {
         console.log('pre kill');
         await killk.destroy();
         console.log('after destroy');
-        
+
         //  send success message to user
         let user = await models.User.findByPk(kont.userId);
         let phone = phoneformat(kont.phone, kont.countryId);
@@ -343,7 +343,7 @@ exports.completeOptin = async function(req, res) {
             return;
         } else {
             console.error('====================================');
-            console.error('ERRORa: ' + JSON.stringify(e));
+            console.error('ERRORa: ' + JSON.stringify(e) + ' ... ' + e);
             console.error('====================================');
         }
     }
