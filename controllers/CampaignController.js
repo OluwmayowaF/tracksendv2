@@ -20,7 +20,7 @@ exports.index = (req, res) => {
     console.log('....................showing page......................' + JSON.stringify(req.user)); 
         
     Promise.all([
-        sequelize.query(
+        sequelize.query( 
             "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, IF(status = 1, 'Active', 'Error') AS status, IF(campaigns.platformtypeId = 1, 'SMS', 'WhatsApp') AS platform, campaigns.createdAt " +
             "FROM campaigns " +
             "LEFT OUTER JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
