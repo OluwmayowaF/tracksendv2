@@ -78,6 +78,11 @@ const db = require('./config/cfg/db');
 db.authenticate()
   .then(() => {
     console.log('Database connected...');
+    console.debug('1Database connected...');
+    console.info('3Database connected...');
+    console.warn('4Database connected...');
+    console.error('5Database connected...');
+    // console.clear();
     //  start server
     app.listen(PORT, console.log(`Server running on port ${PORT} ...`));
     // var server = http.createServer(app);

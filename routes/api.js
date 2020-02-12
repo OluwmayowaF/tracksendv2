@@ -32,8 +32,8 @@ module.exports = function(app) {
   app.options ('/api/whatsappoptin', cors());
   app.post ('/api/whatsappoptin', cors(), apiController.whatsAppOptIn);
 
-  app.post('/api/sms/notify',       apiController.smsNotify);   //  for INFOBIP
-  app.get('/api/sms/notify',        apiController.smsNotify);   //  for MESSAGEBIRD
+  app.post('/api/sms/infobip/notify',       apiController.smsNotifyInfobip);   //  for INFOBIP
+  app.get('/api/sms/messagebird/notify',    apiController.smsNotifyMessagebird);   //  for MESSAGEBIRD
 
   app.post('/api/whatsapphooks',    apiController.whatsAppNotify);
   // app.get ('/api/whatsapphooks',    apiController.whatsAppNotify_);

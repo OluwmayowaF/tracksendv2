@@ -41,6 +41,7 @@ module.exports = function(sequelize, DataTypes) {
     wa_instanceid:    DataTypes.STRING,
     wa_instancetoken: DataTypes.STRING,
     wa_instanceurl:   DataTypes.STRING,
+    sms_service:      DataTypes.STRING,
   }, {
     hooks: {
       beforeCreate: function(user) {

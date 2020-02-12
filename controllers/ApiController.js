@@ -920,14 +920,12 @@ exports.loadCampaign = (req, res) => {
 
 }
 
-exports.smsNotify = (req, res) => {
+exports.smsNotifyInfobip = (req, res) => {
     
     console.log('[[====================================');
     console.log('INFOBIP RESPONSE: ' + JSON.stringify(req.body));
     console.log('====================================]]');
-    console.log('[[====================================');
-    console.log('MESSAGEBIRD RESPONSE: ' + JSON.stringify(req.query));
-    console.log('====================================]]');
+
     if(req.body) {          //  for INFOBIP
     
         var resp = req.body;
@@ -1022,7 +1020,37 @@ exports.smsNotify = (req, res) => {
 
         });
 
-    } else if(req.query) {  //  for MESSAGEBIRD
+    } 
+
+}
+
+exports.smsNotifyMessagebird = (req, res) => {
+    
+    console.log('[[====================================');
+    console.log('MESSAGEBIRD RESPONSE: ' + JSON.stringify(req.query));
+    console.log('====================================]]');
+    /* MESSAGEBIRD RESPONSE: {
+        "id":"57b4844594de4f1392809a799c9ae855",
+        "mccmnc":"62130",
+        "ported":"0",
+        "recipient":"2348033235527",
+        "reference":"Testing_Refactoring_MessageBird_11",
+        "status":"delivery_failed",
+        "statusDatetime":"2020-02-12T15:06:43+00:00",
+        "statusErrorCode":"5"
+    } */
+    /* MESSAGEBIRD RESPONSE: {
+        "id":"8b9e6ed1072249718282a080fdde419e",
+        "mccmnc":"62130",
+        "ported":"0",
+        "recipient":"2348033235527",
+        "reference":"Testing_Refactoring_MessageBird_12 364369",
+        "status":"delivered",
+        "statusDatetime":"2020-02-12T15:18:47+00:00"
+    } */
+
+
+    if(req.query) {  //  for MESSAGEBIRD
 
         // GET http://your-own.url/script?
         //      id=efa6405d518d4c0c88cce11f7db775fb&
