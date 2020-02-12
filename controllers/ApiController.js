@@ -925,101 +925,115 @@ exports.smsNotify = (req, res) => {
     console.log('[[====================================');
     console.log('INFOBIP RESPONSE: ' + JSON.stringify(req.body));
     console.log('====================================]]');
-
+    console.log('[[====================================');
+    console.log('MESSAGEBIRD RESPONSE: ' + JSON.stringify(req.query));
+    console.log('====================================]]');
+    if(req.body) {          //  for INFOBIP
     
-    var resp = req.body;
-    resp.results.forEach(msg => {
-        var id = msg.messageId;
-        var phone = msg.to;
-        var status = msg.status.groupName; 
-        var dt = msg.sentAt;
-        var sid;
+        var resp = req.body;
+        resp.results.forEach(msg => {
+            var id = msg.messageId;
+            var phone = msg.to;
+            var status = msg.status.groupName; 
+            var dt = msg.sentAt;
+            var sid;
 
-        console.log('====================================');
-        console.log('MSG STATUS = ' + status);
-        console.log('====================================');
+            console.log('====================================');
+            console.log('MSG STATUS = ' + status);
+            console.log('====================================');
 
-        let pref = phone.substr(0, 3);
-        let phn = '0' + phone.substr(3);
+            let pref = phone.substr(0, 3);
+            let phn = '0' + phone.substr(3);
 
-        if (status == 'DELIVERED') {
-            sid = 1;
+            if (status == 'DELIVERED') {
+                sid = 1;
 
-            models.Contact.update(
-                {
-                    status: 1
-                },
-                {
-                    where: {
-                        countryId: pref,
-                        phone: phn,
+                models.Contact.update(
+                    {
+                        status: 1
+                    },
+                    {
+                        where: {
+                            countryId: pref,
+                            phone: phn,
+                        }
                     }
-                }
-            )
+                )
 
-        } else if (status == 'REJECTED') {
-            sid = 4;
+            } else if (status == 'REJECTED') {
+                sid = 4;
 
-            models.Contact.update(
-                {
-                    status: 3
-                },
-                {
-                    where: {
-                        countryId: pref,
-                        phone: phn,
+                models.Contact.update(
+                    {
+                        status: 3
+                    },
+                    {
+                        where: {
+                            countryId: pref,
+                            phone: phn,
+                        }
                     }
-                }
-            )
-            
-        } else if (status == 'UNDELIVERABLE') {
-            sid = 3;
+                )
+                
+            } else if (status == 'UNDELIVERABLE') {
+                sid = 3;
 
-            models.Contact.update(
-                {
-                    status: 2
-                },
-                {
-                    where: {
-                        countryId: pref,
-                        phone: phn,
+                models.Contact.update(
+                    {
+                        status: 2
+                    },
+                    {
+                        where: {
+                            countryId: pref,
+                            phone: phn,
+                        }
                     }
-                }
-            )
+                )
 
-        } else {
-            sid = 2;
+            } else {
+                sid = 2;
 
-            models.Contact.update(
-                {
-                    status: 1
-                },
-                {
-                    where: {
-                        countryId: pref,
-                        phone: phn,
+                models.Contact.update(
+                    {
+                        status: 1
+                    },
+                    {
+                        where: {
+                            countryId: pref,
+                            phone: phn,
+                        }
                     }
-                }
-            )
+                )
 
-        }
+            }
 
-        models.Message.findByPk(id)
-        .then((mg) => {
-            mg.update({
-                deliverytime: dt,
-                status: sid,
+            models.Message.findByPk(id)
+            .then((mg) => {
+                mg.update({
+                    deliverytime: dt,
+                    status: sid,
+                })
+                .then(() => {
+                    console.log('====================================');
+                    console.log('DOOOOOOOONNNNNNNNNNNNEEEEEEEEEEEEEE');
+                    console.log('====================================');
+                })
             })
-            .then(() => {
-                console.log('====================================');
-                console.log('DOOOOOOOONNNNNNNNNNNNEEEEEEEEEEEEEE');
-                console.log('====================================');
-            })
-        })
 
-    });
+        });
 
+    } else if(req.query) {  //  for MESSAGEBIRD
 
+        // GET http://your-own.url/script?
+        //      id=efa6405d518d4c0c88cce11f7db775fb&
+        //      reference=the-customers-reference&
+        //      recipient=31612345678&
+        //      status=delivered&
+        //      statusDatetime=2017-09-01T10:00:05+00:00
+
+        res.send("OK");
+
+    }
 
 }
 
