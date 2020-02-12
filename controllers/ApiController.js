@@ -926,7 +926,7 @@ exports.smsNotify = (req, res) => {
     console.log('INFOBIP RESPONSE: ' + JSON.stringify(req.body));
     console.log('====================================]]');
     console.log('[[====================================');
-    console.log('INFOBIP RESPONSE: ' + JSON.stringify(req.query));
+    console.log('MESSAGEBIRD RESPONSE: ' + JSON.stringify(req.query));
     console.log('====================================]]');
     if(req.body) {          //  for INFOBIP
     
