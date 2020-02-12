@@ -1,12 +1,11 @@
 var models = require('../models');
-// import { because } from './../models/User';
 var moment = require('moment');
 const _ = require('lodash');
 const Sequelize = require('sequelize');
 const sequelize = require('../config/cfg/db');
 const Op = Sequelize.Op;
 const fs = require('fs'); 
-// import smsSendEngines from '../my_modules/smsSendEngines';
+
 var smsSendEngines = require('../my_modules/smsSendEngines');
 var { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
 var uploadMyFile = require('../my_modules/uploadHandlers');
@@ -18,7 +17,7 @@ var _message = require('../my_modules/output_messages');
 exports.index = (req, res) => {
     var user_id = req.user.id;
     
-    console.log('showing page...' + JSON.stringify(req.user)); 
+    console.log('....................showing page......................' + JSON.stringify(req.user)); 
         
     Promise.all([
         sequelize.query(
