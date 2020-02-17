@@ -247,7 +247,10 @@ exports.completeOptin = async function(req, res) {
 
     var phoneformat = require('../my_modules/phoneformat');
     let ucode = req.body.code;
-    console.log('code = ' + ucode + 'grps = ' + req.body.groups);
+    let grps = req.body.groups;
+    grps = Array.isArray(grps) ? grps : [grps];
+
+    console.log('code = ' + ucode + 'grps = ' + grps);
     
     //  get new contact's saved details
     let kont = await models.Contact.findOne({
