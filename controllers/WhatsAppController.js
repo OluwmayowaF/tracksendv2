@@ -250,7 +250,7 @@ exports.completeOptin = async function(req, res) {
     let grps = req.body.groups;
     grps = Array.isArray(grps) ? grps : [grps];
 
-    console.log('code = ' + ucode + 'grps = ' + grps);
+    console.log('code = ' + ucode + 'grps = ' + JSON.stringify(grps));
     
     //  get new contact's saved details
     let kont = await models.Contact.findOne({
@@ -265,7 +265,7 @@ exports.completeOptin = async function(req, res) {
         }
 
         //  create contact-group records
-        await req.body.groups.forEach(async grp => {
+        await grps.forEach(async grp => {
             try {
                 await models.Contact.create({
                     firstname: kont.firstname,
