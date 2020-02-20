@@ -562,8 +562,14 @@ exports.analyseCampaign = async (req, res) => {
     var groups = req.body.group;
     var skip = (req.body.skip_dnd && req.body.skip_dnd == "on");
     var utm = (req.body.add_utm && req.body.add_utm == "on");
-    var unsub = (req.body.add_optout && req.body.add_optout == "on");
 
+    var unsub     = (req.body.add_optout && req.body.add_optout == "on");
+    var dosub     = (req.body.add_optin && req.body.add_optin == "on");
+    var tooptin   = (req.body.to_optin && req.body.to_optin == "on");
+    var toawoptin = (req.body.to_awoptin && req.body.to_awoptin == "on");
+    var toall     = (tooptin && toawoptin);
+
+    
     if (groups != 0) {
         if(!Array.isArray(groups)) groups = [groups];
         console.log('group= ' + JSON.stringify(groups));
@@ -595,11 +601,37 @@ exports.analyseCampaign = async (req, res) => {
                                         }
                                     }
                                 ],
-                                do_sms: true
+                                ...(
+                                    toall ? {
+                                        [Sequelize.Op.or]: [
+                                            {
+                                                do_sms: 0
+                                            },
+                                            {
+                                                do_sms: 1
+                                            }
+                                        ],
+                                    } : {
+                                        do_sms: (tooptin ? 1 : 0)         //  opted-ins = 1; awaiting = 0
+                                    }
+                                )
                             }
                         } : {
                             where: {
-                                do_sms: true
+                                ...(
+                                    toall ? {
+                                        [Sequelize.Op.or]: [
+                                            {
+                                                do_sms: 0
+                                            },
+                                            {
+                                                do_sms: 1
+                                            }
+                                        ],
+                                    } : {
+                                        do_sms: (tooptin ? 1 : 0  )       //  opted-ins = 1; awaiting = 0
+                                    }
+                                )
                             }
                         }
                     )
@@ -615,7 +647,10 @@ exports.analyseCampaign = async (req, res) => {
             //  merge contacts from all groups
 
             var contacts_arr = [];
+            console.error('rrrrrrrrrrrrrrrrrrrrrrrrrrr');
             dd.forEach(el => {
+                console.error('wwwwwwwwwwwwwwwwwwwwwwwwwwwww');
+                
                 contacts_arr = contacts_arr.concat(el.contacts);
             });
 
@@ -741,20 +776,23 @@ exports.analyseCampaign = async (req, res) => {
 
             if(tid == 0) {
                 var tt = await models.Tmpcampaign.create({
-                    name: req.body.name,
+                    name:       req.body.name,
                     description: req.body.description,
-                    userId: user_id,
-                    senderId: req.body.sender,
+                    userId:     user_id,
+                    senderId:   req.body.sender,
                     shortlinkId: (req.body.shorturl.length > 0) ? req.body.shorturl : null,
                     // myshorturl: req.body.myshorturl,
-                    grp: JSON.stringify(groups),
-                    message: req.body.message,
+                    grp:        JSON.stringify(groups),
+                    message:    req.body.message,
                     // schedule: (req.body.schedule) ? moment(req.body.schedule, 'DD/MM/YYYY h:mm:ss A').format('YYYY-MM-DD HH:mm:ss') : null, //req.body.schedule,
-                    schedule: (req.body.datepicker) ? req.body.schedule : null, //req.body.schedule,
+                    schedule:   (req.body.datepicker) ? req.body.schedule : null, //req.body.schedule,
                     recipients: req.body.recipients,
-                    skip_dnd: (req.body.skip_dnd) ? req.body.skip_dnd : null,
-                    has_utm: (utm) ? 1 : 0,
+                    skip_dnd:   (req.body.skip_dnd) ? req.body.skip_dnd : null,
+                    has_utm:    (utm) ? 1 : 0,
+                    to_optin:   (tooptin) ? 1 : 0,
+                    to_awoptin: (toawoptin) ? 1 : 0,
                     add_optout: (unsub) ? 1 : 0,
+                    add_optin:  (dosub) ? 1 : 0,
                     units_used: units,
                 });
 
@@ -769,15 +807,18 @@ exports.analyseCampaign = async (req, res) => {
                     description: req.body.description,
                     userId: user_id,
                     senderId: req.body.sender,
-                    shortlinkId: (req.body.shorturl.length > 0) ? req.body.shorturl : null,
+                    shortlinkId: (req.body.shorturl.length > 0 ? req.body.shorturl : null),
                     // myshorturl: req.body.myshorturl,
                     grp: JSON.stringify(groups),
-                    message: req.body.message,
-                    schedule: (req.body.datepicker) ? req.body.schedule : null, //req.body.schedule,
+                    message:    req.body.message,
+                    schedule:   (req.body.datepicker ? req.body.schedule : null), //req.body.schedule,
                     recipients: req.body.recipients,
-                    skip_dnd: (req.body.skip_dnd) ? req.body.skip_dnd : null,
-                    has_utm: (utm) ? 1 : 0,
-                    add_optout: (unsub) ? 1 : 0,
+                    skip_dnd:   (req.body.skip_dnd ? req.body.skip_dnd : null),
+                    has_utm:    (utm ? 1 : 0),
+                    to_optin:   (tooptin ? 1 : 0),
+                    to_awoptin: (toawoptin ? 1 : 0),
+                    add_optout: (unsub ? 1 : 0),
+                    add_optin:  (dosub ? 1 : 0),
                     units_used: units,
                 })
 

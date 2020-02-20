@@ -22,13 +22,13 @@ const africastalkingOptions = require('../config/cfg/africastalking');
 
 
 
-const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, originalmessage, _message, UNSUBMSG, SINGLE_MSG, HAS_SURL) => {
+const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, originalmessage, _message, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL) => {
     // let platform = 'infobip';
     // console.clear();
     // console.log('====================================');
     // console.log('SMS SERVICE = ' + req.user.sms_service);
     // console.log('====================================');
-    SINGLE_MSG = SINGLE_MSG && !UNSUBMSG;    //  UNSUBMSG includes individual contact ids so invariable can't be single msg
+    SINGLE_MSG = SINGLE_MSG && !UNSUBMSG && !DOSUBMSG;    //  UNSUBMSG includes individual contact ids so invariable can't be single msg
     
     if(req.user.sms_service == 'infobip') {
 
@@ -100,6 +100,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                     .replace(/&nbsp;/g, ' ');
 
                     updatedmessage += (UNSUBMSG) ? _message('msg', 1091, kont.countryId, kont.id) : '';     //  add unsubscribe text
+                    updatedmessage += (DOSUBMSG) ? _message('msg', 1092, kont.countryId, kont.id) : '';     //  add unsubscribe text
 
                     if(SINGLE_MSG) {
                         var msgto = {    //  STEP 0 OF MESSAGE CONSTRUCTION
@@ -365,6 +366,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                     .replace(/&nbsp;/g, ' ');
 
                     updatedmessage += (UNSUBMSG) ? _message('msg', 1091, kont.countryId, kont.id) : '';     //  add unsubscribe text
+                    updatedmessage += (DOSUBMSG) ? _message('msg', 1092, kont.countryId, kont.id) : '';     //  add unsubscribe text
 
                     console.log('====================================');
                     console.log('UNSUB MSG IS:::' + _message('msg', 1091, kont.countryId, kont.id));
@@ -641,6 +643,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                     .replace(/&nbsp;/g, ' ');
 
                     updatedmessage += (UNSUBMSG) ? _message('msg', 1091, kont.countryId, kont.id) : '';     //  add unsubscribe text
+                    updatedmessage += (DOSUBMSG) ? _message('msg', 1092, kont.countryId, kont.id) : '';     //  add unsubscribe text
 
                     console.log('====================================');
                     console.log('UNSUB MSG IS:::' + _message('msg', 1091, kont.countryId, kont.id));
