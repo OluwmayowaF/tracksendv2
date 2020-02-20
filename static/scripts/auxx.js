@@ -22,6 +22,7 @@ var _getGlobals = {
 $(document).ready(function() {
 	var campaign_confirmed = false;
 	var whatsapp_campaign = false;
+	var _campaign_options_checked_count = 0;
 
 	// navigator.geolocation.getCurrentPosition(positionSuccess, positionFailure, { enableHighAccuracy: true });
 	function positionSuccess(position) {
@@ -199,7 +200,40 @@ $(document).ready(function() {
 		countChars(e);
 	} );
 
+	$('#to_optin, #to_awoptin').on('change', (e) => {
+		$we = $(e.target);
+		$it = $we.closest('.col-md-12');
+
+		if($we.is(':checked')) {
+			++_campaign_options_checked_count;
+			
+			$it.find('.switch input').removeAttr('disabled');
+
+			if(_campaign_options_checked_count == 2) {
+				$it.closest('._campaign_options').find('.switch').each((i, el) => {
+					if($(el).find('input').is(':checked')) $(el).find('.slider.round').click();
+					if($(el).find('input').is(':checked')) $(el).find('.slider.round').click();
+				})
+				$it.closest('._campaign_options').find('.switch input').attr('disabled', 'disable');//.each((i, el) => {
+			} else {
+					console.log('founder');
+			}
+		} else {
+			--_campaign_options_checked_count;
+			$we.closest('._campaign_options').find('#to_optin, #to_awoptin').each((i, el) => {
+				if($(el).is(':checked')) $(el).closest('.col-md-12').find('.switch input').removeAttr('disabled');
+			})
+
+			$it.find('.switch input').attr('disabled', 'disable');
+			if($it.find('.switch input').is(':checked')) $it.find('.slider.round').click();
+		}
+	});
+
 	$('.add_optout #add_optout').on('change', (e) => {
+		countChars(e);
+	});
+
+	$('.add_optin #add_optin').on('change', (e) => {
 		countChars(e);
 	});
 
@@ -219,7 +253,8 @@ $(document).ready(function() {
 
 	function countChars(e) {	//	note that 'e' argument is not to be used, as this refers to divergent types of objects
 		var $we = $('.editable_div._sms');
-		var $sw = $('.add_optout #add_optout');
+		var $sw1 = $('.add_optout #add_optout');
+		var $sw2 = $('.add_optin #add_optin');
 		var sp = $we.find('span.arg').length;
 		var ch = 0;
 		var msgs = 0;
@@ -242,7 +277,10 @@ $(document).ready(function() {
 			console.log('no sp; alls = ' + ch);
 		} 
 
-		if($sw.is(':checked')) {
+		if($sw1.is(':checked')) {
+			ch += 30;
+		}
+		if($sw2.is(':checked')) {
 			ch += 30;
 		}
 		

@@ -126,6 +126,10 @@ const _message = (type, msgcode, ctrycode=234, string1=null, string2=null, strin
           EN: "Opt-out complete. Thanks.",
           FR: "Désinscription terminée. Merci.",
         },
+        1081: {
+          EN: "Opt-in completed successfully. Thanks.",
+          FR: "L'abonnement s'est terminé avec succés. Merci.",
+        },
         1090: {
           EN: "With a sad face, we ask for one last thing to confirm your Opt-Out of <br> <b>" + string1 + "'s</b> <b>" + string2 + "</b> SMS group:",
           FR: "Avec un visage triste, nous demandons une dernière chose pour confirmer votre désabonnement au <br> <b>" + string1 + "'s</b> <b>" + string2 + "</b> groupe SMS:",
@@ -133,6 +137,10 @@ const _message = (type, msgcode, ctrycode=234, string1=null, string2=null, strin
         1091: {
           EN: "\n\nTo unsubscribe, click: https://dev2.tracksend.co/sms/optout/" + string1,
           FR: "\n\nPour vous désinscrire, cliquez sur: https://dev2.tracksend.co/sms/optout/" + string1,
+        },
+        1092: {
+          EN: "\n\nTo subscribe, click: https://dev2.tracksend.co/sms/optin/" + string1,
+          FR: "\n\nPour vous abonner, cliquez sur: https://dev2.tracksend.co/sms/optin/" + string1,
         },
         1100: {
           EN: "",

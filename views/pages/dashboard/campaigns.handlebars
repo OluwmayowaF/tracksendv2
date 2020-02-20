@@ -239,11 +239,11 @@
 													<label class="switch"><input type="checkbox" checked="" name="skip_dnd"><span class="slider round"></span></label>
 													<div class="clearfix"></div>
 												</div>
-												<div class="col-md-6 add_optout" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
+												{{!-- <div class="col-md-6 add_optout" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
 													<h5 style="float: left">Add 'Unsubscribe' Link to Message  <i class="tip" data-tip-content="This would insert a link at the end your SMS with which the recipient can unsubscribe from receiving your future SMS"></i> </h5>
 													<label class="switch"><input type="checkbox" id="add_optout" name="add_optout"><span class="slider round"></span></label>
 													<div class="clearfix"></div>
-												</div>
+												</div> --}}
 												<div class="col-md-6 add_utm" hidden style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px;">
 													<h5 style="float: left">Add UTM Tags To URL  <i class="tip" data-tip-content="Tags to help track source medium e.g. Facebook, Instagram, etc."></i> </h5>
 													<label class="switch"><input type="checkbox" checked="" name="add_utm"><span class="slider round"></span></label>
@@ -256,7 +256,32 @@
 
 										<div class="_form_errors _e_analyse" style="display:none; margin-top: 10px"></div>
 
-										<input type="hidden" name="analysis_id" id="analysis_id" value="0">
+										<div class="col-md-12 _campaign_options" style="margin-top: 20px; padding: 5px; border: dashed 2px; background-color: #eee;">
+											<div class="col-md-12">
+												<div class="col-md-6 checkboxes margin-top-15 _errorable">
+													<input id="to_optin" type="checkbox" name="to_optin">
+													<label for="to_optin">Send to Opted in Contacts</label>
+												</div>
+												<div class="col-md-6 add_optout" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
+													<h5 style="float: left">Add 'Opt-Out' Link to Message  <i class="tip" data-tip-content="This would insert a link at the end your SMS with which the recipient can unsubscribe from receiving your future SMS"></i> </h5>
+													<label class="switch"><input type="checkbox" id="add_optout" name="add_optout" disabled><span class="slider round"></span></label>
+													<div class="clearfix"></div>
+												</div>
+											</div>
+											<div class="col-md-12" style="border-top: dashed 1px;">
+												<div class="col-md-6 checkboxes margin-top-15 _errorable">
+													<input id="to_awoptin" type="checkbox" name="to_awoptin">
+													<label for="to_awoptin">Send to Awaiting-Opt-In Contacts</label>
+												</div>
+												<div class="col-md-6 add_optin" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
+													<h5 style="float: left">Add 'Opt-In' Link to Message  <i class="tip" data-tip-content="This would insert a link at the end your SMS with which the recipient can unsubscribe from receiving your future SMS"></i> </h5>
+													<label class="switch"><input type="checkbox" id="add_optin" name="add_optin" disabled><span class="slider round"></span></label>
+													<div class="clearfix"></div>
+												</div>
+											</div>
+										</div>
+
+									<input type="hidden" name="analysis_id" id="analysis_id" value="0">
 									<div><button type="submit" class="button preview" id="analyse_btn">Analyse <i class="im im-icon-Gears-2"></i></button> <span class="loading_icon fa fa-hourglass-2"></span><span style="margin-left: 5px" class="activity_status"></span></div>
 									<a href="#analysis-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1; visibility: hidden;" id="click_analysis_box"><i class="im im-icon-Two-Windows"></i> Show Analysis</a>
 											<div id="analysis-box" class="zoom-anim-dialog mfp-hide">

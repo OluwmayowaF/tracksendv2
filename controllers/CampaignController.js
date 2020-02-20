@@ -21,7 +21,14 @@ exports.index = (req, res) => {
         
     Promise.all([
         sequelize.query( 
-            "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, IF(status = 1, 'Active', 'Error') AS status, IF(campaigns.platformtypeId = 1, 'SMS', 'WhatsApp') AS platform, campaigns.createdAt " +
+            "SELECT " +
+            "   campaigns.id, " +
+            "   campaigns.name, " +
+            "   campaigns.units_used, " +
+            "   GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, " +
+            "   IF(status = 1, 'Active', 'Error') AS status, " +
+            "   IF(campaigns.platformtypeId = 1, 'SMS', 'WhatsApp') AS platform, " +
+            "   campaigns.createdAt " +
             "FROM campaigns " +
             "LEFT OUTER JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
             "LEFT OUTER JOIN groups ON groups.id = campaign_groups.groupId " +
@@ -138,216 +145,11 @@ exports.index = (req, res) => {
     });
 };
 
-exports.smsindex = (req, res) => {
-    var user_id = req.user.id;
-
-
-    console.log('showing page...'); 
-        
-    Promise.all([
-        sequelize.query(
-            "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, IF(status = 1, 'Active', 'Error') AS status, campaigns.createdAt " +
-            "FROM campaigns " +
-            "LEFT OUTER JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
-            "LEFT OUTER JOIN groups ON groups.id = campaign_groups.groupId " +
-            "WHERE campaigns.userId = :uid AND campaigns.platformtypeId = 1 " +
-            "GROUP BY campaigns.id " +
-            "ORDER BY campaigns.createdAt DESC ", {
-                replacements: {
-                    uid: user_id,
-                },
-                type: sequelize.QueryTypes.SELECT,
-            },
-        ), 
-        models.Sender.findAll({     //  get all sender ids for display in form
-            where: { 
-                userId: user_id,
-                status: 1
-            },
-            order: [ 
-                ['createdAt', 'DESC']
-            ]
-        }), 
-        models.Group.findAll({      //  get all groups for display in form, except uncategorized group
-            where: { 
-                userId: user_id,
-                name: {
-                    [Sequelize.Op.ne]: '[Uncategorized]',
-                }
-            },
-            order: [ 
-                ['createdAt', 'DESC']
-            ]
-        }),
-        models.Group.findAll({      //  get only the uncategorized group
-            where: { 
-                userId: user_id,
-                name: '[Uncategorized]',
-            },
-        }),
-        models.Sender.count({       //  get count of sender ids
-            where: { 
-                userId: user_id,
-                // status: 1
-            }
-        }), 
-        models.Sender.count({       //  get count of "active" sender ids
-            where: { 
-                userId: user_id,
-                status: 1
-            }
-        }), 
-        models.Contact.count({      //  get count of contacts
-            where: { 
-                userId: user_id,
-            }
-        }), 
-        models.Shortlink.findAll({ 
-            where: { 
-                userId: user_id,
-                status: 1
-            },
-            order: [    
-                // ['status', 'DESC'],
-                ['createdAt', 'DESC']
-            ]
-        }),    
-    ]).then(([cpns, sids, grps, non, csender, casender, ccontact, shorturl]) => {
-        var ngrp = non[0].id;
-
-        // console.log('====================================');
-        // console.log('cpns: ' + JSON.stringify(cpns) + ', sids: ' + JSON.stringify(sids) + ', grps: ' + JSON.stringify(grps) + ', csender: ' + csender + ', casender: ' + casender + ', ccontact' + ccontact);
-        // console.log('====================================');
-        if(!csender) var nosenderids = true; else var nosenderids = false;
-        if(!casender) var noasenderids = true; else var noasenderids = false;
-        if(!ccontact) var nocontacts = true; else var nocontacts = false;
-
-        var flashtype, flash = req.flash('error');
-        if(flash.length > 0) {
-            flashtype = "error";           
-        } else {
-            flashtype = "success";
-            flash = req.flash('success');
-        }
-
-        res.render('pages/dashboard/campaigns', { 
-            page: 'Campaigns',
-            campaigns: true,
-            campaign_type: "SMS",
-            flashtype, flash,
-
-            args: {
-                cpns,
-                sids,
-                grps,
-                ngrp,
-                nosenderids,
-                noasenderids,
-                nocontacts,
-                shorturl,
-            }
-        });
-    });
-};
-
-exports.waindex = (req, res) => {
-    var user_id = req.user.id;
-
-
-    console.log('showing page...'); 
-        
-    Promise.all([
-        sequelize.query(
-            "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, IF(status = 1, 'Active', 'Error') AS status, campaigns.createdAt " +
-            "FROM campaigns " +
-            "LEFT OUTER JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
-            "LEFT OUTER JOIN groups ON groups.id = campaign_groups.groupId " +
-            "WHERE campaigns.userId = :uid AND campaigns.platformtypeId = 2 " +
-            "GROUP BY campaigns.id " +
-            "ORDER BY campaigns.createdAt DESC ", {
-                replacements: {
-                    uid: user_id,
-                },
-                type: sequelize.QueryTypes.SELECT,
-            },
-        ),/*  
-        models.Sender.findAll({     //  get all sender ids for display in form
-            where: { 
-                userId: user_id,
-                status: 1
-            },
-            order: [ 
-                ['createdAt', 'DESC']
-            ]
-        }),  */
-        models.Group.findAll({      //  get all groups for display in form, except uncategorized group
-            where: { 
-                userId: user_id,
-                name: {
-                    [Sequelize.Op.ne]: '[Uncategorized]',
-                },
-                platformtypeId: 2
-            },
-            order: [ 
-                ['createdAt', 'DESC']
-            ]
-        }),
-        models.Group.findAll({      //  get only the uncategorized group
-            where: { 
-                userId: user_id,
-                name: '[Uncategorized]',
-            },
-            platformtypeId: 2
-        }),
-        models.Shortlink.findAll({ 
-            where: { 
-                userId: user_id,
-                status: 1
-            },
-            order: [    
-                // ['status', 'DESC'],
-                ['createdAt', 'DESC']
-            ]
-        }),    
-    ]).then(([cpns, grps, non, shorturl]) => {
-        var ngrp = non[0].id;
-
-        // console.log('====================================');
-        // console.log('cpns: ' + JSON.stringify(cpns) + ', sids: ' + JSON.stringify(sids) + ', grps: ' + JSON.stringify(grps) + ', csender: ' + csender + ', casender: ' + casender + ', ccontact' + ccontact);
-        // console.log('====================================');
-        // if(!csender) var nosenderids = true; else var nosenderids = false;
-        // if(!casender) var noasenderids = true; else var noasenderids = false;
-        // if(!ccontact) var nocontacts = true; else var nocontacts = false;
-
-        var flashtype, flash = req.flash('error');
-        if(flash.length > 0) {
-            flashtype = "error";           
-        } else {
-            flashtype = "success";
-            flash = req.flash('success');
-        }
-
-        res.render('pages/dashboard/campaigns', { 
-            page: 'Campaigns',
-            campaigns: true,
-            campaign_type: "WhatsApp",
-            flashtype, flash,
-
-            args: {
-                cpns,
-                grps,
-                ngrp,
-                shorturl,
-            }
-        });
-    });
-};
-
 exports.add = async (req, res) => {
     var user_id = req.user.id;
     var tempid = req.body.analysis_id;
 
-    //  RETRIEVE CAMPAIGN DETAILS FROM TEMPORARY TABLE
+    //  RETRIEVE CAMPAIGN DETAILS FROM TEMPORARY TABLE 
     var info = await models.Tmpcampaign.findByPk(tempid);
 
     if(req.body.type == "whatsapp") {
@@ -393,6 +195,10 @@ exports.add = async (req, res) => {
         if(req.body.add_optout && req.body.add_optout == "on") {
             UNSUBMSG = true; //_message('msg', 1091, ) '\n\nTo unsubscribe, click: https://dev2.tracksend.co/sms/optout/';
         }
+        var DOSUBMSG = false;
+        if(req.body.add_optin && req.body.add_optin == "on") {
+            DOSUBMSG = true; //_message('msg', 1091, ) '\n\nTo unsubscribe, click: https://dev2.tracksend.co/sms/optout/';
+        }
 
         
         //  create campaign
@@ -419,7 +225,12 @@ exports.add = async (req, res) => {
             var groups = JSON.parse(info.grp);
             console.log('info.group = ' + groups + '; json = ' + JSON.stringify(groups));
             var skip = (info.skip_dnd && info.skip_dnd == "on");
-        
+            var unsub     = (info.add_optout && info.add_optout == "on");
+            var dosub     = (info.add_optin && info.add_optin == "on");
+            var tooptin   = (info.to_awoptin && info.to_awoptin == "on");
+            var toawoptin = (info.to_optin && info.to_optin == "on");
+            var toall     = (tooptin && toawoptin);
+
             if (groups !== 0) {
 
                 var dd = await models.Group.findAll({
@@ -440,14 +251,40 @@ exports.add = async (req, res) => {
                                             }
                                         }
                                     ],
-                                    do_sms: true
-                                }
+                                    ...(
+                                        toall ? {
+                                            [Sequelize.Op.or]: [
+                                                {
+                                                    do_sms: 0
+                                                },
+                                                {
+                                                    do_sms: 1
+                                                }
+                                            ],
+                                        } : {
+                                            do_sms: tooptin ? 1 : 0         //  opted-ins = 1; awaiting = 0
+                                        }
+                                    )
+                                    }
                             } : {
                                 where: {
-                                    do_sms: true
+                                    ...(
+                                        toall ? {
+                                            [Sequelize.Op.or]: [
+                                                {
+                                                    do_sms: 0
+                                                },
+                                                {
+                                                    do_sms: 1
+                                                }
+                                            ],
+                                        } : {
+                                            do_sms: tooptin ? 1 : 0         //  opted-ins = 1; awaiting = 0
+                                        }
+                                    )
                                 }
                             }
-                            )
+                        )
                     }],
                     where: {
                         id: {
@@ -507,7 +344,7 @@ exports.add = async (req, res) => {
                 await smsSendEngines(
                     req, res,
                     user_id, user_balance, sndr, info, contacts, schedule, schedule_, 
-                    cpn, originalmessage, _message, UNSUBMSG, SINGLE_MSG, HAS_SURL
+                    cpn, originalmessage, _message, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL
                 );
                 
 
