@@ -6,7 +6,7 @@
 				<div class="pageerror" style="margin-left: 50px; margin-right: 50px">
 					<div style="text-align: center; margin-bottom: 40px"><h3>{{ args._msg }}</h3></div>
 					<div class="row with-forms">
-						<form method="POST" id="join_form" action="/WhatsApp/complete" enctype="application/x-www-form-urlencoded">
+						<form method="POST" id="subscribe_form" action="/WhatsApp/complete" enctype="application/x-www-form-urlencoded" onsubmit="return halidate(this)">
 							<div class="col-md-12">
 								<h5>Select Group(s) </h5>
 								<input type="hidden" name="code" value="{{ ucode }}" />
@@ -18,8 +18,26 @@
 									<option disabled>--------------------------------------</option>
 									<option value="-1">All Groups</option>
 								</select>
-								<button type="submit" class="button preview">Finish <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
 							</div>
+							<div class="col-md-12">
+								<h5>Select Channel(s) </h5>
+								<div class="col-md-12">
+									<div class="col-md-6 checkboxes _errorable">
+										<input id="sms" type="checkbox" name="sms">
+										<label for="sms">SMS</label>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="col-md-6 checkboxes margin-top-15 _errorable">
+										<input id="whatsapp" type="checkbox" name="whatsapp">
+										<label for="whatsapp">WhatsApp</label>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-12">
+								<div class="_form_errors _e_consent" style="display: none; margin-top: 10px"></div>
+							</div>
+							<button type="submit" class="button preview">Finish <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
 						</form>
 
 					</div>

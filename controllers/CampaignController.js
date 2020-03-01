@@ -124,6 +124,7 @@ exports.index = (req, res) => {
             }
         )
 
+        // res.render('pages/dashboard/whatsappcompleteoptin', { 
         res.render('pages/dashboard/campaigns', { 
             page: 'Campaigns',
             campaigns: true,

@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
     has_utm:    DataTypes.INTEGER,
     units_used: DataTypes.DOUBLE,
     platformtypeId: DataTypes.INTEGER,
+    ref_campaign:   {
+      type:     DataTypes.INTEGER,
+      allowNull: true
+    },
   }, {});
 
   // Campaign.belongsToMany(Contact, { through: { model: ContactGroup, unique: false }, foreignKey: 'groupId' });

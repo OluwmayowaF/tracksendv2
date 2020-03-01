@@ -13,6 +13,7 @@ const shortLinkRouter = require('./shortlinks');
 const uploadRouter = require('./upload');
 const profileRouter = require('./profile');
 const integrationRouter = require('./integrations');
+const CustomMessagesRouter = require('./custommesages');
 
 // const app = express();
 // app.use(express.static(path.join(__dirname, 'static')));
@@ -45,6 +46,7 @@ module.exports = function(app) {
   app.use('/dashboard/upload', isAuthenticated, uploadRouter);
   app.use('/dashboard/profile', isAuthenticated, profileRouter);
   app.use('/dashboard/integrations', isAuthenticated, integrationRouter);
+  app.use('/dashboard/custommessages', isAuthenticated, CustomMessagesRouter);
   app.get('/dashboard/m_a_n_u_a_l', isAdministrator, dashboardController.manualget);
   // app.get('/dashboard/m_a_n_u_a_l', isAdministrator, (req, res) => {
   //   res.send('yeaaah');
