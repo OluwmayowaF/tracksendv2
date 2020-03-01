@@ -68,6 +68,7 @@ $(document).ready(function() {
 	$('form').submit((e) => {
 		// if($(e.target).find('span.loading_icon').is(':visible')) return false;
 		$(this).find('span.loading_icon').show();
+
 	})
 
 	// const picker = new EmojiButton();
@@ -170,7 +171,7 @@ $(document).ready(function() {
 			// return [cum_length[1], cum_length[0]]; 
 		} */
 	})
-	
+
 	$('#new_contact_form, #csv_upload_form').submit(function (e) {
 		$('._form_errors._e_consent').hide();
 		$('._form_errors._e_consent').text('');
@@ -1410,6 +1411,16 @@ console.log('====================================');
 	})
 
 })
+
+function halidate(we) {
+	console.log('halidated');
+	if(!($(we).find('#sms').is(':checked')) && !($(we).find('#sms').is(':checked'))) {
+		$(we).find('._form_errors._e_consent').text('Kindly select at least one Channel.').show()
+		$(we).find('span.loading_icon').hide();
+		return false;
+	}
+}
+
 
 function activateWhatsApp(e) {
 	// e.preventDefault();

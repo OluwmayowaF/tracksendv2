@@ -144,9 +144,28 @@ exports.preOptIn = async (req, res) => {
 
         let newurl = 'https://dev2.tracksend.co/WhatsApp/optin?code='+uniquecode;
         let phone = phoneformat(req.body.phone, req.body.country);
+        let body;
+        
+        let msgs = await models.Custommessage.findByPk(user.id);
+    
+        console.log('====================================');
+        console.log('sgs= ' + JSON.stringify(msgs));
+        console.log('====================================');
+    
+        if(msgs && msgs.whatsapp_optin_msg_1 && msgs.whatsapp_optin_msg_1.trim.length > 0) {
+            let snd = msgs.whatsapp_optin_msg_1;
+            body = snd
+                .replace(/\[firstname\]/g, req.body.fullname.split(' ')[0])
+                .replace(/\[fullname\]/g, req.body.fullname)
+                .replace(/\[companyname\]/g, user.business);
+            body = body + ".\nClick " + newurl;
+        } else {
+            body = _message('msg', 1050, req.body.country, req.body.fullname.split(' ')[0], newurl);
+        }
+    
+    
         // let body = 'Hello ' + req.body.fullname.split(' ')[0] + 
         //            ', thanks for opting in to our WhatsApp platform. One last thing, please use this link to confirm and finish: ' + newurl;
-        let body = _message('msg', 1050, req.body.country, req.body.fullname.split(' ')[0], newurl);
 
         if(!user.wa_instanceurl || !user.wa_instancetoken) throw {
             name: 'integrationerror',
@@ -249,6 +268,8 @@ exports.completeOptin = async function(req, res) {
     let ucode = req.body.code;
     let grps = req.body.groups;
     grps = Array.isArray(grps) ? grps : [grps];
+    let sms = req.body.sms && req.body.sms == 'on';
+    let whatsapp = req.body.whatsapp && req.body.whatsapp == 'on';
 
     console.log('code = ' + ucode + 'grps = ' + JSON.stringify(grps));
     
@@ -274,7 +295,8 @@ exports.completeOptin = async function(req, res) {
                     userId: kont.userId,
                     groupId: grp,
                     countryId: kont.countryId,
-                    do_whatsapp: true,
+                    do_whatsapp: whatsapp,
+                    do_sms: sms,
                 });
             } catch(e) {
                 if(e.name == 'SequelizeUniqueConstraintError') {
@@ -311,7 +333,24 @@ exports.completeOptin = async function(req, res) {
         //  send success message to user
         let user = await models.User.findByPk(kont.userId);
         let phone = phoneformat(kont.phone, kont.countryId);
-        let body = _message('msg', 1050, kont.countryId, kont.firstname, user.name);;
+        let body;
+
+        let msgs = await models.Custommessage.findByPk(user.id);
+    
+        console.log('====================================');
+        console.log('sgs= ' + JSON.stringify(msgs));
+        console.log('====================================');
+    
+        if(msgs && msgs.whatsapp_optin_msg_2 && msgs.whatsapp_optin_msg_2.trim.length > 0) {
+            let snd = msgs.whatsapp_optin_msg_2;
+            body = snd
+                .replace(/\[firstname\]/g, kont.firstname)
+                .replace(/\[fullname\]/g, kont.firstname + ' ' + kont.lastname)
+                .replace(/\[companyname\]/g, user.business);
+        } else {
+            body = _message('msg', 1050, kont.countryId, kont.firstname, user.business);
+        }
+
         let new_resp = await whatsappSendMessage('message', phone, body, user.wa_instanceid, user.wa_instancetoken);
 
         res.render('pages/dashboard/whatsappcompleteoptin', {

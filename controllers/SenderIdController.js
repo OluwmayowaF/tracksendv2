@@ -25,7 +25,6 @@ exports.index = (req, res) => {
             flashtype = "success";
             flash = req.flash('success');
         }
-
         res.render('pages/dashboard/sender_ids', {
             page: 'Sender IDs',
             senderids: true,

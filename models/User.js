@@ -92,6 +92,10 @@ module.exports = function(sequelize, DataTypes) {
       // as: "groups", 
       foreignKey: 'userId' 
     });
+    User.hasMany(models.Custommessage, { 
+      // as: "groups", 
+      foreignKey: 'userId' 
+    });
   }
   
 

@@ -16052,6 +16052,18 @@ img.mfp-img {
 		padding: 7px;
 	}
 
+	._followup_campaign #add-listing h5 {
+		color: white;
+	}
+
+	._followup_campaign #add-listing h5 .compose_options_box {
+		color: #333;
+	}
+
+	._followup_campaign .editable_div {
+		color: #fff;
+	}
+
 	
 	@media (max-width:803px) {
 		.compose_options_box {
