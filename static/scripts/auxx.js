@@ -200,6 +200,8 @@ $(document).ready(function() {
 	} );
 
 	$('#to_optin, #to_awoptin').on('change', (e) => {
+		return;
+
 		$we = $(e.target);
 		$it = $we.closest('.col-md-12');
 
@@ -228,11 +230,7 @@ $(document).ready(function() {
 		}
 	});
 
-	$('.add_optout #add_optout').on('change', (e) => {
-		countChars(e);
-	});
-
-	$('.add_optin #add_optin').on('change', (e) => {
+	$('.add_optout #add_optout, .add_optin #add_optin').on('change', (e) => {
 		countChars(e);
 	});
 
