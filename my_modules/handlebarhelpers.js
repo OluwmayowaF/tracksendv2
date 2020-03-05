@@ -65,7 +65,7 @@ const hbsHelpers = () => {
             formatNumber: function (num) {
                 if(!null) {
                     console.error('ERROR IN \'formatNumber\' of handlebarhelpers.js: num is null');
-                    return "0"
+                    return "00"
                 }
                 var nnum = num.toString().split(',');
                 num = '';
