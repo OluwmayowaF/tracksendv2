@@ -234,6 +234,28 @@ $(document).ready(function() {
 		countChars(e);
 	});
 
+	if($('._followup_campaign._1 .chk_followup').is(':checked')) {
+		$('._followup_campaign._1 .chk_followup').parent().click();
+		$('._followup_campaign._2').show();
+	} 
+	if($('._followup_campaign._2 .chk_followup').is(':checked')) {
+		$('._followup_campaign._2').show();
+		$('._followup_campaign._2 .chk_followup').parent().click();
+	}
+	
+
+	$('.chk_followup').on('click', (e) => {
+		e.stopPropagation();
+	})
+
+	$('._followup_campaign._1 .chk_followup').on('change', (e) => {
+		if($(e.target).is(':checked')) {
+			$('._followup_campaign._2').show()
+		} else {
+			if(!$('._followup_campaign._2 .chk_followup').is(':checked')) $('._followup_campaign._2').hide()
+		}
+	})
+
 	//	FOR CALCULATION OF TOPUPS 
 	var topupbands = [];
 	$('.rates_list div._rates').each(function (i, el) {
@@ -626,25 +648,32 @@ $(document).ready(function() {
 		if (campaign_confirmed && !whatsapp_campaign) return true;
 		
 		$butt.closest('div').find('.activity_status').text('Analyzing...');
+		var _msg_;
+		$me.find('.editable_div').each((i, el) => {
+			var $big = $(el).closest('.add-listing-section');
+			var msg_ = $(el).html();
+			msg_ = msg_.replace(/<span[^<]*?class="arg"[^<]*firstname.*?<\/span>/g, '[firstname]')
+						.replace(/<span[^<]*?class="arg"[^<]*lastname.*?<\/span>/g, '[lastname]')
+						.replace(/<span[^<]*?class="arg"[^<]*email.*?<\/span>/g, '[email]')
+						.replace(/<span[^<]*?class="arg"[^<]*url.*?<\/span>/g, '[url]')
+						.replace(/^<div[^<]*?>/g, '')
+						.replace(/<div[^<]*?>/g, '<br>')
+						.replace(/<\/div>/g, '') 
+						.replace(/&nbsp;/g, ' ')
+						.replace(/<span.*style=".*?">/g, '') 
+						.replace(/<\/span>/g, '');
 
-		var msg_ = $me.find('.editable_div').html();
-		msg_ = msg_.replace(/<span[^<]*?class="arg"[^<]*firstname.*?<\/span>/g, '[firstname]')
-					.replace(/<span[^<]*?class="arg"[^<]*lastname.*?<\/span>/g, '[lastname]')
-					.replace(/<span[^<]*?class="arg"[^<]*email.*?<\/span>/g, '[email]')
-					.replace(/<span[^<]*?class="arg"[^<]*url.*?<\/span>/g, '[url]')
-					.replace(/^<div[^<]*?>/g, '')
-					.replace(/<div[^<]*?>/g, '<br>')
-					.replace(/<\/div>/g, '') 
-					.replace(/&nbsp;/g, ' ')
-					.replace(/<span.*style=".*?">/g, '') 
-					.replace(/<\/span>/g, '');
+			if(i === 0) {
+				_msg_ = msg_;
+			}
+			console.log('ADJUSTED FILE... : ' + msg_);
+			
+			var $dd = $(el).clone();
+			$dd.html(msg_); 
+			var msg = $dd.text();
+			$big.find('.campaignmessage').val(msg);
+		});
 
-		console.log('ADJUSTED FILE... : ' + msg_);
-		
-		var $dd = $me.find('.editable_div').clone();
-		$dd.html(msg_); 
-		var msg = $dd.text();
-		$me.find('#campaignmessage').val(msg);
 		let w = moment($me.find('#datepicker').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
 		let wwa = moment($me.find('#datepickerwa').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
 		console.log('====================================');
@@ -673,39 +702,45 @@ $(document).ready(function() {
 			success: function( data ) {
 
 				console.log(data);
+				if(data.code == "SUCCESS") {
+					$('#analysis_id').val(data.tmpid);
+					$('#analysis-box #cpm_summary_name').text($me.find('#campaign_name').val());
+					$('#analysis-box #cpm_summary_sender').text($me.find('#sel_sender_id option:selected').text());
+					$('#analysis-box #cpm_summary_msg').text(_msg_);
+					$('#analysis-box #cpm_summary_to').text($me.find('#sel_contact_group option:selected').text());
+					$('#analysis-box #cpm_summary_recp').text(data.contactcount);
+					$('#analysis-box #cpm_summary_count').text(data.msgcount);
+					$('#analysis-box #cpm_summary_avg').text(parseInt(data.msgcount)/parseInt(data.contactcount));
+					$('#analysis-box #cpm_units_chrg').text(data.units);
 
-				$('#analysis_id').val(data.tmpid);
-				$('#analysis-box #cpm_summary_name').text($me.find('#campaign_name').val());
-				$('#analysis-box #cpm_summary_sender').text($me.find('#sel_sender_id option:selected').text());
-				$('#analysis-box #cpm_summary_msg').text(msg);
-				$('#analysis-box #cpm_summary_to').text($me.find('#sel_contact_group option:selected').text());
-				$('#analysis-box #cpm_summary_recp').text(data.contactcount);
-				$('#analysis-box #cpm_summary_count').text(data.msgcount);
-				$('#analysis-box #cpm_summary_avg').text(parseInt(data.msgcount)/parseInt(data.contactcount));
-				$('#analysis-box #cpm_units_chrg').text(data.units);
+					var bal, noc;
+					if(data.units > data.balance) {
+						bal = '<span style="color: red">' + data.balance + ' (INSUFFICIENT) </span>';
+						
+						$('.campaign_summary_btn.send').hide();
+					} else if(data.contactcount == 0) {
+						noc = '<span style="color: red">' + data.contactcount + ' (NO CONTACTS ADDED) </span>';
+						$('#analysis-box #cpm_summary_recp').html(noc);
+						$('#analysis-box #cpm_summary_avg').text('--');
+						$('.campaign_summary_btn.send').hide();
+					} else {
+						bal = data.balance;
+						$('.campaign_summary_btn.send').show(); 
+					}
 
-				var bal, noc;
-				if(data.units > data.balance) {
-					bal = '<span style="color: red">' + data.balance + ' (INSUFFICIENT) </span>';
-					
-					$('.campaign_summary_btn.send').hide();
-				} else if(data.contactcount == 0) {
-					noc = '<span style="color: red">' + data.contactcount + ' (NO CONTACTS ADDED) </span>';
-					$('#analysis-box #cpm_summary_recp').html(noc);
-					$('#analysis-box #cpm_summary_avg').text('--');
-					$('.campaign_summary_btn.send').hide();
+					$('#analysis-box #cpm_units_balance').html(bal);
+
+					$('#click_analysis_box').click();
+
+					$butt.closest('div').find('.loading_icon').hide();
+					$butt.closest('div').find('.activity_status').text('');
 				} else {
-					bal = data.balance;
-					$('.campaign_summary_btn.send').show(); 
+					$butt.closest('div').find('.loading_icon').hide();
+					$butt.closest('div').find('.activity_status').text('');
+					$me.find('._form_errors._e_analyse').text('Check that all inputs are valid, and try again.');
+					$me.find('._form_errors._e_analyse').show();
+					
 				}
-
-				$('#analysis-box #cpm_units_balance').html(bal);
-
-				$('#click_analysis_box').click();
-
-				$butt.closest('div').find('.loading_icon').hide();
-				$butt.closest('div').find('.activity_status').text('');
-
 			},
 			error: function(resp, dd, ww) {
 				// $butt.removeAttr('disabled');

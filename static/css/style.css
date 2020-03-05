@@ -16051,12 +16051,42 @@ img.mfp-img {
 		border: none;
 		padding: 7px;
 	}
+	
+	._campaign._more_options {
+		padding: 12px 20px; 
+		border: dashed 2px #ccc;
+	}
+	
+	._campaign._more_options ._title {
+		cursor: pointer;
+		color: rgb(255, 74, 33);
+	}
+	
+	._campaign._more_options .toggle-container {
+		padding: 0;
+	}
+	
+	._campaign._more_options ._check_slider {
+		border: solid 1px #ddd;
+		background-color: #eee;
+		padding-top: 8px;
+		border-radius: 5px;
+		margin: 20px 0;
+		width: 95%;
+		padding-left: 18px;
+	}
+	
+	._followup_campaign .toggle-container {
+		border: 2px dashed rgb(255, 74, 33);
+		padding: 0;
+		margin-top: 10px;
+	}
 
-	._followup_campaign #add-listing h5 {
+	._followup_campaign .toggle-container #add-listing h5 {
 		color: white;
 	}
 
-	._followup_campaign #add-listing h5 .compose_options_box {
+	._followup_campaign .toggle-container #add-listing h5 .compose_options_box {
 		color: #333;
 	}
 

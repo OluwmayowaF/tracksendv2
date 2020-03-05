@@ -657,7 +657,7 @@ $(document).ready(function(){
 
 	$('.trigger, .trigger.opened').on('click', function(a){
 		$(this).toggleClass('active');
-		a.preventDefault();
+		// a.preventDefault();	kenny
 	});
 
 	$(".trigger").on('click', function(){
