@@ -10,7 +10,9 @@ if (req.user) {
           replacements: {id: req.user.id},
     })
     .then(async (balance) => {
-
+      console.log('====================================');
+      console.log('BALANCE IS : ' + JSON.stringify(balance));
+      console.log('====================================');
       res.locals.balance = balance[0][0].balance ? balance[0][0].balance : 0;
       return next();
 
