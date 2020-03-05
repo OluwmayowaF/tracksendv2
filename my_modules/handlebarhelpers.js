@@ -63,7 +63,7 @@ const hbsHelpers = () => {
             } ,
 
             formatNumber: function (num) {
-                if(null) {
+                if(!num) {
                     console.error('ERROR IN \'formatNumber\' of handlebarhelpers.js: num is null' + num);
                     return "00"
                 }
