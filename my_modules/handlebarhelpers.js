@@ -70,7 +70,7 @@ const hbsHelpers = () => {
                 var nnum = num.toString().split(',');
                 num = '';
                 for(var i=0;i<nnum.length;i++) {
-                    num += nnum[0];
+                    num += nnum[0]; 
                 }
                 return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             } 
