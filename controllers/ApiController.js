@@ -569,6 +569,8 @@ exports.analyseCampaign = async (req, res) => {
     var toawoptin = (req.body.to_awoptin && req.body.to_awoptin == "on");
     var toall     = (tooptin && toawoptin);
     var tonone    = (!tooptin && !toawoptin);
+    
+    console.log('tonone='+tonone+'; tooptin='+tooptin+'; toawoptin='+toawoptin+'; toall='+toall);
 
     if (groups != 0) {
         if(!Array.isArray(groups)) groups = [groups];
