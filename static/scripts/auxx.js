@@ -18,6 +18,10 @@ var _getGlobals = {
 	// editable_position: 0,
 	// editable_offset: null,
 };
+
+$.validator.setDefaults({
+	ignore: ":hidden:not(.chosen-select)"
+})
  
 $(document).ready(function() {
 	var campaign_confirmed = false;
@@ -228,13 +232,31 @@ $(document).ready(function() {
 		}
 	}); */
 
-	$('.add_optout #add_optout').on('change', (e) => {
+	$('.add_optout #add_optout, .add_optin #add_optin').on('change', (e) => {
 		countChars(e);
 	});
 
-	$('.add_optin #add_optin').on('change', (e) => {
-		countChars(e);
-	});
+	if($('._followup_campaign._1 .chk_followup').is(':checked')) {
+		$('._followup_campaign._1 .chk_followup').parent().click();
+		$('._followup_campaign._2').show();
+	} 
+	if($('._followup_campaign._2 .chk_followup').is(':checked')) {
+		$('._followup_campaign._2').show();
+		$('._followup_campaign._2 .chk_followup').parent().click();
+	}
+	
+
+	$('.chk_followup').on('click', (e) => {
+		e.stopPropagation();
+	})
+
+	$('._followup_campaign._1 .chk_followup').on('change', (e) => {
+		if($(e.target).is(':checked')) {
+			$('._followup_campaign._2').show()
+		} else {
+			if(!$('._followup_campaign._2 .chk_followup').is(':checked')) $('._followup_campaign._2').hide()
+		}
+	})
 
 	//	FOR CALCULATION OF TOPUPS 
 	var topupbands = [];
@@ -619,6 +641,14 @@ $(document).ready(function() {
 		$me.find('._form_errors').hide();
 		$me.find('._e_analyse').hide();
 		$butt.closest('div').find('.loading_icon').show();
+
+		if(!$('#to_optin').is(':checked') && !$('#to_awoptin').is(':checked')) {
+			$butt.closest('div').find('.loading_icon').hide();
+			$butt.closest('div').find('.activity_status').text('');
+			$me.find('._form_errors._e_analyse').html('Select bewtween <b>\'Send Send to Opted in Contacts\'</b> and <b>\'Send to Awaiting-Opt-In Contacts\'</b>');
+			$me.find('._form_errors._e_analyse').show();
+			return false;
+	}
 		
 		console.log('====================================');
 		console.log('sending...');
@@ -636,6 +666,31 @@ $(document).ready(function() {
 		if (campaign_confirmed && !whatsapp_campaign) return true;
 		
 		$butt.closest('div').find('.activity_status').text('Analyzing...');
+		var _msg_;
+		$me.find('.editable_div').each((i, el) => {
+			var $big = $(el).closest('.add-listing-section');
+			var msg_ = $(el).html();
+			msg_ = msg_.replace(/<span[^<]*?class="arg"[^<]*firstname.*?<\/span>/g, '[firstname]')
+						.replace(/<span[^<]*?class="arg"[^<]*lastname.*?<\/span>/g, '[lastname]')
+						.replace(/<span[^<]*?class="arg"[^<]*email.*?<\/span>/g, '[email]')
+						.replace(/<span[^<]*?class="arg"[^<]*url.*?<\/span>/g, '[url]')
+						.replace(/^<div[^<]*?>/g, '')
+						.replace(/<div[^<]*?>/g, '<br>')
+						.replace(/<\/div>/g, '') 
+						.replace(/&nbsp;/g, ' ')
+						.replace(/<span.*style=".*?">/g, '') 
+						.replace(/<\/span>/g, '');
+
+			if(i === 0) {
+				_msg_ = msg_;
+			}
+			console.log('ADJUSTED FILE... : ' + msg_);
+			
+			var $dd = $(el).clone();
+			$dd.html(msg_); 
+			var msg = $dd.text();
+			$big.find('.campaignmessage').val(msg);
+		});
 
 		var _msg_;
 		$me.find('.editable_div').each((i, el) => {
@@ -728,6 +783,15 @@ $(document).ready(function() {
 					
 				}
 
+					$butt.closest('div').find('.loading_icon').hide();
+					$butt.closest('div').find('.activity_status').text('');
+				} else {
+					$butt.closest('div').find('.loading_icon').hide();
+					$butt.closest('div').find('.activity_status').text('');
+					$me.find('._form_errors._e_analyse').text('Check that all inputs are valid, and try again.');
+					$me.find('._form_errors._e_analyse').show();
+					
+				}
 			},
 			error: function(resp, dd, ww) {
 				// $butt.removeAttr('disabled');
