@@ -201,7 +201,7 @@ $(document).ready(function() {
 		countChars(e);
 	} );
 
-	$('#to_optin, #to_awoptin').on('change', (e) => {
+	/* $('#to_optin, #to_awoptin').on('change', (e) => {
 		$we = $(e.target);
 		$it = $we.closest('.col-md-12');
 
@@ -228,7 +228,7 @@ $(document).ready(function() {
 			$it.find('.switch input').attr('disabled', 'disable');
 			if($it.find('.switch input').is(':checked')) $it.find('.slider.round').click();
 		}
-	});
+	}); */
 
 	$('.add_optout #add_optout').on('change', (e) => {
 		countChars(e);
@@ -631,36 +631,47 @@ $(document).ready(function() {
 		console.log('sending...');
 		console.log('====================================');
 
+		if(!$('#to_optin').is(':checked') && !$('#to_awoptin').is(':checked')) {
+			$butt.closest('div').find('.loading_icon').hide();
+			$butt.closest('div').find('.activity_status').text('');
+			$me.find('._form_errors._e_analyse').html('Select between <b>\'Send to Opted in Contacts\'</b> and <b>\'Send to Awaiting-Opt-In Contacts\'</b>');
+			$me.find('._form_errors._e_analyse').show();
+			return false;
+		}
+
 		//	check if it's not a whatsapp campaign
 		if (campaign_confirmed && !whatsapp_campaign) return true;
 		
 		$butt.closest('div').find('.activity_status').text('Analyzing...');
 
-		var msg_ = $me.find('.editable_div').html();
+		var _msg_;
+		$me.find('.editable_div').each((i, el) => {
+			var $big = $(el).closest('.add-listing-section');
+			var msg_ = $(el).html();
+			msg_ = msg_.replace(/<span[^<]*?class="arg"[^<]*firstname.*?<\/span>/g, '[firstname]')
+						.replace(/<span[^<]*?class="arg"[^<]*lastname.*?<\/span>/g, '[lastname]')
+						.replace(/<span[^<]*?class="arg"[^<]*email.*?<\/span>/g, '[email]')
+						.replace(/<span[^<]*?class="arg"[^<]*url.*?<\/span>/g, '[url]')
+						.replace(/^<div[^<]*?>/g, '')
+						.replace(/<div[^<]*?>/g, '<br>')
+						.replace(/<\/div>/g, '') 
+						.replace(/&nbsp;/g, ' ')
+						.replace(/<span.*style=".*?">/g, '') 
+						.replace(/<\/span>/g, '');
 
-		msg_ = msg_.replace(/<span[^<]*?class="arg"[^<]*firstname.*?<\/span>/g, '[firstname]')
-					.replace(/<span[^<]*?class="arg"[^<]*lastname.*?<\/span>/g, '[lastname]')
-					.replace(/<span[^<]*?class="arg"[^<]*email.*?<\/span>/g, '[email]')
-					.replace(/<span[^<]*?class="arg"[^<]*url.*?<\/span>/g, '[url]')
-					.replace(/^<div[^<]*?>/g, '')
-					.replace(/<div[^<]*?>/g, '<br>')
-					.replace(/<\/div>/g, '') 
-					.replace(/&nbsp;/g, ' ')
-					.replace(/<span.*style=".*?">/g, '') 
-					.replace(/<\/span>/g, '');
+			if(i === 0) {
+				_msg_ = msg_;
+			}
+			console.log('ADJUSTED FILE... : ' + msg_);
+			
+			var $dd = $(el).clone();
+			$dd.html(msg_); 
+			var msg = $dd.text();
+			$big.find('.campaignmessage').val(msg);
+		});
 
-		console.log('ADJUSTED FILE... : ' + msg_);
-		
-		var $dd = $me.find('.editable_div').clone();
-		$dd.html(msg_); 
-
-		var msg = $dd.text();
-		$me.find('#campaignmessage').val(msg);
 		let w = moment($me.find('#datepicker').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
 		let wwa = moment($me.find('#datepickerwa').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
-		console.log('====================================');
-		console.log('tz: ' + wwa);
-		console.log('====================================');
 		$me.find('#schedule').val(moment.utc(w, 'YYYY-MM-DD HH:mm:ss Z').format('YYYY-MM-DD HH:mm:ss'));
 		$me.find('#schedulewa').val(moment.utc(wwa, 'YYYY-MM-DD HH:mm:ss Z').format('YYYY-MM-DD HH:mm:ss'));
 		// $('#datepicker').val();
@@ -684,38 +695,45 @@ $(document).ready(function() {
 			success: function( data ) {
 
 				console.log(data);
+				if(data.code == "SUCCESS") {
+					$('#analysis_id').val(data.tmpid);
+					$('#analysis-box #cpm_summary_name').text($me.find('#campaign_name').val());
+					$('#analysis-box #cpm_summary_sender').text($me.find('#sel_sender_id option:selected').text());
+					$('#analysis-box #cpm_summary_msg').text(_msg_);
+					$('#analysis-box #cpm_summary_to').text($me.find('#sel_contact_group option:selected').text());
+					$('#analysis-box #cpm_summary_recp').text(data.contactcount);
+					$('#analysis-box #cpm_summary_count').text(data.msgcount);
+					$('#analysis-box #cpm_summary_avg').text(parseInt(data.msgcount)/parseInt(data.contactcount));
+					$('#analysis-box #cpm_units_chrg').text(data.units);
 
-				$('#analysis_id').val(data.tmpid);
-				$('#analysis-box #cpm_summary_name').text($me.find('#campaign_name').val());
-				$('#analysis-box #cpm_summary_sender').text($me.find('#sel_sender_id option:selected').text());
-				$('#analysis-box #cpm_summary_msg').text(msg);
-				$('#analysis-box #cpm_summary_to').text($me.find('#sel_contact_group option:selected').text());
-				$('#analysis-box #cpm_summary_recp').text(data.contactcount);
-				$('#analysis-box #cpm_summary_count').text(data.msgcount);
-				$('#analysis-box #cpm_summary_avg').text(parseInt(data.msgcount)/parseInt(data.contactcount));
-				$('#analysis-box #cpm_units_chrg').text(data.units);
+					var bal, noc;
+					if(data.units > data.balance) {
+						bal = '<span style="color: red">' + data.balance + ' (INSUFFICIENT) </span>';
+						
+						$('.campaign_summary_btn.send').hide();
+					} else if(data.contactcount == 0) {
+						noc = '<span style="color: red">' + data.contactcount + ' (NO CONTACTS ADDED) </span>';
+						$('#analysis-box #cpm_summary_recp').html(noc);
+						$('#analysis-box #cpm_summary_avg').text('--');
+						$('.campaign_summary_btn.send').hide();
+					} else {
+						bal = data.balance;
+						$('.campaign_summary_btn.send').show(); 
+					}
 
-				var bal, noc;
-				if(data.units > data.balance) {
-					bal = '<span style="color: red">' + data.balance + ' (INSUFFICIENT) </span>';
-					
-					$('.campaign_summary_btn.send').hide();
-				} else if(data.contactcount == 0) {
-					noc = '<span style="color: red">' + data.contactcount + ' (NO CONTACTS ADDED) </span>';
-					$('#analysis-box #cpm_summary_recp').html(noc);
-					$('#analysis-box #cpm_summary_avg').text('--');
-					$('.campaign_summary_btn.send').hide();
+					$('#analysis-box #cpm_units_balance').html(bal);
+
+					$('#click_analysis_box').click();
+
+					$butt.closest('div').find('.loading_icon').hide();
+					$butt.closest('div').find('.activity_status').text('');
 				} else {
-					bal = data.balance;
-					$('.campaign_summary_btn.send').show(); 
+					$butt.closest('div').find('.loading_icon').hide();
+					$butt.closest('div').find('.activity_status').text('');
+					$me.find('._form_errors._e_analyse').text('Check that all inputs are valid, and try again.');
+					$me.find('._form_errors._e_analyse').show();
+					
 				}
-
-				$('#analysis-box #cpm_units_balance').html(bal);
-
-				$('#click_analysis_box').click();
-
-				$butt.closest('div').find('.loading_icon').hide();
-				$butt.closest('div').find('.activity_status').text('');
 
 			},
 			error: function(resp, dd, ww) {

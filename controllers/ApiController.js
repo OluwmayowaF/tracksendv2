@@ -568,13 +568,15 @@ exports.analyseCampaign = async (req, res) => {
     var tooptin   = (req.body.to_optin && req.body.to_optin == "on");
     var toawoptin = (req.body.to_awoptin && req.body.to_awoptin == "on");
     var toall     = (tooptin && toawoptin);
+    var tonone    = (!tooptin && !toawoptin);
 
-    
     if (groups != 0) {
         if(!Array.isArray(groups)) groups = [groups];
         console.log('group= ' + JSON.stringify(groups));
         
         try {
+            if(tonone) throw {error: "nocontacts"};
+
         //  extract group contacts
             var dd = await models.Group.findAll({
                 include: [{
@@ -659,7 +661,6 @@ exports.analyseCampaign = async (req, res) => {
 
             // return arr;
 
-
             var uid = 'xxx';
             var allresults = [];
 
@@ -731,7 +732,7 @@ exports.analyseCampaign = async (req, res) => {
             }                                                     
             async function checkAndAggregate(kont) {  
 
-                if(req.body.shorturl) {
+                if(req.body.shorturl ) {
                     var shorturl = await models.Shortlink.findByPk(req.body.shorturl);
                 }
                 console.log('====================================');
@@ -768,7 +769,6 @@ exports.analyseCampaign = async (req, res) => {
                 })
             ]);
 
-                
             console.log('THE END!!! balance ' + JSON.stringify(req.body.schedule));
             console.log('THE END!!!' +  moment.utc(moment(req.body.schedule, 'YYYY-MM-DD HH:mm:ss')).format('YYYY-MM-DD HH:mm:ss'));
 
@@ -829,17 +829,24 @@ exports.analyseCampaign = async (req, res) => {
 
             console.log('post2... ' + JSON.stringify(fin));
                 
+            //  if there's a followup...
+            // if()
+
             res.send({
+                code: "SUCCESS",
                 tmpid: fin[1],
                 msgcount,
                 contactcount: contacts_arr.length,
                 units,
                 balance: fin[0],
             });
+
         }
         catch (r) {
             console.log("0Error:: Please try again later: " + JSON.stringify(r));
+            console.log("0Error:: Please try again later: " + r);
             res.send({
+                code: "FAIL",
                 response: "Error: Please try again later",
             });
         }
