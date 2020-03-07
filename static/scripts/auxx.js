@@ -637,29 +637,34 @@ $(document).ready(function() {
 		
 		$butt.closest('div').find('.activity_status').text('Analyzing...');
 
-		var msg_ = $me.find('.editable_div').html();
-		msg_ = msg_.replace(/<span[^<]*?class="arg"[^<]*firstname.*?<\/span>/g, '[firstname]')
-					.replace(/<span[^<]*?class="arg"[^<]*lastname.*?<\/span>/g, '[lastname]')
-					.replace(/<span[^<]*?class="arg"[^<]*email.*?<\/span>/g, '[email]')
-					.replace(/<span[^<]*?class="arg"[^<]*url.*?<\/span>/g, '[url]')
-					.replace(/^<div[^<]*?>/g, '')
-					.replace(/<div[^<]*?>/g, '<br>')
-					.replace(/<\/div>/g, '') 
-					.replace(/&nbsp;/g, ' ')
-					.replace(/<span.*style=".*?">/g, '') 
-					.replace(/<\/span>/g, '');
+		var _msg_;
+		$me.find('.editable_div').each((i, el) => {
+			var $big = $(el).closest('.add-listing-section');
+			var msg_ = $(el).html();
+			msg_ = msg_.replace(/<span[^<]*?class="arg"[^<]*firstname.*?<\/span>/g, '[firstname]')
+						.replace(/<span[^<]*?class="arg"[^<]*lastname.*?<\/span>/g, '[lastname]')
+						.replace(/<span[^<]*?class="arg"[^<]*email.*?<\/span>/g, '[email]')
+						.replace(/<span[^<]*?class="arg"[^<]*url.*?<\/span>/g, '[url]')
+						.replace(/^<div[^<]*?>/g, '')
+						.replace(/<div[^<]*?>/g, '<br>')
+						.replace(/<\/div>/g, '') 
+						.replace(/&nbsp;/g, ' ')
+						.replace(/<span.*style=".*?">/g, '') 
+						.replace(/<\/span>/g, '');
 
-		console.log('ADJUSTED FILE... : ' + msg_);
-		
-		var $dd = $me.find('.editable_div').clone();
-		$dd.html(msg_); 
-		var msg = $dd.text();
-		$me.find('#campaignmessage').val(msg);
+			if(i === 0) {
+				_msg_ = msg_;
+			}
+			console.log('ADJUSTED FILE... : ' + msg_);
+			
+			var $dd = $(el).clone();
+			$dd.html(msg_); 
+			var msg = $dd.text();
+			$big.find('.campaignmessage').val(msg);
+		});
+
 		let w = moment($me.find('#datepicker').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
 		let wwa = moment($me.find('#datepickerwa').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
-		console.log('====================================');
-		console.log('tz: ' + wwa);
-		console.log('====================================');
 		$me.find('#schedule').val(moment.utc(w, 'YYYY-MM-DD HH:mm:ss Z').format('YYYY-MM-DD HH:mm:ss'));
 		$me.find('#schedulewa').val(moment.utc(wwa, 'YYYY-MM-DD HH:mm:ss Z').format('YYYY-MM-DD HH:mm:ss'));
 		// $('#datepicker').val();
