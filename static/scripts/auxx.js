@@ -624,6 +624,14 @@ $(document).ready(function() {
 		console.log('sending...');
 		console.log('====================================');
 
+		if(!$('#to_optin').is(':checked') && !$('#to_awoptin').is(':checked')) {
+			$butt.closest('div').find('.loading_icon').hide();
+			$butt.closest('div').find('.activity_status').text('');
+			$me.find('._form_errors._e_analyse').html('Select between <b>\'Send to Opted in Contacts\'</b> and <b>\'Send to Awaiting-Opt-In Contacts\'</b>');
+			$me.find('._form_errors._e_analyse').show();
+			return false;
+		}
+
 		//	check if it's not a whatsapp campaign
 		if (campaign_confirmed && !whatsapp_campaign) return true;
 		
