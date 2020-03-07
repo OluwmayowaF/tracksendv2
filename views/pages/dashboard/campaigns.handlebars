@@ -239,12 +239,12 @@
 												<div class="col-md-12 _campaign_options" style="margin-top: 0; padding: 0;">
 													<div class="col-md-12" style="padding: 0;">
 														<div class="col-md-6 checkboxes _errorable">
-															<input id="to_optin" type="checkbox" name="to_optin">
-															<label for="to_optin">Send to Opted in Contacts</label>
+															<input id="to_optin" type="checkbox" name="to_optin" checked>
+															<label for="to_optin"><b>Send to Opted in Contacts</b></label>
 															
-															<input id="add_optout" type="checkbox" name="add_optout">
-															<label for="add_optout" style="margin-top: 20px;">Add 'Opt-Out' Link to Message  <i class="tip" data-tip-content="This would insert a link at the end your SMS with which the recipient can unsubscribe from receiving your future SMS"></i></label>
-
+															<input id="to_awoptin" type="checkbox" name="to_awoptin" checked>
+															<label for="to_awoptin" style="margin-top: 20px;"><b>Send to Awaiting-Opt-In Contacts</b></label>
+															
 															<div class="_check_slider ignore_dnd">
 																<h5 style="float: left">Skip DND (Do-Not-Disturb) Contacts  <i class="tip" data-tip-content="This applies to contacts that has be confirmed to be DND based on feedback from previous message."></i> </h5>
 																<label class="switch"><input type="checkbox" checked="" name="skip_dnd"><span class="slider round"></span></label>
@@ -252,9 +252,9 @@
 															</div>
 														</div>
 														<div class="col-md-6 checkboxes _errorable">
-															<input id="to_awoptin" type="checkbox" name="to_awoptin">
-															<label for="to_awoptin">Send to Awaiting-Opt-In Contacts</label>
-															
+															<input id="add_optout" type="checkbox" name="add_optout">
+															<label for="add_optout"> Add 'Opt-Out' Link to Message  <i class="tip" data-tip-content="This would insert a link at the end your SMS with which the recipient can unsubscribe from receiving your future SMS"></i></label>
+
 															<input id="add_optin" type="checkbox" name="add_optin">
 															<label for="add_optin" style="margin-top: 20px;">Add 'Opt-In' Link to Message  <i class="tip" data-tip-content="This would insert a link at the end your SMS with which the recipient can unsubscribe from receiving your future SMS"></i> </label>
 
@@ -298,14 +298,13 @@
 
 
 
-				<div class="clearfix"></div>
+				{{!-- <div class="clearfix"></div>
 				<hr>
 				<div class="_followup_campaign _1" style="margin-top: 20px;">
 					<div class="trigger">
 						<div class="col-lg-12  checkboxes toggle active">
 							<input id="chk_followup" class="chk_followup" type="checkbox" name="chk_followup">
 							<label for="chk_followup" style="width: 100%;">Create <b>Follow-Up</b> Campaign</label>
-							{{!-- <i class="im im-icon-Cursor-Click2"></i> <b>Create Follow-Up</b> Campaign<i class="sl sl-icon-plus"></i> --}}
 						</div>
 					</div>
 					<div class="col-lg-12 toggle-container" style="display: none">
@@ -411,7 +410,6 @@
 						<div class="col-lg-12 checkboxes toggle active">
 							<input id="chk_followup2" class="chk_followup" type="checkbox" name="chk_followup2">
 							<label for="chk_followup2" style="width: 100%;">Add Another <b>Follow-Up</b> Campaign</label>
-							{{!-- <i class="im im-icon-Cursor-Click2"></i> <b>Create Follow-Up</b> Campaign<i class="sl sl-icon-plus"></i> --}}
 						</div>
 					</div>
 					<div class="col-lg-12 toggle-container" style="display: none">
@@ -511,7 +509,7 @@
 						</div>
 
 					</div>
-				</div>
+				</div> --}}
 			
 
 

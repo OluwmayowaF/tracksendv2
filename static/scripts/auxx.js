@@ -199,7 +199,7 @@ $(document).ready(function() {
 		countChars(e);
 	} );
 
-	$('#to_optin, #to_awoptin').on('change', (e) => {
+	/* $('#to_optin, #to_awoptin').on('change', (e) => {
 		$we = $(e.target);
 		$it = $we.closest('.col-md-12');
 
@@ -226,7 +226,7 @@ $(document).ready(function() {
 			$it.find('.switch input').attr('disabled', 'disable');
 			if($it.find('.switch input').is(':checked')) $it.find('.slider.round').click();
 		}
-	});
+	}); */
 
 	$('.add_optout #add_optout').on('change', (e) => {
 		countChars(e);

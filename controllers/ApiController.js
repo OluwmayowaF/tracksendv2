@@ -568,7 +568,11 @@ exports.analyseCampaign = async (req, res) => {
     var tooptin   = (req.body.to_optin && req.body.to_optin == "on");
     var toawoptin = (req.body.to_awoptin && req.body.to_awoptin == "on");
     var toall     = (tooptin && toawoptin);
+    var tonone    = (!tooptin && !toawoptin);
 
+    console.log('====================================');
+    console.log('tooptin=',tooptin,'; toawoptin=',toawoptin,'; toall=',toall);
+    console.log('====================================');
     
     if (groups != 0) {
         if(!Array.isArray(groups)) groups = [groups];
@@ -576,6 +580,7 @@ exports.analyseCampaign = async (req, res) => {
         
         try {
         //  extract group contacts
+            if(tonone) throw {error: "nocontacts"}
             var dd = await models.Group.findAll({
                 include: [{
                     model: models.Contact, 
