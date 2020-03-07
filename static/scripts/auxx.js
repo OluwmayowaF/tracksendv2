@@ -782,16 +782,6 @@ $(document).ready(function() {
 					$me.find('._form_errors._e_analyse').show();
 					
 				}
-
-					$butt.closest('div').find('.loading_icon').hide();
-					$butt.closest('div').find('.activity_status').text('');
-				} else {
-					$butt.closest('div').find('.loading_icon').hide();
-					$butt.closest('div').find('.activity_status').text('');
-					$me.find('._form_errors._e_analyse').text('Check that all inputs are valid, and try again.');
-					$me.find('._form_errors._e_analyse').show();
-					
-				}
 			},
 			error: function(resp, dd, ww) {
 				// $butt.removeAttr('disabled');
