@@ -193,11 +193,11 @@ exports.add = async (req, res) => {
         var schedule = (info.schedule) ? moment(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DDTHH:mm:ss.000Z') : null;   //  for infobip
 
         var UNSUBMSG = false;
-        if(req.body.add_optout && req.body.add_optout == "on") {
+        if(req.body.add_optout) {
             UNSUBMSG = true; //_message('msg', 1091, ) '\n\nTo unsubscribe, click: https://dev2.tracksend.co/sms/optout/';
         }
         var DOSUBMSG = false;
-        if(req.body.add_optin && req.body.add_optin == "on") {
+        if(req.body.add_optin) {
             DOSUBMSG = true; //_message('msg', 1091, ) '\n\nTo unsubscribe, click: https://dev2.tracksend.co/sms/optout/';
         }
 
@@ -226,12 +226,15 @@ exports.add = async (req, res) => {
             var groups = JSON.parse(info.grp);
             console.log('info.group = ' + groups + '; json = ' + JSON.stringify(groups));
             var skip = (info.skip_dnd && info.skip_dnd == "on");
-            var unsub     = (info.add_optout && info.add_optout == "on");
-            var dosub     = (info.add_optin && info.add_optin == "on");
-            var tooptin   = (info.to_awoptin && info.to_awoptin == "on");
-            var toawoptin = (info.to_optin && info.to_optin == "on");
-            var toall     = (tooptin && toawoptin);
-
+            var unsub     = info.add_optout;
+            var dosub     = info.add_optin;
+            var tooptin   = info.to_awoptin;
+            var toawoptin = info.to_optin;
+            var toall     = tooptin && toawoptin;
+            console.log('===========================');
+            console.log('tooptin='+tooptin+'; toawoptin='+toawoptin+'; toall='+toall);
+            console.log('===========================');
+            
             if (groups !== 0) {
 
                 var dd = await models.Group.findAll({
