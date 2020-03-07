@@ -18,6 +18,10 @@ var _getGlobals = {
 	// editable_position: 0,
 	// editable_offset: null,
 };
+
+$.validator.setDefaults({
+	ignore: ":hidden:not(.chosen-select)"
+})
  
 $(document).ready(function() {
 	var campaign_confirmed = false;
@@ -639,6 +643,14 @@ $(document).ready(function() {
 		$me.find('._form_errors').hide();
 		$me.find('._e_analyse').hide();
 		$butt.closest('div').find('.loading_icon').show();
+
+		if(!$('#to_optin').is(':checked') && !$('#to_awoptin').is(':checked')) {
+			$butt.closest('div').find('.loading_icon').hide();
+			$butt.closest('div').find('.activity_status').text('');
+			$me.find('._form_errors._e_analyse').html('Select bewtween <b>\'Send Send to Opted in Contacts\'</b> and <b>\'Send to Awaiting-Opt-In Contacts\'</b>');
+			$me.find('._form_errors._e_analyse').show();
+			return false;
+	}
 		
 		console.log('====================================');
 		console.log('sending...');
@@ -676,9 +688,6 @@ $(document).ready(function() {
 
 		let w = moment($me.find('#datepicker').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
 		let wwa = moment($me.find('#datepickerwa').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
-		console.log('====================================');
-		console.log('tz: ' + wwa);
-		console.log('====================================');
 		$me.find('#schedule').val(moment.utc(w, 'YYYY-MM-DD HH:mm:ss Z').format('YYYY-MM-DD HH:mm:ss'));
 		$me.find('#schedulewa').val(moment.utc(wwa, 'YYYY-MM-DD HH:mm:ss Z').format('YYYY-MM-DD HH:mm:ss'));
 		// $('#datepicker').val();
