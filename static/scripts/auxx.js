@@ -683,38 +683,45 @@ $(document).ready(function() {
 			success: function( data ) {
 
 				console.log(data);
+				if(data.code == "SUCCESS") {
+					$('#analysis_id').val(data.tmpid);
+					$('#analysis-box #cpm_summary_name').text($me.find('#campaign_name').val());
+					$('#analysis-box #cpm_summary_sender').text($me.find('#sel_sender_id option:selected').text());
+					$('#analysis-box #cpm_summary_msg').text(_msg_);
+					$('#analysis-box #cpm_summary_to').text($me.find('#sel_contact_group option:selected').text());
+					$('#analysis-box #cpm_summary_recp').text(data.contactcount);
+					$('#analysis-box #cpm_summary_count').text(data.msgcount);
+					$('#analysis-box #cpm_summary_avg').text(parseInt(data.msgcount)/parseInt(data.contactcount));
+					$('#analysis-box #cpm_units_chrg').text(data.units);
 
-				$('#analysis_id').val(data.tmpid);
-				$('#analysis-box #cpm_summary_name').text($me.find('#campaign_name').val());
-				$('#analysis-box #cpm_summary_sender').text($me.find('#sel_sender_id option:selected').text());
-				$('#analysis-box #cpm_summary_msg').text(msg);
-				$('#analysis-box #cpm_summary_to').text($me.find('#sel_contact_group option:selected').text());
-				$('#analysis-box #cpm_summary_recp').text(data.contactcount);
-				$('#analysis-box #cpm_summary_count').text(data.msgcount);
-				$('#analysis-box #cpm_summary_avg').text(parseInt(data.msgcount)/parseInt(data.contactcount));
-				$('#analysis-box #cpm_units_chrg').text(data.units);
+					var bal, noc;
+					if(data.units > data.balance) {
+						bal = '<span style="color: red">' + data.balance + ' (INSUFFICIENT) </span>';
+						
+						$('.campaign_summary_btn.send').hide();
+					} else if(data.contactcount == 0) {
+						noc = '<span style="color: red">' + data.contactcount + ' (NO CONTACTS ADDED) </span>';
+						$('#analysis-box #cpm_summary_recp').html(noc);
+						$('#analysis-box #cpm_summary_avg').text('--');
+						$('.campaign_summary_btn.send').hide();
+					} else {
+						bal = data.balance;
+						$('.campaign_summary_btn.send').show(); 
+					}
 
-				var bal, noc;
-				if(data.units > data.balance) {
-					bal = '<span style="color: red">' + data.balance + ' (INSUFFICIENT) </span>';
-					
-					$('.campaign_summary_btn.send').hide();
-				} else if(data.contactcount == 0) {
-					noc = '<span style="color: red">' + data.contactcount + ' (NO CONTACTS ADDED) </span>';
-					$('#analysis-box #cpm_summary_recp').html(noc);
-					$('#analysis-box #cpm_summary_avg').text('--');
-					$('.campaign_summary_btn.send').hide();
+					$('#analysis-box #cpm_units_balance').html(bal);
+
+					$('#click_analysis_box').click();
+
+					$butt.closest('div').find('.loading_icon').hide();
+					$butt.closest('div').find('.activity_status').text('');
 				} else {
-					bal = data.balance;
-					$('.campaign_summary_btn.send').show(); 
+					$butt.closest('div').find('.loading_icon').hide();
+					$butt.closest('div').find('.activity_status').text('');
+					$me.find('._form_errors._e_analyse').text('Check that all inputs are valid, and try again.');
+					$me.find('._form_errors._e_analyse').show();
+					
 				}
-
-				$('#analysis-box #cpm_units_balance').html(bal);
-
-				$('#click_analysis_box').click();
-
-				$butt.closest('div').find('.loading_icon').hide();
-				$butt.closest('div').find('.activity_status').text('');
 
 			},
 			error: function(resp, dd, ww) {
