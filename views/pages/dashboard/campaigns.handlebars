@@ -109,490 +109,460 @@
 									<!-- Section -->
 									<div class="add-listing-section">
 
-										<!-- Row -->
-										<div class="row with-forms">
-											<br>
-											<!-- Status -->
-											<div class="col-md-12">
-												<h5>SMS Campaign Name</h5>
-												<input type="text" name="name" id="campaign_name" maxlength="50" required>
+										<div class="_main_campaign _collection">
+											<!-- Row -->
+											<div class="row with-forms">
+												<br>
+												<!-- Status -->
+												<div class="col-md-12">
+													<h5>SMS Campaign Name</h5>
+													<input type="text" name="name" id="campaign_name" maxlength="50" required>
+												</div>
+
+												{{!-- <div class="col-md-12">
+													<h5>Description </h5>
+													<input type="text" name="description" id="campaign_description" maxlength="200">
+												</div> --}}
 											</div>
 
-											{{!-- <div class="col-md-12">
-												<h5>Description </h5>
-												<input type="text" name="description" id="campaign_description" maxlength="200">
-											</div> --}}
-										</div>
+											<div class="row with-forms">
 
-										<div class="row with-forms">
+												<div class="col-md-6">
+													<h5>Select Group(s) </h5>
+													<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" required multiple>
+														<option label="blank" value="0">Select Group</option>
+														<option value="{{ args.ngrp }}">[Uncategorized]</option>
+														<option disabled>--------------------------------------</option>
+														{{#each args.grps}}
+														<option value="{{ id }}">{{ name }}</option>
+														{{/each}}
+														<option disabled>--------------------------------------</option>
+														<option value="-1">All Groups</option>
+													</select>
+												</div>
 
-											<div class="col-md-6">
-												<h5>Select Group(s) </h5>
-												<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" required multiple>
-													<option label="blank" value="0">Select Group</option>
-													<option value="{{ args.ngrp }}">[Uncategorized]</option>
-													<option disabled>--------------------------------------</option>
-													{{#each args.grps}}
-													<option value="{{ id }}">{{ name }}</option>
-													{{/each}}
-													<option disabled>--------------------------------------</option>
-													<option value="-1">All Groups</option>
-												</select>
-											</div>
-
-											<div class="col-md-6">
-												<h5>Schedule Delivery  <span>[ optional ]</span> </h5>
-												<input type='text' class="form-control" id="datepicker" name="datepicker" />
-												<input type="hidden" id="schedule" name="schedule" />
-											</div>
-										</div>
-										
-										<div class="row with-forms">
-
-											<div class="col-md-6">
-												<h5>Sender ID </h5>
-												<select class="chosen-select-no-single" name="sender" id="sel_sender_id" required>
-													<option label="blank" value="0">Select ID</option>
-													{{#each args.sids}}
-													<option value="{{ id }}">{{ name }}</option>
-													{{/each}}
-												</select>
-											</div>
-
-											<div class="col-md-6">
-												<h5>Short URL <span>[ optional ]</span> </h5>
-												<select class="chosen-select-no-single" name="shorturl" id="sel_short_url" required>
-													<option label="blank" value="0">Select</option>
-													{{#each args.shorturl}}
-													<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
-													{{/each}}
-												</select>
+												<div class="col-md-6">
+													<h5>Schedule Delivery  <span>[ optional ]</span> </h5>
+													<input type='text' class="form-control" id="datepicker" name="datepicker" />
+													<input type="hidden" id="schedule" name="schedule" />
+												</div>
 											</div>
 											
-										</div>
-										
-										<div class="row with-forms">
+											<div class="row with-forms">
 
-											<div class="col-md-12">
-												<h5>Compose Message <span id="msg_est_txt"></span><span>[ Chars: <span id="msg_char_count">9</span>; Msgs: <span id="msg_count">1</span> ]</span>
-													<ul class="compose_options_box checkboxes in-row"><span style="font-size: 0.7em;">Insert: </span>
-														<li class="ch-firstname">First Name</li>
-														<li class="ch-lastname">Last Name</li>
-														<li class="ch-email">Email</li>
-														<li class="ch-url">Short URL</li>
-														<li class="tooltip top" id="clr_msg_butt" title="Clear message" style="color: red; font-size: 0.8em;"><i class="sl sl-icon-ban"></i></li>
-														<div class="clearfix"></div>
-													</ul>
-												</h5>
-												<div contenteditable="true" class="editable_div _sms">Hello ...</div>
-												<input type="hidden" name="message" class="campaignmessage">
-											</div>
-
-											<div id="url-setup-box" class="zoom-anim-dialog mfp-hide">
-
-												<div class="small-dialog-header">
-													<h3>Short URL <b> Setup</b></h3>
+												<div class="col-md-6">
+													<h5>Sender ID </h5>
+													<select class="chosen-select-no-single" name="sender" id="sel_sender_id" required>
+														<option label="blank" value="0">Select ID</option>
+														{{#each args.sids}}
+														<option value="{{ id }}">{{ name }}</option>
+														{{/each}}
+													</select>
 												</div>
 
-												<!--Tabs -->
-												<div class="sign-in-form style-1">
+												<div class="col-md-6">
+													<h5>Short URL <span>[ optional ]</span> </h5>
+													<select class="chosen-select-no-single" name="shorturl" id="sel_short_url" required>
+														<option label="blank" value="0">Select</option>
+														{{#each args.shorturl}}
+														<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
+														{{/each}}
+													</select>
+												</div>
+												
+											</div>
+											
+											<div class="row with-forms">
 
-													<div class="row with-forms">
+												<div class="col-md-12 message_area">
+													<h5>Compose Message <span id="msg_est_txt"></span><span>[ Chars: <span id="msg_char_count">9</span>; Msgs: <span id="msg_count">1</span> ]</span>
+														<ul class="compose_options_box checkboxes in-row"><span style="font-size: 0.7em;">Insert: </span>
+															<li class="ch-firstname">First Name</li>
+															<li class="ch-lastname">Last Name</li>
+															<li class="ch-email">Email</li>
+															<li class="ch-url">Short URL</li>
+															<li class="tooltip top" id="clr_msg_butt" title="Clear message" style="color: red; font-size: 0.8em;"><i class="sl sl-icon-ban"></i></li>
+															<div class="clearfix"></div>
+														</ul>
+													</h5>
+													<div contenteditable="true" class="editable_div _sms">Hello ...</div>
+													<input type="hidden" name="message" class="campaignmessage">
+												</div>
 
-														<!-- Status -->
-														<div class="col-md-12">
-															<h5>Enter or Paste Your Link</h5>
-															<input type="text" name="full_link" id="long_url_link" maxlength="50" placeholder="http://www.">
-															<button type="submit" class="button preview create_short_url_btn" style="margin-top: 0">Create <i class="sl sl-icon-refresh"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
-														</div>
+												<div id="url-setup-box" class="zoom-anim-dialog mfp-hide">
 
-
-														<div class="col-md-12" style="margin-top: 30px;">
-															<h5>Here's Your Short URL:  <span class="customize_url_btn" style="display: none">[ Customize ]</span></h5>
-															<div class="short_url_box">http://tsn.pub/<span id="_edit_span" class="_editable" maxlength="5">...</span><input style="display: none" type="text" name="myshorturl" id="_edit_text" placeholder="..." class="_editable" maxlength="10" readonly >
-																<input type="hidden" name="shorturlid" id="shorturlid" >
-															</div>
-
-															<button type="button" class="button preview short_url_btn paste" style="margin-top: 0">Insert in Msg <i class="fa fa-paste"></i></button>
-															<button type="button" class="button preview short_url_btn done" style="margin-top: 0">OK <i class="fa fa-arrow-circle-right"></i></button>
-														</div>
-
-
+													<div class="small-dialog-header">
+														<h3>Short URL <b> Setup</b></h3>
 													</div>
 
-												</div>
-											</div>
-										</div>
-										<!-- Row / End -->
+													<!--Tabs -->
+													<div class="sign-in-form style-1">
 
-										<div class="_form_errors _e_analyse_2" style="display:none; margin-top: 10px"></div>
+														<div class="row with-forms">
 
-										<div class="_campaign _more_options">
-											<div class="trigger">
-												<div class="col-lg-12 checkboxes toggle active">
-													<div class="_title">More Options...</div>
-													{{!-- <i class="im im-icon-Cursor-Click2"></i> <b>Create Follow-Up</b> Campaign<i class="sl sl-icon-plus"></i> --}}
-												</div>
-											</div>
-											<div class="col-lg-12 toggle-container" style="display: none">
-												<hr style="border-top: 1px solid #ddd; margin-top: 10px">
-												<div class="col-md-12 _campaign_options" style="margin-top: 0; padding: 0;">
-													<div class="col-md-12" style="padding: 0;">
-														<div class="col-md-6 checkboxes _errorable">
-															<input id="to_optin" type="checkbox" name="to_optin" checked>
-															<label for="to_optin"><b>Send to Opted in Contacts</b></label>
-															
-															<input id="to_awoptin" type="checkbox" name="to_awoptin" checked>
-															<label for="to_awoptin" style="margin-top: 20px;"><b>Send to Awaiting-Opt-In Contacts</b></label>
-															
-															<div class="_check_slider ignore_dnd">
-																<h5 style="float: left">Skip DND (Do-Not-Disturb) Contacts  <i class="tip" data-tip-content="This applies to contacts that has be confirmed to be DND based on feedback from previous message."></i> </h5>
-																<label class="switch"><input type="checkbox" checked="" name="skip_dnd"><span class="slider round"></span></label>
-																<div class="clearfix"></div>
+															<!-- Status -->
+															<div class="col-md-12">
+																<h5>Enter or Paste Your Link</h5>
+																<input type="text" name="full_link" id="long_url_link" maxlength="50" placeholder="http://www.">
+																<button type="submit" class="button preview create_short_url_btn" style="margin-top: 0">Create <i class="sl sl-icon-refresh"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
 															</div>
-														</div>
-														<div class="col-md-6 checkboxes _errorable">
-															<input id="add_optout" type="checkbox" name="add_optout">
-															<label for="add_optout"> Add 'Opt-Out' Link to Message  <i class="tip" data-tip-content="This would insert a link at the end your SMS with which the recipient can unsubscribe from receiving your future SMS"></i></label>
 
-															<input id="add_optin" type="checkbox" name="add_optin">
-															<label for="add_optin" style="margin-top: 20px;">Add 'Opt-In' Link to Message  <i class="tip" data-tip-content="This would insert a link at the end your SMS with which the recipient can unsubscribe from receiving your future SMS"></i> </label>
 
-															<div class="_check_slider add_utm">
-																<h5 style="float: left">Add UTM Tags To URL  <i class="tip" data-tip-content="Tags to help track source medium e.g. Facebook, Instagram, etc."></i> </h5>
-																<label class="switch"><input type="checkbox" checked="" name="add_utm"><span class="slider round"></span></label>
-																<div class="clearfix"></div>
+															<div class="col-md-12" style="margin-top: 30px;">
+																<h5>Here's Your Short URL:  <span class="customize_url_btn" style="display: none">[ Customize ]</span></h5>
+																<div class="short_url_box">http://tsn.pub/<span id="_edit_span" class="_editable" maxlength="5">...</span><input style="display: none" type="text" name="myshorturl" id="_edit_text" placeholder="..." class="_editable" maxlength="10" readonly >
+																	<input type="hidden" name="shorturlid" id="shorturlid" >
+																</div>
+
+																<button type="button" class="button preview short_url_btn paste" style="margin-top: 0">Insert in Msg <i class="fa fa-paste"></i></button>
+																<button type="button" class="button preview short_url_btn done" style="margin-top: 0">OK <i class="fa fa-arrow-circle-right"></i></button>
 															</div>
+
+
 														</div>
+
 													</div>
-													{{!-- <div class="col-md-12">
-														<div class="col-md-6 add_optout" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
-															<h5 style="float: left">Add 'Opt-Out' Link to Message  <i class="tip" data-tip-content="This would insert a link at the end your SMS with which the recipient can unsubscribe from receiving your future SMS"></i> </h5>
-															<label class="switch"><input type="checkbox" id="add_optout" name="add_optout"><span class="slider round"></span></label>
+												</div>
+											</div>
+											<!-- Row / End -->
+
+											<div class="_form_errors _e_analyse_2" style="display:none; margin-top: 10px"></div>
+
+											<div class="_campaign _more_options">
+												<div class="trigger">
+													<div class="col-lg-12 checkboxes toggle active">
+														<div class="_title">More Options...</div>
+														{{!-- <i class="im im-icon-Cursor-Click2"></i> <b>Create Follow-Up</b> Campaign<i class="sl sl-icon-plus"></i> --}}
+													</div>
+												</div>
+												<div class="col-lg-12 toggle-container" style="display: none">
+													<hr style="border-top: 1px solid #ddd; margin-top: 10px">
+													<div class="col-md-12 _campaign_options" style="margin-top: 0; padding: 0;">
+														<div class="col-md-12" style="padding: 0;">
+															<div class="col-md-6 checkboxes _errorable">
+																<input id="to_optin" type="checkbox" name="to_optin" checked>
+																<label for="to_optin"><b>Send to Opted in Contacts</b></label>
+																
+																<input id="to_awoptin" type="checkbox" name="to_awoptin" checked>
+																<label for="to_awoptin" style="margin-top: 20px;"><b>Send to Awaiting-Opt-In Contacts</b></label>
+																
+																<div class="_check_slider ignore_dnd">
+																	<h5 style="float: left">Skip DND (Do-Not-Disturb) Contacts  <i class="tip" data-tip-content="This applies to contacts that has be confirmed to be DND based on feedback from previous message."></i> </h5>
+																	<label class="switch"><input type="checkbox" checked="" name="skip_dnd"><span class="slider round"></span></label>
+																	<div class="clearfix"></div>
+																</div>
+															</div>
+															<div class="col-md-6 checkboxes _errorable">
+																<input id="add_optout" type="checkbox" name="add_optout">
+																<label for="add_optout"> Add 'Opt-Out' Link to Message  <i class="tip" data-tip-content="This would insert a link at the end your SMS with which the recipient can unsubscribe from receiving your future SMS"></i></label>
+
+																<input id="add_optin" type="checkbox" name="add_optin">
+																<label for="add_optin" style="margin-top: 20px;">Add 'Opt-In' Link to Message  <i class="tip" data-tip-content="This would insert a link at the end your SMS with which the recipient can unsubscribe from receiving your future SMS"></i> </label>
+
+																<div class="_check_slider add_utm">
+																	<h5 style="float: left">Add UTM Tags To URL  <i class="tip" data-tip-content="Tags to help track source medium e.g. Facebook, Instagram, etc."></i> </h5>
+																	<label class="switch"><input type="checkbox" checked="" name="add_utm"><span class="slider round"></span></label>
+																	<div class="clearfix"></div>
+																</div>
+															</div>
+														</div>
+														{{!-- <div class="col-md-12">
+															<div class="col-md-6 add_optout" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
+																<h5 style="float: left">Add 'Opt-Out' Link to Message  <i class="tip" data-tip-content="This would insert a link at the end your SMS with which the recipient can unsubscribe from receiving your future SMS"></i> </h5>
+																<label class="switch"><input type="checkbox" id="add_optout" name="add_optout"><span class="slider round"></span></label>
+																<div class="clearfix"></div>
+															</div>
+															<div class="col-md-6 add_optin" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
+																<h5 style="float: left">Add 'Opt-In' Link to Message  <i class="tip" data-tip-content="This would insert a link at the end your SMS with which the recipient can unsubscribe from receiving your future SMS"></i> </h5>
+																<label class="switch"><input type="checkbox" id="add_optin" name="add_optin"><span class="slider round"></span></label>
+																<div class="clearfix"></div>
+															</div>
+														</div> --}}
+													</div>
+													{{!-- <div class="col-md-12" style="box-sizing: inherit;">
+														<div class="col-md-6 ignore_dnd" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
+															<h5 style="float: left">Skip DND (Do-Not-Disturb) Contacts  <i class="tip" data-tip-content="This applies to contacts that has be confirmed to be DND based on feedback from previous message."></i> </h5>
+															<label class="switch"><input type="checkbox" checked="" name="skip_dnd"><span class="slider round"></span></label>
 															<div class="clearfix"></div>
 														</div>
-														<div class="col-md-6 add_optin" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
-															<h5 style="float: left">Add 'Opt-In' Link to Message  <i class="tip" data-tip-content="This would insert a link at the end your SMS with which the recipient can unsubscribe from receiving your future SMS"></i> </h5>
-															<label class="switch"><input type="checkbox" id="add_optin" name="add_optin"><span class="slider round"></span></label>
+														<div class="col-md-6 add_utm" hidden style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px;">
+															<h5 style="float: left">Add UTM Tags To URL  <i class="tip" data-tip-content="Tags to help track source medium e.g. Facebook, Instagram, etc."></i> </h5>
+															<label class="switch"><input type="checkbox" checked="" name="add_utm"><span class="slider round"></span></label>
 															<div class="clearfix"></div>
 														</div>
 													</div> --}}
 												</div>
-												{{!-- <div class="col-md-12" style="box-sizing: inherit;">
-													<div class="col-md-6 ignore_dnd" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
-														<h5 style="float: left">Skip DND (Do-Not-Disturb) Contacts  <i class="tip" data-tip-content="This applies to contacts that has be confirmed to be DND based on feedback from previous message."></i> </h5>
-														<label class="switch"><input type="checkbox" checked="" name="skip_dnd"><span class="slider round"></span></label>
-														<div class="clearfix"></div>
-													</div>
-													<div class="col-md-6 add_utm" hidden style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px;">
-														<h5 style="float: left">Add UTM Tags To URL  <i class="tip" data-tip-content="Tags to help track source medium e.g. Facebook, Instagram, etc."></i> </h5>
-														<label class="switch"><input type="checkbox" checked="" name="add_utm"><span class="slider round"></span></label>
-														<div class="clearfix"></div>
-													</div>
-												</div> --}}
+												<div class="clearfix"></div>
 											</div>
 											<div class="clearfix"></div>
 										</div>
 
-
-
-
-
-				{{!-- <div class="clearfix"></div>
-				<hr>
-				<div class="_followup_campaign _1" style="margin-top: 20px;">
-					<div class="trigger">
-						<div class="col-lg-12  checkboxes toggle active">
-							<input id="chk_followup" class="chk_followup" type="checkbox" name="chk_followup">
-							<label for="chk_followup" style="width: 100%;">Create <b>Follow-Up</b> Campaign</label>
-						</div>
-					</div>
-					<div class="col-lg-12 toggle-container" style="display: none">
-
-						<div id="add-listing">
-
-							<!-- Tabs Content -->
-							<div class="tabs-container campaigntypes">
-								<div class="tab-content sms_{{ campaign_type }}" id="tab1a" >
-									<form action="/dashboard/campaigns/add" method="POST" id="campaign_form_sms">
-										<input type="hidden" name="type" value="sms">
-
-										<!-- Section -->
-										<div class="add-listing-section" style="background-color: #00272f;">
-
-											<!-- Row -->
-											<div class="row with-forms">
-												<br>
-												<!-- Status -->
-												<div class="col-md-12">
-													<h5>Campaign Name</h5>
-													<input type="text" name="name" id="campaign_name" maxlength="50" readonly>
+										<hr>
+										<div class="_followup_campaign _1 _collection" style="margin-top: 20px;">
+											<div class="trigger">
+												<div class="col-lg-12  checkboxes toggle active">
+													<input id="chk_followup" class="chk_followup" type="checkbox" name="chk_followup">
+													<label for="chk_followup" style="width: 100%;">Create <b>Follow-Up</b> Campaign</label>
 												</div>
-
 											</div>
+											<div class="col-lg-12 toggle-container" style="display: none">
 
-											<div class="row with-forms">
+												<div id="add-listing">
 
-												<div class="col-md-6">
-													<h5>Send if... </h5>
-													<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" multiple>
-														<option value="1">Recipient clicks on URL</option>
-														<option value="1">Recipient does not click on URL</option>
-													</select>
-												</div>
+													<!-- Tabs Content -->
+													<div class="tabs-container campaigntypes">
+														<div class="tab-content sms_{{ campaign_type }}" id="tab1a" >
+															<form action="/dashboard/campaigns/add" method="POST" id="campaign_form_sms">
+																<input type="hidden" name="type" value="sms">
 
-												<div class="col-md-6">
-													<h5>Within (days)... [min: 5] </h5>
-													<input type="number" class="form-control" name="within_days" value="5" min="5" />
-													<input type="hidden" id="schedule" name="schedule" />
-												</div>
+																<!-- Section -->
+																<div class="add-listing-section" style="background-color: #00272f;">
 
-											</div>
-											
-											<div class="row with-forms">
+																	<div class="row with-forms">
+																		<br>
 
-												<div class="col-md-6">
-													<h5>Sender ID </h5>
-													<select class="chosen-select-no-single" name="sender" id="sel_sender_id">
-														<option label="blank" value="0">Select ID</option>
-														{{#each args.sids}}
-														<option value="{{ id }}">{{ name }}</option>
-														{{/each}}
-													</select>
-												</div>
+																		<div class="col-md-6">
+																			<h5>Send if... </h5>
+																			<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" multiple>
+																				<option value="1">Recipient clicks on URL</option>
+																				<option value="1">Recipient does not click on URL</option>
+																			</select>
+																		</div>
 
-												<div class="col-md-6">
-													<h5>Short URL <span>[ optional ]</span> </h5>
-													<select class="chosen-select-no-single" name="shorturl" id="sel_short_url">
-														<option label="blank" value="0">Select</option>
-														{{#each args.shorturl}}
-														<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
-														{{/each}}
-													</select>
-												</div>
-												
-											</div>
-											
-											<div class="row with-forms">
+																		<div class="col-md-6">
+																			<h5>Within (days)... [min: 5] </h5>
+																			<input type="number" class="form-control" name="within_days" value="5" min="5" />
+																			<input type="hidden" id="schedule" name="schedule" />
+																		</div>
 
-												<div class="col-md-12">
-													<h5>Compose Message <span id="msg_est_txt"></span><span>[ Chars: <span id="msg_char_count">9</span>; Msgs: <span id="msg_count">1</span> ]</span>
-														<ul class="compose_options_box checkboxes in-row"><span style="font-size: 0.7em;">Insert: </span>
-															<li class="ch-firstname">First Name</li>
-															<li class="ch-lastname">Last Name</li>
-															<li class="ch-email">Email</li>
-															<li class="ch-url">Short URL</li>
-															<li class="tooltip top" id="clr_msg_butt" title="Clear message" style="color: red; font-size: 0.8em;"><i class="sl sl-icon-ban"></i></li>
-															<div class="clearfix"></div>
-														</ul>
-													</h5>
-													<div contenteditable="true" class="editable_div _sms">Hello ...</div>
-													<input type="hidden" name="message" class="campaignmessage">
-												</div>
+																	</div>
+																	
+																	<div class="row with-forms">
 
-											</div>
+																		<div class="col-md-6">
+																			<h5>Sender ID </h5>
+																			<select class="chosen-select-no-single" name="sender" id="sel_sender_id">
+																				<option label="blank" value="0">Select ID</option>
+																				{{#each args.sids}}
+																				<option value="{{ id }}">{{ name }}</option>
+																				{{/each}}
+																			</select>
+																		</div>
 
-										</div>
-										<!-- Section / End -->
+																		<div class="col-md-6">
+																			<h5>Short URL <span>[ optional ]</span> </h5>
+																			<select class="chosen-select-no-single" name="shorturl" id="sel_short_url">
+																				<option label="blank" value="0">Select</option>
+																				{{#each args.shorturl}}
+																				<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
+																				{{/each}}
+																			</select>
+																		</div>
+																		
+																	</div>
+																	
+																	<div class="row with-forms">
 
-									</form>
-								</div>
-							</div>
+																		<div class="col-md-12 message_area">
+																			<h5>Compose Message <span id="msg_est_txt"></span><span>[ Chars: <span id="msg_char_count">9</span>; Msgs: <span id="msg_count">1</span> ]</span>
+																				<ul class="compose_options_box checkboxes in-row"><span style="font-size: 0.7em;">Insert: </span>
+																					<li class="ch-firstname">First Name</li>
+																					<li class="ch-lastname">Last Name</li>
+																					<li class="ch-email">Email</li>
+																					<li class="ch-url">Short URL</li>
+																					<li class="tooltip top" id="clr_msg_butt" title="Clear message" style="color: red; font-size: 0.8em;"><i class="sl sl-icon-ban"></i></li>
+																					<div class="clearfix"></div>
+																				</ul>
+																			</h5>
+																			<div contenteditable="true" class="editable_div _sms">Hello ...</div>
+																			<input type="hidden" name="message" class="campaignmessage">
+																		</div>
 
-						</div>
+																	</div>
 
-					</div>
-					<div class="clearfix"></div>
-				</div>
-				<hr>
-				<div class="_followup_campaign _2" hidden style="margin-top: 20px;">
-					<div class="trigger">
-						<div class="col-lg-12 checkboxes toggle active">
-							<input id="chk_followup2" class="chk_followup" type="checkbox" name="chk_followup2">
-							<label for="chk_followup2" style="width: 100%;">Add Another <b>Follow-Up</b> Campaign</label>
-						</div>
-					</div>
-					<div class="col-lg-12 toggle-container" style="display: none">
+																</div>
+																<!-- Section / End -->
 
-						<div id="add-listing">
-
-							<!-- Tabs Content -->
-							<div class="tabs-container campaigntypes">
-								<div class="tab-content sms_{{ campaign_type }}" id="tab1a" >
-									<form action="/dashboard/campaigns/add" method="POST" id="campaign_form_sms">
-										<input type="hidden" name="type" value="sms">
-
-										<!-- Section -->
-										<div class="add-listing-section" style="background-color: #00272f;">
-
-											<!-- Row -->
-											<div class="row with-forms">
-												<br>
-												<!-- Status -->
-												<div class="col-md-12">
-													<h5>Campaign Name</h5>
-													<input type="text" name="name" id="campaign_name" maxlength="50" readonly>
-												</div>
-
-											</div>
-
-											<div class="row with-forms">
-
-												<div class="col-md-6">
-													<h5>Send if... </h5>
-													<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" multiple>
-														<option value="1">Recipient clicks on URL</option>
-														<option value="1">Recipient does not click on URL</option>
-													</select>
-												</div>
-
-												<div class="col-md-6">
-													<h5>Within (days)... [min: 5] </h5>
-													<input type="number" class="form-control" name="within_days" value="5" min="5" />
-													<input type="hidden" id="schedule" name="schedule" />
-												</div>
-
-											</div>
-											
-											<div class="row with-forms">
-
-												<div class="col-md-6">
-													<h5>Sender ID </h5>
-													<select class="chosen-select-no-single" name="sender" id="sel_sender_id">
-														<option label="blank" value="0">Select ID</option>
-														{{#each args.sids}}
-														<option value="{{ id }}">{{ name }}</option>
-														{{/each}}
-													</select>
-												</div>
-
-												<div class="col-md-6">
-													<h5>Short URL <span>[ optional ]</span> </h5>
-													<select class="chosen-select-no-single" name="shorturl" id="sel_short_url">
-														<option label="blank" value="0">Select</option>
-														{{#each args.shorturl}}
-														<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
-														{{/each}}
-													</select>
-												</div>
-												
-											</div>
-											
-											<div class="row with-forms">
-
-												<div class="col-md-12">
-													<h5>Compose Message <span id="msg_est_txt"></span><span>[ Chars: <span id="msg_char_count">9</span>; Msgs: <span id="msg_count">1</span> ]</span>
-														<ul class="compose_options_box checkboxes in-row"><span style="font-size: 0.7em;">Insert: </span>
-															<li class="ch-firstname">First Name</li>
-															<li class="ch-lastname">Last Name</li>
-															<li class="ch-email">Email</li>
-															<li class="ch-url">Short URL</li>
-															<li class="tooltip top" id="clr_msg_butt" title="Clear message" style="color: red; font-size: 0.8em;"><i class="sl sl-icon-ban"></i></li>
-															<div class="clearfix"></div>
-														</ul>
-													</h5>
-													<div contenteditable="true" class="editable_div _sms">Hello ...</div>
-													<input type="hidden" name="message" class="campaignmessage">
-												</div>
-
-											</div>
-
-											<div class="_form_errors _e_analyse_2" style="display:none; margin-top: 10px"></div>
-
-										</div>
-										<!-- Section / End -->
-
-									</form>
-								</div>
-							</div>
-
-						</div>
-
-					</div>
-				</div> --}}
-			
-
-
-
-
-
-
-
-
-
-
-
-
-									<div class="_form_errors _e_analyse" style="display:none; margin-top: 10px"></div>
-									
-									<input type="hidden" name="analysis_id" id="analysis_id" value="0">
-									<div><button type="submit" class="button preview" id="analyse_btn">Analyse <i class="im im-icon-Gears-2"></i></button> <span class="loading_icon fa fa-hourglass-2"></span><span style="margin-left: 5px" class="activity_status"></span></div>
-									<a href="#analysis-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1; visibility: hidden;" id="click_analysis_box"><i class="im im-icon-Two-Windows"></i> Show Analysis</a>
-											<div id="analysis-box" class="zoom-anim-dialog mfp-hide">
-
-												<div class="small-dialog-header" style="margin-bottom: 15px">
-													<h3>Campaign  <b>Summary</b></h3>
-												</div>
-
-												<!--Tabs -->
-												<div class="sign-in-form style-1">
-
-													<div class="row with-forms">
-
-														<!-- Status -->
-														<div class="col-md-12">
-															<h5>Campaign Name: </h5><span id="cpm_summary_name">--</span>
+															</form>
 														</div>
-
-														<div class="col-md-12">
-															<h5>Sender ID: </h5><span id="cpm_summary_sender">--</span>
-														</div>
-
-														<div class="col-md-12">
-															<h5>Message: </h5><span id="cpm_summary_msg">--</span>
-														</div>
-
-														<div class="col-md-12">
-															<h5>To: </h5><span id="cpm_summary_to">--</span>
-														</div>
-
-														<div class="col-md-12">
-															<h5>Send Time: </h5><span id="cpm_summary_time">Immediately</span>
-														</div>
-
-														<div class="col-md-12 sepr"></div>
-														
-														<div class="col-md-12">
-															<h5>Number of Recipients: </h5><span id="cpm_summary_recp">--</span>
-														</div>
-
-														<div class="col-md-12">
-															<h5>Total Messages: </h5><span id="cpm_summary_count">--</span>
-														</div>
-
-														<div class="col-md-12">
-															<h5>Average Message(s) per Recipient: </h5><span id="cpm_summary_avg">--</span>
-														</div>
-
-														<div class="col-md-12">
-															<h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">--</span>
-														</div>
-
-														<div class="col-md-12 sepr"></div>
-														
-														<div class="col-md-12">
-															<h5>Available Balance: </h5><span id="cpm_units_balance" style="font-weight: bold">--</span>
-														</div>
-
-														<div class="col-md-12 sepr"></div>
-														
-														<button type="button" class="button preview campaign_summary_btn cancel" style="margin-top: 0">Cancel <i class="fa fa-close"></i></button>
-														<button type="button" class="button preview campaign_summary_btn send" style="margin-top: 0">Send <i class="fa fa-send"></i></button>
-
 													</div>
 
 												</div>
+
 											</div>
+											<div class="clearfix"></div>
+										</div>
+										
+										<hr>
+										<div class="_followup_campaign _2 _collection" hidden style="margin-top: 20px;">
+											<div class="trigger">
+												<div class="col-lg-12 checkboxes toggle active">
+													<input id="chk_followup2" class="chk_followup" type="checkbox" name="chk_followup2">
+													<label for="chk_followup2" style="width: 100%;">Add Another <b>Follow-Up</b> Campaign</label>
+												</div>
+											</div>
+											<div class="col-lg-12 toggle-container" style="display: none">
+
+												<div id="add-listing">
+
+													<!-- Tabs Content -->
+													<div class="tabs-container campaigntypes">
+														<div class="tab-content sms_{{ campaign_type }}" id="tab1a" >
+															<form action="/dashboard/campaigns/add" method="POST" id="campaign_form_sms">
+																<input type="hidden" name="type" value="sms">
+
+																<!-- Section -->
+																<div class="add-listing-section" style="background-color: #00272f;">
+
+																	<div class="row with-forms">
+																		<br>
+
+																		<div class="col-md-6">
+																			<h5>Send if... </h5>
+																			<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" multiple>
+																				<option value="1">Recipient clicks on URL</option>
+																				<option value="1">Recipient does not click on URL</option>
+																			</select>
+																		</div>
+
+																		<div class="col-md-6">
+																			<h5>Within (days)... [min: 5] </h5>
+																			<input type="number" class="form-control" name="within_days" value="5" min="5" />
+																			<input type="hidden" id="schedule" name="schedule" />
+																		</div>
+
+																	</div>
+																	
+																	<div class="row with-forms">
+
+																		<div class="col-md-6">
+																			<h5>Sender ID </h5>
+																			<select class="chosen-select-no-single" name="sender" id="sel_sender_id">
+																				<option label="blank" value="0">Select ID</option>
+																				{{#each args.sids}}
+																				<option value="{{ id }}">{{ name }}</option>
+																				{{/each}}
+																			</select>
+																		</div>
+
+																		<div class="col-md-6">
+																			<h5>Short URL <span>[ optional ]</span> </h5>
+																			<select class="chosen-select-no-single" name="shorturl" id="sel_short_url">
+																				<option label="blank" value="0">Select</option>
+																				{{#each args.shorturl}}
+																				<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
+																				{{/each}}
+																			</select>
+																		</div>
+																		
+																	</div>
+																	
+																	<div class="row with-forms">
+
+																		<div class="col-md-12 message_area">
+																			<h5>Compose Message <span id="msg_est_txt"></span><span>[ Chars: <span id="msg_char_count">9</span>; Msgs: <span id="msg_count">1</span> ]</span>
+																				<ul class="compose_options_box checkboxes in-row"><span style="font-size: 0.7em;">Insert: </span>
+																					<li class="ch-firstname">First Name</li>
+																					<li class="ch-lastname">Last Name</li>
+																					<li class="ch-email">Email</li>
+																					<li class="ch-url">Short URL</li>
+																					<li class="tooltip top" id="clr_msg_butt" title="Clear message" style="color: red; font-size: 0.8em;"><i class="sl sl-icon-ban"></i></li>
+																					<div class="clearfix"></div>
+																				</ul>
+																			</h5>
+																			<div contenteditable="true" class="editable_div _sms">Hello ...</div>
+																			<input type="hidden" name="message" class="campaignmessage">
+																		</div>
+
+																	</div>
+
+																	<div class="_form_errors _e_analyse_2" style="display:none; margin-top: 10px"></div>
+
+																</div>
+																<!-- Section / End -->
+
+															</form>
+														</div>
+													</div>
+
+												</div>
+
+											</div>
+										</div>
+
+
+										<div class="_form_errors _e_analyse" style="display:none; margin-top: 10px"></div>
+										
+										<input type="hidden" name="analysis_id" id="analysis_id" value="0">
+										<div>
+											<button type="submit" class="button preview" id="analyse_btn">Analyse <i class="im im-icon-Gears-2"></i></button> <span class="loading_icon fa fa-hourglass-2"></span><span style="margin-left: 5px" class="activity_status"></span>
+										</div>
+										<a href="#analysis-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1; visibility: hidden;" id="click_analysis_box"><i class="im im-icon-Two-Windows"></i> Show Analysis</a>
+										<div id="analysis-box" class="zoom-anim-dialog mfp-hide">
+
+											<div class="small-dialog-header" style="margin-bottom: 15px">
+												<h3>Campaign  <b>Summary</b></h3>
+											</div>
+
+											<!--Tabs -->
+											<div class="sign-in-form style-1">
+
+												<div class="row with-forms">
+
+													<!-- Status -->
+													<div class="col-md-12">
+														<h5>Campaign Name: </h5><span id="cpm_summary_name">--</span>
+													</div>
+
+													<div class="col-md-12">
+														<h5>Sender ID: </h5><span id="cpm_summary_sender">--</span>
+													</div>
+
+													<div class="col-md-12">
+														<h5>Message: </h5><span id="cpm_summary_msg">--</span>
+													</div>
+
+													<div class="col-md-12">
+														<h5>To: </h5><span id="cpm_summary_to">--</span>
+													</div>
+
+													<div class="col-md-12">
+														<h5>Send Time: </h5><span id="cpm_summary_time">Immediately</span>
+													</div>
+
+													<div class="col-md-12 sepr"></div>
+													
+													<div class="col-md-12">
+														<h5>Number of Recipients: </h5><span id="cpm_summary_recp">--</span>
+													</div>
+
+													<div class="col-md-12">
+														<h5>Total Messages: </h5><span id="cpm_summary_count">--</span>
+													</div>
+
+													<div class="col-md-12">
+														<h5>Average Message(s) per Recipient: </h5><span id="cpm_summary_avg">--</span>
+													</div>
+
+													<div class="col-md-12">
+														<h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">--</span>
+													</div>
+
+													<div class="col-md-12 sepr"></div>
+													
+													<div class="col-md-12">
+														<h5>Available Balance: </h5><span id="cpm_units_balance" style="font-weight: bold">--</span>
+													</div>
+
+													<div class="col-md-12 sepr"></div>
+													
+													<button type="button" class="button preview campaign_summary_btn cancel" style="margin-top: 0">Cancel <i class="fa fa-close"></i></button>
+													<button type="button" class="button preview campaign_summary_btn send" style="margin-top: 0">Send <i class="fa fa-send"></i></button>
+
+												</div>
+
+											</div>
+										</div>
 									</div>
 									<!-- Section / End -->
 
@@ -604,186 +574,186 @@
 									<input type="hidden" name="type" value="whatsapp">
 									<!-- Section -->
 									<div class="add-listing-section">
+										<div class="_main_campaign _collection">
+											<!-- Row -->
+											<div class="row with-forms">
+												<br>
+												<!-- Status -->
+												<div class="col-md-12">
+													<h5>WhatsApp Campaign Name</h5>
+													<input type="text" name="name" id="campaign_name1" maxlength="50" required>
+												</div>
 
-										<!-- Row -->
-										<div class="row with-forms">
-											<br>
-											<!-- Status -->
-											<div class="col-md-12">
-												<h5>WhatsApp Campaign Name</h5>
-												<input type="text" name="name" id="campaign_name1" maxlength="50" required>
+												{{!-- <div class="col-md-12">
+													<h5>Description </h5>
+													<input type="text" name="description" id="campaign_description" maxlength="200">
+												</div> --}}
 											</div>
 
-											{{!-- <div class="col-md-12">
-												<h5>Description </h5>
-												<input type="text" name="description" id="campaign_description" maxlength="200">
-											</div> --}}
-										</div>
+											<div class="row with-forms">
 
-										<div class="row with-forms">
+												<div class="col-md-12">
+													<h5>Send Method </h5>
+													<select class="chosen-select-no-single" name="wa_send_method" id="wa_send_method" required>
+														<option label="blank" value="0">Select</option>
+														<option value="1" selected>Send Message Directly to Individual Contacts</option>
+														<option value="2">Send To WhatsApp Groups</option>
+													</select>
+												</div>
+												
+											</div>
 
-											<div class="col-md-12">
-												<h5>Send Method </h5>
-												<select class="chosen-select-no-single" name="wa_send_method" id="wa_send_method" required>
-													<option label="blank" value="0">Select</option>
-													<option value="1" selected>Send Message Directly to Individual Contacts</option>
-													<option value="2">Send To WhatsApp Groups</option>
-												</select>
+											<div class="row with-forms">
+
+												<div class="col-md-6">
+													<h5>Select Group(s) </h5>
+													<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group1" required multiple>
+														<option label="blank" value="0">Select Group</option>
+														<option value="{{ args.ngrp }}">[Uncategorized]</option>
+														<option disabled>--------------------------------------</option>
+														{{#each args.grps}}
+														<option value="{{ id }}">{{ name }}</option>
+														{{/each}}
+														<option disabled>--------------------------------------</option>
+														<option value="-1">All Groups</option>
+														{{!-- <option value="-2">No Groups</option> --}}
+													</select>
+												</div>
+
+												<div class="col-md-6">
+													<h5>Schedule Delivery  <span>[ optional ]</span> </h5>
+													<input type='text' class="form-control" id="datepickerwa" name="datepickerwa" />
+													<input type="hidden" id="schedulewa" name="schedulewa" />
+												</div>
+												
+											</div>
+
+											<div class="row with-forms">
+
+												<div class="col-md-12">
+													<h5>Short URL  <span>[ optional ]</span> </h5>
+													<select class="chosen-select-no-single" name="shorturl" id="sel_short_url" required>
+														<option label="blank" value="0">Select</option>
+														{{#each args.shorturl}}
+														<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
+														{{/each}}
+													</select>
+												</div>
+												
 											</div>
 											
-										</div>
 
-										<div class="row with-forms">
+											<div class="row with-forms">
 
-											<div class="col-md-6">
-												<h5>Select Group(s) </h5>
-												<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group1" required multiple>
-													<option label="blank" value="0">Select Group</option>
-													<option value="{{ args.ngrp }}">[Uncategorized]</option>
-													<option disabled>--------------------------------------</option>
-													{{#each args.grps}}
-													<option value="{{ id }}">{{ name }}</option>
-													{{/each}}
-													<option disabled>--------------------------------------</option>
-													<option value="-1">All Groups</option>
-													{{!-- <option value="-2">No Groups</option> --}}
-												</select>
-											</div>
+												<div class="col-md-12 message_area">
+													<h5>Compose Message <span id="msg_est_txt"></span>{{!-- <span>[ Chars: <span id="msg_char_count1">9</span>; Msgs: <span id="msg_count1">1</span> ]</span> --}}
+														<ul class="compose_options_box checkboxes in-row"><span style="font-size: 0.7em;">Insert: </span>
+															<li class="ch-firstname">First Name</li>
+															<li class="ch-lastname">Last Name</li>
+															<li class="ch-email">Email</li>
+															<li class="ch-url">Short URL</li>
+															<li class="ch-emoji" class="tooltip top" title="Add emoji" style="color: #469965; font-size: 0.8em;"><i class="sl sl-icon-emotsmile"></i>
+																<div id="emoji_list" hidden>
+																	<ul>
+																		<li>&#x1F601</li>
+																		<li>&#x1F602</li>
+																		<li>&#x1F603</li>
+																		<li>&#x1F604</li>
+																		<li>&#x1F605</li>
+																		<li>&#x1F606</li>
+																		<li>&#x1F607</li>
+																		<li>&#x1F608</li>
+																		<li>&#x1F609</li>
+																		<li>&#x1F60A</li>
+																		<li>&#x1F60B</li>
+																		<li>&#x1F60C</li>
+																		<li>&#x1F60D</li>
+																		<li>&#x1F60E</li>
+																		<li>&#x1F60F</li>
+																		<li>&#x1F612</li>
+																		<li>&#x1F613</li>
+																		<li>&#x1F614</li>
+																		<li>&#x1F615</li>
+																		<li>&#x1F616</li>
+																		<li>&#x1F617</li>
+																		<li>&#x1F618</li>
+																		<li>&#x1F61A</li>
+																		<li>&#x1F61C</li>
+																		<li>&#x1F61D</li>
+																		<li>&#x1F61E</li>
+																		<li>&#x1F620</li>
+																		<li>&#x1F621</li>
+																		<li>&#x1F622</li>
+																		<li>&#x1F623</li>
+																		<li>&#x1F624</li>
+																		<li>&#x1F625</li>
+																		<li>&#x1F628</li>
+																		<li>&#x1F629</li>
+																		<li>&#x1F62A</li>
+																		<li>&#x1F62B</li>
+																		<li>&#x1F62D</li>
+																		<li>&#x1F630</li>
+																		<li>&#x1F631</li>
+																		<li>&#x1F632</li>
+																		<li>&#x1F633</li>
+																		<li>&#x1F635</li>
+																		<li>&#x1F637</li>
+																		<li>&#x1F638</li>
+																		<li>&#x1F638</li>
+																		<li>&#x1F639</li>
+																		<li>&#x1F63A</li>
+																		<li>&#x1F63B</li>
+																		<li>&#x1F63C</li>
+																		<li>&#x1F63D</li>
+																		<li>&#x1F63E</li>
+																		<li>&#x1F640</li>
+																		<li>&#x1F645</li>
+																		<li>&#x1F646</li>
+																		<li>&#x1F647</li>
+																		<li>&#x1F648</li>
+																		<li>&#x1F649</li>
+																		<li>&#x1F64A</li>
+																		<li>&#x1F64B</li>
+																		<li>&#x1F64C</li>
+																		<li>&#x1F64D</li>
+																		<li>&#x1F64E</li>
+																		<li>&#x1F64F</li>
+																	</ul>
+																</div>
+															</li>
+															<li class="tooltip top " id="add_img_butt" title="Add image" style="color: #469965; font-size: 0.8em;"><i class="sl sl-icon-camera"></i></li>
+															{{!-- <input type="file" name="att_img" id="att_img" accept="image/*" hidden> --}}
+															<li class="tooltip top " id="add_vid_butt" title="Add video" style="color: #469965; font-size: 0.8em;"><i class="sl sl-icon-camrecorder"></i></li>
+															{{!-- <input type="file" name="att_vid" id="att_vid" accept="video/*" hidden> --}}
+															<li class="tooltip top " id="clr_msg_butt" title="Clear message" style="color: red; font-size: 0.8em;"><i class="sl sl-icon-ban"></i></li>
+															{{!-- <li class="ch-url"><a href="#url-setup-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1;" id="wwww"><i class="im im-icon-Two-Windows"></i> Short URL <i class="tip" data-tip-content="Create/Modify Short URL to insert into message"></i></a></li> --}}
+															<div class="clearfix"></div>
+														</ul>
+													</h5>
+													{{!-- <div class="top_joiner">see... <span style="margin: 0 5px;"><i class="sl sl-icon-emotsmile"></i></span>|<span style="margin: 0 5px;"><i class="sl sl-icon-camera"></i></span>|<span style="margin: 0 5px;"><i class="sl sl-icon-camrecorder"></i></span></div> --}}
+													<div contenteditable="true" class="editable_div _wa" id="">Hello ...
 
-											<div class="col-md-6">
-												<h5>Schedule Delivery  <span>[ optional ]</span> </h5>
-												<input type='text' class="form-control" id="datepickerwa" name="datepickerwa" />
-												<input type="hidden" id="schedulewa" name="schedulewa" />
-											</div>
-											
-										</div>
+													</div>
+													<div class="content_attachments" contenteditable="false" hidden><span style="letter-spacing: normal;font-size: initial;color:#aaa">Attachment: </span> </div>
+													<input type="hidden" name="message" class="campaignmessage">
+												</div>
 
-										<div class="row with-forms">
+												{{!-- <div class="col-md-12">
+													<h5>Include Recipients <span>(separate numbers with commas; messages to these won't be tracked.)</span> </h5>
+													<input type="text" name="recipients" id="recipients" maxlength="200">
+												</div> --}}
 
-											<div class="col-md-12">
-												<h5>Short URL  <span>[ optional ]</span> </h5>
-												<select class="chosen-select-no-single" name="shorturl" id="sel_short_url" required>
-													<option label="blank" value="0">Select</option>
-													{{#each args.shorturl}}
-													<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
-													{{/each}}
-												</select>
-											</div>
-											
-										</div>
-										
-
-										<div class="row with-forms">
-
-											<div class="col-md-12">
-												<h5>Compose Message <span id="msg_est_txt"></span>{{!-- <span>[ Chars: <span id="msg_char_count1">9</span>; Msgs: <span id="msg_count1">1</span> ]</span> --}}
-													<ul class="compose_options_box checkboxes in-row"><span style="font-size: 0.7em;">Insert: </span>
-														<li class="ch-firstname">First Name</li>
-														<li class="ch-lastname">Last Name</li>
-														<li class="ch-email">Email</li>
-														<li class="ch-url">Short URL</li>
-														<li class="ch-emoji" class="tooltip top" title="Add emoji" style="color: #469965; font-size: 0.8em;"><i class="sl sl-icon-emotsmile"></i>
-															<div id="emoji_list" hidden>
-																<ul>
-																	<li>&#x1F601</li>
-																	<li>&#x1F602</li>
-																	<li>&#x1F603</li>
-																	<li>&#x1F604</li>
-																	<li>&#x1F605</li>
-																	<li>&#x1F606</li>
-																	<li>&#x1F607</li>
-																	<li>&#x1F608</li>
-																	<li>&#x1F609</li>
-																	<li>&#x1F60A</li>
-																	<li>&#x1F60B</li>
-																	<li>&#x1F60C</li>
-																	<li>&#x1F60D</li>
-																	<li>&#x1F60E</li>
-																	<li>&#x1F60F</li>
-																	<li>&#x1F612</li>
-																	<li>&#x1F613</li>
-																	<li>&#x1F614</li>
-																	<li>&#x1F615</li>
-																	<li>&#x1F616</li>
-																	<li>&#x1F617</li>
-																	<li>&#x1F618</li>
-																	<li>&#x1F61A</li>
-																	<li>&#x1F61C</li>
-																	<li>&#x1F61D</li>
-																	<li>&#x1F61E</li>
-																	<li>&#x1F620</li>
-																	<li>&#x1F621</li>
-																	<li>&#x1F622</li>
-																	<li>&#x1F623</li>
-																	<li>&#x1F624</li>
-																	<li>&#x1F625</li>
-																	<li>&#x1F628</li>
-																	<li>&#x1F629</li>
-																	<li>&#x1F62A</li>
-																	<li>&#x1F62B</li>
-																	<li>&#x1F62D</li>
-																	<li>&#x1F630</li>
-																	<li>&#x1F631</li>
-																	<li>&#x1F632</li>
-																	<li>&#x1F633</li>
-																	<li>&#x1F635</li>
-																	<li>&#x1F637</li>
-																	<li>&#x1F638</li>
-																	<li>&#x1F638</li>
-																	<li>&#x1F639</li>
-																	<li>&#x1F63A</li>
-																	<li>&#x1F63B</li>
-																	<li>&#x1F63C</li>
-																	<li>&#x1F63D</li>
-																	<li>&#x1F63E</li>
-																	<li>&#x1F640</li>
-																	<li>&#x1F645</li>
-																	<li>&#x1F646</li>
-																	<li>&#x1F647</li>
-																	<li>&#x1F648</li>
-																	<li>&#x1F649</li>
-																	<li>&#x1F64A</li>
-																	<li>&#x1F64B</li>
-																	<li>&#x1F64C</li>
-																	<li>&#x1F64D</li>
-																	<li>&#x1F64E</li>
-																	<li>&#x1F64F</li>
-																</ul>
-															</div>
-														</li>
-														<li class="tooltip top " id="add_img_butt" title="Add image" style="color: #469965; font-size: 0.8em;"><i class="sl sl-icon-camera"></i></li>
-														{{!-- <input type="file" name="att_img" id="att_img" accept="image/*" hidden> --}}
-														<li class="tooltip top " id="add_vid_butt" title="Add video" style="color: #469965; font-size: 0.8em;"><i class="sl sl-icon-camrecorder"></i></li>
-														{{!-- <input type="file" name="att_vid" id="att_vid" accept="video/*" hidden> --}}
-														<li class="tooltip top " id="clr_msg_butt" title="Clear message" style="color: red; font-size: 0.8em;"><i class="sl sl-icon-ban"></i></li>
-														{{!-- <li class="ch-url"><a href="#url-setup-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1;" id="wwww"><i class="im im-icon-Two-Windows"></i> Short URL <i class="tip" data-tip-content="Create/Modify Short URL to insert into message"></i></a></li> --}}
+												<div class="col-md-12 with-forms">
+													<div class="col-md-12 add_utm" hidden style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px; float: right">
+														<h5 style="float: left">Add UTM Tags To URL  <i class="tip" data-tip-content="Tags to help track source medium e.g. Facebook, Instagram, etc."></i> </h5>
+														<label class="switch"><input type="checkbox" checked="" name="add_utm"><span class="slider round"></span></label>
 														<div class="clearfix"></div>
-													</ul>
-												</h5>
-												{{!-- <div class="top_joiner">see... <span style="margin: 0 5px;"><i class="sl sl-icon-emotsmile"></i></span>|<span style="margin: 0 5px;"><i class="sl sl-icon-camera"></i></span>|<span style="margin: 0 5px;"><i class="sl sl-icon-camrecorder"></i></span></div> --}}
-												<div contenteditable="true" class="editable_div _wa" id="">Hello ...
-
+													</div>
 												</div>
-												<div class="content_attachments" contenteditable="false" hidden><span style="letter-spacing: normal;font-size: initial;color:#aaa">Attachment: </span> </div>
-												<input type="hidden" name="message" class="campaignmessage">
+
 											</div>
-
-											{{!-- <div class="col-md-12">
-												<h5>Include Recipients <span>(separate numbers with commas; messages to these won't be tracked.)</span> </h5>
-												<input type="text" name="recipients" id="recipients" maxlength="200">
-											</div> --}}
-
-											<div class="col-md-12 with-forms">
-												<div class="col-md-12 add_utm" hidden style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px; float: right">
-													<h5 style="float: left">Add UTM Tags To URL  <i class="tip" data-tip-content="Tags to help track source medium e.g. Facebook, Instagram, etc."></i> </h5>
-													<label class="switch"><input type="checkbox" checked="" name="add_utm"><span class="slider round"></span></label>
-													<div class="clearfix"></div>
-												</div>
-											</div>
-
+											<!-- Row / End -->
 										</div>
-										<!-- Row / End -->
-
 										<div class="_form_errors _e_analyse" style="display:none; margin-top: 10px"></div>
 
 										{{!-- <input type="hidden" name="analysis_id" id="analysis_id1" value="0"> --}}

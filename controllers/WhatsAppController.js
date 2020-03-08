@@ -358,7 +358,7 @@ exports.completeOptin = async function(req, res) {
             
             args: {
                 grps: null,
-                _msg: _message('msg', 1052, user.countryId),
+                _msg: _message('msg', 1052, kont.countryId),
             }
         });
     
@@ -411,7 +411,7 @@ exports.preOptout = async (req, res) => {
         let kont = await models.Contact.findByPk(kid, {
             include: [{
                 model: models.User, 
-                attributes: ['name', 'business', 'countryId']
+                attributes: ['name', 'business']
             },{
                 model: models.Group, 
                 attributes: ['name']
@@ -448,7 +448,7 @@ exports.preOptout = async (req, res) => {
                 // groupname: kont.group.name,
                 // username: kont.user.name,
                 // business: kont.user.business,
-                _msg: _message('msg', 1070, kont.user.countryId, kont.user.business, kont.group.name),
+                _msg: _message('msg', 1070, kont.countryId, kont.user.business, kont.group.name),
             }
         });
 

@@ -18,6 +18,10 @@ var _getGlobals = {
 	// editable_position: 0,
 	// editable_offset: null,
 };
+
+$.validator.setDefaults({
+	ignore: ":hidden:not(.chosen-select)"
+})
  
 $(document).ready(function() {
 	var campaign_confirmed = false;
@@ -198,7 +202,9 @@ $(document).ready(function() {
 			console.log('====================================');
 	}		//$(e.target).html($(e.target).html().replace(/<br>$/g, ' '));
 		$(e.target)[0].selectionStart = $(e.target)[0].selectionEnd = $(e.target).val().length; */
-		countChars(e);
+		var $we = $(e.target).closest('._collection')
+
+		countChars($we);
 	} );
 
 	/* $('#to_optin, #to_awoptin').on('change', (e) => {
@@ -230,13 +236,32 @@ $(document).ready(function() {
 		}
 	}); */
 
-	$('.add_optout #add_optout').on('change', (e) => {
-		countChars(e);
+	$('.add_optout #add_optout, .add_optin #add_optin').on('change', (e) => {
+		var $we = $(e.target).closest('._collection')
+		countChars($we);
 	});
 
-	$('.add_optin #add_optin').on('change', (e) => {
-		countChars(e);
-	});
+	if($('._followup_campaign._1 .chk_followup').is(':checked')) {
+		$('._followup_campaign._1 .chk_followup').parent().click();
+		$('._followup_campaign._2').show();
+	} 
+	if($('._followup_campaign._2 .chk_followup').is(':checked')) {
+		$('._followup_campaign._2').show();
+		$('._followup_campaign._2 .chk_followup').parent().click();
+	}
+	
+
+	$('.chk_followup').on('click', (e) => {
+		e.stopPropagation();
+	})
+
+	$('._followup_campaign._1 .chk_followup').on('change', (e) => {
+		if($(e.target).is(':checked')) {
+			$('._followup_campaign._2').show()
+		} else {
+			if(!$('._followup_campaign._2 .chk_followup').is(':checked')) $('._followup_campaign._2').hide()
+		}
+	})
 
 	//	FOR CALCULATION OF TOPUPS 
 	var topupbands = [];
@@ -252,10 +277,10 @@ $(document).ready(function() {
 		console.log('q: ' + JSON.stringify(topupbands));
 	//	...end
 
-	function countChars(e) {	//	note that 'e' argument is not to be used, as this refers to divergent types of objects
-		var $we = $('.editable_div._sms');
-		var $sw1 = $('.add_optout #add_optout');
-		var $sw2 = $('.add_optin #add_optin');
+	function countChars($ww) {	//	note that 'e' argument is not to be used, as this refers to divergent types of objects
+		var $we = $ww.find('.editable_div._sms');
+		var $sw1 = $ww.find('.add_optout #add_optout');
+		var $sw2 = $ww.find('.add_optin #add_optin');
 		var sp = $we.find('span.arg').length;
 		var ch = 0;
 		var msgs = 0;
@@ -265,7 +290,7 @@ $(document).ready(function() {
 
 		//	count chars 
 		if(sp > 0) {
-			var $dd = $('.editable_div._sms').clone();
+			var $dd = $ww.find('.editable_div._sms').clone();
 			$dd.find('span.arg').remove();
 			ch = $dd.text().length  + (sp * 15);
 
@@ -284,10 +309,6 @@ $(document).ready(function() {
 		if($sw2.is(':checked')) {
 			ch += 30;
 		}
-		
-
-		// console.error('ch = ' + ch);
-
 
 		//	count msgs
 		if(ch <= _getGlobals.SMS_SIZE_MSG1) {
@@ -303,8 +324,8 @@ $(document).ready(function() {
 			return false;
 		}
 		
-		$('#msg_char_count').text(ch + (sp > 0? ' (est.)' : ''));
-		$('#msg_count').text(msgs);
+		$ww.find('#msg_char_count').text(ch + (sp > 0? ' (est.)' : ''));
+		$ww.find('#msg_count').text(msgs);
 		
 	}
 
@@ -355,6 +376,7 @@ $(document).ready(function() {
 		// if($(e.target).attr('name') != 'check') return;
 
 		var $wh = $(this);
+		var $we = $wh.closest('._collection');
 		var inp = $wh.attr('class');
 		// if(inp != 'ch-url') return;
 		console.log('you selected: ' + $(e.target).attr('class'));
@@ -380,19 +402,19 @@ $(document).ready(function() {
 				t = 'url';
 				id = 'url-in';
 				
-				if(!($wh.closest('form').find('#sel_short_url').val() > 0)) {
+				if(!($we.find('#sel_short_url').val() > 0)) {
 					alert('Please select the Short URL to insert from above.');
 					return false;
 				}
 
-				$wh.closest('form').find('.add_utm').show('fade');
+				$we.find('.add_utm').show('fade');
 				
 				break;
 			case 'ch-emoji':
 				t = 'emoji';
 				id = 'emj-in';
 				
-				$wh.closest('form').find('#emoji_list').toggle();
+				$we.find('#emoji_list').toggle();
 				// picker.pickerVisible ? picker.hidePicker() : picker.showPicker();
 		}
 
@@ -401,8 +423,8 @@ $(document).ready(function() {
 
 			if(inp == 'clr_msg_butt') {
 				if(window.confirm('Clear message?')) {
-					$wh.closest('form').find('.editable_div').html('').focus();
-					countChars(e);
+					$we.find('.editable_div').html('').focus();
+					countChars($we);
 				}
 				return;
 			}
@@ -410,31 +432,31 @@ $(document).ready(function() {
 			let wha = ($(this).attr('id') == 'add_img_butt') ? 'image' : 'video';
 			let whb = ($(this).attr('id') == 'add_img_butt') ? 'im-icon-Photo' : 'im-icon-Video-4';
 			let init = ($('.content_attachments input').length == 0) ? true : false;
-			$('.content_attachments').html('<input type="file" name="att_file" id="att_file" accept="'+ wha +'/*" hidden>');
+			$we.find('.content_attachments').html('<input type="file" name="att_file" id="att_file" accept="'+ wha +'/*" hidden>');
 
-			$('.content_attachments #att_file').click(() => {
-				$('.content_attachments #att_file').change(() => {
-					if($('.content_attachments #att_file').val()) {
+			$we.find('.content_attachments #att_file').click(() => {
+				$we.find('.content_attachments #att_file').change(() => {
+					if($we.find('.content_attachments #att_file').val()) {
 						// $('.content_attachments').html('<input type="file" name="att_file" id="att_file" accept="'+ wha +'/*" hidden>');
-						console.log('file = ' + $('.content_attachments #att_file').val());
+						console.log('file = ' + $we.find('.content_attachments #att_file').val());
 						
-						$('.content_attachments').css('display','flex');
-						$('.content_attachments').append('Attachment: <i class="im '+ whb +'" style="font-size:2em;margin: 0 5px;"></i> <span class="att_file_name">' + $('.content_attachments #att_file').val() + '</span> [ <span id="remove_attachment" style="color:red;color:red;font-size:0.7em;cursor:pointer"> remove </span> ]');
+						$we.find('.content_attachments').css('display','flex');
+						$we.find('.content_attachments').append('Attachment: <i class="im '+ whb +'" style="font-size:2em;margin: 0 5px;"></i> <span class="att_file_name">' + $we.find('.content_attachments #att_file').val() + '</span> [ <span id="remove_attachment" style="color:red;color:red;font-size:0.7em;cursor:pointer"> remove </span> ]');
 
-						$('#remove_attachment').click(() => {
+						$we.find('#remove_attachment').click(() => {
 							console.log('GO!');
 							
-							$('.content_attachments').hide();
-							$('.content_attachments').html('');
+							$we.find('.content_attachments').hide();
+							$we.find('.content_attachments').html('');
 						})
 					} else {
 						console.log('NO-FILE');
 						
-						$('.content_attachments').html('');
+						$we.find('.content_attachments').html('');
 					}
 				})
 			});
-			$('.content_attachments #att_file').click();
+			$we.find('.content_attachments #att_file').click();
 			
 			/* $('#att_img, #att_vid').off('change');
 			$('#att_img, #att_vid').on('change', () => {
@@ -448,17 +470,17 @@ $(document).ready(function() {
 			switch(inp) {
 				case 'add_img_butt':
 					// $('#att_img').click();
-					$wh.closest('form').find('.editable_div').focus();
+					$we.find('.editable_div').focus();
 					break;
 				case 'add_vid_butt':
 					// $('#att_vid').click();
-					$wh.closest('form').find('.editable_div').focus();
+					$we.find('.editable_div').focus();
 					break;
 			}
 		} else {
 
 				if(t != 'emoji') insertText(id, 'arg', t, 'span');
-				countChars();
+				countChars($we);
 		}
 	})
 
@@ -626,6 +648,14 @@ $(document).ready(function() {
 		$me.find('._form_errors').hide();
 		$me.find('._e_analyse').hide();
 		$butt.closest('div').find('.loading_icon').show();
+
+		if(!$('#to_optin').is(':checked') && !$('#to_awoptin').is(':checked')) {
+			$butt.closest('div').find('.loading_icon').hide();
+			$butt.closest('div').find('.activity_status').text('');
+			$me.find('._form_errors._e_analyse').html('Select bewtween <b>\'Send Send to Opted in Contacts\'</b> and <b>\'Send to Awaiting-Opt-In Contacts\'</b>');
+			$me.find('._form_errors._e_analyse').show();
+			return false;
+	}
 		
 		console.log('====================================');
 		console.log('sending...');
@@ -643,6 +673,31 @@ $(document).ready(function() {
 		if (campaign_confirmed && !whatsapp_campaign) return true;
 		
 		$butt.closest('div').find('.activity_status').text('Analyzing...');
+		var _msg_;
+		$me.find('.editable_div').each((i, el) => {
+			var $big = $(el).closest('.add-listing-section');
+			var msg_ = $(el).html();
+			msg_ = msg_.replace(/<span[^<]*?class="arg"[^<]*firstname.*?<\/span>/g, '[firstname]')
+						.replace(/<span[^<]*?class="arg"[^<]*lastname.*?<\/span>/g, '[lastname]')
+						.replace(/<span[^<]*?class="arg"[^<]*email.*?<\/span>/g, '[email]')
+						.replace(/<span[^<]*?class="arg"[^<]*url.*?<\/span>/g, '[url]')
+						.replace(/^<div[^<]*?>/g, '')
+						.replace(/<div[^<]*?>/g, '<br>')
+						.replace(/<\/div>/g, '') 
+						.replace(/&nbsp;/g, ' ')
+						.replace(/<span.*style=".*?">/g, '') 
+						.replace(/<\/span>/g, '');
+
+			if(i === 0) {
+				_msg_ = msg_;
+			}
+			console.log('ADJUSTED FILE... : ' + msg_);
+			
+			var $dd = $(el).clone();
+			$dd.html(msg_); 
+			var msg = $dd.text();
+			$big.find('.campaignmessage').val(msg);
+		});
 
 		var _msg_;
 		$me.find('.editable_div').each((i, el) => {
@@ -734,7 +789,6 @@ $(document).ready(function() {
 					$me.find('._form_errors._e_analyse').show();
 					
 				}
-
 			},
 			error: function(resp, dd, ww) {
 				// $butt.removeAttr('disabled');
