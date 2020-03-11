@@ -20,8 +20,10 @@ module.exports = (sequelize, DataTypes) => {
     has_utm:    DataTypes.INTEGER,
     units_used: DataTypes.DOUBLE,
     platformtypeId: DataTypes.INTEGER,
+    condition:  DataTypes.STRING,
+    within_days: DataTypes.INTEGER,
     ref_campaign:   {
-      type:     DataTypes.INTEGER,
+      type:     DataTypes.STRING,
       allowNull: true
     },
   }, {});

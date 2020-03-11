@@ -19,9 +19,9 @@ var _getGlobals = {
 	// editable_offset: null,
 };
 
-$.validator.setDefaults({
+/* $.validator.setDefaults({
 	ignore: ":hidden:not(.chosen-select)"
-})
+}) */
  
 $(document).ready(function() {
 	var campaign_confirmed = false;
@@ -645,85 +645,21 @@ $(document).ready(function() {
 		var $me = $(this);
 		var $butt = $me.find('#analyse_btn');
 		
-		$me.find('._form_errors').hide();
-		$me.find('._e_analyse').hide();
 		$butt.closest('div').find('.loading_icon').show();
 
-		if(!$('#to_optin').is(':checked') && !$('#to_awoptin').is(':checked')) {
-			$butt.closest('div').find('.loading_icon').hide();
-			$butt.closest('div').find('.activity_status').text('');
-			$me.find('._form_errors._e_analyse').html('Select bewtween <b>\'Send Send to Opted in Contacts\'</b> and <b>\'Send to Awaiting-Opt-In Contacts\'</b>');
-			$me.find('._form_errors._e_analyse').show();
-			return false;
-	}
-		
 		console.log('====================================');
 		console.log('sending...');
 		console.log('====================================');
 
-		if(!$('#to_optin').is(':checked') && !$('#to_awoptin').is(':checked')) {
-			$butt.closest('div').find('.loading_icon').hide();
-			$butt.closest('div').find('.activity_status').text('');
-			$me.find('._form_errors._e_analyse').html('Select between <b>\'Send to Opted in Contacts\'</b> and <b>\'Send to Awaiting-Opt-In Contacts\'</b>');
-			$me.find('._form_errors._e_analyse').show();
-			return false;
-		}
+		// validate the Campaign
+		// if(!validateAndSendCampaign()) return false;
 
 		//	check if it's not a whatsapp campaign
 		if (campaign_confirmed && !whatsapp_campaign) return true;
+		console.log('1sending...');
 		
+		$('#analysis-box .followup_su').hide();
 		$butt.closest('div').find('.activity_status').text('Analyzing...');
-		var _msg_;
-		$me.find('.editable_div').each((i, el) => {
-			var $big = $(el).closest('.add-listing-section');
-			var msg_ = $(el).html();
-			msg_ = msg_.replace(/<span[^<]*?class="arg"[^<]*firstname.*?<\/span>/g, '[firstname]')
-						.replace(/<span[^<]*?class="arg"[^<]*lastname.*?<\/span>/g, '[lastname]')
-						.replace(/<span[^<]*?class="arg"[^<]*email.*?<\/span>/g, '[email]')
-						.replace(/<span[^<]*?class="arg"[^<]*url.*?<\/span>/g, '[url]')
-						.replace(/^<div[^<]*?>/g, '')
-						.replace(/<div[^<]*?>/g, '<br>')
-						.replace(/<\/div>/g, '') 
-						.replace(/&nbsp;/g, ' ')
-						.replace(/<span.*style=".*?">/g, '') 
-						.replace(/<\/span>/g, '');
-
-			if(i === 0) {
-				_msg_ = msg_;
-			}
-			console.log('ADJUSTED FILE... : ' + msg_);
-			
-			var $dd = $(el).clone();
-			$dd.html(msg_); 
-			var msg = $dd.text();
-			$big.find('.campaignmessage').val(msg);
-		});
-
-		var _msg_;
-		$me.find('.editable_div').each((i, el) => {
-			var $big = $(el).closest('.add-listing-section');
-			var msg_ = $(el).html();
-			msg_ = msg_.replace(/<span[^<]*?class="arg"[^<]*firstname.*?<\/span>/g, '[firstname]')
-						.replace(/<span[^<]*?class="arg"[^<]*lastname.*?<\/span>/g, '[lastname]')
-						.replace(/<span[^<]*?class="arg"[^<]*email.*?<\/span>/g, '[email]')
-						.replace(/<span[^<]*?class="arg"[^<]*url.*?<\/span>/g, '[url]')
-						.replace(/^<div[^<]*?>/g, '')
-						.replace(/<div[^<]*?>/g, '<br>')
-						.replace(/<\/div>/g, '') 
-						.replace(/&nbsp;/g, ' ')
-						.replace(/<span.*style=".*?">/g, '') 
-						.replace(/<\/span>/g, '');
-
-			if(i === 0) {
-				_msg_ = msg_;
-			}
-			console.log('ADJUSTED FILE... : ' + msg_);
-			
-			var $dd = $(el).clone();
-			$dd.html(msg_); 
-			var msg = $dd.text();
-			$big.find('.campaignmessage').val(msg);
-		});
 
 		let w = moment($me.find('#datepicker').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
 		let wwa = moment($me.find('#datepickerwa').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
@@ -751,25 +687,66 @@ $(document).ready(function() {
 
 				console.log(data);
 				if(data.code == "SUCCESS") {
-					$('#analysis_id').val(data.tmpid);
-					$('#analysis-box #cpm_summary_name').text($me.find('#campaign_name').val());
-					$('#analysis-box #cpm_summary_sender').text($me.find('#sel_sender_id option:selected').text());
-					$('#analysis-box #cpm_summary_msg').text(_msg_);
-					$('#analysis-box #cpm_summary_to').text($me.find('#sel_contact_group option:selected').text());
-					$('#analysis-box #cpm_summary_recp').text(data.contactcount);
-					$('#analysis-box #cpm_summary_count').text(data.msgcount);
-					$('#analysis-box #cpm_summary_avg').text(parseInt(data.msgcount)/parseInt(data.contactcount));
-					$('#analysis-box #cpm_units_chrg').text(data.units);
+					$('._main_campaign #analysis_id').val(data.tmpid[0]);
+					$('._followup_campaign._1 #analysis_id').val(
+						data.followups[0] ? 
+							data.tmpid[1] : 
+							($('._followup_campaign._1 #analysis_id').val() ? 
+								$('._followup_campaign._1 #analysis_id').val() : 
+								0
+							)
+					);
+					$('._followup_campaign._2 #analysis_id').val(
+						data.followups[1] ? 
+							(data.followups[0] ? 
+								data.tmpid[2] : 
+								data.tmpid[1]
+							) : 
+							($('._followup_campaign._2 #analysis_id').val() ? 
+								$('._followup_campaign._2 #analysis_id').val() : 
+								0
+							)
+					);
+
+					var tot = 0;
+					var len = data.tmpid.length;
+					for(var i = 0; i < len; i++) {
+						let j = ((i > 0) && (data.followups[i - 1] == 0)) ? i + 1 : i;
+						console.log('====================================');
+						console.log('bbbbbbbbbbbbbb= ', j);
+						console.log('====================================');
+						let $fr = $('#campaign_form_sms ._' + j);
+						let $bo = $('#analysis-box ._' + i);
+						
+						$bo.show();
+						$bo.find('#cpm_summary_name')		.text($fr.find('#campaign_name').val());
+						$bo.find('#cpm_summary_sender')	.text($fr.find('#sel_sender_id option:selected').text());
+						$bo.find('#cpm_summary_msg')		.text(sanitizeMsg($fr));
+						$bo.find('#cpm_summary_to')			.text($fr.find('#sel_contact_group option:selected').text());
+						$bo.find('#cpm_summary_recp')		.text(data.contactcount.counts[i] + (i > 0 ? ' (est.)' : ''));
+						$bo.find('#cpm_summary_count')	.text(data.msgcount.counts[i] + (i > 0 ? ' (est.)' : ''));
+						$bo.find('#cpm_summary_avg')		.text(parseInt(data.msgcount.counts[i])/parseInt(data.contactcount.counts[i]) + (i > 0 ? ' (est.)' : ''));
+						$bo.find('#cpm_units_chrg')			.text(data.units.counts[i] + (i > 0 ? ' (est.)' : ''));
+
+						tot += data.contactcount.counts[i];
+					}
+					
+					$('#analysis-box .su_totals #cpm_summary_recp').text(tot + (len > 1 ? ' (est.)' : ''));
+					$('#analysis-box .su_totals #cpm_summary_count').text(data.msgcount.acc + (len > 1 ? ' (est.)' : ''));
+					$('#analysis-box .su_totals #cpm_units_chrg').text(data.units.acc + (len > 1 ? ' (est.)' : ''));
 
 					var bal, noc;
-					if(data.units > data.balance) {
+					if(data.units.acc > data.balance) {
 						bal = '<span style="color: red">' + data.balance + ' (INSUFFICIENT) </span>';
 						
 						$('.campaign_summary_btn.send').hide();
-					} else if(data.contactcount == 0) {
+					} else if(tot == 0) {
+						bal = data.balance;
 						noc = '<span style="color: red">' + data.contactcount + ' (NO CONTACTS ADDED) </span>';
 						$('#analysis-box #cpm_summary_recp').html(noc);
 						$('#analysis-box #cpm_summary_avg').text('--');
+						$('#analysis-box .su_totals #cpm_summary_recp').html(noc);
+						$('#analysis-box .su_totals #cpm_summary_avg').text('--');
 						$('.campaign_summary_btn.send').hide();
 					} else {
 						bal = data.balance;
@@ -1502,6 +1479,100 @@ function halidate(we) {
 	}
 }
 
+function sanitizeMsg($fr) {
+	var $el = $fr.find('.editable_div');
+	var msg_ = $el.html();
+	msg_ = msg_.replace(/<span[^<]*?class="arg"[^<]*firstname.*?<\/span>/g, '[firstname]')
+				.replace(/<span[^<]*?class="arg"[^<]*lastname.*?<\/span>/g, '[lastname]')
+				.replace(/<span[^<]*?class="arg"[^<]*email.*?<\/span>/g, '[email]')
+				.replace(/<span[^<]*?class="arg"[^<]*url.*?<\/span>/g, '[url]')
+				.replace(/^<div[^<]*?>/g, '')
+				.replace(/<div[^<]*?>/g, '<br>')
+				.replace(/<\/div>/g, '') 
+				.replace(/&nbsp;/g, ' ')
+				.replace(/<br>/g, ' ')
+				.replace(/<span.*style=".*?">/g, '') 
+				.replace(/<\/span>/g, '');
+
+	console.log('ADJUSTED FILE... : ' + msg_);
+	
+	var $dd = $el.clone();
+	$dd.html(msg_); 
+	var msg = $dd.text();
+	$fr.find('.campaignmessage').val(msg);
+	return msg_;			
+}
+
+function validateAndSendCampaign(btn) {
+
+	function checkElements($we) {
+
+		sanitizeMsg($we);
+
+		var ii = 0;
+		$we.find('h5').removeClass('_invalid');
+		$we.find('[required]').each((i, el) => {
+			if(!$(el).val() || $(el).val() == null || $(el).val().length == 0 || $(el).val() == 0) {
+				ii++;
+				$(el).parent().find('h5').addClass('_invalid');
+			}
+		})
+		console.log(ii+'naso='+ $we.find('.editable_div').text().trim() +'==')
+		if($we.find('.editable_div').text().trim() ==  "") {
+			ii++;
+			$we.find('.editable_div').parent().find('h5').addClass('_invalid');
+		}
+
+		if(ii) {
+			$(btn).closest('div').find('.loading_icon').hide();
+			$(btn).closest('div').find('.activity_status').text('');
+			$form.find('._form_errors._e_analyse').html('There\'s an error in your form, crosscheck the fields with red labels');
+			$form.find('._form_errors._e_analyse').show();
+			return false;
+		}
+		else if($('._followup_campaign._1 #sel_contact_group').val() == $('._followup_campaign._2 #sel_contact_group').val()) {
+			if($('._followup_campaign._1 .chk_followup').is(':checked') && $('._followup_campaign._2 .chk_followup').is(':checked')) {
+				$(btn).closest('div').find('.loading_icon').hide();
+				$(btn).closest('div').find('.activity_status').text('');
+				$form.find('._form_errors._e_analyse').html('Follow-up Campaign conditions must be unique. Please ensure that they are differrent.');
+				$form.find('._form_errors._e_analyse').show();
+				return false;
+			}
+		}
+		else if(!$('#to_optin').is(':checked') && !$('#to_awoptin').is(':checked')) {
+			$(btn).closest('div').find('.loading_icon').hide();
+			$(btn).closest('div').find('.activity_status').text('');
+			$form.find('._form_errors._e_analyse').html('Select between <b>\'Send to Opted in Contacts\'</b> and <b>\'Send to Awaiting-Opt-In Contacts\'</b>');
+			$form.find('._form_errors._e_analyse').show();
+			return false;
+		}
+
+		return true;
+	}
+
+	var $form =$(btn).closest('form');
+	$form.find('._form_errors').hide();
+	$form.find('._e_analyse').hide();
+
+	//	first, main campaign
+	var $we = $(btn).closest('form').find('._main_campaign');
+	if(!checkElements($we)) return false;
+
+	//	next, first followup campaign
+	if($('._followup_campaign._1 .chk_followup').is(':checked')) {
+		var $we = $(btn).closest('form').find('._followup_campaign._1');
+		if(!checkElements($we)) return false;
+	}
+	
+	//	lastly, second followup campaign
+	if($('._followup_campaign._2 .chk_followup').is(':checked')) {
+		var $we = $(btn).closest('form').find('._followup_campaign._2');
+		if(!checkElements($we)) return false;
+	}
+		
+	$form.submit();
+
+}
 
 function activateWhatsApp(e) {
 	// e.preventDefault();

@@ -35,19 +35,22 @@ var isAuthenticated = require("../config/middleware/isAuthenticated");
 var isAdministrator = require("../config/middleware/isAdministrator");
 //
 module.exports = function(app) {
-  //
-  app.get('/dashboard/', isAuthenticated, dashboardController.index);
-  app.use('/dashboard/contacts', isAuthenticated, contactRouter);
-  app.use('/dashboard/campaigns', isAuthenticated, campaignRouter);
-  app.use('/dashboard/senderids', isAuthenticated, senderIdRouter);
-  app.use('/dashboard/shortlinks', isAuthenticated, shortLinkRouter);
-  app.use('/dashboard/shorturls', isAuthenticated, shortLinkRouter);
-  app.use('/dashboard/topups', isAuthenticated, topupRouter);
-  app.use('/dashboard/upload', isAuthenticated, uploadRouter);
-  app.use('/dashboard/profile', isAuthenticated, profileRouter);
-  app.use('/dashboard/integrations', isAuthenticated, integrationRouter);
-  app.use('/dashboard/custommessages', isAuthenticated, CustomMessagesRouter);
-  app.get('/dashboard/m_a_n_u_a_l', isAdministrator, dashboardController.manualget);
+  
+  app.get('/dashboard/',                isAuthenticated, dashboardController.index);
+  app.use('/dashboard/contacts',        isAuthenticated, contactRouter);
+  app.use('/dashboard/campaigns',       isAuthenticated, campaignRouter);
+  // app.use('/dashboard/campaigns', campaignRouter);
+  app.use('/dashboard/senderids',       isAuthenticated, senderIdRouter);
+  app.use('/dashboard/shortlinks',      isAuthenticated, shortLinkRouter);
+  app.use('/dashboard/shorturls',       isAuthenticated, shortLinkRouter);
+  app.use('/dashboard/topups',          isAuthenticated, topupRouter);
+  app.use('/dashboard/upload',          isAuthenticated, uploadRouter);
+  app.use('/dashboard/profile',         isAuthenticated, profileRouter);
+  app.use('/dashboard/integrations',    isAuthenticated, integrationRouter);
+  app.use('/dashboard/custommessages',  isAuthenticated, CustomMessagesRouter);
+  app.get('/dashboard/m_a_n_u_a_l',     isAdministrator, dashboardController.manualget);
+
+  
   // app.get('/dashboard/m_a_n_u_a_l', isAdministrator, (req, res) => {
   //   res.send('yeaaah');
   // });

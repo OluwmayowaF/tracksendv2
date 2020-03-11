@@ -5,6 +5,7 @@ const Sequelize = require('sequelize');
 const sequelize = require('../config/cfg/db');
 const Op = Sequelize.Op;
 const fs = require('fs'); 
+var scheduler = require('node-schedule');
 
 var smsSendEngines = require('../my_modules/smsSendEngines');
 var { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
@@ -16,25 +17,34 @@ var _message = require('../my_modules/output_messages');
 
 exports.index = (req, res) => {
     var user_id = req.user.id;
+    // var user_id = 10;
     
-    console.log('....................showing page......................' + JSON.stringify(req.user)); 
+    console.log('....................showing page......................'); 
         
     Promise.all([
         sequelize.query( 
             "SELECT " +
-            "   campaigns.id, " +
-            "   campaigns.name, " +
-            "   campaigns.units_used, " +
-            "   GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, " +
-            "   IF(status = 1, 'Active', 'Error') AS status, " +
-            "   IF(campaigns.platformtypeId = 1, 'SMS', 'WhatsApp') AS platform, " +
-            "   campaigns.createdAt " +
-            "FROM campaigns " +
-            "LEFT OUTER JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
-            "LEFT OUTER JOIN groups ON groups.id = campaign_groups.groupId " +
-            "WHERE campaigns.userId = :uid " +
-            "GROUP BY campaigns.id " +
-            "ORDER BY campaigns.createdAt DESC ", {
+            "   C1.id, " +        //      kenni 
+            "   C1.name, " +
+            "   C1.units_used, " +
+            "   GROUP_CONCAT(G1.name SEPARATOR ', ') AS grpname, " +
+            "   IF(C1.status = 1, 'Active', 'Error') AS status, " +
+            "   IF(C1.platformtypeId = 1, 'SMS', 'WhatsApp') AS platform, " +
+            "   GROUP_CONCAT(T1.id SEPARATOR ',') AS tid, " +
+            "   GROUP_CONCAT(T1.grp SEPARATOR ',') AS tgp, " +
+            "   GROUP_CONCAT(T1.within_days SEPARATOR ',') AS wtd, " +
+            "   GROUP_CONCAT(C2.id SEPARATOR ',') AS fid, " +
+            "   GROUP_CONCAT(C2.condition SEPARATOR ',') AS fgp, " +
+            "   GROUP_CONCAT(C2.within_days SEPARATOR ',') AS fwtd, " +
+            "   C1.createdAt " +
+            "FROM campaigns C1 " +
+            "LEFT OUTER JOIN campaign_groups CG1 ON CG1.campaignId = C1.id " +
+            "LEFT OUTER JOIN groups G1 ON G1.id = CG1.groupId " +
+            "LEFT OUTER JOIN campaigns C2 ON C2.ref_campaign = C1.id " +       //  kenni
+            "LEFT OUTER JOIN tmpcampaigns T1 ON T1.ref_campaign = C1.id " +       //  kenni
+            "WHERE C1.userId = :uid AND (C1.ref_campaign = '' OR ISNULL(C1.ref_campaign)) " +
+            "GROUP BY C1.id, T1.ref_campaign, C1.ref_campaign " +
+            "ORDER BY C1.createdAt DESC ", {    
                 replacements: {
                     uid: user_id,
                 },
@@ -97,9 +107,45 @@ exports.index = (req, res) => {
     ]).then(async ([cpns, sids, grps, non, csender, casender, ccontact, shorturl]) => {
         var ngrp = non[0].id;
 
-        // console.log('====================================');
-        // console.log('cpns: ' + JSON.stringify(cpns) + ', sids: ' + JSON.stringify(sids) + ', grps: ' + JSON.stringify(grps) + ', csender: ' + csender + ', casender: ' + casender + ', ccontact' + ccontact);
-        // console.log('====================================');
+        // var tmps = models
+        cpns.forEach(ea => {
+            // console.log(ea.tid? JSON.stringify(ea.tid.split(',')) : null);
+            // ea.tid = ea.tid? JSON.stringify(ea.tid.split(',').map(e => { e.replace('"', '')})) : null;
+            ea.tid = ea.tid ? _.uniq(ea.tid.split(',')).map(e => { return parseInt(e) }) : null;
+            ea.wtd = ea.wtd ? _.uniq(ea.wtd.split(',')).map(e => { return parseInt(e) }) : null;
+            if(ea.wtd && (ea.wtd.length < 2)) ea.wtd.push(ea.wtd[0]); 
+            ea.tgp = ea.tgp? _.uniq(ea.tgp.split(',')) : null;
+            ea.tmp = [];
+            for(var t = 0; ea.tid && t < ea.tid.length; t++) {
+                ea.tmp.push({
+                    id: ea.tid[t],
+                    grp: ea.tgp[t],
+                    wtd: ea.wtd[t],
+                    status: "pending",
+                })
+            }
+            // ea.tid = ea.tid? ea.tid.map(e => { return parseInt(e) }) : null;
+            
+            ea.fid = ea.fid ? _.uniq(ea.fid.split(',')).map(e => { return parseInt(e) }) : null;
+            ea.fwtd = ea.fwtd ? _.uniq(ea.fwtd.split(',')).map(e => { return parseInt(e) }) : null;
+            if(ea.fwtd && (ea.fwtd.length < 2)) ea.fwtd.push(ea.fwtd[0]); 
+            ea.fgp = ea.fgp? _.uniq(ea.fgp.split(',')) : null;
+            ea.flwup = [];
+            for(var f = 0; ea.fid && f < ea.fid.length; f++) {
+                ea.flwup.push({
+                    id: ea.fid[f],
+                    grp: ea.fgp[f],
+                    wtd: ea.fwtd[f],
+                    status: "active",
+                })
+            }
+            // ea.fid = ea.fid? ea.fid.map(e => { return parseInt(e) }) : null;
+
+            
+        });
+        console.log('====================================');
+        console.log('cpns: ' + JSON.stringify(cpns)); // + ', sids: ' + JSON.stringify(sids) + ', grps: ' + JSON.stringify(grps) + ', csender: ' + csender + ', casender: ' + casender + ', ccontact' + ccontact);
+        console.log('====================================');
         if(!csender) var nosenderids = true; else var nosenderids = false;
         if(!casender) var noasenderids = true; else var noasenderids = false;
         if(!ccontact) var nocontacts = true; else var nocontacts = false;
@@ -148,26 +194,73 @@ exports.index = (req, res) => {
 
 exports.add = async (req, res) => {
     var user_id = req.user.id;
+    // var user_id = 10;
     var tempid = req.body.analysis_id;
+    var ctype = req.body.type;
+    console.log('====================================');
+    console.log('WLELONE: ' + (Array.isArray(tempid) ? 'yes' : 'no') + ' ; ' + tempid);
+    console.log('====================================');
 
-    //  RETRIEVE CAMPAIGN DETAILS FROM TEMPORARY TABLE 
-    var info = await models.Tmpcampaign.findByPk(tempid);
+    if(Array.isArray(tempid)) {
 
-    if(req.body.type == "whatsapp") {
-        doWhatsApp();
-
-        return;
-    } else if(info) {
-        doSMS();
-
-        return;
     } else {
-        console.log('INVALID OPERATION!');
-        
-        return;
+        tempid = [tempid]
+        ctype = [ctype]
     }
 
-    async function doSMS() {
+    for(var ii = 0; ii < tempid.length; ii++) {
+        //  RETRIEVE CAMPAIGN DETAILS FROM TEMPORARY TABLE 
+        var info = await models.Tmpcampaign.findByPk(tempid[ii]);
+
+        if(ctype[ii] == "whatsapp") {
+            doWhatsApp();
+        } else if(info) {
+            if(info.ref_campaign) {
+                let ref = info.ref_campaign;
+                let schedule = info.schedule;
+                let within_days = info.within_days;
+
+                console.log('====================================');
+                console.log('dataa = '+ ii + ' - ' + ref);
+                console.log('====================================');
+
+                if(!schedule || schedule === 'null') {
+                    let ts = moment().add(parseInt(within_days), 'days');
+                    console.log('====================================');
+                    console.log('date 2a='+ts);
+                    console.log('====================================');
+                    var date = new Date(ts);
+                    console.log('====================================');
+                    console.log('date 3a=' + JSON.stringify(ts));
+                    console.log('====================================');
+                } else {
+                    console.log('====================================');
+                    console.log('date 1b='+schedule);
+                    console.log('====================================');
+                    let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss').add(parseInt(within_days), 'days');
+                    console.log('====================================');
+                    console.log('date 2b='+ts);
+                    console.log('====================================');
+                    var date = new Date(ts);
+                    console.log('====================================');
+                    console.log('date 3b=' + JSON.stringify(ts));
+                    console.log('====================================');
+                    
+                }
+
+                scheduler.scheduleJob(date, _dosms);
+                function _dosms() {
+                    doSMS(info, ref)
+                }
+            } else {
+                doSMS(info, null);
+            }
+        } else {
+            console.log('INVALID OPERATION!');
+        }
+    }
+    
+    async function doSMS(info, ref) {
         //  ...continues here if type-sms and has been analysed 
         //  GET USER BALANCE
         var user_balance = await models.User.findByPk(user_id, {
@@ -177,7 +270,7 @@ exports.add = async (req, res) => {
         
         console.log('USER BALANCE IS ' + JSON.stringify(user_balance));
         
-        if(user_balance.balance < info.units_used) {
+        if(!ref && (user_balance.balance < info.total_units)) {
             console.log('INSUFFICIENT UNITS!');
 
             return;
@@ -189,15 +282,15 @@ exports.add = async (req, res) => {
 
         var originalmessage  = info.message.replace(/[^\x00-\x7F]/g, "");
         
-        var schedule_ = (info.schedule) ? moment(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss') : null;  //  for DB
-        var schedule = (info.schedule) ? moment(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DDTHH:mm:ss.000Z') : null;   //  for infobip
+        var schedule_ = (info.schedule && !ref) ? moment(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss') : null;  //  for DB
+        var schedule  = (info.schedule && !ref) ? moment(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DDTHH:mm:ss.000Z') : null;   //  for infobip
 
         var UNSUBMSG = false;
-        if(req.body.add_optout) {
+        if(info.add_optout) {
             UNSUBMSG = true; //_message('msg', 1091, ) '\n\nTo unsubscribe, click: https://dev2.tracksend.co/sms/optout/';
         }
         var DOSUBMSG = false;
-        if(req.body.add_optin) {
+        if(info.add_optin) {
             DOSUBMSG = true; //_message('msg', 1091, ) '\n\nTo unsubscribe, click: https://dev2.tracksend.co/sms/optout/';
         }
 
@@ -213,6 +306,9 @@ exports.add = async (req, res) => {
             schedule: schedule_,
             recipients: info.recipients,
             has_utm: info.has_utm,
+            condition: info.grp,
+            within_days: info.within_days,
+            ref_campaign: ref,
             }),
             models.Sender.findByPk(info.senderId)
         ])
@@ -235,89 +331,113 @@ exports.add = async (req, res) => {
             console.log('tooptin='+tooptin+'; toawoptin='+toawoptin+'; toall='+toall);
             console.log('===========================');
             
-            if (groups !== 0) {
+            var contacts;         
+            if(groups !== 0) {
 
-                var dd = await models.Group.findAll({
-                    include: [{
-                        model: models.Contact, 
-                        ...(
-                            skip ? {
-                                where: {
-                                    [Sequelize.Op.and]: [
-                                        {
-                                            status: {
-                                                [Sequelize.Op.ne] : 2
-                                            }
-                                        },
-                                        {
-                                            status: {
-                                                [Sequelize.Op.ne] : 3
-                                            }
-                                        }
-                                    ],
-                                    ...(
-                                        toall ? {
-                                            [Sequelize.Op.or]: [
-                                                {
-                                                    do_sms: 0
-                                                },
-                                                {
-                                                    do_sms: 1
+                if(!ref) {
+                    var dd = await models.Group.findAll({
+                        include: [{
+                            model: models.Contact, 
+                            ...(
+                                skip ? {
+                                    where: {
+                                        [Sequelize.Op.and]: [
+                                            {
+                                                status: {
+                                                    [Sequelize.Op.ne] : 2
                                                 }
-                                            ],
-                                        } : {
-                                            do_sms: tooptin ? 1 : 0         //  opted-ins = 1; awaiting = 0
+                                            },
+                                            {
+                                                status: {
+                                                    [Sequelize.Op.ne] : 3
+                                                }
+                                            }
+                                        ],
+                                        ...(
+                                            toall ? {
+                                                [Sequelize.Op.or]: [
+                                                    {
+                                                        do_sms: 0
+                                                    },
+                                                    {
+                                                        do_sms: 1
+                                                    }
+                                                ],
+                                            } : {
+                                                do_sms: tooptin ? 1 : 0         //  opted-ins = 1; awaiting = 0
+                                            }
+                                        )
                                         }
-                                    )
+                                } : {
+                                    where: {
+                                        ...(
+                                            toall ? {
+                                                [Sequelize.Op.or]: [
+                                                    {
+                                                        do_sms: 0
+                                                    },
+                                                    {
+                                                        do_sms: 1
+                                                    }
+                                                ],
+                                            } : {
+                                                do_sms: tooptin ? 1 : 0         //  opted-ins = 1; awaiting = 0
+                                            }
+                                        )
                                     }
-                            } : {
-                                where: {
-                                    ...(
-                                        toall ? {
-                                            [Sequelize.Op.or]: [
-                                                {
-                                                    do_sms: 0
-                                                },
-                                                {
-                                                    do_sms: 1
-                                                }
-                                            ],
-                                        } : {
-                                            do_sms: tooptin ? 1 : 0         //  opted-ins = 1; awaiting = 0
-                                        }
-                                    )
                                 }
-                            }
-                        )
-                    }],
-                    where: {
-                        id: {
-                            [Op.in]: groups,
+                            )
+                        }],
+                        where: {
+                            id: {
+                                [Op.in]: groups,
+                            },
+                            userId: user_id,
                         },
-                        userId: req.user.id,
-                    },
-                })
-
-                //  merge contacts from all groups
-
-                var arr = [];
-                dd.forEach((el) => {
-                    arr = arr.concat(el.contacts);
-
-                    models.CampaignGroup.create({
-                        campaignId: cpn.id,
-                        groupId: el.id,
                     })
-                    .error((err) => {
-                        console.log('2BIG ERROR: ' + err);
-                    })
-                });
 
-                //  remove duplicates
-                var contacts = _.uniqBy(arr, 'phone');
+                    //  merge contacts from all groups
+                    var arr = [];
+                    dd.forEach((el) => {
+                        arr = arr.concat(el.contacts);
 
-                //  start processing...
+                        models.CampaignGroup.create({
+                            campaignId: cpn.id,
+                            groupId: el.id,
+                        })
+                        .error((err) => {
+                            console.log('2BIG ERROR: ' + err);
+                        })
+                    });
+
+                    //  remove duplicates
+                    contacts = _.uniqBy(arr, 'phone');
+                } else {
+                    let ref = info.ref_campaign;
+                    let ref_campaign = await models.Campaign.findByPk(ref, {
+                        include: [{
+                            model: models.Message, 
+                            where: {
+                                ...( info.grp == "clicked" ? {
+                                    clickcount: {
+                                        [Sequelize.Op.gt] : 0
+                                    }
+                                } : {
+                                    clickcount: 0
+                                })
+                            },
+                            include: [{
+                                model: models.Contact, 
+                            }],
+                        }],
+                    });
                 
+                    var arr = ref_campaign.messages.map( k => { return k.contact });
+
+                    //  remove duplicates
+                    contacts = _.uniqBy(arr, 'phone');
+                }
+
                 //  change status of shortlink to used
                 if (info.shortlinkId) {
                     HAS_SURL = true;

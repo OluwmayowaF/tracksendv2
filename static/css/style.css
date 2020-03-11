@@ -7237,6 +7237,11 @@ table.basic-table { margin-bottom: 0; }
 	border-top: none;
 }
 
+#analysis-box .toggle-container {
+	padding: 0;
+	background-color: #fbfbfb;
+}
+
 .ui-accordion .ui-accordion-content p,
 .toggle-container p { margin: 0; }
 
@@ -11348,6 +11353,11 @@ input:checked + .slider:before {
 	margin-bottom: 17px;
 }
 
+#add-listing h5._invalid {
+	color: #f00;
+	font-weight: bold;
+}
+
 #add-listing h5 span {
 	color: #888;
 	font-weight: 400;
@@ -13354,6 +13364,12 @@ button.mfp-close {
     width: 40px;
     height: 40px;
 }
+#analysis-box .mfp-close {
+	top: 20px !important;
+	right: 25px !important;
+	width: 40px;
+	height: 40px;
+}
 
 #sign-in-dialog .mfp-close:hover,
 #register-dialog .mfp-close:hover,
@@ -13409,6 +13425,12 @@ button.mfp-close {
 	display: inline-block;
 	background-color: #bae7ec;
 	padding: 35px 40px;
+	/* margin-bottom: 40px; */
+}
+#analysis-box .small-dialog-header {
+	width: calc(100% + 60px);
+	left: -30px;
+	padding: 25px 30px;
 	/* margin-bottom: 40px; */
 }
 
@@ -13519,6 +13541,10 @@ button.mfp-close {
 	position: relative;
 	box-sizing:border-box;
 	border-radius: 4px;
+}
+#analysis-box {
+	padding: 30px !important;
+	padding-top: 0 !important;
 }
 
 
@@ -15607,6 +15633,13 @@ img.mfp-img {
 		/* flex: 3; */
 	}
 
+	.followup_list_item li {
+			padding: 2px 30px !important;
+			background-color: #f3f3f3;
+	}
+	.followup_list_item._active li {
+			background-color: #e5eff1;
+	}
 	.inline_popup {
     border: solid 1px #ddd;
     background-color: #eee;
@@ -15709,7 +15742,8 @@ img.mfp-img {
     border: solid 1px #bbb;
     border-radius: 3px;
     box-shadow: 2px 2px 5px #ccc;
-    background-color: white;
+		background-color: white;
+		color: #333;
 	}
 	.compose_options_box > li {
 		display: inline-block;
@@ -16086,6 +16120,10 @@ img.mfp-img {
 		color: white;
 	}
 
+	._followup_campaign .toggle-container #add-listing h5._invalid {
+		color: #f00;
+	}
+
 	._followup_campaign .toggle-container #add-listing h5 .compose_options_box {
 		color: #333;
 	}
@@ -16094,7 +16132,16 @@ img.mfp-img {
 		color: #fff;
 	}
 
-	
+	.col-lg-12.toggle._hdr {
+    border-bottom: dashed 1px;
+		padding: 10px 0;
+		cursor: pointer;
+	}
+	.col-lg-12.toggle._hdr:hover {
+    background-color: #f5f5f5;
+	}
+
+
 	@media (max-width:803px) {
 		.compose_options_box {
 			margin: 20px 12px 10px 12px;

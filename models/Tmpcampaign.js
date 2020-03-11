@@ -21,12 +21,15 @@ module.exports = (sequelize, DataTypes) => {
     status:     DataTypes.INTEGER,
     skip_dnd:   DataTypes.STRING,
     has_utm:    DataTypes.INTEGER,
-    to_optin:    DataTypes.INTEGER,
-    to_awoptin:  DataTypes.INTEGER,
+    to_optin:   DataTypes.INTEGER,
+    to_awoptin: DataTypes.INTEGER,
     add_optout: DataTypes.INTEGER,
     add_optin:  DataTypes.INTEGER,
     units_used: DataTypes.DOUBLE,
+    total_units:DataTypes.DOUBLE,
     platformtypeId: DataTypes.INTEGER,
+    within_days:    DataTypes.INTEGER,
+    ref_campaign:   DataTypes.STRING,
   }, {});
 
   // Tmpcampaign.belongsToMany(Contact, { through: { model: ContactGroup, unique: false }, foreignKey: 'groupId' });

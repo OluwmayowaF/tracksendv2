@@ -848,7 +848,8 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
         console.log('SUCCESSFULS: ' + successfuls + '; FAILURES : ' + failures);
 
         try {
-            if(successfuls > 0) {
+            // if(successfuls > 0) { kenni
+            if(true) {
                 let new_bal = parseFloat(user_balance.balance) - parseFloat(info.units_used);
                 console.log('old bal = ' + user_balance.balance + '; units used = ' + info.units_used + '; NEW BALANCE = ' + new_bal);
 
@@ -872,6 +873,17 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
                     units: (-1) * info.units_used,
                     status: 1,
                 })
+
+                //  CONVERT REFS FROM TEMP REFS TO REAL REFS
+                await models.Tmpcampaign.update(
+                    {
+                        ref_campaign: cpn.id,
+                    }, {
+                        where: {
+                            ref_campaign: "tmpref_" + info.id
+                        }
+                    }
+                )
 
                 //  REMOVE TEMPORARY DATA
                 await info.destroy();

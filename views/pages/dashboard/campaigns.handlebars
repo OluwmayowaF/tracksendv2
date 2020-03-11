@@ -109,7 +109,8 @@
 									<!-- Section -->
 									<div class="add-listing-section">
 
-										<div class="_main_campaign _collection">
+										<div class="_main_campaign _0 _collection">
+											<input type="hidden" name="analysis_id" id="analysis_id" value="0">
 											<!-- Row -->
 											<div class="row with-forms">
 												<br>
@@ -149,7 +150,7 @@
 											</div>
 											
 											<div class="row with-forms">
-
+												
 												<div class="col-md-6">
 													<h5>Sender ID </h5>
 													<select class="chosen-select-no-single" name="sender" id="sel_sender_id" required>
@@ -162,7 +163,7 @@
 
 												<div class="col-md-6">
 													<h5>Short URL <span>[ optional ]</span> </h5>
-													<select class="chosen-select-no-single" name="shorturl" id="sel_short_url" required>
+													<select class="chosen-select-no-single" name="shorturl" id="sel_short_url">
 														<option label="blank" value="0">Select</option>
 														{{#each args.shorturl}}
 														<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
@@ -217,7 +218,6 @@
 																<button type="button" class="button preview short_url_btn paste" style="margin-top: 0">Insert in Msg <i class="fa fa-paste"></i></button>
 																<button type="button" class="button preview short_url_btn done" style="margin-top: 0">OK <i class="fa fa-arrow-circle-right"></i></button>
 															</div>
-
 
 														</div>
 
@@ -299,9 +299,10 @@
 
 										<hr>
 										<div class="_followup_campaign _1 _collection" style="margin-top: 20px;">
+											<input type="hidden" name="analysis_id" id="analysis_id" value="0">
 											<div class="trigger">
 												<div class="col-lg-12  checkboxes toggle active">
-													<input id="chk_followup" class="chk_followup" type="checkbox" name="chk_followup">
+													<input id="chk_followup" class="chk_followup" type="checkbox" name="chk_followup_1">
 													<label for="chk_followup" style="width: 100%;">Create <b>Follow-Up</b> Campaign</label>
 												</div>
 											</div>
@@ -312,78 +313,76 @@
 													<!-- Tabs Content -->
 													<div class="tabs-container campaigntypes">
 														<div class="tab-content sms_{{ campaign_type }}" id="tab1a" >
-															<form action="/dashboard/campaigns/add" method="POST" id="campaign_form_sms">
-																<input type="hidden" name="type" value="sms">
+															<input type="hidden" name="type" value="sms">
 
-																<!-- Section -->
-																<div class="add-listing-section" style="background-color: #00272f;">
+															<!-- Section -->
+															<div class="add-listing-section" style="background-color: #00272f;">
 
-																	<div class="row with-forms">
-																		<br>
+																<div class="row with-forms">
+																	<br>
 
-																		<div class="col-md-6">
-																			<h5>Send if... </h5>
-																			<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" multiple>
-																				<option value="1">Recipient clicks on URL</option>
-																				<option value="1">Recipient does not click on URL</option>
-																			</select>
-																		</div>
-
-																		<div class="col-md-6">
-																			<h5>Within (days)... [min: 5] </h5>
-																			<input type="number" class="form-control" name="within_days" value="5" min="5" />
-																			<input type="hidden" id="schedule" name="schedule" />
-																		</div>
-
+																	<div class="col-md-6">
+																		<h5>Send if... </h5>
+																		<select class="chosen-select-no-single _plain" name="condition" id="sel_contact_group" required>
+																			<option label="blank" value="0">Select Condition</option>
+																			<option value="clicked">Recipient clicks on URL</option>
+																			<option value="unclicked">Recipient does not click on URL</option>
+																		</select>
 																	</div>
-																	
-																	<div class="row with-forms">
 
-																		<div class="col-md-6">
-																			<h5>Sender ID </h5>
-																			<select class="chosen-select-no-single" name="sender" id="sel_sender_id">
-																				<option label="blank" value="0">Select ID</option>
-																				{{#each args.sids}}
-																				<option value="{{ id }}">{{ name }}</option>
-																				{{/each}}
-																			</select>
-																		</div>
-
-																		<div class="col-md-6">
-																			<h5>Short URL <span>[ optional ]</span> </h5>
-																			<select class="chosen-select-no-single" name="shorturl" id="sel_short_url">
-																				<option label="blank" value="0">Select</option>
-																				{{#each args.shorturl}}
-																				<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
-																				{{/each}}
-																			</select>
-																		</div>
-																		
-																	</div>
-																	
-																	<div class="row with-forms">
-
-																		<div class="col-md-12 message_area">
-																			<h5>Compose Message <span id="msg_est_txt"></span><span>[ Chars: <span id="msg_char_count">9</span>; Msgs: <span id="msg_count">1</span> ]</span>
-																				<ul class="compose_options_box checkboxes in-row"><span style="font-size: 0.7em;">Insert: </span>
-																					<li class="ch-firstname">First Name</li>
-																					<li class="ch-lastname">Last Name</li>
-																					<li class="ch-email">Email</li>
-																					<li class="ch-url">Short URL</li>
-																					<li class="tooltip top" id="clr_msg_butt" title="Clear message" style="color: red; font-size: 0.8em;"><i class="sl sl-icon-ban"></i></li>
-																					<div class="clearfix"></div>
-																				</ul>
-																			</h5>
-																			<div contenteditable="true" class="editable_div _sms">Hello ...</div>
-																			<input type="hidden" name="message" class="campaignmessage">
-																		</div>
-
+																	<div class="col-md-6">
+																		<h5>Within (days)... [min: 5] </h5>
+																		<input type="number" class="form-control" name="within_days" value="5" min="5" required />
 																	</div>
 
 																</div>
-																<!-- Section / End -->
+																
+																<div class="row with-forms">
 
-															</form>
+																	<div class="col-md-6">
+																		<h5>Sender ID </h5>
+																		<select class="chosen-select-no-single" name="sender" id="sel_sender_id" required>
+																			<option label="blank" value="0">Select ID</option>
+																			{{#each args.sids}}
+																			<option value="{{ id }}">{{ name }}</option>
+																			{{/each}}
+																		</select>
+																	</div>
+
+																	<div class="col-md-6">
+																		<h5>Short URL <span>[ optional ]</span> </h5>
+																		<select class="chosen-select-no-single" name="shorturl" id="sel_short_url">
+																			<option label="blank" value="0">Select</option>
+																			{{#each args.shorturl}}
+																			<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
+																			{{/each}}
+																		</select>
+																	</div>
+																	
+																</div>
+																
+																<div class="row with-forms">
+
+																	<div class="col-md-12 message_area">
+																		<h5>Compose Message <span id="msg_est_txt"></span><span>[ Chars: <span id="msg_char_count">9</span>; Msgs: <span id="msg_count">1</span> ]</span>
+																			<ul class="compose_options_box checkboxes in-row"><span style="font-size: 0.7em;">Insert: </span>
+																				<li class="ch-firstname">First Name</li>
+																				<li class="ch-lastname">Last Name</li>
+																				<li class="ch-email">Email</li>
+																				<li class="ch-url">Short URL</li>
+																				<li class="tooltip top" id="clr_msg_butt" title="Clear message" style="color: red; font-size: 0.8em;"><i class="sl sl-icon-ban"></i></li>
+																				<div class="clearfix"></div>
+																			</ul>
+																		</h5>
+																		<div contenteditable="true" class="editable_div _sms">Hello ...</div>
+																		<input type="hidden" name="message" class="campaignmessage">
+																	</div>
+
+																</div>
+
+															</div>
+															<!-- Section / End -->
+
 														</div>
 													</div>
 
@@ -395,9 +394,10 @@
 										
 										<hr>
 										<div class="_followup_campaign _2 _collection" hidden style="margin-top: 20px;">
+											<input type="hidden" name="analysis_id" id="analysis_id" value="0">
 											<div class="trigger">
 												<div class="col-lg-12 checkboxes toggle active">
-													<input id="chk_followup2" class="chk_followup" type="checkbox" name="chk_followup2">
+													<input id="chk_followup2" class="chk_followup" type="checkbox" name="chk_followup_2">
 													<label for="chk_followup2" style="width: 100%;">Add Another <b>Follow-Up</b> Campaign</label>
 												</div>
 											</div>
@@ -408,7 +408,6 @@
 													<!-- Tabs Content -->
 													<div class="tabs-container campaigntypes">
 														<div class="tab-content sms_{{ campaign_type }}" id="tab1a" >
-															<form action="/dashboard/campaigns/add" method="POST" id="campaign_form_sms">
 																<input type="hidden" name="type" value="sms">
 
 																<!-- Section -->
@@ -419,16 +418,16 @@
 
 																		<div class="col-md-6">
 																			<h5>Send if... </h5>
-																			<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" multiple>
-																				<option value="1">Recipient clicks on URL</option>
-																				<option value="1">Recipient does not click on URL</option>
+																			<select class="chosen-select-no-single _plain" name="condition" id="sel_contact_group" required >
+																				<option label="blank" value="0">Select Condition</option>
+																				<option value="clicked">Recipient clicks on URL</option>
+																				<option value="unclicked">Recipient does not click on URL</option>
 																			</select>
 																		</div>
 
 																		<div class="col-md-6">
 																			<h5>Within (days)... [min: 5] </h5>
-																			<input type="number" class="form-control" name="within_days" value="5" min="5" />
-																			<input type="hidden" id="schedule" name="schedule" />
+																			<input type="number" class="form-control" name="within_days" value="5" min="5" required />
 																		</div>
 
 																	</div>
@@ -437,7 +436,7 @@
 
 																		<div class="col-md-6">
 																			<h5>Sender ID </h5>
-																			<select class="chosen-select-no-single" name="sender" id="sel_sender_id">
+																			<select class="chosen-select-no-single" name="sender" id="sel_sender_id" required >
 																				<option label="blank" value="0">Select ID</option>
 																				{{#each args.sids}}
 																				<option value="{{ id }}">{{ name }}</option>
@@ -481,21 +480,20 @@
 																</div>
 																<!-- Section / End -->
 
-															</form>
 														</div>
 													</div>
 
 												</div>
 
 											</div>
+											<div class="clearfix"></div>
 										</div>
 
 
 										<div class="_form_errors _e_analyse" style="display:none; margin-top: 10px"></div>
 										
-										<input type="hidden" name="analysis_id" id="analysis_id" value="0">
 										<div>
-											<button type="submit" class="button preview" id="analyse_btn">Analyse <i class="im im-icon-Gears-2"></i></button> <span class="loading_icon fa fa-hourglass-2"></span><span style="margin-left: 5px" class="activity_status"></span>
+											<button type="button" class="button preview" id="analyse_btn" onclick="validateAndSendCampaign(this)">Analyse <i class="im im-icon-Gears-2"></i></button> <span class="loading_icon fa fa-hourglass-2"></span><span style="margin-left: 5px" class="activity_status"></span>
 										</div>
 										<a href="#analysis-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1; visibility: hidden;" id="click_analysis_box"><i class="im im-icon-Two-Windows"></i> Show Analysis</a>
 										<div id="analysis-box" class="zoom-anim-dialog mfp-hide">
@@ -505,63 +503,197 @@
 											</div>
 
 											<!--Tabs -->
-											<div class="sign-in-form style-1">
+											<div class="sign-in-form style-1" style="overflow-y: auto; overflow-x: hidden; max-height: 440px; margin-bottom: 10px">
 
-												<div class="row with-forms">
-
-													<!-- Status -->
-													<div class="col-md-12">
-														<h5>Campaign Name: </h5><span id="cpm_summary_name">--</span>
+												<div class="main_su _0" >
+													<div class="trigger">
+														<div class="col-lg-12 toggle active _hdr">
+															Main Cammpaign
+														</div>
 													</div>
 
-													<div class="col-md-12">
-														<h5>Sender ID: </h5><span id="cpm_summary_sender">--</span>
+													<div class="col-lg-12 toggle-container" style="display: none">
+														<div class="row with-forms">
+
+															<!-- Status -->
+															<div class="col-md-12">
+																<h5>Campaign Name: </h5><span id="cpm_summary_name">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>Sender ID: </h5><span id="cpm_summary_sender">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>Message: </h5><span id="cpm_summary_msg">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>To: </h5><span id="cpm_summary_to">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>Send Time: </h5><span id="cpm_summary_time">Immediately</span>
+															</div>
+
+															<div class="col-md-12 sepr"></div>
+															
+															<div class="col-md-12">
+																<h5>Number of Recipients: </h5><span id="cpm_summary_recp">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>Total Messages: </h5><span id="cpm_summary_count">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>Average Message(s) per Recipient: </h5><span id="cpm_summary_avg">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">--</span>
+															</div>
+
+															<div class="col-md-12 sepr"></div>
+															
+														</div>
 													</div>
-
-													<div class="col-md-12">
-														<h5>Message: </h5><span id="cpm_summary_msg">--</span>
-													</div>
-
-													<div class="col-md-12">
-														<h5>To: </h5><span id="cpm_summary_to">--</span>
-													</div>
-
-													<div class="col-md-12">
-														<h5>Send Time: </h5><span id="cpm_summary_time">Immediately</span>
-													</div>
-
-													<div class="col-md-12 sepr"></div>
-													
-													<div class="col-md-12">
-														<h5>Number of Recipients: </h5><span id="cpm_summary_recp">--</span>
-													</div>
-
-													<div class="col-md-12">
-														<h5>Total Messages: </h5><span id="cpm_summary_count">--</span>
-													</div>
-
-													<div class="col-md-12">
-														<h5>Average Message(s) per Recipient: </h5><span id="cpm_summary_avg">--</span>
-													</div>
-
-													<div class="col-md-12">
-														<h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">--</span>
-													</div>
-
-													<div class="col-md-12 sepr"></div>
-													
-													<div class="col-md-12">
-														<h5>Available Balance: </h5><span id="cpm_units_balance" style="font-weight: bold">--</span>
-													</div>
-
-													<div class="col-md-12 sepr"></div>
-													
-													<button type="button" class="button preview campaign_summary_btn cancel" style="margin-top: 0">Cancel <i class="fa fa-close"></i></button>
-													<button type="button" class="button preview campaign_summary_btn send" style="margin-top: 0">Send <i class="fa fa-send"></i></button>
-
+													<div class="clearfix"></div>
 												</div>
+												<div class="followup_su _1" >
+													<div class="trigger">
+														<div class="col-lg-12 toggle active _hdr">
+															Follow-Up Cammpaign 1
+														</div>
+													</div>
 
+													<div class="col-lg-12 toggle-container" style="display: none">
+														<div class="row with-forms">
+
+															<div class="col-md-12">
+																<h5>Sender ID: </h5><span id="cpm_summary_sender">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>Message: </h5><span id="cpm_summary_msg">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>To: </h5><span id="cpm_summary_to">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>Send Time: </h5><span id="cpm_summary_time">Immediately</span>
+															</div>
+
+															<div class="col-md-12 sepr"></div>
+															
+															<div class="col-md-12">
+																<h5>Number of Recipients: </h5><span id="cpm_summary_recp">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>Total Messages: </h5><span id="cpm_summary_count">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>Average Message(s) per Recipient: </h5><span id="cpm_summary_avg">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">--</span>
+															</div>
+
+															<div class="col-md-12 sepr"></div>
+															
+														</div>
+													</div>
+													<div class="clearfix"></div>
+												</div>
+												<div class="followup_su _2" >
+													<div class="trigger">
+														<div class="col-lg-12 toggle active _hdr">
+															Follow-Up Cammpaign 2
+														</div>
+													</div>
+
+													<div class="col-lg-12 toggle-container" style="display: none">
+														<div class="row with-forms">
+
+															<div class="col-md-12">
+																<h5>Sender ID: </h5><span id="cpm_summary_sender">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>Message: </h5><span id="cpm_summary_msg">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>To: </h5><span id="cpm_summary_to">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>Send Time: </h5><span id="cpm_summary_time">Immediately</span>
+															</div>
+
+															<div class="col-md-12 sepr"></div>
+															
+															<div class="col-md-12">
+																<h5>Number of Recipients: </h5><span id="cpm_summary_recp">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>Total Messages: </h5><span id="cpm_summary_count">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>Average Message(s) per Recipient: </h5><span id="cpm_summary_avg">--</span>
+															</div>
+
+															<div class="col-md-12">
+																<h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">--</span>
+															</div>
+
+															<div class="col-md-12 sepr"></div>
+															
+															<div class="col-md-12">
+																<h5>Available Balance: </h5><span id="cpm_units_balance" style="font-weight: bold">--</span>
+															</div>
+
+															<div class="col-md-12 sepr"></div>
+															
+														</div>
+													</div>
+													<div class="clearfix"></div>
+												</div>
+												<div class="su_totals" style="background-color: #bae7ec;margin-top: 5px;">
+													<div class="row with-forms">
+														<div style="text-align: center;padding: 5px;font-weight: bold;background-color: #85ccd2;color: #444;border-bottom: solid white 1px;">Totals</div>
+														<div class="col-md-12">
+															<h5>Number of Recipients: </h5><span id="cpm_summary_recp">--</span>
+														</div>
+
+														<div class="col-md-12">
+															<h5>Total Messages: </h5><span id="cpm_summary_count">--</span>
+														</div>
+
+														<div class="col-md-12">
+															<h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">--</span>
+														</div>
+
+														<div class="col-md-12 sepr"></div>
+														
+														<div class="col-md-12">
+															<h5>Available Balance: </h5><span id="cpm_units_balance" style="font-weight: bold">--</span>
+														</div>
+														
+													</div>
+												</div>
 											</div>
+
+											<button type="button" class="button preview campaign_summary_btn cancel" style="margin-top: 0">Cancel <i class="fa fa-close"></i></button>
+											<button type="button" class="button preview campaign_summary_btn send" style="margin-top: 0">Send <i class="fa fa-send"></i></button>
+
 										</div>
 									</div>
 									<!-- Section / End -->
@@ -632,7 +764,7 @@
 
 												<div class="col-md-12">
 													<h5>Short URL  <span>[ optional ]</span> </h5>
-													<select class="chosen-select-no-single" name="shorturl" id="sel_short_url" required>
+													<select class="chosen-select-no-single" name="shorturl" id="sel_short_url">
 														<option label="blank" value="0">Select</option>
 														{{#each args.shorturl}}
 														<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
@@ -756,9 +888,8 @@
 										</div>
 										<div class="_form_errors _e_analyse" style="display:none; margin-top: 10px"></div>
 
-										{{!-- <input type="hidden" name="analysis_id" id="analysis_id1" value="0"> --}}
 									<div>
-										<button type="submit" class="button preview campaign_send_btn" id="sendmsg_btn">Send <i class="fa fa-send"></i></button> <span class="loading_icon fa fa-hourglass-2"></span><span style="margin-left: 5px" class="activity_status"></span></div>
+										<button type="button" class="button preview campaign_send_btn" id="sendmsg_btn" onclick="validateAndSendCampaign(this)">Send <i class="fa fa-send"></i></button> <span class="loading_icon fa fa-hourglass-2"></span><span style="margin-left: 5px" class="activity_status"></span></div>
 									</div>
 									<!-- Section / End -->
 
@@ -839,13 +970,38 @@
 							<li style="flex: 3">{{ units_used }}</li>
 							<li style="flex: 3">{{formatDate createdAt "short"}}</li>
 							<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
-								{{!-- <span style="flex: 1; text-align:center" class="copy_item_btn"><span class="tooltip top" title="Duplicate" style="cursor: pointer"><i class="fa fa-copy"></i></span></span>&nbsp; |&nbsp;  --}}
 								<span style="flex: 1; text-align:center;align-items: center;display: flex;" class="del_item_btn"><span class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></span></span>
 							</li>							
-							</li>
+							{{!-- </li> --}}
 						</ul>
 					</li>
 					</a>
+					{{!-- ACTIVE FOLLOW-UPS --}}
+					{{#each flwup}}
+					<li class="list_item campaign_list followup_list_item _active" data-wh="campaign">
+						<ul class="saved_item">
+							<input type="hidden" class="id" value="{{ fid }}" />
+							<li style="flex: 1; text-align: right;"><i style="margin: 5px;" class="fa fa-forward"></i></li>
+							<li style="flex: 4">Follow-up Campaign:</li>
+							<li style="flex: 6">To contacts whose links are "{{ grp }}"</li>
+							<li style="flex: 4">Within {{ wtd }} days</li>
+							<li style="flex: 2">[{{ status }}]</li>
+						</ul>
+					</li>
+					{{/each}}
+					{{!-- PENDING FOLLOW-UPS --}}
+					{{#each tmp}}
+					<li class="list_item campaign_list followup_list_item _pending" data-wh="campaign">
+						<ul class="saved_item">
+							<input type="hidden" class="id" value="{{ tid }}" />
+							<li style="flex: 1; text-align: right;"><i style="margin: 5px;" class="fa fa-hourglass-2"></i></li>
+							<li style="flex: 4">Follow-up Campaign:</li>
+							<li style="flex: 6">To contacts whose links are "{{ grp }}"</li>
+							<li style="flex: 4">Within {{ wtd }} days</li>
+							<li style="flex: 2">[{{ status }}]</li>
+						</ul>
+					</li>
+					{{/each}}
 
 					{{else}}
 						<em>No Campaigns created yet.</em> 
