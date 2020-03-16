@@ -8,6 +8,7 @@ const Op = Sequelize.Op;
 var campaignController = require('../controllers/CampaignController');
 var whatsappController = require('../controllers/WhatsAppController');
 var filelogger = require('../my_modules/filelogger');
+var phoneval = require('../my_modules/phonevalidate');
 
 const ESTIMATED_CLICK_PERCENTAGE = 0.8;
 const ESTIMATED_UNCLICK_PERCENTAGE = 1 - ESTIMATED_CLICK_PERCENTAGE;
@@ -1096,7 +1097,9 @@ exports.smsNotifyInfobip = (req, res) => {
             console.log('====================================');
 
             let pref = phone.substr(0, 3);
-            let phn = '0' + phone.substr(3);
+            // let phn = '0' + phone.substr(3);
+            let phn = phoneval(phone, pref);
+
 
             if (status == 'DELIVERED') {
                 sid = 1;
@@ -1206,6 +1209,99 @@ exports.smsNotifyMessagebird = (req, res) => {
 
 
     if(req.query) {  //  for MESSAGEBIRD
+        let msg = req.query;
+        var id = msg.id;
+        var phone = msg.recipient;
+        var status = msg.status; 
+        var dt = msg.statusDatetime;
+        var sid;
+
+        console.log('====================================');
+        console.log('MSG STATUS = ' + status);
+        console.log('====================================');
+
+        let pref = phone.substr(0, 3);
+        // let phn = '0' + phone.substr(3);
+        let phn = phoneval(phone, pref);
+
+        if (status == 'delivered') {
+            sid = 1;
+
+            models.Contact.update(
+                {
+                    status: 1
+                },
+                {
+                    where: {
+                        countryId: pref,
+                        phone: phn,
+                    }
+                }
+            )
+
+        } else if (status == 'delivery_failed') {
+            sid = 4;
+
+            models.Contact.update(
+                {
+                    status: 3
+                },
+                {
+                    where: {
+                        countryId: pref,
+                        phone: phn,
+                    }
+                }
+            )
+            
+        } else if (status == 'undeliverable') {
+            sid = 3;
+
+            models.Contact.update(
+                {
+                    status: 2
+                },
+                {
+                    where: {
+                        countryId: pref,
+                        phone: phn,
+                    }
+                }
+            )
+
+        } else {
+            sid = 2;
+
+            models.Contact.update(
+                {
+                    status: 1
+                },
+                {
+                    where: {
+                        countryId: pref,
+                        phone: phn,
+                    }
+                }
+            )
+
+        }
+
+        models.Message.update(
+            {
+                deliverytime: dt,
+                status: sid,
+            }, 
+            {
+                where: {
+                    message_id: id
+                }
+            }
+        ).then(() => {
+            console.log('====================================');
+            console.log('DOOOOOOOONNNNNNNNNNNNEEEEEEEEEEEEEE');
+            console.log('====================================');
+        })
+
 
         // GET http://your-own.url/script?
         //      id=efa6405d518d4c0c88cce11f7db775fb&

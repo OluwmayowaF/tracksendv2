@@ -1,6 +1,8 @@
 
 const request = require('request');
 var moment = require('moment');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 var models = require('../models');
 var phoneformat = require('./phoneformat');
 var filelogger = require('../my_modules/filelogger');
@@ -327,7 +329,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
         var k = 0;
         var msgarray = '';
 
-        async function checkAndAggregate(kont) {
+        async function messagebird_checkAndAggregate(kont) {
             k++;
             console.log('*******   Aggregating Contact #' + k + ':...    ********');
             
@@ -454,7 +456,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                     console.log('SINGLE : ');
                     
                     for (let i = 0; i < sub_list.length; i++) {
-                        destinations.push(await checkAndAggregate(sub_list[i]));
+                        destinations.push(await messagebird_checkAndAggregate(sub_list[i]));
                     }
 
                     var msgfull = { //  STEP 1 OF MESSAGE CONSTRUCTION
@@ -486,7 +488,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                     console.log('NOT SINGLE OOOO');
                     
                     for (let i = 0; i < sub_list.length; i++) {
-                        actions.push(await checkAndAggregate(sub_list[i]));
+                        actions.push(await messagebird_checkAndAggregate(sub_list[i]));
                     }
                     console.log('UNSINGLE COMPILED!');
 
@@ -499,6 +501,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                     let params = data[0];
 
                     await messagebird.messages.create(params, async function (err, response) {
+                        let resp_ = null;
                         if (err) {
                             console.log('ERROR = ' + err);
                             failures++;
@@ -506,19 +509,20 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                             console.log(response);
                             //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
                             response.recipients.items.id = response.id;
-                            console.log('ITEMS: ' + JSON.stringify(response.recipients.items) + '; Message(s) ID: ' + JSON.stringify(response.id));
-
+                            
                             if(response.id) {
+                                resp_ = response.id;
                                 successfuls++;
                             } else {
                                 failures++;
                             }
+                            console.log('mITEMS: ' + JSON.stringify(response.recipients.items) + '; Message(s) ID: ' + JSON.stringify(response.id));
                         }
 
                         //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
-                        await dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_)
+                        let klist = sub_list.map(k => { return k.id })
+                        await dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_, klist, resp_);
                     });
-            
 
                     /* const options = {
                         url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',
@@ -793,7 +797,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                         } else {
                             console.log(response);
                             //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
-                            console.log('ITEMS: ' + JSON.stringify(response.recipients.items) + '; Message(s) ID: ' + JSON.stringify(response.id));
+                            console.log('aITEMS: ' + JSON.stringify(response.recipients.items) + '; Message(s) ID: ' + JSON.stringify(response.id));
 
                             if(response.id) {
                                 successfuls++;
@@ -874,8 +878,26 @@ function makeId(length) {
     return result;
 }
 
-async function dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_, response = null) {
+async function dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_, klist, response = null) {
     //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
+    
+    if(response) {
+        //  update message with id after success
+        await models.Message.update(
+            {
+                message_id: response.id
+            },
+            {
+                where: {
+                    campaignId: cpn.id,
+                    contactId: {
+                        [Op.in]: klist,
+                    },
+               }
+            }
+        )
+        
+    }
 
     console.log('SUCCESSFULS: ' + successfuls + '; FAILURES : ' + failures + '; batches = ' + batches);
     if((successfuls + failures) == batches) {
@@ -942,23 +964,8 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
                 var backURL = req.header('Referer') || '/';
                 res.redirect(backURL);
         }
-    } else if(response) {
-        //  update message with id after success
-        models.Message.update(
-            {
-                message_id: response.id
-            },
-            {
-                where: {
-                    campaignId: cpn.id,
-                    contactId: cpn.id,
-                }
-            }
-        )
-        
-        
-    }
 
+    } 
 
 }
 
