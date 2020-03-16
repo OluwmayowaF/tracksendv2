@@ -7,6 +7,7 @@ var bcrypt = require("bcryptjs");
 const nodemailer = require('nodemailer');
 const randgen = require('../my_modules/randgen');
 var _message = require('../my_modules/output_messages');
+var env = require('../my_modules/env');
 
 
 const redirectRouter = require('../routes/redirect');
@@ -361,7 +362,7 @@ module.exports = function(app) {
             subject: 'Password Reset Link',
             text: 'Hello ' + usr.name + ', <br><br>You have indicated that you\'ve forgotten your Tracksend password,    ' +
             'and therefore requested a password reset. If you wish to carry on with this, kindly follow the link:  ' + 
-            'https://dev2.tracksend.co/account/update/password/' + usr.email + '/' + token + '; else please ignore ' +
+            env.SERVER_BASE + '/account/update/password/' + usr.email + '/' + token + '; else please ignore ' +
             'this mail. The provided link would be invalid after one hour. Thanks.',
           };
            

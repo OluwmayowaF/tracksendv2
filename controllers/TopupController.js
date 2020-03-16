@@ -4,7 +4,7 @@ var models = require('../models');
 const request = require('request');
 const { initializePayment, verifyPayment } = require('../config/paystack')(request);
 const randgen = require('../my_modules/randgen');
-
+var env = require('../my_modules/env');
 
 exports.index = async (req, res) => {
     var user_id = req.user.id;
@@ -83,7 +83,7 @@ exports.pay = async (req, res) => {
     form.phone = req.user.phone;
     form.email = req.user.email;
     form.reference = await randgen('paymentref', models.Payment);
-    form.callback_url = 'https://app.tracksend.co/dashboard/topups/ref';
+    form.callback_url = env.SERVER_BASE + '/dashboard/topups/ref';
     form.amount *= 100;
     
     models.Payment.create({

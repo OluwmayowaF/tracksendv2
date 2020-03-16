@@ -324,8 +324,8 @@ exports.add = async (req, res) => {
             var skip = (info.skip_dnd && info.skip_dnd == "on");
             var unsub     = info.add_optout;
             var dosub     = info.add_optin;
-            var tooptin   = info.to_awoptin;
-            var toawoptin = info.to_optin;
+            var tooptin   = info.to_optin;
+            var toawoptin = info.to_awoptin;
             var toall     = tooptin && toawoptin;
             console.log('===========================');
             console.log('tooptin='+tooptin+'; toawoptin='+toawoptin+'; toall='+toall);

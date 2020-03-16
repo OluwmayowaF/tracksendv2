@@ -1,3 +1,9 @@
+var models = require('../models');
+const { default: axios } = require('axios');
+var qs = require('qs');
+var API = require('../config/cfg/chatapi')();
+var env = require('./env');
+
 /* 
 
    This module is generate random codes
@@ -6,12 +12,6 @@
    typ - types of characters
 
 */
-
-var models = require('../models');
-const { default: axios } = require('axios');
-var qs = require('qs');
-var API = require('../config/cfg/chatapi')();
-
 const whatsappHandlers = () => {
 
     const getWhatsAppStatus = async (user_id) => {
@@ -165,7 +165,7 @@ const whatsappHandlers = () => {
                         method: 'POST',
                         url: wb_url,
                         data: qs.stringify({
-                            "webhookUrl": "http://dev2.tracksend.co/api/whatsapphook?token=" + api_token,
+                            "webhookUrl": env.SERVER_BASE + "/api/whatsapphook?token=" + api_token,
                             // "webhookUrl": "http://dev2.tracksend.co/api/whatsapphook",
                         }),
                         headers: {

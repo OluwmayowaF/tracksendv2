@@ -34,6 +34,7 @@ module.exports = function(app) {
 
   app.post('/api/sms/infobip/notify',       apiController.smsNotifyInfobip);   //  for INFOBIP
   app.get('/api/sms/messagebird/notify',    apiController.smsNotifyMessagebird);   //  for MESSAGEBIRD
+  app.get('/api/sms/africastalking/notify', apiController.smsNotifyAfricastalking);   //  for MESSAGEBIRD
 
   app.post('/api/whatsapphooks',    apiController.whatsAppNotify);
   // app.get ('/api/whatsapphooks',    apiController.whatsAppNotify_);

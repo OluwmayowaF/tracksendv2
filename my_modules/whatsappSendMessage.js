@@ -13,6 +13,7 @@ var qs = require('qs');
 var moment = require('moment');
 var scheduler = require('node-schedule');
 var _message = require('../my_modules/output_messages');
+var env = require('./env');
 
 // const whatsappSendMessage =  async (typ, phone, body, instanceurl, token, contactid=null, msgid=null, schedule=null, filename=null, caption=null) => {
 const whatsappSendMessage =  async (typ, phone, body, instanceid, token, contactid=null, msgid=null, schedule=null, filename=null, caption=null) => {
@@ -21,7 +22,7 @@ const whatsappSendMessage =  async (typ, phone, body, instanceid, token, contact
   if(contactid) {
     let kk = await models.Contact.findByPk(contactid);
   console.log('4 kont = ' + JSON.stringify(kk));
-    const unsubscribelink = 'https://dev2.tracksend.co/whatsapp/optout/' + contactid;
+    const unsubscribelink = env.SERVER_BASE + '/whatsapp/optout/' + contactid;
     body += _message('msg', 1071, kk.countryId, unsubscribelink);
   console.log('5 kont after ');
   }

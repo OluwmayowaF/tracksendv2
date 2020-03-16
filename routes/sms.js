@@ -24,7 +24,7 @@ router.get('/optout/:kid', async(req, res) => {
       let kont = await models.Contact.findByPk(kid, {
           include: [{
               model: models.User, 
-              attributes: ['name', 'business', 'countryId']
+              attributes: ['name', 'business']
           },{
               model: models.Group, 
               attributes: ['name']
@@ -61,7 +61,7 @@ router.get('/optout/:kid', async(req, res) => {
             //   groupname: kont.group.name,
             //   username: kont.user.name,
             //   business: kont.user.business,
-              _msg: _message('msg', 1090, kont.user.countryId, kont.user.business, kont.group.name),
+              _msg: _message('msg', 1090, kont.countryId, kont.user.business, kont.group.name),
           }
       });
   
@@ -188,7 +188,7 @@ router.get('/optin/:kid', async(req, res) => {
         let kont = await models.Contact.findByPk(kid, {
             include: [{
                 model: models.User, 
-                attributes: ['name', 'business', 'countryId']
+                attributes: ['name', 'business']
             },{
                 model: models.Group, 
                 attributes: ['name']
@@ -209,7 +209,7 @@ router.get('/optin/:kid', async(req, res) => {
             _page: 'SMS Opt-In',
 
             args: {
-                _msg: _message('msg', 1081, kont.user.countryId),
+                _msg: _message('msg', 1081, kont.countryId),
             }
         });
   

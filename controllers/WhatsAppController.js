@@ -7,6 +7,7 @@ const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 var whatsappSendMessage = require('../my_modules/whatsappSendMessage');
 var _message = require('../my_modules/output_messages');
+var env = require('../my_modules/env');
 
 exports.getQRCode = async (req, res) => {
 
@@ -142,7 +143,7 @@ exports.preOptIn = async (req, res) => {
             misc: uniquecode,
         })
 
-        let newurl = 'https://dev2.tracksend.co/WhatsApp/optin?code='+uniquecode;
+        let newurl = env.SERVER_BASE + '/WhatsApp/optin?code='+uniquecode;
         let phone = phoneformat(req.body.phone, req.body.country);
         let body;
         

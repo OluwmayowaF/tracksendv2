@@ -3,6 +3,8 @@ const request = require('request');
 var moment = require('moment');
 var models = require('../models');
 var phoneformat = require('./phoneformat');
+var filelogger = require('../my_modules/filelogger');
+var env = require('../my_modules/env');
 
 //  INFOBIP INIT
 const { tracksend_user, tracksend_pwrd, tracksend_base_url } = require('../config/cfg/infobip')();
@@ -23,6 +25,7 @@ const africastalkingOptions = require('../config/cfg/africastalking');
 
 
 const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, originalmessage, _message, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL) => {
+    var file_not_logged = true;
     // let platform = 'infobip';
     // console.clear();
     // console.log('====================================');
@@ -39,7 +42,8 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
         var m_from = sndr.name;
         var m_flash = false;
         var m_intermediateReport = true;
-        var m_notifyUrl = 'https://app.tracksend.co/api/sms/notify';
+        // var m_notifyUrl = 'https://app.tracksend.co/api/sms/notify';
+        var m_notifyUrl = env.SERVER_BASE + '/api/sms/infobip/notify';
         var m_notifyContentType = 'application/json';
         var m_validityPeriod = 24 * 60; //  24 hours
         var m_sendAt = schedule; //  24 hours
@@ -131,6 +135,11 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                         }; 
                         
                         console.log('UNSINGLE MESSAGE ENTRY CREATE DONE.');
+                        if(file_not_logged) {
+                            filelogger('sms', 'Send Campaign (Infobip)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
+                            file_not_logged = false;
+                        }    
+
                         return msgfull;
                     }
                     
@@ -190,6 +199,10 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                         "validityPeriod" : m_validityPeriod,
                     };
                     console.log('SINGLE COMPILED!');
+                    if(file_not_logged) {
+                        filelogger('sms', 'Send Campaign (Infobip)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
+                        file_not_logged = false;
+                    }    
                     
                     actions.push(await Promise.resolve(msgfull));
 
@@ -305,7 +318,8 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
         var q_type = 'sms';
 
         var m_originator = sndr.name;
-        var m_reportUrl = 'https://dev2.tracksend.co/api/sms/notify/';
+        // var m_reportUrl = 'https://dev2.tracksend.co/api/sms/notify/';
+        var m_reportUrl = env.SERVER_BASE + '/api/sms/messagebird/notify/';
         var m_validity = 2 * 24 * 60 * 60; //  48 hours ...in seconds
         var m_scheduledDatetime = schedule; //  24 hours
         var m_mclass = 1; 
@@ -395,6 +409,11 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                         }; 
                         
                         console.log('UNSINGLE MESSAGE ENTRY CREATE DONE.');
+                        if(file_not_logged) {
+                            filelogger('sms', 'Send Campaign (MessageBird)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
+                            file_not_logged = false;
+                        }    
+                    
                         return msgfull;
                     }
                     
@@ -456,6 +475,10 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
 
                     
                     console.log('SINGLE COMPILED!');
+                    if(file_not_logged) {
+                        filelogger('sms', 'Send Campaign (MessageBird)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
+                        file_not_logged = false;
+                    }    
                     
                     actions.push(await Promise.resolve(msgfull));
 
@@ -582,7 +605,8 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
         var q_type = 'sms';
 
         var m_originator = sndr.name;
-        var m_reportUrl = 'https://dev2.tracksend.co/api/sms/notify/';
+        // var m_reportUrl = 'https://dev2.tracksend.co/api/sms/notify/';
+        var m_reportUrl = env.SERVER_BASE + '/api/sms/africastalking/notify/';
         var m_validity = 2 * 24 * 60 * 60; //  48 hours ...in seconds
         var m_scheduledDatetime = schedule; //  24 hours
         var m_mclass = 1; 
@@ -672,6 +696,11 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                         }; 
                         
                         console.log('UNSINGLE MESSAGE ENTRY CREATE DONE.');
+                        if(file_not_logged) {
+                            filelogger('sms', 'Send Campaign (AfricasTalking)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
+                            file_not_logged = false;
+                        }    
+
                         return msgfull;
                     }
                     
@@ -733,6 +762,10 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
 
                     
                     console.log('SINGLE COMPILED!');
+                    if(file_not_logged) {
+                        filelogger('sms', 'Send Campaign (AfricasTalking)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
+                        file_not_logged = false;
+                    }    
                     
                     actions.push(await Promise.resolve(msgfull));
 
@@ -848,8 +881,8 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
         console.log('SUCCESSFULS: ' + successfuls + '; FAILURES : ' + failures);
 
         try {
-            // if(successfuls > 0) { kenni
-            if(true) {
+            if(successfuls > 0) {   
+            // if(true) {       //  kenni
                 let new_bal = parseFloat(user_balance.balance) - parseFloat(info.units_used);
                 console.log('old bal = ' + user_balance.balance + '; units used = ' + info.units_used + '; NEW BALANCE = ' + new_bal);
 
@@ -894,6 +927,8 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
                 res.redirect(backURL);
 
             } else {
+
+                await cpn.destroy();
 
                 req.flash('error', 'An error occurred while sending out your Campaign. Please try again later or contact admin.');
                 var backURL = req.header('Referer') || '/';

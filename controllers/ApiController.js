@@ -7,6 +7,7 @@ const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 var campaignController = require('../controllers/CampaignController');
 var whatsappController = require('../controllers/WhatsAppController');
+var filelogger = require('../my_modules/filelogger');
 
 const ESTIMATED_CLICK_PERCENTAGE = 0.8;
 const ESTIMATED_UNCLICK_PERCENTAGE = 1 - ESTIMATED_CLICK_PERCENTAGE;
@@ -551,6 +552,8 @@ exports.generateUrl = (req, res) => {
 
 exports.analyseCampaign = async (req, res) => {
 
+    var file_not_logged = true;
+    
     try {
         var user_id = req.user.id;
         // var user_id = 10;
@@ -864,6 +867,10 @@ exports.analyseCampaign = async (req, res) => {
                 let cc = getSMSCount(message_);
                 msgcount += cc;
 
+                if(file_not_logged) {
+                    filelogger('sms', 'API Controller', 'analysing campaign', message_);
+                    file_not_logged = false;
+                }
                 let prefix = kont.phone.substr(0, 4);
                 let unit_ = await getCharge(prefix, kont.countryId);
 
@@ -1176,6 +1183,47 @@ exports.smsNotifyMessagebird = (req, res) => {
     
     console.log('[[====================================');
     console.log('MESSAGEBIRD RESPONSE: ' + JSON.stringify(req.query));
+    console.log('====================================]]');
+    /* MESSAGEBIRD RESPONSE: {
+        "id":"57b4844594de4f1392809a799c9ae855",
+        "mccmnc":"62130",
+        "ported":"0",
+        "recipient":"2348033235527",
+        "reference":"Testing_Refactoring_MessageBird_11",
+        "status":"delivery_failed",
+        "statusDatetime":"2020-02-12T15:06:43+00:00",
+        "statusErrorCode":"5"
+    } */
+    /* MESSAGEBIRD RESPONSE: {
+        "id":"8b9e6ed1072249718282a080fdde419e",
+        "mccmnc":"62130",
+        "ported":"0",
+        "recipient":"2348033235527",
+        "reference":"Testing_Refactoring_MessageBird_12 364369",
+        "status":"delivered",
+        "statusDatetime":"2020-02-12T15:18:47+00:00"
+    } */
+
+
+    if(req.query) {  //  for MESSAGEBIRD
+
+        // GET http://your-own.url/script?
+        //      id=efa6405d518d4c0c88cce11f7db775fb&
+        //      reference=the-customers-reference&
+        //      recipient=31612345678&
+        //      status=delivered&
+        //      statusDatetime=2017-09-01T10:00:05+00:00
+
+        res.send("OK");
+
+    }
+
+}
+
+exports.smsNotifyAfricastalking = (req, res) => {
+    
+    console.log('[[====================================');
+    console.log('AFRICASTALKING RESPONSE: ' + JSON.stringify(req.query));
     console.log('====================================]]');
     /* MESSAGEBIRD RESPONSE: {
         "id":"57b4844594de4f1392809a799c9ae855",

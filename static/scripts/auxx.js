@@ -762,7 +762,7 @@ $(document).ready(function() {
 				} else {
 					$butt.closest('div').find('.loading_icon').hide();
 					$butt.closest('div').find('.activity_status').text('');
-					$me.find('._form_errors._e_analyse').text('Check that all inputs are valid, and try again.');
+					$me.find('._form_errors._e_analyse').text('Check that all inputs are valid, and that you\'re properly logged in.');
 					$me.find('._form_errors._e_analyse').show();
 					
 				}
@@ -1530,6 +1530,13 @@ function validateAndSendCampaign(btn) {
 			$form.find('._form_errors._e_analyse').show();
 			return false;
 		}
+		else if($we.find('#to_optin').length && !$we.find('#to_optin').is(':checked') && $we.find('#to_awoptin').length && !$we.find('#to_awoptin').is(':checked')) {
+			$(btn).closest('div').find('.loading_icon').hide();
+			$(btn).closest('div').find('.activity_status').text('');
+			$form.find('._form_errors._e_analyse').html('Select between <b>\'Send to Opted in Contacts\'</b> and <b>\'Send to Awaiting-Opt-In Contacts\'</b>');
+			$form.find('._form_errors._e_analyse').show();
+			return false;
+		}
 		else if($('._followup_campaign._1 #sel_contact_group').val() == $('._followup_campaign._2 #sel_contact_group').val()) {
 			if($('._followup_campaign._1 .chk_followup').is(':checked') && $('._followup_campaign._2 .chk_followup').is(':checked')) {
 				$(btn).closest('div').find('.loading_icon').hide();
@@ -1538,13 +1545,6 @@ function validateAndSendCampaign(btn) {
 				$form.find('._form_errors._e_analyse').show();
 				return false;
 			}
-		}
-		else if(!$('#to_optin').is(':checked') && !$('#to_awoptin').is(':checked')) {
-			$(btn).closest('div').find('.loading_icon').hide();
-			$(btn).closest('div').find('.activity_status').text('');
-			$form.find('._form_errors._e_analyse').html('Select between <b>\'Send to Opted in Contacts\'</b> and <b>\'Send to Awaiting-Opt-In Contacts\'</b>');
-			$form.find('._form_errors._e_analyse').show();
-			return false;
 		}
 
 		return true;
