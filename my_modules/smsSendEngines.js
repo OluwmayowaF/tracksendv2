@@ -878,7 +878,7 @@ function makeId(length) {
     return result;
 }
 
-async function dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_, klist, response = null) {
+async function dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_, klist = null, response = null) {
     //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
     
     if(response) {

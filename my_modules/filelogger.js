@@ -21,9 +21,11 @@ const filelogger = (mtype, modl, actn, msg) => {
     let outputfile = 'tmp/logger/' + mtype + '.txt';
 
     fs.appendFile(outputfile, logg, function (err) {
-      console.log('====================================');
-      console.log('LOGGER ERROR: ', err, logg);
-      console.log('====================================');
+      if(err) {
+        console.log('====================================');
+        console.log('LOGGER ERROR: ', err, logg);
+        console.log('====================================');
+      }
     })
 
     //return messagebank[type][msgcode][lang];

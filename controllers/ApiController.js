@@ -1088,6 +1088,7 @@ exports.smsNotifyInfobip = (req, res) => {
         resp.results.forEach(msg => {
             var id = msg.messageId;
             var phone = msg.to;
+            var status_ = msg.status.name; 
             var status = msg.status.groupName; 
             var dt = msg.sentAt;
             var sid;
@@ -1096,6 +1097,8 @@ exports.smsNotifyInfobip = (req, res) => {
             console.log('MSG STATUS = ' + status);
             console.log('====================================');
 
+            if(status_ == "REJECTED_NOT_ENOUGH_CREDITS") return;
+            
             let pref = phone.substr(0, 3);
             // let phn = '0' + phone.substr(3);
             let phn = phoneval(phone, pref);
