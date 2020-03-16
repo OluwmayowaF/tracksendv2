@@ -20,7 +20,7 @@ var messagebird = require('messagebird')(msgbirdk.API_KEY_L);
 
 //  AFRICA'S TALKING INIT
 const africastalkingOptions = require('../config/cfg/africastalking');
-// var africasTalking = require('africastalking')(africastalkingOptions);
+var africastalking = require('africastalking')(africastalkingOptions);
 
 
 
@@ -583,43 +583,22 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
 
         //  MAXIMUM OF FIFTY (50) RECIPIENTS PER REQUEST :(
 
-        /* var params = {
-            'originator': 'MessageBird',
-            'recipients': [
-                '31612345678',
-                '31612345678',
-                '31612345678',
-            ],
-            'scheduledDatetime' : '2016-04-29T09:42:26+00:00',
-            'reportUrl'         : 'https://dev2.tracksend.co/api/sms/notify',    //  should actually/instead be set in account
-            'reference'         : 'my_badass_campaign',
-            'mclass'            : 1,        //  i.e. 'normal message' (can be ommitted)
-            'type'              : 'sms',    //   (can be ommitted)
-            'body'              : 'Hello, world!'
-        };
-          
-        messagebird.messages.create(params, function (err, response) {
-            if (err) {
-                return console.log(err);
-            }
-            console.log(response);
-        }); */
+        const sms = africastalking.SMS;
 
+        // var q_reference = info.name.replace(/ /g, '_');
+        // var q_type = 'sms';
 
-        var q_reference = info.name.replace(/ /g, '_');
-        var q_type = 'sms';
-
-        var m_originator = sndr.name;
-        // var m_reportUrl = 'https://dev2.tracksend.co/api/sms/notify/';
-        var m_reportUrl = env.SERVER_BASE + '/api/sms/africastalking/notify/';
-        var m_validity = 2 * 24 * 60 * 60; //  48 hours ...in seconds
-        var m_scheduledDatetime = schedule; //  24 hours
-        var m_mclass = 1; 
+        var m_name = africastalkingOptions.username;
+        var m_from = sndr.name;
+        // var m_reportUrl = env.SERVER_BASE + '/api/sms/africastalking/notify/';
+        // var m_validity = 2 * 24 * 60 * 60; //  48 hours ...in seconds
+        // var m_scheduledDatetime = schedule; //  24 hours
+        // var m_mclass = 1; 
 
         var k = 0;
         var msgarray = '';
 
-        async function checkAndAggregate(kont) {
+        async function africastalking_checkAndAggregate(kont) {
             k++;
             console.log('*******   Aggregating Contact #' + k + ':...    ********');
             
@@ -685,19 +664,9 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                         return msgto;
                     } else {
                         var msgfull = { //  STEP 1 OF MESSAGE CONSTRUCTION
-                            "originator" : m_originator,
-                            "recipients" : ["+" + phoneformat(kont.phone, kont.countryId)],
-                            "body" : updatedmessage,
-                            ...(
-                                m_scheduledDatetime ? {
-                                    "scheduledDatetime" : m_scheduledDatetime,
-                                } : {}
-                            ),
-                            "type"      : q_type,
-                            "mclass"    : m_mclass,
-                            "reference" : q_reference + " " + shrt.id,
-                            "reportUrl" : m_reportUrl,
-                            "validity"  : m_validity
+                            "from" : m_from,
+                            "to" : ["+" + phoneformat(kont.phone, kont.countryId)],
+                            "message" : updatedmessage,
                         }; 
                         
                         console.log('UNSINGLE MESSAGE ENTRY CREATE DONE.');
@@ -705,10 +674,9 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                             filelogger('sms', 'Send Campaign (AfricasTalking)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
                             file_not_logged = false;
                         }    
-
+                    
                         return msgfull;
                     }
-                    
                 })
                 .error((r) => {
                     console.log("Error: Please try again later");
@@ -746,23 +714,13 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                     console.log('SINGLE : ');
                     
                     for (let i = 0; i < sub_list.length; i++) {
-                        destinations.push(await checkAndAggregate(sub_list[i]));
+                        destinations.push(await africastalking_checkAndAggregate(sub_list[i]));
                     }
 
                     var msgfull = { //  STEP 1 OF MESSAGE CONSTRUCTION
-                        "originator" : m_originator,
+                        "from" : m_from,
                         "recipients" : destinations,
-                        "body" : originalmessage,
-                        ...(
-                            m_scheduledDatetime ? {
-                                "scheduledDatetime" : m_scheduledDatetime,
-                            } : {}
-                        ),
-                        "type"      : q_type,
-                        "mclass"    : m_mclass,
-                        "reference" : q_reference,
-                        "reportUrl" : m_reportUrl,
-                        "validity"  : m_validity
+                        "message" : originalmessage,
                     }; 
 
                     
@@ -778,7 +736,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                     console.log('NOT SINGLE OOOO');
                     
                     for (let i = 0; i < sub_list.length; i++) {
-                        actions.push(await checkAndAggregate(sub_list[i]));
+                        actions.push(await africastalking_checkAndAggregate(sub_list[i]));
                     }
                     console.log('UNSINGLE COMPILED!');
 
@@ -790,26 +748,36 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                     
                     let params = data[0];
 
-                    await messagebird.messages.create(params, async function (err, response) {
+                    await sms.send(params)
+                    .then(async response => {
+                        console.log(response);
+                        return;
+                        
+                        let resp_ = null;
                         if (err) {
                             console.log('ERROR = ' + err);
                             failures++;
                         } else {
                             console.log(response);
                             //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
-                            console.log('aITEMS: ' + JSON.stringify(response.recipients.items) + '; Message(s) ID: ' + JSON.stringify(response.id));
-
+                            response.recipients.items.id = response.id;
+                            
                             if(response.id) {
+                                resp_ = response.id;
                                 successfuls++;
                             } else {
                                 failures++;
                             }
+                            console.log('mITEMS: ' + JSON.stringify(response.recipients.items) + '; Message(s) ID: ' + JSON.stringify(response.id));
                         }
 
                         //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
-                        await dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_)
+                        let klist = sub_list.map(k => { return k.id })
+                        await dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_, klist, resp_);
+                    })
+                    .catch(err => {
+                        console.log('error = ' + err);
                     });
-            
 
                     /* const options = {
                         url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',
@@ -846,11 +814,11 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
 
         }
 
-        var start = 0;
         const MAX_NO_IF_NOT_SINGLE_MSGS     = 1;    // FIXED FOR MESSAGEBIRD
         const MAX_NO_IF_SINGLE_MSGS         = 50;   // FIXED FOR MESSAGEBIRD
         const GROUPING_NO_IF_SINGLE_MSGS    = 3;   // FIXED FOR MESSAGEBIRD
         var grpn    = (SINGLE_MSG) ? Math.min(MAX_NO_IF_SINGLE_MSGS, GROUPING_NO_IF_SINGLE_MSGS) : MAX_NO_IF_NOT_SINGLE_MSGS;   //  MAXIMUM FOR MESSAGEBIRD = 50
+        var start = 0;
         var len     = contacts.length;
         var counter = 1;
         var batches = Math.ceil(len/grpn);
