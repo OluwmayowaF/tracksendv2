@@ -505,6 +505,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                         } else {
                             console.log(response);
                             //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
+                            response.recipients.items.id = response.id;
                             console.log('ITEMS: ' + JSON.stringify(response.recipients.items) + '; Message(s) ID: ' + JSON.stringify(response.id));
 
                             if(response.id) {
@@ -873,7 +874,7 @@ function makeId(length) {
     return result;
 }
 
-async function dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_) {
+async function dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_, response = null) {
     //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
 
     console.log('SUCCESSFULS: ' + successfuls + '; FAILURES : ' + failures + '; batches = ' + batches);
@@ -941,6 +942,21 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
                 var backURL = req.header('Referer') || '/';
                 res.redirect(backURL);
         }
+    } else if(response) {
+        //  update message with id after success
+        models.Message.update(
+            {
+                message_id: response.id
+            },
+            {
+                where: {
+                    campaignId: cpn.id,
+                    contactId: cpn.id,
+                }
+            }
+        )
+        
+        
     }
 
 
