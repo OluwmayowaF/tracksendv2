@@ -742,7 +742,8 @@ $(document).ready(function() {
 						$('.campaign_summary_btn.send').hide();
 					} else if(tot == 0) {
 						bal = data.balance;
-						noc = '<span style="color: red">' + data.contactcount + ' (NO CONTACTS ADDED) </span>';
+						// noc = '<span style="color: red">' + data.contactcount + ' (NO CONTACTS ADDED) </span>';
+						noc = '<span style="color: red"> (NO CONTACTS ADDED) </span>';
 						$('#analysis-box #cpm_summary_recp').html(noc);
 						$('#analysis-box #cpm_summary_avg').text('--');
 						$('#analysis-box .su_totals #cpm_summary_recp').html(noc);
