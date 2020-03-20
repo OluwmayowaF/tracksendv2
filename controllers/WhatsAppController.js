@@ -148,12 +148,14 @@ exports.preOptIn = async (req, res) => {
         let body;
         
         let msgs = await models.Custommessage.findByPk(user.id);
-    
+        sgs= {"userId":10,"whatsapp_optin_msg_1":"nous t'aimons [full name]","whatsapp_optin_msg_2":null,"createdAt":"2020-03-20T16:34:17.000Z","updatedAt":"2020-03-20T16:34:17.000Z","UserId":10}
+
         console.log('====================================');
         console.log('sgs= ' + JSON.stringify(msgs));
+        console.log('sgs= ' + JSON.stringify(msgs.whatsapp_optin_msg_1));
         console.log('====================================');
     
-        if(msgs && msgs.whatsapp_optin_msg_1 && msgs.whatsapp_optin_msg_1.trim.length > 0) {
+        if(msgs && msgs.whatsapp_optin_msg_1 && (msgs.whatsapp_optin_msg_1.length > 0)) {
         console.log('sgs1');
             let snd = msgs.whatsapp_optin_msg_1;
             body = snd
