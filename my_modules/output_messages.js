@@ -117,8 +117,8 @@ const _message = (type, msgcode, ctrycode=234, string1=null, string2=null, strin
           FR: "Merci " + string1 + ". Activez la plateforme " + string2 + " WhatsApp avec succès",
         },
         1070: {
-          EN: "With a sad face, we ask for one last thing to confirm your Opt-Out of <br> <b>" + string1 + "'s</b> <b>" + string2 + "</b> WhatsApp group:",
-          FR: "Avec un visage triste, nous demandons une dernière chose pour confirmer votre désabonnement au <br> <b>" + string1 + "'s</b> <b>" + string2 + "</b> groupe WhatsApp:",
+          EN: "With a sad face, we ask for one last thing to confirm your Opt-Out of " + string1 + "'s" + string2 + " WhatsApp group:",
+          FR: "Avec un visage triste, nous demandons une dernière chose pour confirmer votre désabonnement au  " + string1 + "'s " + string2 + " groupe WhatsApp:",
         },
         1071: {
           EN: "\n\nTo Opt Out from this particular message list, kindly click: " + string1,
@@ -133,8 +133,8 @@ const _message = (type, msgcode, ctrycode=234, string1=null, string2=null, strin
           FR: "L'abonnement s'est terminé avec succés. Merci.",
         },
         1090: {
-          EN: "With a sad face, we ask for one last thing to confirm your Opt-Out of <br> <b>" + string1 + "'s</b> <b>" + string2 + "</b> SMS group:",
-          FR: "Avec un visage triste, nous demandons une dernière chose pour confirmer votre désabonnement au <br> <b>" + string1 + "'s</b> <b>" + string2 + "</b> groupe SMS:",
+          EN: "With a sad face, we ask for one last thing to confirm your Opt-Out of  " + string1 + "'s " + string2 + " SMS group:",
+          FR: "Avec un visage triste, nous demandons une dernière chose pour confirmer votre désabonnement au  " + string1 + "'s " + string2 + " groupe SMS:",
         },
         1091: {
           EN: "\n\nTo unsubscribe, click: " + env.SERVER_BASE + "/sms/optout/" + string1,
