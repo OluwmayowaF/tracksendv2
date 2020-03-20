@@ -13,10 +13,12 @@ var qs = require('qs');
 var moment = require('moment');
 var scheduler = require('node-schedule');
 var _message = require('../my_modules/output_messages');
-var env = require('./env');
-
+var filelogger = require('../my_modules/filelogger');
+// var env = require('./env');
 // const whatsappSendMessage =  async (typ, phone, body, instanceurl, token, contactid=null, msgid=null, schedule=null, filename=null, caption=null) => {
+  
 const whatsappSendMessage =  async (typ, phone, body, instanceid, token, contactid=null, msgid=null, schedule=null, filename=null, caption=null) => {
+  var file_not_logged = true;
   console.log('3 kont id = ' + contactid);
   
   if(contactid) {
@@ -56,6 +58,11 @@ const whatsappSendMessage =  async (typ, phone, body, instanceid, token, contact
         console.log('====================================');
         console.log('STARTING SEDNDING...' + url);
         console.log('====================================');
+
+        if(file_not_logged) {
+          filelogger('whatsapp', 'WhatsApp', 'sending message: ', body);
+          file_not_logged = false;
+        }    
 
         new_resp = await axios({
           method: 'POST',
