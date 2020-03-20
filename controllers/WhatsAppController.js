@@ -160,8 +160,11 @@ exports.preOptIn = async (req, res) => {
             let snd = msgs.whatsapp_optin_msg_1;
             body = snd
                 .replace(/\[firstname\]/g, req.body.fullname.split(' ')[0])
+                .replace(/\[first name\]/g, req.body.fullname.split(' ')[0])
                 .replace(/\[fullname\]/g, req.body.fullname)
-                .replace(/\[companyname\]/g, user.business);
+                .replace(/\[full name\]/g, req.body.fullname)
+                .replace(/\[companyname\]/g, user.business)
+                .replace(/\[company name\]/g, user.business);
             body = body + ".\nClick " + newurl;
         } else {
         console.log('sgs2');
