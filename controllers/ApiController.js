@@ -1173,9 +1173,9 @@ exports.smsNotifyInfobip = (req, res) => {
                     status: sid,
                 })
                 .then(() => {
-                    console.log('====================================');
-                    console.log('DOOOOOOOONNNNNNNNNNNNEEEEEEEEEEEEEE');
-                    console.log('====================================');
+                    // console.log('====================================');
+                    // console.log('DOOOOOOOONNNNNNNNNNNNEEEEEEEEEEEEEE');
+                    // console.log('====================================');
                 })
             })
 
@@ -1300,9 +1300,9 @@ exports.smsNotifyMessagebird = (req, res) => {
                 }
             }
         ).then(() => {
-            console.log('====================================');
-            console.log('DOOOOOOOONNNNNNNNNNNNEEEEEEEEEEEEEE');
-            console.log('====================================');
+            // console.log('====================================');
+            // console.log('DOOOOOOOONNNNNNNNNNNNEEEEEEEEEEEEEE');
+            // console.log('====================================');
         })
 
 
