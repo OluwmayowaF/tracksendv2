@@ -45,7 +45,7 @@
 								<h5>Select Group </h5>
 								<input type="hidden" id="linked_group_id" value="{{ args.lnkgrp }}">
 								<select class="chosen-select-no-single" name="group" id="sel_contact_group">
-									<option disabled>Select Group</option>
+									<option disabled selected>Select Group</option>
 									{{#each args.grps}}
 									<option value="{{ id }}">{{ name }}</option>
 									{{/each}}

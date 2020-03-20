@@ -931,7 +931,7 @@ console.log('====================================');
 	$('#search_conts_btn').on('click', function(e) {
 
 		var tt = $('#search_conts_box #search_conts').val();
-		if(tt.length == 0) return;
+		// if(tt.length == 0) return;
 
 		var opt = $('#sel_contact_group').val();
 		console.log('efasd sfdasdfasdf sfdasd...'+opt);
@@ -1066,10 +1066,10 @@ console.log('====================================');
 							var html = '<li class="list_item" data-wh="contact">' +
 													'	<ul class="saved_item">' +
 													'		<input type="hidden" class="cid" value="'+i.id+'" />' +
-													'		<li style="flex: 3" class="dv_firstname">'+((txt == '') ? i.firstname : i.firstname.replace(repltxt, '<span style="text-decoration: underline">$1</span>'))+'</li>' +
-													'		<li style="flex: 3" class="dv_lastname">'+((txt == '') ? i.lastname : i.lastname.replace(repltxt, '<span style="text-decoration: underline">'+txt+'</span>'))+'</li>' +
+													'		<li style="flex: 3" class="dv_firstname">'+(!i.firstname ? '--' : ((txt == '') ? i.firstname : i.firstname.replace(repltxt, '<span style="text-decoration: underline">$1</span>')))+'</li>' +
+													'		<li style="flex: 3" class="dv_lastname">'+(!i.lastname ? '--' : ((txt == '') ? i.lastname : i.lastname.replace(repltxt, '<span style="text-decoration: underline">'+txt+'</span>')))+'</li>' +
 													'		<li style="flex: 2">'+((txt == '') ? i.phone : i.phone.replace(repltxt, '<span style="text-decoration: underline">'+txt+'</span>'))+'</li>' +
-													'		<li style="flex: 4" class="dv_email">'+((txt == '') ? i.email : i.email.replace(repltxt, '<span style="text-decoration: underline">'+txt+'</span>'))+'</li>' +
+													'		<li style="flex: 4" class="dv_email">'+(!i.email ? '--' : ((txt == '') ? i.email : i.email.replace(repltxt, '<span style="text-decoration: underline">'+txt+'</span>')))+'</li>' +
 													'		<li style="flex: 2' + (status == 'DND'? '; color: red' : (status == 'Non-DND'? '; color: green' : '')) + '">'+status+'</li>' +
 													'		<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">' +
 													'			<span style="flex: 1; text-align:center" class="edit_item_btn"><a class="tooltip top" title="Edit" style="cursor: pointer"><i class="fa fa-edit"></i></a></span>|' +
