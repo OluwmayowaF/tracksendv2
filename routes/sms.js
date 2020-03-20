@@ -205,7 +205,7 @@ router.get('/optin/:kid', async(req, res) => {
             })
         }
 
-        res.render('pages/smscompleteoptin', {
+        res.render('pages/dashboard/whatsappcompleteoptin', {
             _page: 'SMS Opt-In',
 
             args: {
