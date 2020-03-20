@@ -154,6 +154,7 @@ exports.preOptIn = async (req, res) => {
         console.log('====================================');
     
         if(msgs && msgs.whatsapp_optin_msg_1 && msgs.whatsapp_optin_msg_1.trim.length > 0) {
+        console.log('sgs1');
             let snd = msgs.whatsapp_optin_msg_1;
             body = snd
                 .replace(/\[firstname\]/g, req.body.fullname.split(' ')[0])
@@ -161,6 +162,7 @@ exports.preOptIn = async (req, res) => {
                 .replace(/\[companyname\]/g, user.business);
             body = body + ".\nClick " + newurl;
         } else {
+        console.log('sgs2');
             body = _message('msg', 1050, req.body.country, req.body.fullname.split(' ')[0], newurl);
         }
     
@@ -172,6 +174,7 @@ exports.preOptIn = async (req, res) => {
             name: 'integrationerror',
             del: kont
         };
+console.log('sending body = ' + body);
 
         let new_resp = await whatsappSendMessage('message', phone, body, user.wa_instanceid, user.wa_instancetoken);
 
