@@ -45,7 +45,7 @@ exports.index = async (req, res) => {
     ]).then(([grps, opt, ques]) => {
         if(grps) {
             grps = grps.map(g => {
-                let arr = opt.optin_grps.split(',');
+                let arr = opt.optin_grps ? opt.optin_grps.split(',') : [];
                 g.selected = (arr.includes(g.id.toString())) ? true : false;
                 
                 return g;
