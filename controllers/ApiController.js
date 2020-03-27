@@ -297,6 +297,7 @@ exports.saveGroup = (req, res) => {
             grp.update({
                 name: req.body.name,
                 description: req.body.description,
+                can_optin: req.body.can_optin,
             })
             .then((r) => {
                 res.send({

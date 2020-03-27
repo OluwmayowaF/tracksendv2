@@ -7,17 +7,8 @@ exports.index = async (req, res) => {
     const Sequelize = require('sequelize');
     var user_id = req.user.id;
 
-    let msgs = await models.Customoptin.findByPk(user_id);
-    let msg_1, msg_2
-
-    console.log('====================================');
-    console.log('sgs= ' + JSON.stringify(msgs));
-    console.log('====================================');
-
-    if(msgs) {
-        msg_1 = msgs.optin_msg1 || null;
-        msg_2 = msgs.optin_msg2 || null;
-    }
+    // let msgs = await models.Customoptin.findByPk(user_id);
+    let msg_1, msg_2, optchs, msgchs;
 
     await Promise.all([
         models.Group.findAll({      //  get all groups for display in form, except uncategorized group
@@ -52,6 +43,25 @@ exports.index = async (req, res) => {
             });
         } 
 
+        if(opt) {
+            msg_1 = opt.optin_msg1 || null;
+            msg_2 = opt.optin_msg2 || null;
+            let msgch_1 = opt.msg1_channels.toString().split(',') || [];
+            let msgch_2 = opt.msg2_channels.toString().split(',')  || [];
+            let optch   = opt.optin_channels.toString().split(',')  || [];
+
+            msgchs = {
+                msgch_1_sms      : msgch_1.includes('sms'),
+                msgch_1_whatsapp : msgch_1.includes('whatsapp'),
+                msgch_2_sms      : msgch_2.includes('sms'),
+                msgch_2_whatsapp : msgch_2.includes('whatsapp'),
+            }
+            optchs = {
+                ch_sms      : optch.includes('sms'),
+                ch_whatsapp : optch.includes('whatsapp'),
+            }
+        }
+
         var flashtype, flash = req.flash('error');
         if(flash.length > 0) {
             flashtype = "error";           
@@ -71,7 +81,9 @@ exports.index = async (req, res) => {
                 option_complete: opt.optin_type == 'complete' ? true : false,
                 ques, 
                 msg_1, 
-                msg_2
+                msg_2,
+                optchs,
+                msgchs,
             }
         });
     })
@@ -94,33 +106,59 @@ exports.updatemsg = async (req, res) => {
     var user_id = req.user.id;
 
     let msgs = await models.Customoptin.findByPk(user_id);
-    let optin_msg_1 = req.body.optin_msg1 || null;
-    let optin_msg_2 = req.body.optin_msg2 || null;
+    let optin_msg1 = req.body.optin_msg1 || null;
+    let optin_msg2 = req.body.optin_msg2 || null;
+    let msg1arr = [];
+    if(req.body.notif1_sms && (req.body.notif1_sms == 'on')) msg1arr.push('sms');
+    if(req.body.notif1_whatsapp && (req.body.notif1_whatsapp == 'on')) msg1arr.push('whatsapp');
+    let msg2arr = [];
+    if(req.body.notif2_sms && (req.body.notif2_sms == 'on')) msg2arr.push('sms');
+    if(req.body.notif2_whatsapp && (req.body.notif2_whatsapp == 'on')) msg2arr.push('whatsapp');
 
     console.log('====================================');
-    console.log('sgs= ' + JSON.stringify(msgs));
+    console.log('gggs= ' + JSON.stringify(msgs));
     console.log('====================================');
 
     if(msgs) {
         await msgs.update({
             ...(
-                optin_msg_1 ? {
-                    optin_msg_1
+                optin_msg1 ? {
+                    optin_msg1
                 } : {
-                    optin_msg_2
+                    optin_msg2
                 }
-            )
+            ),
+            ...(
+                msg1arr.length ? {
+                    msg1_channels: msg1arr.toString()
+                } : {}
+            ),
+            ...(
+                msg2arr.length ? {
+                    msg2_channels: msg2arr.toString()
+                } : {}
+            ),
         })
     } else {
         await models.Customoptin.create({
             userId: user_id,
             ...(
-                optin_msg_1 ? {
-                    optin_msg_1
+                optin_msg1 ? {
+                    optin_msg1
                 } : {
-                    optin_msg_2
+                    optin_msg2
                 }
-            )
+            ),
+            ...(
+                msg1arr.length ? {
+                    msg1_channels: msg1arr.toString()
+                } : {}
+            ),
+            ...(
+                msg2arr.length ? {
+                    msg2_channels: msg2arr.toString()
+                } : {}
+            ),
         })
     }
 
@@ -250,6 +288,11 @@ console.log('****************************************' + JSON.stringify(req.body
     optin.update({
         optin_type: req.body.option,
         optin_grps: req.body.grps,
+        ...(
+            (req.body.channels) ? {
+                optin_channels: req.body.channels.toString(),
+            } : {}
+        )
     })
     //  check if user is in customoptin
     if(!optin) {

@@ -140,8 +140,8 @@ exports.preOptIn = async (req, res) => {
                 body: {
                     twoclick: true,
                     groups: opt_grps,
-                    sms: "on",
-                    whatsapp: "on",
+                    sms: opt.optin_channels ? (opt.optin_channels.toString().split(',').includes('sms') ? "on" : null) : null,
+                    whatsapp: opt.optin_channels ? (opt.optin_channels.toString().split(',').includes('whatsapp') ? "on" : null) : null,
                     firstname: req.body.fullname.split(' ')[0],
                     lastname: req.body.fullname.split(' ')[1],
                     phone: req.body.phone,
@@ -297,6 +297,7 @@ exports.postOptin = async function(req, res) {
     let getgroups = await models.Group.findAll({
         where: {
             userId: kont.userId,
+            can_optin: true,
         },
         attributes: ['id', 'name'],
     })
@@ -353,17 +354,19 @@ exports.postOptin = async function(req, res) {
 exports.completeOptin = async function(req, res) {
     var phoneformat = require('../my_modules/phoneformat');
 
-    let firstname, lastname, phone, userId, countryId;
+    let firstname, lastname, phone, userId, countryId, sms, whatsapp;
     let kont_, error;
 
     if(req.twoclick) {
         console.log('*********** twoklik ****************');
         
-        firstname = req.firstname;
-        lastname = req.lastname;
-        phone = req.phone;
-        userId = req.userId;
-        countryId = req.countryId;
+        firstname = req.body.firstname;
+        lastname = req.body.lastname;
+        phone = req.body.phone;
+        userId = req.body.userId;
+        countryId = req.body.countryId;
+        sms = req.body.sms && req.body.sms == 'on';
+        whatsapp = req.body.whatsapp && req.body.whatsapp == 'on';
 
     } else {
         let ucode = req.body.code;
@@ -381,12 +384,16 @@ exports.completeOptin = async function(req, res) {
             phone = kont.phone;
             userId = kont.userId;
             countryId = kont.countryId;
+
+            let opt = models.Customoptin.findByPk(userId);
+            if(opt.optin_channels) {
+                sms = opt.optin_channels.toString().split(',').includes('sms');
+                whatsapp = opt.optin_channels.toString().split(',').includes('whatsapp');
+            }
         }
     }
     let grps = req.body.groups;
     grps = Array.isArray(grps) ? grps : grps.split(',');
-    let sms = req.body.sms && req.body.sms == 'on';
-    let whatsapp = req.body.whatsapp && req.body.whatsapp == 'on';
 
     //  get new contact's saved details
     try {
@@ -433,10 +440,10 @@ exports.completeOptin = async function(req, res) {
                             },
                             {
                                 where: {
-                                    userId: kont.userId,
+                                    userId: userId,
                                     groupId: grp,
-                                    countryId: kont.countryId,
-                                    phone: kont.phone,
+                                    countryId: countryId,
+                                    phone: phone,
                                 }
                             }
                         )

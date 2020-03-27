@@ -144,13 +144,13 @@
 									<h5>Select Channel(s) </h5>
 									<div class="col-md-12">
 										<div class="col-md-6 checkboxes _errorable">
-											<input id="optin_sms" type="checkbox" name="optin_sms" checked>
+											<input id="optin_sms" type="checkbox" name="optin_sms" {{#if args.optchs.ch_sms}} checked {{/if}}>
 											<label for="optin_sms">SMS</label>
 										</div>
 									</div>
 									<div class="col-md-12">
 										<div class="col-md-6 checkboxes margin-top-15 _errorable">
-											<input id="optin_whatsapp" type="checkbox" name="optin_whatsapp" checked>
+											<input id="optin_whatsapp" type="checkbox" name="optin_whatsapp" {{#if args.optchs.ch_whatsapp}} checked {{/if}}>
 											<label for="optin_whatsapp">WhatsApp</label>
 										</div>
 									</div>
@@ -193,7 +193,7 @@
 									<span style="color:#ff4a21; font-size: 0.85em; line-height: 1.6; background-color: #eee; display: inline-block; padding: 10px;">To further customize, add 'first name', 
 										'full name', or 'company name'. Simply include any of these three fields within square brackets "[ ]", 
 										and ensure there is no space within the bracket. For instance, "Hello [fullname], [companyname] welcomes you."  </span>
-									<input type="text" name="whatsapp_optin_msg_1" id="whatsapp_optin_msg_1" maxlength="50" required style="margin-bottom: 5px" value="{{ args.whatsapp_msg_1 }}">
+									<input type="text" name="optin_msg1" id="optin_msg1" maxlength="50" required style="margin-bottom: 5px" value="{{ args.msg_1 }}">
 								</div>
 									
 								<div class="clearfix"></div>
@@ -201,13 +201,13 @@
 									<h5>Send notifications through: </h5>
 									<div class="col-md-12">
 										<div class="col-md-6 checkboxes _errorable">
-											<input id="notif1_sms" type="checkbox" name="notif1_sms" checked>
+											<input id="notif1_sms" type="checkbox" name="notif1_sms" {{#if args.msgchs.msgch_1_sms}} checked {{/if}}>
 											<label for="notif1_sms">SMS</label>
 										</div>
 									</div>
 									<div class="col-md-12">
 										<div class="col-md-6 checkboxes margin-top-15 _errorable">
-											<input id="notif1_whatsapp" type="checkbox" name="notif1_whatsapp" checked>
+											<input id="notif1_whatsapp" type="checkbox" name="notif1_whatsapp" {{#if args.msgchs.msgch_1_whatsapp}} checked {{/if}}>
 											<label for="notif1_whatsapp">WhatsApp</label>
 										</div>
 									</div>
@@ -246,7 +246,7 @@
 									<span style="color:#ff4a21; font-size: 0.85em; line-height: 1.6; background-color: #eee; display: inline-block; padding: 10px;">To further customize, add 'first name', 
 										'full name', or 'company name'. Simply include any of these three fields within square brackets "[ ]", 
 										and ensure there is no space within the bracket. For instance, "Hello [fullname], [companyname] welcomes you."  </span>
-									<input type="text" name="whatsapp_optin_msg_2" id="whatsapp_optin_msg_2" maxlength="50" required style="margin-bottom: 5px" value="{{ args.whatsapp_msg_2 }}">
+									<input type="text" name="optin_msg2" id="optin_msg2" maxlength="50" required style="margin-bottom: 5px" value="{{ args.msg_2 }}">
 								</div>
 
 								<div class="clearfix"></div>
@@ -254,13 +254,13 @@
 									<h5>Send notifications through: </h5>
 									<div class="col-md-12">
 										<div class="col-md-6 checkboxes _errorable">
-											<input id="notif2_sms" type="checkbox" name="notif2_sms" checked>
+											<input id="notif2_sms" type="checkbox" name="notif2_sms" {{#if args.msgchs.msgch_2_sms}} checked {{/if}}>
 											<label for="notif2_sms">SMS</label>
 										</div>
 									</div>
 									<div class="col-md-12">
 										<div class="col-md-6 checkboxes margin-top-15 _errorable">
-											<input id="notif2_whatsapp" type="checkbox" name="notif2_whatsapp" checked>
+											<input id="notif2_whatsapp" type="checkbox" name="notif2_whatsapp" {{#if args.msgchs.msgch_2_whatsapp}} checked {{/if}}>
 											<label for="notif2_whatsapp">WhatsApp</label>
 										</div>
 									</div>

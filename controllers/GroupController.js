@@ -141,7 +141,11 @@ exports.addGroup = (req, res) => {
     models.User.findByPk(user_id)
     .then(user => {
         if(req.body.name.length > 0) {
-            user.createGroup(req.body) 
+            user.createGroup({
+                name: req.body.name,
+                description: req.body.description,
+                can_optin: req.body.can_optin && (req.body.can_optin == 'on') ? true : false,
+            }) 
             .then((group) => {
                 console.log('group created');
 

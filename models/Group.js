@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     description: DataTypes.STRING,
     platformtypeId: DataTypes.INTEGER,
     count: DataTypes.INTEGER,
+    can_optin: DataTypes.BOOLEAN,
   }, {});
 
   // Group.belongsToMany(Contact, { through: { model: ContactGroup, unique: false }, foreignKey: 'groupId' });

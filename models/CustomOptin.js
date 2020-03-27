@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     optin_type: DataTypes.STRING,
     optin_grps: DataTypes.STRING,
+    optin_channels: DataTypes.STRING,
     optin_msg1: DataTypes.STRING,
     msg1_channels: DataTypes.STRING,
     optin_msg2: DataTypes.STRING,
