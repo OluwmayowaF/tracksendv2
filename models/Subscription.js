@@ -4,7 +4,8 @@ const db = require('../config/db');
 const Contact = db.define('contact', {
   id: {
     type: Sequelize.INTEGER,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true,
   },
   name: {
     type: Sequelize.STRING

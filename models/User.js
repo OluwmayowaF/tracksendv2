@@ -92,7 +92,11 @@ module.exports = function(sequelize, DataTypes) {
       // as: "groups", 
       foreignKey: 'userId' 
     });
-    User.hasMany(models.Custommessage, { 
+    User.hasMany(models.Customoptin, { 
+      // as: "groups", 
+      foreignKey: 'userId' 
+    });
+    User.hasMany(models.Customoptinquestion, { 
       // as: "groups", 
       foreignKey: 'userId' 
     });

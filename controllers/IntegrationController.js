@@ -48,6 +48,7 @@ exports.index = async (req, res) => {
     res.render('pages/dashboard/integrations', {
         page: 'Integrations',
         integrations: true,
+        settingsmenu: true,
         flashtype, flash,
 
         args: {

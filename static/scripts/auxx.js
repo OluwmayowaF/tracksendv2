@@ -1469,6 +1469,202 @@ console.log('====================================');
 		
 	})
 
+	$('#sel_custom_question_type').on('change', (e) => {
+		let typ = parseInt($('#sel_custom_question_type').val());
+		console.log('hanged' + typ);
+		let htl;
+		switch (typ) {
+			case 1:
+				htl = '<span style="float: right; cursor: pointer " id="clear_question_btn">Delete question <i class="sl sl-icon-trash"></i></span><h5>Enter question </h5><input type="text" name="new_question_title" id="new_question_title" maxlength="100" required ><div id="new_question_error" hidden></div><button type="button" id="save_question_btn" style="margin-top: 10px;">Save question <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>'
+				break;
+				
+			case 2:
+				htl = '<span style="float: right; cursor: pointer " id="clear_question_btn">Delete question <i class="sl sl-icon-trash"></i></span><h5>Enter question </h5><input type="text" name="new_question_title" id="new_question_title" maxlength="100" required ><ul class="response_options_list" style="margin-bottom: 0;"></ul><div id="new_response_input" hidden><input type="text" name="name" maxlength="50" required style="width: 80%; display: inline; margin-right: 10px; height: 35px;"><span class="tooltip top" title="Save" style="cursor: pointer"><i class="fa fa-check" id="save_response_btn" style="margin-right: 10px; cursor: pointer"></i></span><span class="tooltip top" title="Cancel" style="cursor: pointer"><i class="fa fa-close" style="margin-right: 10px; cursor: pointer" id="remove_response_btn"></i></span></div><div style="cursor: pointer; margin-top: 5px" id="add_response_btn"><i class="sl sl-icon-plus"></i> Add response option [max: 5]</div><div id="new_question_error" hidden></div><button type="button" id="save_question_btn" style="margin-top: 10px;">Save question <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>'
+				break;
+					
+			case 3:
+				htl = '<span style="float: right; cursor: pointer " id="clear_question_btn">Delete question <i class="sl sl-icon-trash"></i></span><h5>Enter question </h5><input type="text" name="new_question_title" id="new_question_title" maxlength="100" required ><div class="col-lg-12 radiobutton"><div class="col-lg-6 "><input id="chk_yesno" class="chk_followup" value="Yes-No" type="radio" name="chk_polar" checked style="display: inline-block; margin-right: 10px"><label for="chk_yesno" style="display: inline-block; margin-right: 10px"> Yes-No </label></div><div class="col-lg-6 "><input id="chk_truefalse" class="chk_followup" value="True-False" type="radio" name="chk_polar" style="display: inline-block; margin-right: 10px"><label for="chk_truefalse" style="display: inline-block; margin-right: 10px"> True-False </label></div></div><div id="new_question_error" hidden></div><button type="button" id="save_question_btn" style="margin-top: 10px;">Save question <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>'
+				break;
+		
+			default:
+				break;
+		}
+
+		$('#new_question_box').html(htl).show();
+		$('#sel_custom_question_type').parent().hide();
+		$('#new_question_box #new_question_title').focus();
+		
+		$('#add_response_btn').click(() => {
+			$('#add_response_btn').hide()
+			$('#new_response_input').show();
+			$('#new_response_input input').focus();
+		})
+		$('#save_response_btn').click(function() {
+			let ww = $('#new_response_input input').val();
+			if(ww.length == 0) return;
+			$('.response_options_list').append('<li>' + ww + '<span class="tooltip top" title="Remove" style="cursor: pointer"><i class="fa fa-close remove_response_btn" style="cursor: pointer; margin-left: 7px"></i></span><input type="hidden" name="question_response" value="' + ww + '" /></li>')
+			$('.remove_response_btn').click(function() {
+				$(this).parent().remove();
+				if(!$('#new_response_input').is(':visible')) $('#add_response_btn').show()
+			})
+			if($('.response_options_list li').length < 5) $('#add_response_btn').show()
+			$('#new_response_input').hide();
+			$('#new_response_input input').val('');
+		})
+		$('#remove_response_btn').click(function() {
+			$('#add_response_btn').show()
+			$('#new_response_input').hide();
+			$('#new_response_input input').val('');
+		})
+
+		$('#clear_question_btn').click(function () {
+			let sure = confirm('Delete this question?');
+			if(sure) {
+				$(this).parent().html('');
+				$('#sel_custom_question_type').val(0).trigger('chosen:updated');
+				// $('#sel_custom_question_type').change();
+				$('#sel_custom_question_type').parent().show();
+			}
+		})
+
+		$('#save_question_btn').click(function () {
+			$('#new_question_error').hide();
+			if($('#new_question_title').val().length == 0) {
+				$('#new_question_error').text('Empty field').show();
+				return;
+			}
+
+			let json_form = JSON.stringify($('#new_question_form').serializeObject()); 
+			console.log('json', json_form);
+		
+			$.ajax({
+				type: 'POST',
+				url: _getGlobals.SERVICE_HOST+'customoptin/add/question',
+				contentType: 'application/json; charset=utf-8',
+				data: json_form,
+				success: function( data ) {
+					if(data.code == "SUCCESS") {
+						$('#existing_questions').append(
+							'<div class="existing_question" style="border: solid 1px #ddd; padding: 10px; font-size: 0.9em; line-height: 1.7; background-color: #f3f3f3; margin: 10px;">' +
+							'		<span style="float: right; cursor: pointer; margin-left: 10px " class="delete_question_btn tooltip top" title="Delete Question"><i class="sl sl-icon-trash"></i></span>' +
+							'		<span style="font-weight: bold;">Question: </span>' +
+							'		<span style="font-style: italic;">' + $('#new_question_title').val() + '</span>' + 
+							'		<input type="hidden" class="existing_question_id" value="' + data.newid + '" />' + 
+							((typ == 2) ? '<ul class="_clear_dels" >' + $('.response_options_list').html() + '</ul>' : '') +
+							((typ == 3) ? '<ul><li>' + $('.chk_followup:checked').val() + '</li></ul>' : '') +
+							'</div>');
+
+							$('._clear_dels .remove_response_btn').remove();	//	for typ-2 responses
+							
+							$('#clear_question_btn').parent().html('');
+							$('#sel_custom_question_type').val(0).trigger('chosen:updated');
+							$('#sel_custom_question_type').parent().show();
+		
+					} else {
+						$('#new_question_error').text(data.msg).show();
+					}
+
+					$('.delete_question_btn').off('click');
+					$('.delete_question_btn').on('click', function () {
+						let q = confirm('Delete question?');
+						if(!q) return;
+
+						let $del_dv = $(this).closest('.existing_question');
+						let del_id = $del_dv.find('.existing_question_id').val();
+						console.log('json = ', del_id);
+					
+						$.ajax({
+							type: 'DELETE',
+							url: _getGlobals.SERVICE_HOST+'customoptin/delete/question/' + del_id,
+							contentType: 'application/json; charset=utf-8',
+							// data: json_form,
+							success: function( data ) {
+								if(data.code == "SUCCESS") {
+									$del_dv.remove();
+								}
+							},
+							error: function(resp, dd, ww) {
+						}
+						}).done(function(){
+							
+						});
+					})
+
+				},
+				error: function(resp, dd, ww) {
+			}
+			}).done(function(){
+				
+			});
+		})
+				
+	})
+
+	$('.delete_question_btn').click(function () {
+		if(!confirm('Delete question?')) return;
+
+		let $del_dv = $(this).closest('.existing_question');
+		let del_id = $del_dv.find('.existing_question_id').val();
+		console.log('json = ', del_id);
+	
+		$.ajax({
+			type: 'DELETE',
+			url: _getGlobals.SERVICE_HOST+'customoptin/delete/question/' + del_id,
+			contentType: 'application/json; charset=utf-8',
+			// data: json_form,
+			success: function( data ) {
+				if(data.code == "SUCCESS") {
+					$del_dv.remove();
+				}
+			},
+			error: function(resp, dd, ww) {
+		}
+		}).done(function(){
+			
+		});
+	})
+
+	$('#custom_optin_type').submit(function () {
+		$('.customoption_errors').hide();
+		let opt = $('.chk_customoptinoption:checked').val();
+		let grps = $('#sel_contact_group').val()
+		if(!opt) {
+			$('.customoption_errors').text("Select either the '2-Click' or the 'Complete' option.").show();
+			$(this).find('span.loading_icon').hide();
+			return false;
+		} else if((opt == 'two-click') && !grps) {
+			$('.customoption_errors').text("For the '2-Click', kindly select group(s) to auto-opt-in to.").show();
+			$(this).find('span.loading_icon').hide();
+			return false;
+		} else if(!$('#optin_sms').is(':checked') && !$('#optin_whatsapp').is(':checked')) {
+			$('.customoption_errors').text("Kindly select at least one Channel for opt in.").show();
+			$(this).find('span.loading_icon').hide();
+			return false;
+		}
+
+		console.log('$$$$$$$$=' + opt);
+		let arr = [];
+		if($('#optin_sms').is(':checked')) arr.push('sms');
+		if($('#optin_whatsapp').is(':checked')) arr.push('whatsapp');
+		
+		$(this).find('#_option').val(opt);
+		$(this).find('#_grps').val(grps);
+		$(this).find('#_channels').val(arr);
+
+		return true;
+		/* let json_form = JSON.stringify({
+			option: opt,
+			grps: grps,
+		});  */
+		// console.log('json', json_form, 'hek', grps);
+
+	})
+
+	/* $('.chk_customoptinoption').change(function (e) {
+		if($(this).val() == 'two-click') selectedcustomoptinoption = 'two-click';
+		if($(this).val() == 'complete') selectedcustomoptinoption = 'complete';
+	}) */
+
 })
 
 function halidate(we) {

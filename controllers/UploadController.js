@@ -49,6 +49,7 @@ exports.index = (req, res) => {
         res.render('pages/dashboard/upload_contacts', {
 
             page: 'CONTACTS',
+            uploads: true,
             newcontact: true,
 
             args: {
@@ -94,6 +95,8 @@ exports.index = (req, res) => {
     
             res.render('pages/dashboard/upload_contacts', {
                 page: 'CONTACTS',
+                uploads: true,
+                newcontact: true,
                 flashtype, flash,
 
                 args: {

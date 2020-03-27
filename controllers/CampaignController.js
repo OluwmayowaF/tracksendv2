@@ -468,7 +468,7 @@ exports.add = async (req, res) => {
                 await smsSendEngines(
                     req, res,
                     user_id, user_balance, sndr, info, contacts, schedule, schedule_, 
-                    cpn, originalmessage, _message, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL
+                    cpn, originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL
                 );
                 
 

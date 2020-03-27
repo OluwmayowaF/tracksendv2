@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 // var contactController = require('../controllers/ContactController');
 var apiController = require('../controllers/ApiController');
+var customOptinController = require('../controllers/CustomOptinController');
 
 // Home page route.
 // router.get('/groupconts', apiController.getContacts);
@@ -37,7 +38,15 @@ module.exports = function(app) {
   app.get('/api/sms/africastalking/notify', apiController.smsNotifyAfricastalking);   //  for MESSAGEBIRD
 
   app.post('/api/whatsapphooks',    apiController.whatsAppNotify);
-  // app.get ('/api/whatsapphooks',    apiController.whatsAppNotify_);
+
+  app.post('/api/customoptin/add/question',           customOptinController.addquestion);   
+  app.delete('/api/customoptin/delete/question/:id',  customOptinController.delquestion);   
+  // app.post('/api/customoptin/save',                   customOptinController.saveoption);   
+  
+
+  
+  
+  
   
   // Using the passport.authenticate middleware with our local strategy.
   // If the user has valid login credentials, send them to the members page.

@@ -40,7 +40,7 @@ const whatsappHandlers = () => {
         var api_url = wainstance.wa_instanceurl;
         var api_token =  wainstance.wa_instancetoken;
 
-        if(instance_id && (instance_id > 1 || instance_id.length > 1)) {
+        if(false && instance_id && (instance_id > 1 || instance_id.length > 1)) {
 
             console.log('====================================');
             console.log('heerrrreeee' + instance_id);

@@ -26,6 +26,7 @@ exports.index = (req, res) => {
         res.render('pages/dashboard/my_profile', {
             page: 'Profile',
             profile: true,
+            settingsmenu: true,
             flashtype, flash,
 
             args: {

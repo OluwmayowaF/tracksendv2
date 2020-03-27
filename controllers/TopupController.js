@@ -44,6 +44,7 @@ exports.index = async (req, res) => {
             res.render('pages/dashboard/topups', {
                 page: 'TopUps',
                 topups: true,
+                settingsmenu: true,
                 flashtype, flash,
 
                 args: {

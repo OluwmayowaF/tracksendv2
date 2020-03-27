@@ -7,6 +7,7 @@ var models = require('../models');
 var phoneformat = require('./phoneformat');
 var filelogger = require('../my_modules/filelogger');
 var env = require('../my_modules/env');
+var _message = require('../my_modules/output_messages');
 
 //  INFOBIP INIT
 const { tracksend_user, tracksend_pwrd, tracksend_base_url } = require('../config/cfg/infobip')();
@@ -26,7 +27,7 @@ var africastalking = require('africastalking')(africastalkingOptions);
 
 
 
-const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, originalmessage, _message, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL) => {
+const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL) => {
     var file_not_logged = true;
     // let platform = 'infobip';
     // console.clear();

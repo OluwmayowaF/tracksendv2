@@ -62,10 +62,11 @@
 				success: function( data ) {
 					// alert('WE DONE!');
 					$me[0].reset();
-					if(data.status == "error") {
+					if(data.status == "FAIL") {
 						alert(data.msg);
 					} else {
-						alert('Successfully submitted. A WhatsApp message has been sent to you.');
+						alert(data.msg);
+						// alert('Successfully submitted. A WhatsApp message has been sent to you.');
 					} 
 					
 				},

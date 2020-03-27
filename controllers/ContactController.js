@@ -108,6 +108,7 @@ exports.newContact = (req, res) => {
 
        res.render('pages/dashboard/new_contact', {
             page: 'CONTACTS',
+            singleentry: true,
             newcontact: true,
             flashtype, flash,
 

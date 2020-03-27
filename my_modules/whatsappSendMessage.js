@@ -14,9 +14,9 @@ var moment = require('moment');
 var scheduler = require('node-schedule');
 var _message = require('../my_modules/output_messages');
 var filelogger = require('../my_modules/filelogger');
-// var env = require('./env');
+var env = require('./env');
 // const whatsappSendMessage =  async (typ, phone, body, instanceurl, token, contactid=null, msgid=null, schedule=null, filename=null, caption=null) => {
-  
+
 const whatsappSendMessage =  async (typ, phone, body, instanceid, token, contactid=null, msgid=null, schedule=null, filename=null, caption=null) => {
   var file_not_logged = true;
   console.log('3 kont id = ' + contactid);
