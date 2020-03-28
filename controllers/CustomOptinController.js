@@ -46,9 +46,9 @@ exports.index = async (req, res) => {
         if(opt) {
             msg_1 = opt.optin_msg1 || null;
             msg_2 = opt.optin_msg2 || null;
-            let msgch_1 = opt.msg1_channels.toString().split(',') || [];
-            let msgch_2 = opt.msg2_channels.toString().split(',')  || [];
-            let optch   = opt.optin_channels.toString().split(',')  || [];
+            let msgch_1 = opt.msg1_channels ? (opt.msg1_channels.toString().split(',') || []) : [];
+            let msgch_2 = opt.msg2_channels ? (opt.msg2_channels.toString().split(',')  || []) : [];
+            let optch   = opt.optin_channels ? (opt.optin_channels.toString().split(',')  || []) : [];
 
             msgchs = {
                 msgch_1_sms      : msgch_1.includes('sms'),

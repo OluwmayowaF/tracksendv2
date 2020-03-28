@@ -2169,6 +2169,7 @@ function getNewExpiryDate(oldd, intv, perd) {
 }
 
 function formatMyNumber(num, curr) {
+	if(!num) return '--';
 	nnum = num.toString().split(',');
 	num = '';
 	for(var i=0;i<nnum.length;i++) {
@@ -2178,6 +2179,7 @@ function formatMyNumber(num, curr) {
 }
 
 function toShortTime(date) {
+	if(!date) return '--';
 	var str = date.toString().split(' ');
 	//var arr = 
 	return str[0]+', '+str[1]+' '+str[2]+' '+str[3]+' '+str[4];
