@@ -133,6 +133,14 @@ exports.preOptIn = async (req, res) => {
         let opt = models.Customoptin.findByPk(user.id);
         let opt_grps;
         
+        if(!opt) {
+            await models.Customoptin.create({
+                userId: user.id,
+            })
+            opt = await models.Customoptin.findByPk(user.id);
+        }
+
+
         if(opt && opt.optin_type == 'two-click') {   //  user has options set
             opt_grps = opt.optin_grps;
 
@@ -189,10 +197,10 @@ exports.preOptIn = async (req, res) => {
         console.log('sgs1');
             let snd = msgs.optin_msg1;
             body = snd
-                .replace(/\[firstname\]/g, req.body.fullname.split(' ')[0])
+                .replace(/\[firstname\]/g,  req.body.fullname.split(' ')[0])
                 .replace(/\[first name\]/g, req.body.fullname.split(' ')[0])
-                .replace(/\[fullname\]/g, req.body.fullname)
-                .replace(/\[full name\]/g, req.body.fullname)
+                .replace(/\[fullname\]/g,   req.body.fullname)
+                .replace(/\[full name\]/g,  req.body.fullname)
                 .replace(/\[companyname\]/g, user.business)
                 .replace(/\[company name\]/g, user.business);
             body = body + ".\nClick " + newurl;
@@ -494,7 +502,7 @@ exports.completeOptin = async function(req, res) {
                     .replace(/\[fullname\]/g, firstname + ' ' + lastname)
                     .replace(/\[companyname\]/g, user.business);
             } else {
-                body = _message('msg', 1050, countryId, firstname, user.business);
+                body = _message('msg', 1060, countryId, firstname, user.business);
             }
 
             //  get notification channel

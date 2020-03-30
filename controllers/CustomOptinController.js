@@ -8,7 +8,9 @@ exports.index = async (req, res) => {
     var user_id = req.user.id;
 
     // let msgs = await models.Customoptin.findByPk(user_id);
-    let msg_1, msg_2, optchs, msgchs;
+    let msg_1 = "Hello [firstname], thanks for opting in to our platform. ";
+    let msg_2 = "Thanks [firstname]. Opt-in to [companyname] messaging platform compeleted successfully.";
+    let optchs, msgchs;
 
     await Promise.all([
         models.Group.findAll({      //  get all groups for display in form, except uncategorized group
@@ -33,7 +35,14 @@ exports.index = async (req, res) => {
                 ['createdAt', 'ASC']
             ]
         })
-    ]).then(([grps, opt, ques]) => {
+    ]).then(async ([grps, opt, ques]) => {
+        if(!opt) {
+            await models.Customoptin.create({
+                userId: user_id,
+            })
+            opt = await models.Customoptin.findByPk(user_id);
+        }
+    
         if(grps) {
             grps = grps.map(g => {
                 let arr = opt.optin_grps ? opt.optin_grps.split(',') : [];
@@ -43,24 +52,23 @@ exports.index = async (req, res) => {
             });
         } 
 
-        if(opt) {
-            msg_1 = opt.optin_msg1 || null;
-            msg_2 = opt.optin_msg2 || null;
-            let msgch_1 = opt.msg1_channels ? (opt.msg1_channels.toString().split(',') || []) : [];
-            let msgch_2 = opt.msg2_channels ? (opt.msg2_channels.toString().split(',')  || []) : [];
-            let optch   = opt.optin_channels ? (opt.optin_channels.toString().split(',')  || []) : [];
+        msg_1 = opt.optin_msg1 || msg_1;
+        msg_2 = opt.optin_msg2 || msg_2;
+        let msgch_1 = opt.msg1_channels ? (opt.msg1_channels.toString().split(',') || []) : [];
+        let msgch_2 = opt.msg2_channels ? (opt.msg2_channels.toString().split(',')  || []) : [];
+        let optch   = opt.optin_channels ? (opt.optin_channels.toString().split(',')  || []) : [];
 
-            msgchs = {
-                msgch_1_sms      : msgch_1.includes('sms'),
-                msgch_1_whatsapp : msgch_1.includes('whatsapp'),
-                msgch_2_sms      : msgch_2.includes('sms'),
-                msgch_2_whatsapp : msgch_2.includes('whatsapp'),
-            }
-            optchs = {
-                ch_sms      : optch.includes('sms'),
-                ch_whatsapp : optch.includes('whatsapp'),
-            }
+        msgchs = {
+            msgch_1_sms      : msgch_1.includes('sms'),
+            msgch_1_whatsapp : msgch_1.includes('whatsapp'),
+            msgch_2_sms      : msgch_2.includes('sms'),
+            msgch_2_whatsapp : msgch_2.includes('whatsapp'),
         }
+        optchs = {
+            ch_sms      : optch.includes('sms'),
+            ch_whatsapp : optch.includes('whatsapp'),
+        }
+        
 
         var flashtype, flash = req.flash('error');
         if(flash.length > 0) {
@@ -77,8 +85,8 @@ exports.index = async (req, res) => {
 
             args: {
                 grps, 
-                option_two_click: opt.optin_type == 'two-click' ? true : false,
-                option_complete: opt.optin_type == 'complete' ? true : false,
+                option_two_click: (opt && opt.optin_type && opt.optin_type == 'two-click') ? true : false,
+                option_complete: (opt && opt.optin_type && opt.optin_type == 'complete') ? true : false,
                 ques, 
                 msg_1, 
                 msg_2,

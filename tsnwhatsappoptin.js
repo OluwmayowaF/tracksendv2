@@ -43,7 +43,7 @@
 			e.preventDefault();
 
 			console.log('====================================');
-			console.log('submitting...');
+			console.log('submitting details...');
 			console.log('====================================');
 
 			var $me = $container.find('form'); //$(this);
