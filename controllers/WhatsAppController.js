@@ -134,14 +134,16 @@ exports.preOptIn = async (req, res) => {
         let opt_grps;
         
         if(!opt) {
+        console.log('00000000000000000000')
             await models.Customoptin.create({
                 userId: user.id,
             })
             opt = await models.Customoptin.findByPk(user.id);
         }
 
-
+        console.log('11111111111111111111111111 = ' + JSON.stringify(opt))
         if(opt && opt.optin_type == 'two-click') {   //  user has options set
+            console.log('22222222222222')
             opt_grps = opt.optin_grps;
 
             this.completeOptin({
@@ -159,6 +161,7 @@ exports.preOptIn = async (req, res) => {
             }, res)
             return;
         }
+        console.log('3333333333333333')
 
         //  get user's default [uncategorized] group id
         let grpid = await models.Group.findOne({
@@ -355,7 +358,6 @@ exports.postOptin = async function(req, res) {
         }
     });
 
-
 }
 
 //  submission of whatsapp confirmation form
@@ -365,8 +367,9 @@ exports.completeOptin = async function(req, res) {
     let firstname, lastname, phone, userId, countryId, sms, whatsapp;
     let kont_, error;
 
-    if(req.twoclick) {
-        console.log('*********** twoklik ****************');
+    console.log('*********** twoklik 1 ****************');
+    if(req.body.twoclick) {
+        console.log('*********** twoklik 2 ****************');
         
         firstname = req.body.firstname;
         lastname = req.body.lastname;
@@ -377,6 +380,7 @@ exports.completeOptin = async function(req, res) {
         whatsapp = req.body.whatsapp && req.body.whatsapp == 'on';
 
     } else {
+        console.log('*********** non-two-klik ****************');
         let ucode = req.body.code;
         let kont = await models.Contact.findOne({
             where: {
@@ -482,12 +486,13 @@ exports.completeOptin = async function(req, res) {
         let phone_ = phoneformat(phone, countryId);
         let body;
 
-        if(req.twoclick) {
+        if(req.body.twoclick) {
             res.send({
                 status: "PASS",
                 msg: "Opt-in successful. Thank you."
             }); 
         } else {
+            console.log('++++++++++++++++++++++');
             //  get custom messages
             let opt = await models.Customoptin.findByPk(user.id);
         
