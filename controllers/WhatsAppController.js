@@ -130,7 +130,7 @@ exports.preOptIn = async (req, res) => {
         };
 
         //  get user's optin preference
-        let opt = models.Customoptin.findByPk(user.id);
+        let opt = await models.Customoptin.findByPk(user.id);
         let opt_grps;
         
         if(!opt) {
