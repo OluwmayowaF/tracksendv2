@@ -111,7 +111,8 @@ exports.preOptIn = async (req, res) => {
     // req.body.country = 234;
 
     let key = req.body.clientid;
-
+    let charge_sms = false;
+    
     console.log('[[====================================');
     console.log('OPT-IN DATA: ...' + JSON.stringify(req.body));
     console.log('====================================]]');
@@ -230,6 +231,7 @@ exports.preOptIn = async (req, res) => {
             arr = arr.split(',');
             arr.forEach(async a => {
                 if(a == 'sms') {
+                    charge_sms = true;
                     let platform = 'infobip'; // user.sms_service 
                     let senderid = 'tracksend'; // user.sms_service 
                     let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
@@ -239,29 +241,31 @@ exports.preOptIn = async (req, res) => {
             });
         } else {
             //  default notification channel
+            charge_sms = true;
             let platform = 'infobip'; // user.sms_service 
             let senderid = 'tracksend'; // user.sms_service 
             let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
         }
 
         //  charge user for SMS
-        let sms_count = getSMSCount(body);
-        let sms_charge = await getRateCharge(phone, req.body.country, user.id);
-        
-        let charge = sms_count * parseFloat(sms_charge);
+        if(charge_sms) {
+            let sms_count = getSMSCount(body);
+            let sms_charge = await getRateCharge(phone, req.body.country, user.id);
+            
+            let charge = sms_count * parseFloat(sms_charge);
 
-        user.update({
-            count: Sequelize.literal('balance - ' + charge),
-        });
-        //  LOG TRANSACTIONS
-        await models.Transaction.create({
-            description: 'DEBIT',
-            userId: user.id,
-            type: 'CONTACT OPT-IN NOTIFICATION',
-            ref_id: phone,
-            units: (-1) * charge,
-        })
-        
+            user.update({
+                count: Sequelize.literal('balance - ' + charge),
+            });
+            //  LOG TRANSACTIONS
+            await models.Transaction.create({
+                description: 'DEBIT',
+                userId: user.id,
+                type: 'CONTACT OPT-IN NOTIFICATION',
+                ref_id: phone,
+                units: (-1) * charge,
+            })
+        }
         
         
         
@@ -512,7 +516,7 @@ exports.completeOptin = async function(req, res) {
         //  send success message to user
         let user = await models.User.findByPk(userId);
         let phone_ = phoneformat(phone, countryId);
-        let body;
+        let body, charge_sms = false;
 
         if(req.body.twoclick) {
             res.send({
@@ -545,6 +549,7 @@ exports.completeOptin = async function(req, res) {
                     arr = arr.split(',');
                     arr.forEach(async a => {
                         if(a == 'sms') {
+                            charge_sms = true;
                             let platform = 'infobip'; // user.sms_service 
                             let senderid = 'tracksend'; // user.sms_service 
                             let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
@@ -554,29 +559,31 @@ exports.completeOptin = async function(req, res) {
                     });
                 } else {
                     //  default notification channel
+                    charge_sms = true;
                     let platform = 'infobip'; // user.sms_service 
                     let senderid = 'tracksend'; // user.sms_service 
                     let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
                 }
 
                 //  charge user for SMS
-                let sms_count = getSMSCount(body);
-                let sms_charge = await getRateCharge(phone, countryId, userId);
-                
-                let charge = sms_count * parseFloat(sms_charge);
+                if(charge_sms) {
+                    let sms_count = getSMSCount(body);
+                    let sms_charge = await getRateCharge(phone, countryId, userId);
+                    
+                    let charge = sms_count * parseFloat(sms_charge);
 
-                user.update({
-                    count: Sequelize.literal('balance - ' + charge),
-                });
-                //  LOG TRANSACTIONS
-                await models.Transaction.create({
-                    description: 'DEBIT',
-                    userId: userId,
-                    type: 'CONTACT OPT-IN NOTIFICATION',
-                    ref_id: phone,
-                    units: (-1) * charge,
-                })
-
+                    user.update({
+                        count: Sequelize.literal('balance - ' + charge),
+                    });
+                    //  LOG TRANSACTIONS
+                    await models.Transaction.create({
+                        description: 'DEBIT',
+                        userId: userId,
+                        type: 'CONTACT OPT-IN NOTIFICATION',
+                        ref_id: phone,
+                        units: (-1) * charge,
+                    })
+                }
             } catch(err) {
                 console.log('====================================');
                 console.log('eeeeeeeeeeeeeeeeeeeeeeeeee ' + err);
