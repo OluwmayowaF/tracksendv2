@@ -9,6 +9,8 @@ var campaignController = require('../controllers/CampaignController');
 var whatsappController = require('../controllers/WhatsAppController');
 var filelogger = require('../my_modules/filelogger');
 var phoneval = require('../my_modules/phonevalidate');
+var getSMSCount = require('../my_modules/sms/getSMSCount');
+var getRateCharge = require('../my_modules/sms/getRateCharge');
 
 const ESTIMATED_CLICK_PERCENTAGE = 0.8;
 const ESTIMATED_UNCLICK_PERCENTAGE = 1 - ESTIMATED_CLICK_PERCENTAGE;
@@ -784,7 +786,7 @@ exports.analyseCampaign = async (req, res) => {
                 units_.acc += units_2;
             } */
 
-            function getSMSCount(txt) {
+            /* function getSMSCount(txt) {
 
                 let len = txt.length;
 
@@ -804,8 +806,8 @@ exports.analyseCampaign = async (req, res) => {
                 } else {
                     return 5;
                 }
-            }
-            async function getCharge(prefix, ctry) {
+            } */
+            /* async function getCharge(prefix, ctry) {
 
                 var res_charge = await sequelize.query(
                     "SELECT units FROM settingsuserbillings " +
@@ -826,12 +828,7 @@ exports.analyseCampaign = async (req, res) => {
                 } else {
 
                     let res_rcharge = await models.Settingsnetwork.findAll({
-                        /* include: [{
-                            model: models.Settingsdefaultbilling, 
-                            attributes: ['units'], 
-                            raw: true,
-                            // through: { }
-                        }], */
+                        
                         where: { 
                             prefix: prefix,
                             countryId: ctry,
@@ -849,7 +846,7 @@ exports.analyseCampaign = async (req, res) => {
                 }
 
                 return results;
-            }                                                     
+            } */                                                     
             async function checkAndAggregate(kont) { 
 
                 if(shorturl[0] ) {
@@ -873,8 +870,8 @@ exports.analyseCampaign = async (req, res) => {
                     filelogger('sms', 'API Controller', 'analysing campaign', message_);
                     file_not_logged = false;
                 }
-                let prefix = kont.phone.substr(0, 4);
-                let unit_ = await getCharge(prefix, kont.countryId);
+                
+                let unit_ = await getRateCharge(kont.phone, kont.countryId, user_id);
 
                 units += unit_ * cc;
                 return unit_;

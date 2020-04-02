@@ -3,24 +3,24 @@ const request = require('request');
 var moment = require('moment');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-var models = require('../models');
-var phoneformat = require('./phoneformat');
-var filelogger = require('../my_modules/filelogger');
-var env = require('../my_modules/env');
-var _message = require('../my_modules/output_messages');
+var models = require('../../models');
+var phoneformat = require('../phoneformat');
+var filelogger = require('../filelogger');
+var env = require('../env');
+var _message = require('../output_messages');
 
 //  INFOBIP INIT
-const { tracksend_user, tracksend_pwrd, tracksend_base_url } = require('../config/cfg/infobip')();
+const { tracksend_user, tracksend_pwrd, tracksend_base_url } = require('../../config/cfg/infobip')();
 var buff = Buffer.from(tracksend_user + ':' + tracksend_pwrd);
 var base64encode = buff.toString('base64');
 
 //  MESSAGEBIRD INIT
-const msgbirdk = require('../config/cfg/messagebird');
+const msgbirdk = require('../../config/cfg/messagebird');
 var messagebird = require('messagebird')(msgbirdk.API_KEY_L);
 // const messagebirds = messagebird
 
 //  AFRICA'S TALKING INIT
-const africastalkingOptions = require('../config/cfg/africastalking');
+const africastalkingOptions = require('../../config/cfg/africastalking');
 var africastalking = require('africastalking')(africastalkingOptions);
 
 

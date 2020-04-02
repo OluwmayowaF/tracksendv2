@@ -8,6 +8,9 @@ const Op = Sequelize.Op;
 var whatsappSendMessage = require('../my_modules/whatsappSendMessage');
 var _message = require('../my_modules/output_messages');
 var env = require('../my_modules/env');
+var sendSMS = require('../my_modules/sms/sendSMS');
+var getSMSCount = require('../my_modules/sms/getSMSCount');
+var getRateCharge = require('../my_modules/sms/getRateCharge');
 
 exports.getQRCode = async (req, res) => {
 
@@ -227,16 +230,41 @@ exports.preOptIn = async (req, res) => {
             arr = arr.split(',');
             arr.forEach(async a => {
                 if(a == 'sms') {
-                    let new_resp = await whatsappSendMessage('message', phone, body, user.wa_instanceid, user.wa_instancetoken);
+                    let platform = 'infobip'; // user.sms_service 
+                    let senderid = 'tracksend'; // user.sms_service 
+                    let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
                 } else if(a == 'whatsapp') {
                     let new_resp = await whatsappSendMessage('message', phone, body, user.wa_instanceid, user.wa_instancetoken);
                 }
             });
         } else {
             //  default notification channel
-            let new_resp = await whatsappSendMessage('message', phone, body, user.wa_instanceid, user.wa_instancetoken);            
+            let platform = 'infobip'; // user.sms_service 
+            let senderid = 'tracksend'; // user.sms_service 
+            let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
         }
 
+        //  charge user for SMS
+        let sms_count = getSMSCount(body);
+        let sms_charge = await getRateCharge(phone, req.body.country, user.id);
+        
+        let charge = sms_count * parseFloat(sms_charge);
+
+        user.update({
+            count: Sequelize.literal('balance - ' + charge),
+        });
+        //  LOG TRANSACTIONS
+        await models.Transaction.create({
+            description: 'DEBIT',
+            userId: user.id,
+            type: 'CONTACT OPT-IN NOTIFICATION',
+            ref_id: phone,
+            units: (-1) * charge,
+        })
+        
+        
+        
+        
         // res.sendStatus(200);
         res.send({
             status: "PASS",
@@ -511,20 +539,50 @@ exports.completeOptin = async function(req, res) {
             }
 
             //  get notification channel
-            if(opt.msg2_channels) {
-                let arr = opt.msg2_channels.toString();
-                arr = arr.split(',');
-                arr.forEach(async a => {
-                    if(a == 'sms') {
-                        let new_resp = await whatsappSendMessage('message', phone, body, user.wa_instanceid, user.wa_instancetoken);
-                    } else if(a == 'whatsapp') {
-                        let new_resp = await whatsappSendMessage('message', phone, body, user.wa_instanceid, user.wa_instancetoken);
-                    }
+            try {
+                if(opt.msg2_channels) {
+                    let arr = opt.msg2_channels.toString();
+                    arr = arr.split(',');
+                    arr.forEach(async a => {
+                        if(a == 'sms') {
+                            let platform = 'infobip'; // user.sms_service 
+                            let senderid = 'tracksend'; // user.sms_service 
+                            let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
+                        } else if(a == 'whatsapp') {
+                            let new_resp = await whatsappSendMessage('message', phone, body, user.wa_instanceid, user.wa_instancetoken);
+                        }
+                    });
+                } else {
+                    //  default notification channel
+                    let platform = 'infobip'; // user.sms_service 
+                    let senderid = 'tracksend'; // user.sms_service 
+                    let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
+                }
+
+                //  charge user for SMS
+                let sms_count = getSMSCount(body);
+                let sms_charge = await getRateCharge(phone, countryId, userId);
+                
+                let charge = sms_count * parseFloat(sms_charge);
+
+                user.update({
+                    count: Sequelize.literal('balance - ' + charge),
                 });
-            } else {
-                //  default notification channel
-                let new_resp = await whatsappSendMessage('message', phone, body, user.wa_instanceid, user.wa_instancetoken);            
+                //  LOG TRANSACTIONS
+                await models.Transaction.create({
+                    description: 'DEBIT',
+                    userId: userId,
+                    type: 'CONTACT OPT-IN NOTIFICATION',
+                    ref_id: phone,
+                    units: (-1) * charge,
+                })
+
+            } catch(err) {
+                console.log('====================================');
+                console.log('eeeeeeeeeeeeeeeeeeeeeeeeee ' + err);
+                console.log('====================================');
             }
+
 
             res.render('pages/dashboard/whatsappcompleteoptin', {
                 _page: 'WhatsApp Opt-In',

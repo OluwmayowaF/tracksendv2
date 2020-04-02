@@ -7,7 +7,7 @@ const Op = Sequelize.Op;
 const fs = require('fs'); 
 var scheduler = require('node-schedule');
 
-var smsSendEngines = require('../my_modules/smsSendEngines');
+var smsSendEngines = require('../my_modules/sms/smsSendEngines');
 var { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
 var uploadMyFile = require('../my_modules/uploadHandlers');
 var phoneformat = require('../my_modules/phoneformat');
