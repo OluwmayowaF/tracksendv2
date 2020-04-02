@@ -231,20 +231,20 @@ exports.preOptIn = async (req, res) => {
             arr = arr.split(',');
             arr.forEach(async a => {
                 if(a == 'sms') {
-                    charge_sms = true;
                     let platform = 'infobip'; // user.sms_service 
                     let senderid = 'tracksend'; // user.sms_service 
                     let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
+                    charge_sms = true;
                 } else if(a == 'whatsapp') {
                     let new_resp = await whatsappSendMessage('message', phone, body, user.wa_instanceid, user.wa_instancetoken);
                 }
             });
         } else {
             //  default notification channel
-            charge_sms = true;
             let platform = 'infobip'; // user.sms_service 
             let senderid = 'tracksend'; // user.sms_service 
             let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
+            charge_sms = true;
         }
 
         //  charge user for SMS
@@ -549,20 +549,20 @@ exports.completeOptin = async function(req, res) {
                     arr = arr.split(',');
                     arr.forEach(async a => {
                         if(a == 'sms') {
-                            charge_sms = true;
                             let platform = 'infobip'; // user.sms_service 
                             let senderid = 'tracksend'; // user.sms_service 
                             let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
+                            charge_sms = true;
                         } else if(a == 'whatsapp') {
                             let new_resp = await whatsappSendMessage('message', phone, body, user.wa_instanceid, user.wa_instancetoken);
                         }
                     });
                 } else {
                     //  default notification channel
-                    charge_sms = true;
                     let platform = 'infobip'; // user.sms_service 
                     let senderid = 'tracksend'; // user.sms_service 
                     let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
+                    charge_sms = true;
                 }
 
                 //  charge user for SMS
