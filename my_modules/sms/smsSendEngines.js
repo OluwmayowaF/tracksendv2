@@ -9,6 +9,7 @@ var filelogger = require('../filelogger');
 var env = require('../env');
 var _message = require('../output_messages');
 var sendSMS = require('./sendSMS');
+var networkerror = false;
 
 //  INFOBIP INIT
 const { tracksend_user, tracksend_pwrd, tracksend_base_url } = require('../../config/cfg/infobip')();
@@ -242,8 +243,10 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                         failures++;
                     } else */ if (response) {
                         //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
-                        console.log('Status code: ' + JSON.stringify(response));
+                        console.log('Status code: ' + JSON.stringify(response.code));
                         // console.log('Status code: ' + response.statusCode + '; Message: ' + JSON.stringify(response.body));
+                        
+                        if(response.code == "ENOTFOUND") networkerror = true;
 
                         if(response.statusCode == 200) {
                             successfuls++;
@@ -850,7 +853,7 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
         console.log('SUCCESSFULS: ' + successfuls + '; FAILURES : ' + failures);
 
         try {
-            if(successfuls > 0) {   
+            if(!networkerror && successfuls > 0) {   
             // if(true) {       //  kenni
                 let new_bal = parseFloat(user_balance.balance) - parseFloat(info.units_used);
                 console.log('old bal = ' + user_balance.balance + '; units used = ' + info.units_used + '; NEW BALANCE = ' + new_bal);
@@ -895,6 +898,13 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
                 var backURL = req.header('Referer') || '/';
                 res.redirect(backURL);
 
+            } else if(networkerror) {
+
+                await cpn.destroy();
+
+                req.flash('error', 'An error occurred while sending out your Campaign. Check your network connection, and ensure you\'re logged in.');
+                var backURL = req.header('Referer') || '/';
+                res.redirect(backURL);
             } else {
 
                 await cpn.destroy();
@@ -906,7 +916,7 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
         } catch (err) {
             console.error('THIS ERROR: ' + err);
 
-                req.flash('error', 'An error occurred while sending out your Campaign. Please try again later or contact admin.');
+                req.flash('error', 'Error occurred while sending out your Campaign. Please try again later or contact admin.');
                 var backURL = req.header('Referer') || '/';
                 res.redirect(backURL);
         }

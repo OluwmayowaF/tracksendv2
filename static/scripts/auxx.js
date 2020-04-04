@@ -185,7 +185,7 @@ $(document).ready(function() {
 		
 		if(!$('#have_consent').is(':checked')) {
 			$('._errorable').css('color', 'red');
-			$('._form_errors._e_consent').text('You are only allowed to add contacts who has given you consent to send them messages.');
+			$('._form_errors._e_consent').text('You are only allowed to add contacts who have given you consent to send them messages.');
 			$('._form_errors._e_consent').show();
 			$(this).find('span.loading_icon').hide();
 
@@ -1664,6 +1664,14 @@ console.log('====================================');
 		if($(this).val() == 'two-click') selectedcustomoptinoption = 'two-click';
 		if($(this).val() == 'complete') selectedcustomoptinoption = 'complete';
 	}) */
+
+	$('.can_optin_chk').on('click', (e) => {
+		e.stopPropagation();
+		e.preventDefault();
+
+		console.log('kkkkkllllliiiiiiiiikkkkkkkkkkkkkkkkkddddddddd');
+		
+	})
 
 })
 

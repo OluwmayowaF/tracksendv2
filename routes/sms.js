@@ -51,32 +51,36 @@ router.get('/optout/:kid', async(req, res) => {
           flash = req.flash('success');
       }
 
-      res.render('pages/smscompleteoptout', {
-          _page: 'SMS Opt-Out',
-          flashtype, flash,
+    res.render('pages/smscompleteoptout', {
+        layout: 'dashboard_blank',
+        title: kont.user.business,
+        _page: 'SMS Opt-Out',
+        flashtype, flash,
 
-          args: {
-              ctry,
-              kid,
-            //   groupname: kont.group.name,
-            //   username: kont.user.name,
-            //   business: kont.user.business,
-              _msg: _message('msg', 1090, kont.countryId, kont.user.business, kont.group.name),
-          }
-      });
+        args: {
+            ctry,
+            kid,
+        //   groupname: kont.group.name,
+        //   username: kont.user.name,
+        //   business: kont.user.business,
+            _msg: _message('msg', 1090, kont.countryId, kont.user.business, kont.group.name),
+        }
+    });
   
   
-  } catch(e) {
-      console.log('====================================');
-      console.log('error: ' + e.name);
-      console.log('error: ' + JSON.stringify(e));
-      console.log('error: ' + e);
-      console.log('====================================');
-      res.render('pages/redirect-error', {
-          page: '',
-  
-      });
-  }
+    } catch(e) {
+        console.log('====================================');
+        console.log('error: ' + e.name);
+        console.log('error: ' + JSON.stringify(e));
+        console.log('error: ' + e);
+        console.log('====================================');
+        res.render('pages/redirect-error', {
+            layout: 'dashboard_blank',
+            title: 'Error',
+            page: '',
+
+        });
+    }
 
 });
 
@@ -128,13 +132,15 @@ router.post('/optout', async(req, res) => {
           platform: 'SMS',
       })
 
-      res.render('pages/smscompleteoptout', {
-          _page: 'SMS Opt-Out',
+        res.render('pages/smscompleteoptout', {
+            layout: 'dashboard_blank',
+            title: 'Thanks',
+            _page: 'SMS Opt-Out',
 
-          args: {
-            _msg: _message('msg', 1080, req.body.country)
-        }
-    });
+            args: {
+                _msg: _message('msg', 1080, req.body.country)
+            }
+        });
 
     } catch(e) {
         console.log('====================================');
@@ -194,7 +200,8 @@ router.get('/optin/:kid', async(req, res) => {
                 attributes: ['name']
             }],
         });
-
+        console.log('q= ' + JSON.stringify(kont.user.business));
+        
         if(!kont) {
             throw {
                 name: 'requesterror',
@@ -206,6 +213,8 @@ router.get('/optin/:kid', async(req, res) => {
         }
 
         res.render('pages/dashboard/whatsappcompleteoptin', {
+            layout: 'dashboard_blank',
+            title: kont.user.business,
             _page: 'SMS Opt-In',
 
             args: {
@@ -221,6 +230,8 @@ router.get('/optin/:kid', async(req, res) => {
         console.log('error: ' + e);
         console.log('====================================');
         res.render('pages/redirect-error', {
+            layout: 'dashboard_blank',
+            title: 'Error',
             page: '',
 
         });
@@ -275,13 +286,15 @@ router.post('/optin', async(req, res) => {
           platform: 'SMS',
       })
 
-      res.render('pages/smscompleteoptout', {
-          _page: 'SMS Opt-Out',
+        res.render('pages/smscompleteoptout', {
+            layout: 'dashboard_blank',
+            title: 'Thanks',
+            _page: 'SMS Opt-Out',
 
-          args: {
-            _msg: _message('msg', 1080, req.body.country)
-        }
-    });
+            args: {
+                _msg: _message('msg', 1080, req.body.country)
+            }
+        });
 
     } catch(e) {
         console.log('====================================');
