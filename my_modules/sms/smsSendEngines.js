@@ -250,7 +250,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                         
                         if(response.code == "ENOTFOUND") networkerror = true;
 
-                        if(response.statusCode == 200) {
+                        if(response.statusCode == 200 || response.status == 200) {
                             successfuls++;
                         } else {
                             failures++;
