@@ -61,16 +61,18 @@ const sendSMS =  async (platform, params, url = null, message = null, sender = n
             })
             /* let ret = await request.post(params, async (err, response) => {
                 if(err) {
-                    console.log('---' + JSON.stringify(err));
+                    console.log('---' + err);
+                    console.log('j---' + JSON.stringify(err));
                     
                     return err
                 }
                 else {
-                    console.log('-+-+-' + JSON.stringify(response));
+                    console.log('-+-+-' + response);
+                    console.log('j-+-+-' + JSON.stringify(response));
                     return response;
                 }
             }); */
-        console.log('1a~~~~~~~~~~~~~~~~' + JSON.stringify(ret));
+        console.log('1a~~~~~~~~~~~~~~~~' + ret);
             return ret;
         } catch(err) {
             console.log('1b~~~~~~~~~~~~~~~~' + err);
