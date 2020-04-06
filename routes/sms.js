@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var models = require('../models');
 var _message = require('../my_modules/output_messages');
+var whatsappController = require('../controllers/WhatsAppController');
 
 // Home page route.
 // router.get('/optin', whatsappController.optin);
@@ -176,7 +177,7 @@ router.post('/optout', async(req, res) => {
 
 });
 
-router.get('/optin/:kid', async(req, res) => {
+/* router.get('/optin/:kid', async(req, res) => {
 
     const randgen = require('../my_modules/randgen');
     var phoneval = require('../my_modules/phonevalidate');
@@ -237,7 +238,8 @@ router.get('/optin/:kid', async(req, res) => {
         });
     }
 
-});
+}); */
+router.get('/optin/:kid', whatsappController.postOptin);    //  controller should be reworded/rejigged 
 
 router.post('/optin', async(req, res) => {
 

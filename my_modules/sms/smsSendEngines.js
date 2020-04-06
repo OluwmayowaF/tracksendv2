@@ -246,7 +246,6 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                         console.log('Status: ' + response);
                         // console.log('jStatus: ' + JSON.stringify(response));
                         console.log('Status code: ' + JSON.stringify(response.code));
-                        // console.log('Status code: ' + response.statusCode + '; Message: ' + JSON.stringify(response.body));
                         
                         if(response.code == "ENOTFOUND") networkerror = true;
 
@@ -258,6 +257,8 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                     }
 
                     //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
+                    console.log('________________________INFO11='+ JSON.stringify(info));
+                    
                     dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_);
                     // });
             
@@ -853,6 +854,7 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
     console.log('SUCCESSFULS: ' + successfuls + '; FAILURES : ' + failures + '; batches = ' + batches);
     if((successfuls + failures) == batches) {
         console.log('SUCCESSFULS: ' + successfuls + '; FAILURES : ' + failures);
+        console.log('________________________INFO22='+ JSON.stringify(info));
 
         try {
             if(!networkerror && successfuls > 0) {   
@@ -917,10 +919,14 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
             }
         } catch (err) {
             console.error('THIS ERROR: ' + err);
-
+            try {
                 req.flash('error', 'Error occurred while sending out your Campaign. Please try again later or contact admin.');
                 var backURL = req.header('Referer') || '/';
                 res.redirect(backURL);
+            } catch(err) {
+                console.log('HEADERS ALREADY SENT! - ' + err);
+                
+            }
         }
 
     } 

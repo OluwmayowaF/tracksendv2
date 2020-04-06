@@ -870,7 +870,7 @@ exports.analyseCampaign = async (req, res) => {
                     filelogger('sms', 'API Controller', 'analysing campaign', message_);
                     file_not_logged = false;
                 }
-                
+
                 let unit_ = await getRateCharge(kont.phone, kont.countryId, user_id);
 
                 units += unit_ * cc;
@@ -938,6 +938,10 @@ exports.analyseCampaign = async (req, res) => {
             int++;
         }
         
+
+        console.log('====================================');
+        console.log('END OF ANALYSIS!');
+        console.log('====================================');
         res.send({
             code: "SUCCESS",
             tmpid: fin[1],

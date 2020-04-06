@@ -313,7 +313,7 @@ exports.preOptIn = async (req, res) => {
 //  clicking of optin link on whatsapp message lands here
 exports.postOptin = async function(req, res) {
 
-    let ucode = req.query.code;
+    let ucode = req.query.code || req.params.kid;
     console.log('code = ' + ucode);
     
     let kont = await models.Contact.findOne({
@@ -380,7 +380,7 @@ exports.postOptin = async function(req, res) {
     }
 
     res.render('pages/dashboard/whatsappcompleteoptin', {
-        _page: 'WhatsApp Opt-In',
+        _page: 'Message Opt-In',
         ucode,
 
         args: {

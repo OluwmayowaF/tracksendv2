@@ -198,7 +198,7 @@ exports.add = async (req, res) => {
     var tempid = req.body.analysis_id;
     var ctype = req.body.type;
     console.log('====================================');
-    console.log('WLELONE: ' + (Array.isArray(tempid) ? 'yes' : 'no') + ' ; ' + tempid);
+    console.log('CAMPAIGN OPS: ' + (Array.isArray(tempid) ? 'yes' : 'no') + ' ; ' + tempid);
     console.log('====================================');
 
     if(Array.isArray(tempid)) {
@@ -225,7 +225,7 @@ exports.add = async (req, res) => {
                 console.log('====================================');
 
                 if(!schedule || schedule === 'null') {
-                    let ts = moment().add(parseInt(within_days), 'days');
+                    let ts = moment().add(parseInt(within_days), 'minutes');
                     console.log('====================================');
                     console.log('date 2a='+ts);
                     console.log('====================================');
@@ -237,7 +237,7 @@ exports.add = async (req, res) => {
                     console.log('====================================');
                     console.log('date 1b='+schedule);
                     console.log('====================================');
-                    let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss').add(parseInt(within_days), 'days');
+                    let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss').add(parseInt(within_days), 'minutes');
                     console.log('====================================');
                     console.log('date 2b='+ts);
                     console.log('====================================');
@@ -245,13 +245,17 @@ exports.add = async (req, res) => {
                     console.log('====================================');
                     console.log('date 3b=' + JSON.stringify(ts));
                     console.log('====================================');
-                    
                 }
 
-                scheduler.scheduleJob(date, _dosms);
-                function _dosms() {
-                    doSMS(info, ref)
-                }
+                scheduler.scheduleJob(date, function(reff) {
+                    console.log('_________reff=' + reff + '___________');
+                    
+                    doSMS(info, reff)
+                }.bind(null, info.id)) 
+                
+                /* _dosms.bind(info.id));
+                function _dosms(reff) {
+                } */
             } else {
                 doSMS(info, null);
             }
@@ -262,6 +266,15 @@ exports.add = async (req, res) => {
     
     async function doSMS(info, ref) {
         //  ...continues here if type-sms and has been analysed 
+        
+        // get real ref
+        var nref = null;
+        if(ref) {
+            info = await models.Tmpcampaign.findByPk(ref);
+            nref = info.ref_campaign;
+            console.log('_____________________ THIS IS REF =' + JSON.stringify(nref) + '_____________________ THIS IS rrREF =' + JSON.stringify(info.ref_campaign));
+        }
+
         //  GET USER BALANCE
         var user_balance = await models.User.findByPk(user_id, {
             attributes: ['balance'], 
@@ -296,7 +309,7 @@ exports.add = async (req, res) => {
 
         
         //  create campaign
-        Promise.all([models.Campaign.create({
+        await Promise.all([models.Campaign.create({
             name: info.name,
             description: info.description,
             userId: user_id,
@@ -308,7 +321,7 @@ exports.add = async (req, res) => {
             has_utm: info.has_utm,
             condition: info.grp,
             within_days: info.within_days,
-            ref_campaign: ref,
+            ref_campaign: nref,
             }),
             models.Sender.findByPk(info.senderId)
         ])
@@ -317,10 +330,11 @@ exports.add = async (req, res) => {
             // var group = info.grp;
             
             var HAS_SURL = false;
-            console.log('info.grp = ' + info.grp);
+            console.log('info.grp = ' + info.grp + 'ppp-info.grp = ' + JSON.stringify(info.grp) + '______ref = ' + ref);
+            console.log((info.grp != 0 && !Array.isArray(info.grp)) ? "NON-ARRAY" : "ARRAY");
+            var groups = ((info.grp == "clicked") || (info.grp == "unclicked")) ? [info.grp] : JSON.parse(info.grp);//
             
-            var groups = JSON.parse(info.grp);
-            console.log('info.group = ' + groups + '; json = ' + JSON.stringify(groups));
+            console.log('______________________info.group = ' + groups + '; json = ' + JSON.stringify(groups));
             var skip = (info.skip_dnd && info.skip_dnd == "on");
             var unsub     = info.add_optout;
             var dosub     = info.add_optin;
@@ -395,7 +409,8 @@ exports.add = async (req, res) => {
                             userId: user_id,
                         },
                     })
-
+                    console.log('______________________groups=' + JSON.stringify(dd));
+                    
                     //  merge contacts from all groups
                     var arr = [];
                     dd.forEach((el) => {
@@ -413,8 +428,8 @@ exports.add = async (req, res) => {
                     //  remove duplicates
                     contacts = _.uniqBy(arr, 'phone');
                 } else {
-                    let ref = info.ref_campaign;
-                    let ref_campaign = await models.Campaign.findByPk(ref, {
+                    // let ref = info.ref_campaign;
+                    let ref_campaign = await models.Campaign.findByPk(nref, {
                         include: [{
                             model: models.Message, 
                             where: {
@@ -432,8 +447,13 @@ exports.add = async (req, res) => {
                         }],
                     });
                 
-                    var arr = ref_campaign.messages.map( k => { return k.contact });
-
+                    if(ref_campaign) {
+                        var arr = ref_campaign.messages.map( k => { return k.contact });
+                    } else {
+                        //  if no valid message
+                        info.destroy();
+                        return;
+                    }
                     //  remove duplicates
                     contacts = _.uniqBy(arr, 'phone');
                 }
@@ -465,6 +485,7 @@ exports.add = async (req, res) => {
                     SINGLE_MSG = true;
                 }
 
+                console.log('________________________INFO00='+ JSON.stringify(info));
                 await smsSendEngines(
                     req, res,
                     user_id, user_balance, sndr, info, contacts, schedule, schedule_, 
@@ -475,9 +496,9 @@ exports.add = async (req, res) => {
             }
 
         })
-        .catch((err) => {
+        /* .catch((err) => {
             console.error('BIG BIG ERROR: ' + err);
-        })
+        }) */
 
         return;
 
@@ -515,7 +536,7 @@ exports.add = async (req, res) => {
             var groups = req.body.group;
             if (groups != 0 && !Array.isArray(groups)) groups = [groups];
             
-            console.log('req.body.group = ' + groups + '; json = ' + JSON.stringify(groups));
+            // console.log('req.body.group = ' + groups + '; json = ' + JSON.stringify(groups));
 
             if (groups == 0) throw "1001";
             var everything = [];

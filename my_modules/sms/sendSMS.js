@@ -59,6 +59,10 @@ const sendSMS =  async (platform, params, url = null, message = null, sender = n
                 data: params.json,
                 headers: params.headers
             })
+
+            /* let ret = {
+                status: 200
+            } */
             /* let ret = await request.post(params, async (err, response) => {
                 if(err) {
                     console.log('---' + err);
@@ -73,7 +77,7 @@ const sendSMS =  async (platform, params, url = null, message = null, sender = n
                 }
             }); */
             let seen = [];
-        console.log('1a~~~~~~~~~~~~~~~~' + JSON.stringify(ret, function (key, val) {
+            console.log('1a~~~~~~~~~~~~~~~~' + JSON.stringify(ret, function (key, val) {
             if (val != null && typeof val == "object") {
                 if (seen.indexOf(val) >= 0) {
                     return;
