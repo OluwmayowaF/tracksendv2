@@ -143,9 +143,9 @@ exports.index = (req, res) => {
 
             
         });
-        console.log('====================================');
-        console.log('cpns: ' + JSON.stringify(cpns)); // + ', sids: ' + JSON.stringify(sids) + ', grps: ' + JSON.stringify(grps) + ', csender: ' + csender + ', casender: ' + casender + ', ccontact' + ccontact);
-        console.log('====================================');
+        // console.log('====================================');
+        // console.log('cpns: ' + JSON.stringify(cpns)); // + ', sids: ' + JSON.stringify(sids) + ', grps: ' + JSON.stringify(grps) + ', csender: ' + csender + ', casender: ' + casender + ', ccontact' + ccontact);
+        // console.log('====================================');
         if(!csender) var nosenderids = true; else var nosenderids = false;
         if(!casender) var noasenderids = true; else var noasenderids = false;
         if(!ccontact) var nocontacts = true; else var nocontacts = false;
