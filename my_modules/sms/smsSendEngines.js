@@ -101,7 +101,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                     .replace(/&nbsp;/g, ' ');
 
                     updatedmessage += (UNSUBMSG) ? _message('msg', 1091, kont.countryId, kont.id) : '';     //  add unsubscribe text
-                    updatedmessage += (DOSUBMSG) ? _message('msg', 1092, kont.countryId, kont.id) : '';     //  add unsubscribe text
+                    updatedmessage += (DOSUBMSG) ? _message('msg', 1092, kont.countryId, kont.id) : '';     //  add subscribe text
 
                     if(SINGLE_MSG) {
                         var msgto = {    //  STEP 0 OF MESSAGE CONSTRUCTION

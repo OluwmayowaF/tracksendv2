@@ -232,7 +232,7 @@ exports.preOptIn = async (req, res) => {
             arr.forEach(async a => {
                 if(a == 'sms') {
                     let platform = 'infobip'; // user.sms_service 
-                    let senderid = 'tracksend'; // user.sms_service 
+                    let senderid = 'spaceba'; // 'tracksend'; // user.sms_service 
                     let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
                     charge_sms = true;
                 } else if(a == 'whatsapp') {
@@ -242,7 +242,7 @@ exports.preOptIn = async (req, res) => {
         } else {
             //  default notification channel
             let platform = 'infobip'; // user.sms_service 
-            let senderid = 'tracksend'; // user.sms_service 
+            let senderid = 'spaceba'; // 'tracksend'; // user.sms_service 
             let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
             charge_sms = true;
         }
@@ -550,7 +550,7 @@ exports.completeOptin = async function(req, res) {
                     arr.forEach(async a => {
                         if(a == 'sms') {
                             let platform = 'infobip'; // user.sms_service 
-                            let senderid = 'tracksend'; // user.sms_service 
+                            let senderid = 'spaceba'; // 'tracksend'; // user.sms_service 
                             let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
                             charge_sms = true;
                         } else if(a == 'whatsapp') {
@@ -560,7 +560,7 @@ exports.completeOptin = async function(req, res) {
                 } else {
                     //  default notification channel
                     let platform = 'infobip'; // user.sms_service 
-                    let senderid = 'tracksend'; // user.sms_service 
+                    let senderid = 'spaceba'; // 'tracksend'; // user.sms_service 
                     let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
                     charge_sms = true;
                 }
