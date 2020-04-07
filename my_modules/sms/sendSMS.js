@@ -24,7 +24,7 @@ const sendSMS =  async (platform, params, url = null, message = null, sender = n
             console.log('======= ++++++ =======' + JSON.stringify(platform));
             let data = {
                 "from" : sender,
-                "destinations" : [phone],
+                "destinations" : [{"to":phone}],
                 "text" : message,
                 "flash" : false,
                 "intermediateReport" : true,
@@ -34,7 +34,7 @@ const sendSMS =  async (platform, params, url = null, message = null, sender = n
             };
             var tosend = {
                 "bulkId": 'tracksend-bulk', // 'CMPGN-' + cpn.id + '-' + counter,
-                "messages": data,
+                "messages": [data],
                 "tracking": {
                     "track" : 'SMS', // q_tracking_track,
                     "type" : 'sms_notification', //q_tracking_type,
