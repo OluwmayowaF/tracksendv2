@@ -51,6 +51,9 @@ const sendSMS =  async (platform, params, url = null, message = null, sender = n
                 }
             }
         }
+
+        console.log('____________________ PARAMS = ' + JSON.stringify(params));
+        
         
         try {
             let ret = await axios({
