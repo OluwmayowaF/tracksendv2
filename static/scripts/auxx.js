@@ -1677,11 +1677,11 @@ console.log('====================================');
 
 function halidate(we) {
 	console.log('halidated');
-	if(!($(we).find('#sms').is(':checked')) && !($(we).find('#sms').is(':checked'))) {
+	/* if(!($(we).find('#sms').is(':checked')) && !($(we).find('#whatsapp').is(':checked'))) {
 		$(we).find('._form_errors._e_consent').text('Kindly select at least one Channel.').show()
 		$(we).find('span.loading_icon').hide();
 		return false;
-	}
+	} */
 }
 
 function sanitizeMsg($fr) {

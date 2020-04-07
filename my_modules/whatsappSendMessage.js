@@ -24,7 +24,7 @@ const whatsappSendMessage =  async (typ, phone, body, instanceid, token, contact
   if(contactid) {
     let kk = await models.Contact.findByPk(contactid);
   console.log('4 kont = ' + JSON.stringify(kk));
-    const unsubscribelink = env.SERVER_BASE + '/whatsapp/optout/' + contactid;
+    const unsubscribelink = env.SERVER_BASE + '/messages/optout/' + contactid;
     body += _message('msg', 1071, kk.countryId, unsubscribelink);
   console.log('5 kont after ');
   }

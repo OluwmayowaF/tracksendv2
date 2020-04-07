@@ -1,0 +1,45 @@
+	<div class="dashboard-content">
+		{{#if flash}}
+			<div class="notification {{ flashtype }} closeable no-shadow">
+				<p><span style="text-transform: capitalize">{{ flashtype }}!</span> {{ flash }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
+
+
+		<div class="row">
+
+			{{#if args.ctry }}
+			<div class="pageerror" style="margin-left: 50px; margin-right: 50px">
+				<div style="text-align: center; margin-bottom: 40px;"><h4>{{ args._msg }}<br><br> </h4></div>
+				<div class="row with-forms">
+					<form method="POST" id="leave_form" action="/messages/optout" enctype="application/x-www-form-urlencoded">
+						<div class="col-md-12">
+							<h5>Please provide your phone number: </h5>
+							<input type="hidden" name="code" value="{{ args.kid }}" />
+							<input type="text" name="phone" required>
+						</div>
+						<div class="col-md-12">
+							<h5>Your Country </h5>
+							<select class="chosen-select-no-single _plain" name="country" id="sel_contact_country" required>
+								<option label="blank" value="0" disabled selected>Select Country</option>
+								{{#each args.ctry}}
+								<option value="{{ id }}">{{ name }}</option>
+								{{/each}}
+							</select>
+							<button type="submit" class="button preview">Confirm <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
+						</div>
+					</form>
+
+				</div>
+			</div>
+			{{else }}
+				<div class="pageerror">
+					<div style="text-align: center; margin-bottom: 40px"><h3>{{ args._msg }}</h3></div>
+				</div>
+			{{/if}}
+			<!-- Copyrights -->
+
+		</div>
+
+	</div>

@@ -15,7 +15,7 @@
 
 		var html = '<div id="" class="tsn_container">' + 
 									'<input type="checkbox" id="optin" name="optin" />' +
-									'<label for="optin">Opt in for WhatsApp Communications</label>' +
+									'<label for="optin">Opt in for Message Communications</label>' +
 									'<div id="" class="tsn_form_box" style="display:none">' +
 										'<form enctype="" id="tsn_form" action="">' +
 											'<input type="hidden" name="clientid" value="' + API_KEY + '" />' +
@@ -56,7 +56,7 @@
 		
 			$.ajax({
 				type: 'POST',
-				url: 'https://dev2.tracksend.co/api/whatsappoptin',
+				url: 'https://dev2.tracksend.co/api/messageoptin',
 				contentType: 'application/json; charset=utf-8',
 				data: json_save_form,
 				success: function( data ) {

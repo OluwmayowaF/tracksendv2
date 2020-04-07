@@ -7,6 +7,7 @@ const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 var campaignController = require('../controllers/CampaignController');
 var whatsappController = require('../controllers/WhatsAppController');
+var msgOptController = require('../controllers/MessageOptController');
 var filelogger = require('../my_modules/filelogger');
 var phoneval = require('../my_modules/phonevalidate');
 var getSMSCount = require('../my_modules/sms/getSMSCount');
@@ -1370,7 +1371,12 @@ exports.whatsAppNotify = (req, res) => {
     whatsappController.notifyAck(req, res);
 }
 
+//  deprecated
 exports.whatsAppOptIn = async (req, res) => {
     whatsappController.preOptIn(req, res);
+}
+
+exports.messageOptIn = async (req, res) => {
+    msgOptController.preOptIn(req, res);
 }
 

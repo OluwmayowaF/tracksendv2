@@ -12,89 +12,6 @@ var sendSMS = require('../my_modules/sms/sendSMS');
 var getSMSCount = require('../my_modules/sms/getSMSCount');
 var getRateCharge = require('../my_modules/sms/getRateCharge');
 
-exports.getQRCode = async (req, res) => {
-
-    var { whatsAppRetrieveOrCreateInstance } = require('../my_modules/whatsappHandlers')();
-
-    try {
-        var user_id = req.user.id;
-        if(user_id.length == 0)  throw "error";
-    } catch (e) {
-        res.send({
-            error: _message('error', 1010, 234),
-        });
-        return;
-    }
-
-    var qrcode = null;
-
-    console.log('showing page...integrations...'); 
-
-    let status = await whatsAppRetrieveOrCreateInstance(user_id);
-    var code = status.code;
-    var error = status.error;
-
-    res.send({
-        code,
-        error,
-    })
-
-}
-
-exports.notifyAck = (req, res) => {
-    
-    try {
-        if(!req.body) throw "blank";
-        if(req.body.messages) console.log('...discarding "messages" response...' + JSON.stringify(req.body.messages));
-        else if(req.body.ack) {
-            console.log('[[====================================');
-            console.log('POST CHATAPI RESPONSE: ' + JSON.stringify(req.body));
-            console.log('====================================]]');
-            
-            let ak = req.body.ack[0]; 
-            console.log('dofy+='+JSON.stringify(ak));
-            console.log('status 1+='+JSON.stringify(ak.status));
-            console.log('status 2+='+ak.status);
-            
-            if(ak.status == 'delivered') {
-            console.log('doing status del');
-                models.Message.update(
-                    {
-                        deliverytime: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
-                        status: 1,
-                    },
-                    {
-                        where: {
-                            message_id: ak.id,
-                        }
-                    }
-                )
-            }
-            else if(ak.status == 'viewed') {
-            console.log('doing status viewd');
-                models.Message.update(
-                    {
-                        readtime: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
-                        status: 5,
-                    },
-                    {
-                        where: {
-                            message_id: ak.id,
-                        }
-                    }
-                )
-            console.log('doing status+='+JSON.stringify(ak.status));
-            }
-            else console.log('...discarding "sent" ack...');
-        }
-    } catch(e) {
-        console.error('WHATSAPP ACK ERROR: ' + e);
-    }
-
-    // res.sendStatus(200);
-    res.send("ok");
-
-}
 
 //  tsnwhatsappoptin api lands here
 exports.preOptIn = async (req, res) => {
@@ -379,7 +296,8 @@ exports.postOptin = async function(req, res) {
         })
     }
 
-    res.render('pages/dashboard/whatsappcompleteoptin', {
+    res.render('pages/dashboard/messagecompleteoptin', {
+        layout: 'dashboard_blank',
         _page: 'Message Opt-In',
         ucode,
 
@@ -591,8 +509,9 @@ exports.completeOptin = async function(req, res) {
             }
 
 
-            res.render('pages/dashboard/whatsappcompleteoptin', {
-                _page: 'WhatsApp Opt-In',
+            res.render('pages/dashboard/messagecompleteoptin', {
+                layout: 'dashboard_blank',
+                _page: 'Message Opt-In',
                 
                 args: {
                     grps: null,
@@ -675,8 +594,9 @@ exports.preOptout = async (req, res) => {
             flash = req.flash('success');
         }
 
-        res.render('pages/whatsappcompleteoptout', {
-            _page: 'WhatsApp Opt-Out',
+        res.render('pages/messagecompleteoptout', {
+            layout: 'dashboard_blank',
+            _page: 'Message Opt-Out',
             flashtype, flash,
 
             args: {
@@ -751,8 +671,9 @@ exports.postOptout = async (req, res) => {
             platform: 'WhatsApp',
         })
 
-        res.render('pages/whatsappcompleteoptout', {
-            _page: 'WhatsApp Opt-Out',
+        res.render('pages/messagecompleteoptout', {
+            layout: 'dashboard_blank',
+            _page: 'Message Opt-Out',
 
             args: {
                 _msg: _message('msg', 1080, req.body.country)

@@ -225,7 +225,7 @@ exports.add = async (req, res) => {
                 console.log('====================================');
 
                 if(!schedule || schedule === 'null') {
-                    let ts = moment().add(parseInt(within_days), 'minutes');
+                    let ts = moment().add(parseInt(within_days), 'days');
                     console.log('====================================');
                     console.log('date 2a='+ts);
                     console.log('====================================');
@@ -237,7 +237,7 @@ exports.add = async (req, res) => {
                     console.log('====================================');
                     console.log('date 1b='+schedule);
                     console.log('====================================');
-                    let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss').add(parseInt(within_days), 'minutes');
+                    let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss').add(parseInt(within_days), 'days');
                     console.log('====================================');
                     console.log('date 2b='+ts);
                     console.log('====================================');

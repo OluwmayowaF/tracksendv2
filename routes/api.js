@@ -30,8 +30,11 @@ module.exports = function(app) {
   app.post('/api/analysecampaign',  apiController.analyseCampaign);
   app.get ('/api/loadcampaign',     apiController.loadCampaign);
   app.get ('/api/getwhatsappqrode', apiController.getWhatsAppQRCode);
-  app.options ('/api/whatsappoptin', cors());
-  app.post ('/api/whatsappoptin', cors(), apiController.whatsAppOptIn);
+  app.options ('/api/whatsappoptin', cors()); // deprecated
+  app.post ('/api/whatsappoptin', cors(), apiController.whatsAppOptIn); //  deprecated
+
+  app.options ('/api/messageoptin', cors());
+  app.post ('/api/messageoptin', cors(), apiController.messageOptIn);
 
   app.post('/api/sms/infobip/notify',       apiController.smsNotifyInfobip);   //  for INFOBIP
   app.get('/api/sms/messagebird/notify',    apiController.smsNotifyMessagebird);   //  for MESSAGEBIRD

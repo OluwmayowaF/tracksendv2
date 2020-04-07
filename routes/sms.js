@@ -2,7 +2,8 @@ var express = require('express');
 var router = express.Router();
 var models = require('../models');
 var _message = require('../my_modules/output_messages');
-var whatsappController = require('../controllers/WhatsAppController');
+// var whatsappController = require('../controllers/WhatsAppController');
+var msgOptController = require('../controllers/MessageOptController');
 
 // Home page route.
 // router.get('/optin', whatsappController.optin);
@@ -239,7 +240,7 @@ router.post('/optout', async(req, res) => {
     }
 
 }); */
-router.get('/optin/:kid', whatsappController.postOptin);    //  controller should be reworded/rejigged 
+router.get('/optin/:kid', msgOptController.postOptin);    //  controller should be reworded/rejigged 
 
 router.post('/optin', async(req, res) => {
 
