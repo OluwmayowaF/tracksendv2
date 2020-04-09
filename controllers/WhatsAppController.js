@@ -454,7 +454,7 @@ exports.completeOptin = async function(req, res) {
                     userId,
                     groupId: grp,
                     countryId,
-                    do_whatsapp: whatsapp,
+                    do_whatsapp: whatsapp ? 1 : 0,
                     do_sms: sms,
                 });
                 
@@ -480,7 +480,7 @@ exports.completeOptin = async function(req, res) {
                     try{
                         await models.Contact.update(
                             {
-                                do_whatsapp: true
+                                do_whatsapp: 1
                             },
                             {
                                 where: {
@@ -731,13 +731,13 @@ exports.postOptout = async (req, res) => {
             name: 'invalidoperation',
         } 
 
-        if(!kont.do_whatsapp) throw {
+        if(kont.do_whatsapp !== 1) throw {
             name: 'notsubscribed',
         } 
         
 
         await kont.update({
-            do_whatsapp: false
+            do_whatsapp: 0
         });
 
         console.log('====================================');

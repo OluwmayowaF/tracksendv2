@@ -547,7 +547,7 @@ exports.add = async (req, res) => {
                     include: [{
                         model: models.Contact, 
                         where: {
-                            do_whatsapp: true
+                            do_whatsapp: 1
                         }
                     }],
                     where: {

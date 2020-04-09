@@ -122,7 +122,10 @@ exports.getContacts = async (req, res) => {
                 sequelize.query(
                     "SELECT * FROM ( SELECT COUNT(status) AS unverified FROM contacts WHERE status = 0 AND groupId = :gid AND userId = :uid) t1, " +
                     "              ( SELECT COUNT(status) AS ndnd       FROM contacts WHERE status = 1 AND groupId = :gid AND userId = :uid) t2, " +
-                    "              ( SELECT COUNT(status) AS dnd        FROM contacts WHERE status = 2 AND groupId = :gid AND userId = :uid) t3 " , {
+                    "              ( SELECT COUNT(status) AS dnd        FROM contacts WHERE status = 2 AND groupId = :gid AND userId = :uid) t3, " +
+                    "              ( SELECT COUNT(do_sms) AS awoptin    FROM contacts WHERE do_sms = 0 AND groupId = :gid AND userId = :uid) t4, " +
+                    "              ( SELECT COUNT(do_sms) AS optin      FROM contacts WHERE do_sms = 1 AND groupId = :gid AND userId = :uid) t5, " +
+                    "              ( SELECT COUNT(do_sms) AS optout     FROM contacts WHERE do_sms = 2 AND groupId = :gid AND userId = :uid) t6 " , {
                         replacements: {
                             gid: req.query.grp,
                             uid: user_id,
