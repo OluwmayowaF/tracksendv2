@@ -578,21 +578,123 @@ $(document).ready(function() {
 	$('.customize_url_btn').on('click', function (e) {
 		if(!$('.short_url_box').hasClass('ready')) return;
 
-		$s_ = $('#_edit_span');
-		$t_ = $('#_edit_text');
+		var $s_ = $('#_edit_span');
+		var $t_ = $('#_edit_text');
 
 		if($s_.is(':visible')) {
 			$t_.val($s_.text());
 			$s_.hide();
 			$t_.show();
-		}
 
+			$('._editing').hide('fade');
+			$('._afteredit').show('fade');
+		} 
 
 		// $('.short_url_box ._editable').attr('contenteditable', 'true');
 		$('.short_url_box ._editable').removeAttr('readonly');
 		// $('.short_url_box').text($('.short_url_box').text() + '/').focus();
 		$('.short_url_box ._editable').focus();
 
+		$('._afteredit .do_lnk_btn').click(function (e) {
+			let tt = $t_.val();
+			if(tt.length < 3) {
+				alert('Kindly enter at least 3 characters.');
+			} else if(tt.search(/[a-zA-Z]/g) == -1) {
+				alert('Custom entry must contain at least one alphabet.' + tt.search(/[a-zA-Z]/g));
+			} else {
+				$.ajax({
+					type: 'GET',
+					url: _getGlobals.SERVICE_HOST+'savecustomoptinlink'+'?url='+tt,
+					contentType: 'application/json; charset=utf-8',
+					// data: json_form_reg,
+					success: function( data ) {
+		
+						if(data.status == 'PASS') {
+							$s_.text($t_.val());
+							$('.notification.other3').removeClass('success error').addClass('success');
+							$('.notification.other3 p').text('Link updated.');
+							$('.notification.other3').css('opacity',100);
+							$('.notification.other3').show();
+							
+							$t_.hide();
+							$s_.show();
+
+							$('._afteredit').hide('fade');				
+							$('._editing').show('fade');
+						} else if(data.status == 'FAIL') {
+							$('.notification.other3').removeClass('success error').addClass('error');
+							$('.notification.other3 p').text(data.msg);
+							$('.notification.other3').css('opacity',100);
+							$('.notification.other3').show();							
+						}
+
+					},
+					error: function(resp, dd, ww) {
+						$('.notification.other3').removeClass('success error').addClass('error');
+						$('.notification.other3 p').text('Error occured. Please check your connection and try again later.');
+						$('.notification.other3').css('opacity',100);
+						$('.notification.other3').show();
+
+					}
+				}).done(function(){
+
+					// $butt.removeAttr('disabled');
+					// $butt.closest('div').find('.loading_icon').hide();
+				});
+						
+			}
+		})
+
+		$('._afteredit .cls_lnk_btn').click(function (e) {
+			$t_.hide();
+			$s_.show();
+
+			$('._afteredit').hide('fade');				
+			$('._editing').show('fade');
+		})
+
+	})
+
+	$('._editing .reset_url_btn').click(function (e) {
+
+		if(!confirm('Reset Link?')) return;
+
+		$.ajax({
+			type: 'GET',
+			url: _getGlobals.SERVICE_HOST+'savecustomoptinlink?reset=true',
+			contentType: 'application/json; charset=utf-8',
+			// data: json_form_reg,
+			success: function( data ) {
+
+				if(data.status == 'PASS') {
+					let $s_ = $('#_edit_span');
+					let $t_ = $('#_edit_text');
+					$s_.text(data.msg);
+					$('.notification.other3').removeClass('success error').addClass('success');
+					$('.notification.other3 p').text('Link updated.');
+					$('.notification.other3').css('opacity',100);
+					$('.notification.other3').show();
+				} else if(data.status == 'FAIL') {
+					$('.notification.other3').removeClass('success error').addClass('error');
+					$('.notification.other3 p').text(data.msg);
+					$('.notification.other3').css('opacity',100);
+					$('.notification.other3').show();							
+				}
+
+			},
+			error: function(resp, dd, ww) {
+				$('.notification.other3').removeClass('success error').addClass('error');
+				$('.notification.other3 p').text('Error occured. Please check your connection and try again later.');
+				$('.notification.other3').css('opacity',100);
+				$('.notification.other3').show();
+
+			}
+		}).done(function(){
+
+			// $butt.removeAttr('disabled');
+			// $butt.closest('div').find('.loading_icon').hide();
+		});
+					
 	})
 
 	$('.short_url_btn').on('click', function(e) {
@@ -805,7 +907,7 @@ $(document).ready(function() {
 
 	})
 
-
+	
 	var st_select_searchterm = '';
 	var done = "raaaa";
 	if (typeof $('.search_clients').select2 === "function") 

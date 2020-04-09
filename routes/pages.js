@@ -10,7 +10,9 @@ var _message = require('../my_modules/output_messages');
 var env = require('../my_modules/env');
 
 
+var msgOptinController = require('../controllers/MessageOptinController');
 const redirectRouter = require('../routes/redirect');
+const msgRouter = require('../routes/messages');
 const smsRouter = require('../routes/sms');
 const whatsAppRouter = require('../routes/whatsapp');
 
@@ -555,6 +557,8 @@ module.exports = function(app) {
 
   app.use('/redirect', redirectRouter);
 
+  app.get('/optin/:optid', msgOptinController.postOptin);
+  app.use('/messages', msgRouter);
   app.use('/sms', smsRouter);
   app.use('/WhatsApp', whatsAppRouter);
 

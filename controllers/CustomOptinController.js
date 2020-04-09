@@ -5,6 +5,7 @@ var models = require('../models');
 
 exports.index = async (req, res) => {
     const Sequelize = require('sequelize');
+    var env = require('../my_modules/env');
     var user_id = req.user.id;
 
     // let msgs = await models.Customoptin.findByPk(user_id);
@@ -39,6 +40,7 @@ exports.index = async (req, res) => {
         if(!opt) {
             await models.Customoptin.create({
                 userId: user_id,
+                optin_generallink: user_id,
             })
             opt = await models.Customoptin.findByPk(user_id);
         }
@@ -85,6 +87,8 @@ exports.index = async (req, res) => {
 
             args: {
                 grps, 
+                opt_link_base: env.SERVER_BASE + "/optin/", 
+                opt_link_link: opt.optin_generallink, 
                 option_two_click: (opt && opt.optin_type && opt.optin_type == 'two-click') ? true : false,
                 option_complete: (opt && opt.optin_type && opt.optin_type == 'complete') ? true : false,
                 ques, 
@@ -326,5 +330,61 @@ console.log('****************************************' + JSON.stringify(req.body
     // req.flash('success', 'Message updated.');
     // var backURL = req.header('Referer') || '/';
     // res.redirect(backURL);
+};
+
+exports.saveoptinlink = async (req, res) => {
+
+    try {
+        var user_id = req.user.id;
+        var link;
+        if(user_id.length == 0)  throw "autherror";
+
+        if(req.query.reset) {
+            link = user_id;
+        } else {
+            link = req.query.url;
+            if((link.length < 3) || (link.search(/[a-zA-Z]/g) == -1)) throw "invaliderror";
+
+            let exists = await models.Customoptin.findAll(
+                {
+                    where: {
+                        optin_generallink: link
+                    }
+                }
+            )
+
+            if(exists.length) throw "existserror";
+        }
+
+        
+        await models.Customoptin.update(
+            {
+                optin_generallink: link
+            }, {
+                where: {
+                    userId: user_id
+                }
+            }
+        )
+        
+        res.send({
+            status: "PASS",
+            msg: link
+        });
+        return;
+        
+    } catch (e) {
+        let msg = "Error occurred.";
+        if(e == 'autherror') msg = "Authentication Error!";
+        if(e == 'invaliderror') msg = "Invalid link. Link must be at least 3 characters long, and with at least 1 alphabet.";
+        if(e == 'existserror') msg = "This link already exists, kindly change to another.";
+        
+        res.send({
+            status: "FAIL",
+            msg,
+        });
+        return;
+    }
+    
 };
 

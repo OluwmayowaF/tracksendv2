@@ -1,14 +1,14 @@
 var express = require('express');
 var router = express.Router();
-var msgOptController = require('../controllers/MessageOptController');
+var msgOptinController = require('../controllers/MessageOptinController');
 
 // Home page route.
-// router.get('/optin', msgOptController.optin);
-router.get('/optin',      msgOptController.postOptin);
-router.get('/optin/:kid', msgOptController.postOptin);
-router.post('/complete',  msgOptController.completeOptin);
+// router.get('/optin', msgOptinController.optin);
+router.get('/optin',      msgOptinController.postOptin);
+router.get('/optin/:kid', msgOptinController.postOptin);
+router.post('/complete',  msgOptinController.completeOptin);
 
-router.get('/optout/:kid', msgOptController.preOptout);
-router.post('/optout',    msgOptController.postOptout);
+router.get('/optout/:kid', msgOptinController.preOptout);
+router.post('/optout',    msgOptinController.postOptout);
 
 module.exports = router;

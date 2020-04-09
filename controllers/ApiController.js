@@ -6,8 +6,9 @@ const _ = require('lodash');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 var campaignController = require('../controllers/CampaignController');
+var customOptinController = require('../controllers/CustomOptinController');
 var whatsappController = require('../controllers/WhatsAppController');
-var msgOptController = require('../controllers/MessageOptController');
+var msgOptinController = require('../controllers/MessageOptinController');
 var filelogger = require('../my_modules/filelogger');
 var phoneval = require('../my_modules/phonevalidate');
 var getSMSCount = require('../my_modules/sms/getSMSCount');
@@ -1079,6 +1080,10 @@ exports.loadCampaign = (req, res) => {
 
 }
 
+exports.saveOptinLink = (req, res) => {
+    customOptinController.saveoptinlink(req, res);
+}
+
 exports.smsNotifyInfobip = (req, res) => {
     
     console.log('[[====================================');
@@ -1377,6 +1382,6 @@ exports.whatsAppOptIn = async (req, res) => {
 }
 
 exports.messageOptIn = async (req, res) => {
-    msgOptController.preOptIn(req, res);
+    msgOptinController.preOptIn(req, res);
 }
 

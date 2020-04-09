@@ -27,6 +27,22 @@
 				<a class="close"></a>
 			</div>
 
+		<div class="notification success _pk closeable no-shadow list_item" style="border: solid 1px;padding: 10px 20px;">
+			<p class="_x short_url_box ready">Public Opt-in Link: 
+				<b class="dv_desc" style="word-break: break-all;">{{ args.opt_link_base }}<span id="_edit_span" class="_editable" maxlength="50" style="font-weight: bold;">{{ args.opt_link_link }}</span></b><input style="display: none" type="text" name="myshorturl" id="_edit_text" placeholder="..." class="_editable" maxlength="50" readonly >
+				<span class="_editing" style="margin-left: 20px;">
+					<span class="tooltip top" title="Copy Link"> <i class="fa fa-copy cpy_lnk_btn" style="margin-left: 10px;color:#999; cursor:pointer"></i></span>
+					<span class="tooltip top" title="Edit"> <i class="fa fa-edit customize_url_btn" style="margin-left: 10px;color:#999; cursor:pointer; float: none"></i></span>
+					<span class="tooltip top" title="Reset"> <i class="fa fa-refresh reset_url_btn" style="margin-left: 10px;color:#999; cursor:pointer"></i></span>
+				</span>
+				<span class="_afteredit" style="display: none;">
+					<span class="tooltip top" title="Done"> <i class="fa fa-check do_lnk_btn" style="margin-left: 10px;color:green; cursor:pointer"></i></span>
+					<span class="tooltip top" title="Cancel"> <i class="fa fa-close cls_lnk_btn" style="margin-left: 10px;color:red; cursor:pointer; float: none"></i></span>
+				</span>
+			</p>
+			<a class="close"></a>
+		</div>
+
 		<div class="row">
 			<div class="toggle-wrap no_borders">
 

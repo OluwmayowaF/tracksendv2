@@ -6,13 +6,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       primaryKey: true,
     },
-    optin_type: DataTypes.STRING,
-    optin_grps: DataTypes.STRING,
-    optin_channels: DataTypes.STRING,
-    optin_msg1: DataTypes.STRING,
-    msg1_channels: DataTypes.STRING,
-    optin_msg2: DataTypes.STRING,
-    msg2_channels: DataTypes.STRING,
+    optin_type:        DataTypes.STRING,
+    optin_grps:        DataTypes.STRING,
+    optin_channels:    DataTypes.STRING,
+    optin_msg1:        DataTypes.STRING,
+    msg1_channels:     DataTypes.STRING,
+    optin_msg2:        DataTypes.STRING,
+    msg2_channels:     DataTypes.STRING,
+    optin_generallink: DataTypes.STRING,
   }, {});
 
   Customoptin.associate = function (models) {

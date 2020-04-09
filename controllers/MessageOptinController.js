@@ -230,36 +230,77 @@ exports.preOptIn = async (req, res) => {
 //  clicking of optin link on whatsapp message lands here
 exports.postOptin = async function(req, res) {
 
-    let ucode = req.query.code || req.params.kid;
+    var general = false, user_id, kont;
+    let ucode = req.query.code || req.params.kid || req.params.optid;
     console.log('code = ' + ucode);
     
-    let kont = await models.Contact.findOne({
-        where: {
-            misc: ucode,
-        },
-        attributes: ['userId', 'countryId'],
-    });
-
-    if(kont == null) {
-        console.log('ERROR IN CODE');
-        
-        res.render('pages/redirect-error', {
-            page: '',
-    
+    var optlnk = req.params.optid
+    if(optlnk) {
+        general = true;
+        let user = await models.Customoptin.findAll({
+            where: {
+                [Sequelize.Op.or]: [
+                    {
+                        optin_generallink: optlnk
+                    },
+                    {
+                        ...( (optlnk === parseInt(optlnk))  ?
+                            {
+                                userId: optlnk
+                            } :
+                            {}
+                        ),
+                    }
+                ],
+            },
+            attributes: ['userId']
         });
-        return;
-    } 
+        if(user.length == 1) user_id = user[0].userId;
+        else {
+            console.log('ERROR IN CODE'+user.length);
+            
+            res.render('pages/redirect-error', {
+                page: '',
+        
+            });
+            return;
+        }
+    } else {
+        kont = await models.Contact.findOne({
+            where: {
+                misc: ucode,
+            },
+            attributes: ['userId', 'countryId'],
+        });
 
-    console.log('====================================');
-    console.log('user id = ' + kont + '; json... ' + JSON.stringify(kont));
-    console.log('====================================');
+        if(kont == null) {
+            console.log('ERROR IN CODE');
+            
+            res.render('pages/redirect-error', {
+                page: '',
+        
+            });
+            return;
+        } 
+
+        user_id = kont.userId;
+        console.log('====================================');
+        console.log('user id = ' + kont + '; json... ' + JSON.stringify(kont));
+        console.log('====================================');
+    }
 
     let getgroups = await models.Group.findAll({
         where: {
-            userId: kont.userId,
+            userId: user_id,
             can_optin: true,
         },
         attributes: ['id', 'name'],
+    })
+
+    let ctry = await models.Country.findAll({ 
+        order: [ 
+            ['name', 'ASC']
+        ]
     })
 
     console.log('====================================');
@@ -269,7 +310,7 @@ exports.postOptin = async function(req, res) {
     //  get questions...if any
     let ques = await models.Customoptinquestion.findAll({
         where: {
-            userId: kont.userId
+            userId: user_id
         },
         raw: true,
     })
@@ -303,23 +344,27 @@ exports.postOptin = async function(req, res) {
 
         args: {
             grps: getgroups,
-            _msg: _message('msg', 1051, kont.countryId),
-            ques
+            _msg: _message('msg', 1051, (general ? 234 : kont.countryId)),
+            ques,
+            general,
+            ctry,
+            user_id,
         }
     });
 
 }
 
-//  submission of whatsapp confirmation form
+//  submission of message confirmation form
 exports.completeOptin = async function(req, res) {
     var phoneformat = require('../my_modules/phoneformat');
 
     let firstname, lastname, phone, userId, countryId, sms, whatsapp;
-    let kont_, error;
+    let custom = false, kont_, error;
 
-    console.log('*********** twoklik 1 ****************');
+    console.log('*********** completeOptin ****************');
+
     if(req.body.twoclick) {
-        console.log('*********** twoklik 2 ****************');
+        console.log('*********** twoklik-optin ****************');
         
         firstname = req.body.firstname;
         lastname = req.body.lastname;
@@ -329,8 +374,19 @@ exports.completeOptin = async function(req, res) {
         sms = req.body.sms && req.body.sms == 'on';
         whatsapp = req.body.whatsapp && req.body.whatsapp == 'on';
 
+    } else if(req.body.generaloptin) {        //  if through general link optin
+        console.log('*********** general-link-optin ****************');
+
+        custom = true;
+        firstname = req.body.fullname.split(' ')[0];
+        lastname = req.body.fullname.split(' ')[1];
+        phone = req.body.phone;
+        userId = req.body.user_id;
+        countryId = req.body.country;
     } else {
-        console.log('*********** non-two-klik ****************');
+        console.log('*********** double/complete-optin ****************');
+        
+        custom = true;
         let ucode = req.body.code;
         let kont = await models.Contact.findOne({
             where: {
@@ -346,23 +402,31 @@ exports.completeOptin = async function(req, res) {
             phone = kont.phone;
             userId = kont.userId;
             countryId = kont.countryId;
-
-            let opt = models.Customoptin.findByPk(userId);
-            if(opt.optin_channels) {
-                sms = opt.optin_channels.toString().split(',').includes('sms');
-                whatsapp = opt.optin_channels.toString().split(',').includes('whatsapp');
-            }
         }
     }
-    let grps = req.body.groups;
-    grps = Array.isArray(grps) ? grps : grps.split(',');
+
+    if(custom) {
+        console.log('__________custom');
+        
+        let opt = await models.Customoptin.findByPk(userId);
+        if(opt.optin_channels) {
+            sms = opt.optin_channels.toString().split(',').includes('sms');
+            whatsapp = opt.optin_channels.toString().split(',').includes('whatsapp');
+        }
+    }
 
     //  get new contact's saved details
     try {
         if(error) throw error;
+        console.log('_________no-error');
+
+        let grps = req.body.groups;
+        grps = Array.isArray(grps) ? grps : grps.split(',');
+
         //  create contact-group records
         var ques_saved = false;
         await grps.forEach(async grp => {
+            console.log('________grp' + grps);
             
             try {
                 let newk = await models.Contact.create({
@@ -392,7 +456,7 @@ exports.completeOptin = async function(req, res) {
                 }
 
             } catch(e) {
-                
+                console.log('#_________' + e);
                 if(e.name == 'SequelizeUniqueConstraintError') {
                     
                     try{
@@ -414,10 +478,14 @@ exports.completeOptin = async function(req, res) {
                         console.error('====================================');
                         console.error('inside inside error' + JSON.stringify(e));
                         console.error('====================================');
+                        throw e;
                     }
                 }
+                else {
+                    throw e;
+                }
             }
-        });
+        });//.catch(e => { throw e });
         console.log('after insert/update');
        
         // console.log('grps = ' + grps.length + 'grps = ' + (newk));
@@ -506,6 +574,7 @@ exports.completeOptin = async function(req, res) {
                 console.log('====================================');
                 console.log('eeeeeeeeeeeeeeeeeeeeeeeeee ' + err);
                 console.log('====================================');
+                throw err;
             }
 
 
@@ -520,30 +589,44 @@ exports.completeOptin = async function(req, res) {
             });
         }
     } catch(e) {
+        console.log('@_____________' + e);
+        
         if(e.name == 'SequelizeUniqueConstraintError') {
-            res.send({
+            req.flash('error', 'Contact already exists');
+            var backURL = req.header('Referer') || '/';
+            res.redirect(backURL);
+            /* res.send({
                 status: "FAIL",
                 msg: _message('error', 1050, countryId),
-            });
+            }); */
             return;
         }
         else if(e.name == 'requesterror') {
-            res.send({
+            req.flash('error', 'An error occurred, please try again later.');
+            var backURL = req.header('Referer') || '/';
+            res.redirect(backURL);
+            /* res.send({
                 status: "FAIL",
                 msg: _message('error', 1060, 234),
-            });
+            }); */
             return;
         }
         else if(e.name == 'phoneerror') {
-            res.send({
+            req.flash('error', 'Invalid phone/country entry');
+            var backURL = req.header('Referer') || '/';
+            res.redirect(backURL);
+            /* res.send({
                 status: "FAIL",
                 msg: _message('error', 1070, countryId),
-            });
+            }); */
             return;
         } else {
             console.error('====================================');
             console.error('ERRORa: ' + JSON.stringify(e) + ' ... ' + e);
             console.error('====================================');
+            req.flash('error', 'An error occurred, please try again later.');
+            var backURL = req.header('Referer') || '/';
+            res.redirect(backURL);
         }
     }
 
