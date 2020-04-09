@@ -937,6 +937,7 @@ exports.view = (req, res) => {
             campaigns: true,
 
             args: {
+                cmgnid,
                 delivered: summary.delivered,
                 pending: summary.pending,
                 failed: summary.failed, 
@@ -951,6 +952,126 @@ exports.view = (req, res) => {
                 ctr: ((parseInt(summary.delivered) == 0) ? '0' : (parseInt(summary.clickc) * 100/parseInt(summary.delivered))),
             }
         });
+
+    });
+};
+
+exports.download = (req, res) => {
+    var excel = require('excel4node');
+    var workbook = new excel.Workbook();
+    var worksheet = workbook.addWorksheet('Campaign Result');
+    var style = workbook.createStyle({
+        /* font: {
+            color: '#FF0800',
+            size: 12,
+        }, */
+        numberFormat: '$#,##0.00; ($#,##0.00); -'
+    })
+
+    var user_id = req.user.id;
+    var cmgnid = req.params.id;
+
+
+    console.log('trying to download ...'); 
+        
+    Promise.all([
+        models.Campaign.findOne({ 
+            where: { 
+                id: cmgnid,
+                userId: user_id,
+            },
+            include: [{
+                model: models.Message, 
+                // limit: 100,
+                order: [ 
+                    ['createdAt', 'DESC']
+                ],
+                include: [{
+                    model: models.Contact, 
+                    attributes: ['id', 'firstname', 'lastname', 'phone'],
+                    // through: { }
+                }], 
+                attributes: ['status', 'deliverytime', 'readtime', 'firstclicktime', 'clickcount', 'destination'],
+                // through: { }
+            }], 
+            order: [ 
+                ['createdAt', 'DESC']
+            ],
+            // limit: 1,
+        }), 
+    ]).then(async ([cpgnrecp]) => {
+        console.log('qqq= '+ JSON.stringify(cpgnrecp));
+        var recipients = cpgnrecp.messages;
+        
+        worksheet.cell(1,1).string('First Name').style(style);
+        worksheet.cell(1,2).string('Last Name').style(style);
+        worksheet.cell(1,3).string('Phone').style(style);
+        worksheet.cell(1,4).string('Status').style(style);
+        worksheet.cell(1,5).string('Clicked').style(style);
+        var itr = 1;
+
+        recipients.forEach(ii => {
+           itr++;
+            // let jj = JSON.stringify(ii);
+            var i = JSON.parse(JSON.stringify(ii));
+            var st = parseInt(i.status);
+
+            if(i.contact == null && i.destination.length > 0) {
+                var ds = i.destination;
+                let pp = '0' + ds.substr(-10);
+
+                i.contact = {
+                    firstname: '--',
+                    lastname: '--',
+                    phone: pp,
+                }
+            }
+
+            worksheet.cell(itr,1).string(i.contact.firstname).style(style);
+            worksheet.cell(itr,2).string(i.contact.lastname).style(style);
+            worksheet.cell(itr,3).string(i.contact.phone).style(style);
+            
+            switch (st) {
+                case 0:
+                    i.status = "Pending"
+                    break;
+                case 1:
+                    i.status = "Delivered"
+                    break;
+                case 2:
+                    i.status = "Failed"
+                    break;
+                case 3:
+                    i.status = "DND"
+                    break;
+                case 4:
+                    i.status = "Invalid"
+                    break;
+                case 5:
+                    i.status = "Viewed"
+                    break;
+            
+                default:
+                    break;
+            }
+
+            worksheet.cell(itr,4).string(i.status).style(style);
+            worksheet.cell(itr,5).number(i.clickcount).style(style);
+
+            
+            // console.log('PHONE = ' + i.contact.phone);
+            
+            
+        });
+        let timestamp_ = new Date();
+        let timestamp = timestamp_.getTime();
+        let newfile = 'tmp/downloads/' + cpgnrecp.name + '_' + timestamp + '.xlsx';
+
+        await workbook.write(newfile, (err, status) => {
+            if(err) console.log('_______________ERROR: ' + err);
+            else res.download(newfile);
+        });
+        console.log('____________DONE');
 
     });
 };

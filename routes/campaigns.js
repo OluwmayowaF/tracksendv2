@@ -8,6 +8,7 @@ router.get('/', campaignController.index);
 // router.get('/whatsapp', campaignController.waindex);  //  inactive for now
 router.post('/add', campaignController.add);
 router.get('/campaign/:id', campaignController.view);
+router.get('/campaign/download/:id', campaignController.download);
 router.get('/copy', campaignController.copy);
 
 

@@ -16015,15 +16015,15 @@ img.mfp-img {
 		animation: loader 2s linear infinite;
 	}
 
-	#_this_style_1 {
-    flex: 14%;
+	.shadow_btn {
+    flex: 16%;
     font-size: 0.7em;
     background-color: white;
     color: #116575;
     text-align: center;
     border: solid 1px #aaa;
     border-radius: 5px;
-    box-shadow: -2px -2px 5px #999 inset;
+    box-shadow: -1px -1px 3px #999 inset;
     cursor: pointer;
 	}
 
