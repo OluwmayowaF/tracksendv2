@@ -557,7 +557,7 @@ module.exports = function(app) {
 
   app.use('/redirect', redirectRouter);
 
-  app.get('/optin/:optid', msgOptinController.postOptin);
+  app.get('/optin/:optid', msgOptinController.postOptin);   //  deprecated. Should go through redirect route
   app.use('/messages', msgRouter);
   app.use('/sms', smsRouter);
   app.use('/WhatsApp', whatsAppRouter);

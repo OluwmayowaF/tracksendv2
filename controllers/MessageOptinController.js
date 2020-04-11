@@ -231,7 +231,11 @@ exports.preOptIn = async (req, res) => {
 exports.postOptin = async function(req, res) {
 
     var general = false, user_id, kont;
-    let ucode = req.query.code || req.params.kid || req.params.optid;
+    let ucode;
+    if(req.query.code) ucode = req.query.code;
+    if(req.params.kid) ucode = req.params.kid;
+    if(req.params.optid) ucode = req.params.optid;  //  general opt-in
+    // let  || req.params.kid || req.params.optid;
     console.log('code = ' + ucode);
     
     var optlnk = req.params.optid
