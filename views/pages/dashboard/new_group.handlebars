@@ -113,7 +113,7 @@
 											<li style="flex: 6" class="dv_name">{{ name }}</li>
 											<li style="flex: 8" class="dv_desc">{{ description }}</li>
 											<li style="flex: 2">{{ count }}</li>
-											<li style="flex: 2">{{#if can_optin}} Yes {{else}} No {{/if}}</li>
+											<li style="flex: 2" class="dv_optin">{{#if can_optin}} Yes {{else}} No {{/if}}</li>
 											<li style="flex: 3" class="dv_updated">{{formatDate updatedAt "short"}}</li>
 											<li style="flex: 3">{{formatDate createdAt "short"}}</li>
 											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
@@ -138,8 +138,8 @@
 
 												<div class="col-md-1 checkboxes">
 													<h5>Can Opt-in </h5>
-													<input id="can_optin_{{ @index }}" type="checkbox" name="can_optin_{{ @index }}" {{#if can_optin}} checked {{/if}} >
-													<label class="can_optin_chk" for="can_optin_{{ @index }}">sdsd dfsd fs</label>
+													<input class="can_optin_chk" id="can_optin_{{ @index }}" type="checkbox" name="can_optin" {{#if can_optin}} checked {{/if}} >
+													<label class="can_optin_chklabel" for="can_optin_{{ @index }}">sdsd dfsd fs</label>
 													<div class="clearfix"></div>
 												</div>
 												</form>

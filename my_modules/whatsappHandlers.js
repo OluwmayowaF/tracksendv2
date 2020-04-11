@@ -2,7 +2,7 @@ var models = require('../models');
 const { default: axios } = require('axios');
 var qs = require('qs');
 var API = require('../config/cfg/chatapi')();
-var env = require('./env');
+var env = require('../config/env');
 
 /* 
 

@@ -6,7 +6,7 @@ const Op = Sequelize.Op;
 var models = require('../../models');
 var phoneformat = require('../phoneformat');
 var filelogger = require('../filelogger');
-var env = require('../env');
+var env = require('../../config/env');
 var _message = require('../output_messages');
 
 //  INFOBIP INIT

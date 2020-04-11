@@ -7,7 +7,7 @@ var bcrypt = require("bcryptjs");
 const nodemailer = require('nodemailer');
 const randgen = require('../my_modules/randgen');
 var _message = require('../my_modules/output_messages');
-var env = require('../my_modules/env');
+var env = require('../config/env');
 
 
 var msgOptinController = require('../controllers/MessageOptinController');

@@ -5,7 +5,7 @@ var models = require('../models');
 
 exports.index = async (req, res) => {
     const Sequelize = require('sequelize');
-    var env = require('../my_modules/env');
+    var env = require('../config/env');
     var user_id = req.user.id;
 
     // let msgs = await models.Customoptin.findByPk(user_id);
@@ -87,7 +87,8 @@ exports.index = async (req, res) => {
 
             args: {
                 grps, 
-                opt_link_base: env.SERVER_BASE + "/optin/", 
+                // opt_link_base: env.SERVER_BASE + "/optin/", 
+                opt_link_base: "http://tsn.pub/optin/",
                 opt_link_link: opt.optin_generallink, 
                 option_two_click: (opt && opt.optin_type && opt.optin_type == 'two-click') ? true : false,
                 option_complete: (opt && opt.optin_type && opt.optin_type == 'complete') ? true : false,

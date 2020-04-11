@@ -4,7 +4,7 @@ var models = require('../models');
 const request = require('request');
 const { initializePayment, verifyPayment } = require('../config/paystack')(request);
 const randgen = require('../my_modules/randgen');
-var env = require('../my_modules/env');
+var env = require('../config/env');
 
 exports.index = async (req, res) => {
     var user_id = req.user.id;

@@ -297,14 +297,14 @@ exports.saveGroup = (req, res) => {
         });
         return;
     }
-
+// console.log('optin='+(req.body.can_optin && (req.body.can_optin == "on") ? 'yes' : 'no'))
     models.Group.findByPk(req.body.id)
     .then(grp => {
         if(grp.userId == user_id) {
             grp.update({
                 name: req.body.name,
                 description: req.body.description,
-                can_optin: req.body.can_optin,
+                can_optin: (req.body.can_optin && req.body.can_optin == "on") ? true : false,
             })
             .then((r) => {
                 res.send({

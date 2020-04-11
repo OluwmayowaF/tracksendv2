@@ -1,6 +1,6 @@
 const request = require('request');
 const { default: axios } = require('axios');
-var env = require('../env');
+var env = require('../../config/env');
 
 //  INFOBIP INIT
 const { tracksend_user, tracksend_pwrd, tracksend_base_url } = require('../../config/cfg/infobip')();

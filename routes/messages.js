@@ -4,8 +4,8 @@ var msgOptinController = require('../controllers/MessageOptinController');
 
 // Home page route.
 // router.get('/optin', msgOptinController.optin);
+router.get('/optin/:kid', msgOptinController.postOptin);  //  deprecated: general optin for users
 router.get('/optin',      msgOptinController.postOptin);
-router.get('/optin/:kid', msgOptinController.postOptin);
 router.post('/complete',  msgOptinController.completeOptin);
 
 router.get('/optout/:kid', msgOptinController.preOptout);

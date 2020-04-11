@@ -1314,8 +1314,13 @@ console.log('====================================');
 
 	$('.inline_edit').on('click', function (e) {
 		e.stopPropagation();
-		e.preventDefault();
+		if(!$(e.target).hasClass('checkboxes') && $(e.target).closest('.checkboxes').length == 0) e.preventDefault();
 	})
+	
+	// $('.inline_edit *').on('click', function (e) {
+	// 	// e.stopPropagation();
+	// 	e.preventDefault();
+	// })
 	
 	initializeActionBtns();
 	function initializeActionBtns() {
@@ -1438,6 +1443,9 @@ console.log('====================================');
 
 		$('.save_edit_btn').off('click');
 		$('.save_edit_btn').on('click', function(e) {
+			e.stopPropagation();
+			e.preventDefault();
+			
 			var $btn = $(this);
 			var $item = $btn.closest('.list_item');
 			var wh = $item.attr('data-wh');
@@ -1466,8 +1474,10 @@ console.log('====================================');
 
 						$item.find('.dv_name').text($item.find('.ed_name').val());
 						$item.find('.dv_desc').text($item.find('.ed_desc').val());
+						$item.find('.dv_optin').text($item.find('.can_optin_chk').is(':checked') ? 'Yes' : 'No');
 						if(wh == 'senderid') $item.find('.dv_status').text('Pending...');
-						$item.find('.dv_updated').text('Pending...');
+						if(wh == 'group') {}
+						else $item.find('.dv_updated').text('Pending...');
 						
 						$item.find('.inline_edit').hide();
 						$item.find('.saved_item').show();
@@ -1500,6 +1510,9 @@ console.log('====================================');
 
 		$('.cancel_edit_btn').off('click');
 		$('.cancel_edit_btn').on('click', function(e) {
+			e.stopPropagation();
+			e.preventDefault();
+
 			var $btn = $(this);
 			var $item = $btn.closest('.list_item');
 			$item.find('.inline_edit').hide();
@@ -1777,9 +1790,9 @@ console.log('====================================');
 		if($(this).val() == 'complete') selectedcustomoptinoption = 'complete';
 	}) */
 
-	$('.can_optin_chk').on('click', (e) => {
-		e.stopPropagation();
-		e.preventDefault();
+	$('.can_optin_chk').on('change', (e) => {
+		// e.stopPropagation();
+		// e.preventDefault();
 
 		console.log('kkkkkllllliiiiiiiiikkkkkkkkkkkkkkkkkddddddddd');
 		
