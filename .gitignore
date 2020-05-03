@@ -1,4 +1,5 @@
 # files/folders to ignore
 
 config/cfg/
+config/env.js
 tmp/
