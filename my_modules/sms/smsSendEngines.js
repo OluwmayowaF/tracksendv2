@@ -321,6 +321,8 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
         var q_reference = info.name.replace(/ /g, '_');
         var q_type = 'sms';
 
+console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
+
         var m_originator = sndr.name;
         // var m_reportUrl = 'https://dev2.tracksend.co/api/sms/notify/';
         var m_reportUrl = env.SERVER_BASE + '/api/sms/messagebird/notify/';
