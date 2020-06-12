@@ -21,6 +21,9 @@ module.exports = function(app) {
   app.get ('/api/getclients',       apiController.getClients);
   app.post('/api/savesenderid',     apiController.saveSenderId);
   app.get ('/api/delsenderid',      apiController.delSenderId);
+  app.post('/api/ext/newgroup',     apiController.newGroup);       //  external API access
+  app.post('/api/ext/updategroup',  apiController.updateGroup);    //  external API access
+  app.post('/api/ext/newcampaign',  apiController.newCampaign);    //  external API access
   app.post('/api/savegroup',        apiController.saveGroup);
   app.get ('/api/delgroup',         apiController.delGroup);
   app.get ('/api/delcampaign',      apiController.delCampaign);
@@ -68,6 +71,8 @@ module.exports = function(app) {
   // otherwise send back an error
 
   app.post("/api/register", async function(req, res) {
+    var mgauth = require('../config/cfg/mailgun')();
+    const mailgun = require('mailgun-js')({apiKey: mgauth.APIKEY, domain: mgauth.DOMAIN});
     const randgen = require('../my_modules/randgen');
     let pk = await randgen('api_key', db.User, 50, 'fullalphnum', '_');
 
@@ -76,27 +81,42 @@ module.exports = function(app) {
     console.log('====================================');
     console.log(JSON.stringify(req.body));
     console.log('====================================');
-    db.User.create(req.body).then(function(user) {
+
+    try {
+      let user = await db.User.create(req.body);
       // res.redirect(307, "/api/login");
       console.log('111111');
       //  then create the [Uncategorized] group for the new user
-      db.Group.create({
+      await db.Group.create({
         name: '[Uncategorized]',
         description: 'For all contacts without distinct groups.',
         userId: user.id,
       })
 
+      //  send mail to notify someone
+      var data = {
+        from: 'Tracksend <info@tracksend.com>',
+        to: 'New User <newuser@tracksend.co>',
+        subject: 'Tracksend: New User Registered.',
+        text: 'A new user called ' + req.body.name + ' (' + req.body.business + ') has just been registered.',
+      };
+      
+      mailgun.messages().send(data, function (error, body) {
+      console.log('mail error: ' + JSON.stringify(error));
+      console.log('mail body: ' + JSON.stringify(body));
+      });
+    
       req.login(user, () => {
         console.log('222222');
         req.flash('success', 'Registration successful. Welcome to Tracksend.');
         console.log('33333');
         res.json(["registered"]);
       });
-    }).catch(function(err) {
+    } catch(err) {
       console.log(err);
       res.json(err);
       // res.status(422).json(err.errors[0].message);
-    });
+    };
   });
 //
   // Route for logging user out

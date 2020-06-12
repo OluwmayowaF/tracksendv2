@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 var models = require('../models');
+var contactController = require('./ContactController');
 
 exports.index = function(req, res) {
     res.send('NOT IMPLEMENTED: Site Home Page');
@@ -132,41 +133,64 @@ exports.listWAGroup = (req, res) => {
 
 }
 
-exports.addGroup = (req, res) => {
+exports.addGroup = async (req, res) => {
     var user_id = req.user.id;
+    var fl = { mtype: null, msg: '', code: '' };
 
     console.log('form details are now...'); 
     console.log('form details are now: ' + JSON.stringify(req.body)); 
 
-    models.User.findByPk(user_id)
-    .then(user => {
-        if(req.body.name.length > 0) {
-            user.createGroup({
+    const user = await models.User.findByPk(user_id);
+    if(req.body.name.length > 0) {
+        try {
+            const group = await user.createGroup({
                 name: req.body.name,
                 description: req.body.description,
                 can_optin: req.body.can_optin && (req.body.can_optin == 'on') ? true : false,
-            }) 
-            .then((group) => {
-                console.log('group created');
+            });
 
-                req.flash('success', 'Your new Group has been created.');
-                var backURL = req.header('Referer') || '/';
-                res.redirect(backURL);
+            console.log('group created');
 
-            })
-            .catch((err) => {
-                if(err.name == 'SequelizeUniqueConstraintError') {
-                    req.flash('error', 'Group Name already exists on your account.');
-                    var backURL = req.header('Referer') || '/';
-                    res.redirect(backURL);
+            if(req.externalapi) {
+                req.body.group = group.id;
+                if(req.body.contacts && req.body.contacts.length > 0){
+                    contactController.addContact(req, res);
+                } else {
+                    fl.mtype = "SUCCESS"
+                    fl.msg = group.id;
+                    fl.code = "OK";
                 }
-            })
-        } else {
-            req.flash('error', 'Kindly enter a valid group name');
-            var backURL = req.header('Referer') || '/';
-            res.redirect(backURL);
+            } else {
+                fl.mtype = "SUCCESS"
+                fl.msg = "Your new Group has been created.";
+                fl.code = "E023";
+            }
+        } catch(err) {
+            fl.mtype = "ERROR"
+            if(err.name == 'SequelizeUniqueConstraintError') {
+                fl.msg = "Group Name already exists on your account.";
+                fl.code = "E020";
+            } else {
+                fl.msg = "An error occured. Kindly try again later or contact Admin.";
+                fl.code = "E001";
+            }
         }
-    })
-
-
+    } else {
+        fl.mtype = "ERROR"
+        fl.msg = "Kindly enter a valid group name.";
+        fl.code = "E021";
+    }
+    
+    if(req.externalapi) {
+        res.send({
+            response: fl.mtype == "SUCCESS" ? {id: fl.msg, name: ""} : "An error occurred.", 
+            responseType: fl.mtype, 
+            responseCode: fl.code, 
+            responseText: fl.mtype == "SUCCESS" ? "Group created successfully." : fl.msg, 
+        })
+    } else {
+        req.flash(fl.mtype, fl.msg);
+        var backURL = req.header('Referer') || '/';
+        res.redirect(backURL);
+    }
 }

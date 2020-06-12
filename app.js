@@ -1,17 +1,17 @@
-const express = require('express');
-const exphbs = require('express-handlebars');
-const { hbs } = require('./my_modules/handlebarhelpers')();
+const express    = require('express');
+const exphbs     = require('express-handlebars');
+const { hbs }    = require('./my_modules/handlebarhelpers')();
 const bodyParser = require('body-parser');
-const path = require('path');
+const path       = require('path');
 const fileUpload = require('express-fileupload');
 // const http = require('http');
 // var handlebars = require('handlebars');
 // Requiring passport as we've configured it
-var passport = require("./config/passport");
+var passport     = require("./config/passport");
 
 var cookieParser = require('cookie-parser');
-var session = require('express-session');
-var flash = require('express-flash');
+var session      = require('express-session');
+var flash        = require('express-flash');
 
 // const Sequelize = require('sequelize');
 // const User = require('./models/User');

@@ -35,7 +35,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
         }
 
         if(sms_service == 'infobip') {
-            return await (async function() {
+            (async function() {
 
                 var q_tracking_type = info.name.replace(/ /g, '_');
                 var q_bulkId = 'generateBulk';
@@ -78,9 +78,6 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                         } while (exists.length);
                         console.log('UID = ' + uid);
                         let shrtlnk = await models.Shortlink.findByPk(info.shortlinkId);
-                        console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~' + JSON.stringify(shrtlnk));
-                        
-                        if(!shrtlnk) throw 'shorturl';
                         return {
                             sid : shrtlnk.id,
                             slk : shrtlnk.shorturl,
@@ -88,15 +85,15 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                         };
                     }
                     
-                    async function saveMsg(args) {
+                    function saveMsg(args) {
                         console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
-                        try {
-                            let shrt = await cpn.createMessage({
-                                shortlinkId: args.sid,
-                                contactlink: args.cid,
-                                contactId: kont.id,
-                            });
-
+                        
+                        return cpn.createMessage({
+                            shortlinkId: args.sid,
+                            contactlink: args.cid,
+                            contactId: kont.id,
+                        })
+                        .then((shrt) => {
                             console.log('MESSAGE ENTRY CREATE STARTED.');
                                                             
                             var updatedmessage  = originalmessage
@@ -106,7 +103,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                             .replace(/\[last name\]/g, kont.lastname)
                             .replace(/\[email\]/g, kont.email)
                             .replace(/\[e-mail\]/g, kont.email)
-                            .replace(/\[url\]/g, (args.slk && args.cid) ? 'http://tsn.pub/' + args.slk + '/' + args.cid : '')
+                            .replace(/\[url\]/g, 'http://tsn.pub/' + args.slk + '/' + args.cid)
                             .replace(/\s{2,}/g, '')
                             // .replace(/\\r/g, '')
                             // .replace(/\\n/g, '')
@@ -152,11 +149,11 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
 
                                 return msgfull;
                             }
-                        } catch(err) {
-                            console.log('________________________________');
                             
-                           throw "111Error: Please try again later";
-                        }
+                        })
+                        .error((r) => {
+                            console.log("Error: Please try again later");
+                        })
                                     
                     }
 
@@ -171,8 +168,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                     console.log('NEXT: Promise.all Done');
                     
                     return await saveMsg(args);
-                    console.log('1_____________________________');
-                    
+
                     // })
                 }
 
@@ -227,63 +223,60 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
 
                         }
 
-                        let data = await Promise.all(actions);
-
-                        console.log('MSGS ARE: ' + JSON.stringify(data));
-                        
-                        var tosend = {
-                            "bulkId": 'CMPGN-' + cpn.id + '-' + counter,
-                            "messages": data,
-                            "tracking": {
-                                "track" : q_tracking_track,
-                                "type" : q_tracking_type,
-                            }, 
-                        }
-
-                        const options = {
-                            url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',
-                            json: tosend,
-                            headers: {
-                                'Authorization': 'Basic ' + base64encode,
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            }
-                        }
-                        
-                        let response = await sendSMS('infobip', options);
-                        // request.post(options, async (err, response) => {
-                        /* if (err){
-                            console.log('ERROR = ' + err);
-                            failures++;
-                        } else */ 
-                        if (response) {
-                            //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
-                            console.log('Status: ' + response);
-                            // console.log('jStatus: ' + JSON.stringify(response));
-                            console.log('Status code: ' + JSON.stringify(response.code));
+                        Promise.all(actions)
+                        .then(async (data) => {
+                            console.log('MSGS ARE: ' + JSON.stringify(data));
                             
-                            if(response.code == "ENOTFOUND") networkerror = true;
-
-                            if(response.statusCode == 200 || response.status == 200) {
-                                successfuls++;
-                            } else {
-                                failures++;
+                            var tosend = {
+                                "bulkId": 'CMPGN-' + cpn.id + '-' + counter,
+                                "messages": data,
+                                "tracking": {
+                                    "track" : q_tracking_track,
+                                    "type" : q_tracking_type,
+                                }, 
                             }
-                        }
 
-                        //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
-                        console.log('________________________INFO11='+ JSON.stringify(info));
-                        
-                        let resp = await dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_);
-                        console.log('||||||||||||||||||||||||---' + resp);
-                        
-                        // });
-                
-                        
-                        counter++;
-                        if(end < len) await doLoop(end)
-                        console.log('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO');
-                        return resp;
+                            const options = {
+                                url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',
+                                json: tosend,
+                                headers: {
+                                    'Authorization': 'Basic ' + base64encode,
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                }
+                            }
+                            
+                            let response = await sendSMS('infobip', options);
+                            // request.post(options, async (err, response) => {
+                            /* if (err){
+                                console.log('ERROR = ' + err);
+                                failures++;
+                            } else */ if (response) {
+                                //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
+                                console.log('Status: ' + response);
+                                // console.log('jStatus: ' + JSON.stringify(response));
+                                console.log('Status code: ' + JSON.stringify(response.code));
+                                
+                                if(response.code == "ENOTFOUND") networkerror = true;
+
+                                if(response.statusCode == 200 || response.status == 200) {
+                                    successfuls++;
+                                } else {
+                                    failures++;
+                                }
+                            }
+
+                            //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
+                            console.log('________________________INFO11='+ JSON.stringify(info));
+                            
+                            await dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_);
+                            // });
+                    
+                            
+                            counter++;
+                            if(end < len) await doLoop(end)
+                            console.log('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO');
+                        })
                     }
 
                 }
@@ -309,8 +302,6 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                 //  finally redirect back to page
                 console.log('END... NEW PAGE!');
             })()
-            console.log('|||||||||||||||||||||||||||||||||||||||||||||||||||||');
-            
         }
 
         if(sms_service == 'messagebird') {
@@ -854,7 +845,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
     } catch(err) {
         console.log('%%%%%%%%%%%'+err);
         
-        return { status: "error", msg: err };
+        return err;
     }
 }
 
@@ -894,8 +885,6 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
         console.log('SUCCESSFULS: ' + successfuls + '; FAILURES : ' + failures);
         console.log('________________________INFO22='+ JSON.stringify(info));
 
-        let _status = {};
-        
         try {
             if(!networkerror && successfuls > 0) {   
             // if(true) {       //  kenni
@@ -937,13 +926,6 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
                 //  REMOVE TEMPORARY DATA
                 await info.destroy();
         
-                _status = {
-                    response: "Success. Messages sent.", 
-                    responseType: "OK", 
-                    responseCode: "P001", 
-                    responseText: "Messages sent successfully.", 
-                }
-
                 let mm = (schedule_) ? 'scheduled to be sent out at ' + moment(schedule_, 'YYYY-MM-DD HH:mm:ss').add(1, 'hour').format('h:mm A, DD-MMM-YYYY') + '.' : 'sent out.';
                 req.flash('success', 'Campaign created successfully. Messages ' + mm);
                 var backURL = req.header('Referer') || '/';
@@ -953,13 +935,6 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
 
                 await cpn.destroy();
 
-                _status = {
-                    response: "Error: General Error!", 
-                    responseType: "ERROR", 
-                    responseCode: "E002", 
-                    responseText: "General error. Please contact Tracksend admin.", 
-                }
-                
                 req.flash('error', 'An error occurred while sending out your Campaign. Check your network connection, and ensure you\'re logged in.');
                 var backURL = req.header('Referer') || '/';
                 res.redirect(backURL);
@@ -970,13 +945,6 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
                 req.flash('error', 'An error occurred while sending out your Campaign. Please try again later or contact admin.');
                 var backURL = req.header('Referer') || '/';
                 res.redirect(backURL);
-
-                _status = {
-                    response: "Error: General Error!", 
-                    responseType: "ERROR", 
-                    responseCode: "E003", 
-                    responseText: "General error. Please contact Tracksend admin.", 
-                }
             }
         } catch (err) {
             console.error('THIS ERROR: ' + err);
@@ -989,8 +957,6 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
                 
             }
         }
-
-        return _status;
 
     } 
 

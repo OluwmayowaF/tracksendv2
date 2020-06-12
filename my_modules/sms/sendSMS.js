@@ -80,15 +80,16 @@ const sendSMS =  async (platform, params, url = null, message = null, sender = n
                 }
             }); */
             let seen = [];
+            console.log('1a~~~d~~~e~~~l~~~e~~~~')
             console.log('1a~~~~~~~~~~~~~~~~' + JSON.stringify(ret, function (key, val) {
-            if (val != null && typeof val == "object") {
-                if (seen.indexOf(val) >= 0) {
-                    return;
+                if (val != null && typeof val == "object") {
+                    if (seen.indexOf(val) >= 0) {
+                        return;
+                    }
+                    seen.push(val);
                 }
-                seen.push(val);
-            }
-            return val;
-        }));
+                return val;
+            }));
             return ret;
         } catch(err) {
             console.log('1b~~~~~~~~~~~~~~~~' + err);

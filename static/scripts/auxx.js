@@ -823,7 +823,7 @@ $(document).ready(function() {
 						$bo.show();
 						$bo.find('#cpm_summary_name')		.text($fr.find('#campaign_name').val());
 						$bo.find('#cpm_summary_sender')	.text($fr.find('#sel_sender_id option:selected').text());
-						$bo.find('#cpm_summary_msg')		.text(sanitizeMsg($fr));
+						$bo.find('#cpm_summary_msg')		.html(sanitizeMsg($fr, true));
 						$bo.find('#cpm_summary_to')			.text($fr.find('#sel_contact_group option:selected').text());
 						$bo.find('#cpm_summary_recp')		.text(data.contactcount.counts[i] + (i > 0 ? ' (est.)' : ''));
 						$bo.find('#cpm_summary_count')	.text(data.msgcount.counts[i] + (i > 0 ? ' (est.)' : ''));
@@ -1809,9 +1809,10 @@ function halidate(we) {
 	} */
 }
 
-function sanitizeMsg($fr) {
+function sanitizeMsg($fr, html) {
 	var $el = $fr.find('.editable_div');
 	var msg_ = $el.html();
+/*  
 	msg_ = msg_.replace(/<span[^<]*?class="arg"[^<]*firstname.*?<\/span>/g, '[firstname]')
 				.replace(/<span[^<]*?class="arg"[^<]*lastname.*?<\/span>/g, '[lastname]')
 				.replace(/<span[^<]*?class="arg"[^<]*email.*?<\/span>/g, '[email]')
@@ -1823,6 +1824,24 @@ function sanitizeMsg($fr) {
 				.replace(/<br>/g, ' ')
 				.replace(/<span.*style=".*?">/g, '') 
 				.replace(/<\/span>/g, '');
+ */
+
+	//	remember to add case-insensitivity
+	msg_ = msg_
+				.replace(/\[firstname\]/g, html? '<span style="display: inline; font-size: 0.9em; background-color: yellow;">[firstname]</span>' : '[firstname]')
+				.replace(/\[first name\]/g, html? '<span style="display: inline; font-size: 0.9em; background-color: yellow;">[firstname]</span>' : '[firstname]')
+				.replace(/\[lastname\]/g, html? '<span style="display: inline; font-size: 0.9em; background-color: yellow;">[lastname]</span>' : '[lastname]')
+				.replace(/\[last name\]/g, html? '<span style="display: inline; font-size: 0.9em; background-color: yellow;">[lastname]</span>' : '[lastname]')
+				.replace(/\[email\]/g, html? '<span style="display: inline; font-size: 0.9em; background-color: yellow;">[email]</span>' : '[email]')
+				.replace(/\[e-mail\]/g, html? '<span style="display: inline; font-size: 0.9em; background-color: yellow;">[email]</span>' : '[email]')
+				.replace(/\[url\]/g, html? '<span style="display: inline; font-size: 0.9em; background-color: yellow;">[url]</span>' : '[url]')
+				/* .replace(/^<div[^<]*?>/g, '')
+				.replace(/<div[^<]*?>/g, '<br>')
+				.replace(/<\/div>/g, '') 
+				.replace(/&nbsp;/g, ' ')
+				.replace(/<br>/g, ' ')
+				.replace(/<span.*style=".*?">/g, '') 
+				.replace(/<\/span>/g, ''); */
 
 	console.log('ADJUSTED FILE... : ' + msg_);
 	

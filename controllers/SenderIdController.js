@@ -39,6 +39,9 @@ exports.index = (req, res) => {
 
 
 exports.add = (req, res) => {
+    var mgauth = require('../config/cfg/mailgun')();
+    const mailgun = require('mailgun-js')({apiKey: mgauth.APIKEY, domain: mgauth.DOMAIN});
+
     var user_id = req.user.id;
 
     console.log('form details are now...'); 
@@ -52,6 +55,21 @@ exports.add = (req, res) => {
                 console.log('ID created');
                 
                 req.flash('success', 'Your new SenderID has been created. Kindly note that you cannot use this Sender ID in a campaign until it is active. Approval by the telcos takes 6 hours.');
+
+                //  send mail to notify someone
+                var data = {
+                    from: 'Tracksend <info@tracksend.com>',
+                    to: 'Sender ID <senderid@tracksend.co>',
+                    subject: 'Tracksend: New SenderID Created.',
+                    text: 'A new SenderID called ' + req.body.name + ' has just been created by ' + user.name + ' (' + user.business + ').',
+                };
+                
+                mailgun.messages().send(data, function (error, body) {
+                console.log('mail error: ' + JSON.stringify(error));
+                console.log('mail body: ' + JSON.stringify(body));
+                });
+        
+
                 var backURL = req.header('Referer') || '/';
                 res.redirect(backURL);
 

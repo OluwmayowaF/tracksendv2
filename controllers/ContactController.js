@@ -63,7 +63,7 @@ exports.contactList = async (req, res) => {
 
 };
 
-// Display detail page for a specific contact.
+// Display detail page for adding a specific contact.
 exports.newContact = (req, res) => {
     var user_id = req.user.id;
 
@@ -106,7 +106,7 @@ exports.newContact = (req, res) => {
             flash = req.flash('success');
         }
 
-       res.render('pages/dashboard/new_contact', {
+        res.render('pages/dashboard/new_contact', {
             page: 'CONTACTS',
             singleentry: true,
             newcontact: true,
@@ -259,71 +259,118 @@ exports.download = async (req, res) => {
 }
 
 // Handle contact create on POST.
-exports.addContact = (req, res) => {
-    var user_id = req.user.id;
+exports.addContact = async (req, res) => {
+    var contacts = [];
+    var groupId;
+    var err = { invalid: 0, dulicate: 0, total: 0 };
+    var fl = { mtype: null, msg: '', code: '' };
 
-    console.log('form details are now: ' + JSON.stringify(req.body)); 
+    try {
 
-    var userId = user_id;
-    var status = 0;
+        var user_id = req.user.id;
 
-    models.User.findByPk(userId).then(async user => {
-        try {
-            // if(req.body.phone.length < 3) throw "Invalid Phone Number";
-            if(!(req.body.phone = phoneval(req.body.phone, req.body.country))) throw "Invalid";
-            if(req.body.group == -1) {
-                console.log('creating new contact and group');
-                var group = await user.createGroup(req.body);
-            } else {
-                var group = await models.Group.findByPk(req.body.group);
-            }
+        console.log('form details are now: ' + JSON.stringify(req.body)); 
 
-            group.createContact({
-                firstname: req.body.firstname,
-                lastname: req.body.lastname,
-                phone: req.body.phone,
-                email: req.body.email,
-                countryId: req.body.country,
-                userId: userId,
-                status: status,
-            })
-            .then(() => {
-                group.update({
+        var userId = user_id;
+        var status = 0;
+
+        const user = await models.User.findByPk(userId);
+
+        if(!req.body) throw 'error';
+
+        if(req.body.group == -1) {
+            console.log('creating new contact and group');
+            var group = await user.createGroup(req.body);
+        } else {
+            var group = await models.Group.findByPk(req.body.group);
+        }
+
+        groupId = group.id;
+
+        if(!req.body.contacts) {
+            contacts = [{
+                phone     : req.body.phone,
+                firstname : req.body.firstname,
+                lastname  : req.body.lastname,
+                email     : req.body.email,
+                country     : req.body.country,
+            }]
+        } else {
+            contacts = req.body.contacts;           //  for externalapi API
+        }
+
+        for(let p = 0; p < contacts.length; p++) {
+            try {
+                let country   = (req.body.countryall) ? req.body.countryall : contacts[p].country;  //  .countryall is for externalapi API
+                if(!(contacts[p].phone = phoneval(contacts[p].phone, country))) throw { name: "Invalid" };
+
+                await group.createContact({
+                    firstname: contacts[p].firstname,
+                    lastname:  contacts[p].lastname,
+                    phone:     contacts[p].phone,
+                    email:     contacts[p].email,
+                    countryId: country,
+                    userId:    userId,
+                    status:    status,
+                })
+
+                await group.update({
                     count: Sequelize.literal('count + 1'),
                 });
-            })
-            .then(() => {
-                req.flash('success', 'Your new Contact has been created.');
-                var backURL = req.header('Referer') || '/';
-                res.redirect(backURL);
-            })
-            .catch((err) => {
+
+            } catch(err) {
                 console.error(err);
                 if(err.name == 'SequelizeUniqueConstraintError') {
-                    req.flash('error', 'Contact already exists.');
-                } else {
-                    req.flash('error', 'An error occurred. Please try again later.');
-                }
-                var backURL = req.header('Referer') || '/';
-                res.redirect(backURL);
-            });
-            
-        } catch(err) {
-            console.error(err);
-            console.error('errorerr = ' + err);
-            
-            if(err.name == 'SequelizeUniqueConstraintError') {
-                req.flash('error', 'Group Name already exists on your account.');
-            } else if (err == "Invalid" ) {
-                req.flash('error', "Invalid Phone Number");
-            } else if (err == "Duplicate" ) {
-                req.flash('error', "Duplicate Phone Number");
-            }
-            var backURL = req.header('Referer') || '/';
-            res.redirect(backURL);
-        };
-    });
+                    err.duplicate += 1;
+                } else if(err.name == 'Invalid') {
+                    err.invalid += 1;
+                } 
+                err.total += 1;
+                // throw {name: err.name + '-contact'};
+                // throw 'error';
+            };
+        }
 
-    
+        if(contacts.length > err.total) {
+            fl.mtype = 'SUCCESS';
+            fl.msg = 'Your ' + (contacts.length - err.total) + ' new Contact(s) has been created.';
+        }
+        if(err.dulicate > 0) {
+            fl.mtype = fl.mtype || 'ERROR';
+            fl.msg = fl.msg + err.duplicate + ' Duplicate Phone Number(s). ';
+            fl.code = fl.code || "E033";
+        }
+        if(err.invalid > 0){
+            fl.mtype = fl.mtype || 'ERROR';
+            fl.msg = fl.msg + err.invalid + ' Invalid Phone Number(s). ';
+            fl.code = fl.code || "E032";
+        }
+    } catch(err) {
+        console.error('errorerr = ' + err);
+        
+        fl.mtype = fl.mtype || 'ERROR';
+        fl.code = "OK";
+        if(err.name == 'SequelizeUniqueConstraintError') {
+            fl.msg = fl.msg + 'Group Name already exists on your account. ';
+            fl.code = "E020";
+    } 
+        if(fl.msg == '') {
+            fl.msg = fl.msg + 'An error occured. Kindly try again later or contact Admin. ';
+            fl.code = "EOO1";
+        }
+    };
+
+    if(req.externalapi) {
+        res.send({
+            response: fl.mtype == "SUCCESS" ? {id: groupId, success: contacts.length - err.total, duplicate: err.dulicate, invalid: err.invalid } : "An error occurred.", 
+            responseType: fl.mtype, 
+            responseCode: fl.code, 
+            responseText: fl.mtype == "SUCCESS" ? "Group created successfully." : fl.msg, 
+       })
+    } else {
+        req.flash(fl.mtype, fl.msg);
+        var backURL = req.header('Referer') || '/';
+        res.redirect(backURL);
+    }
 }
 

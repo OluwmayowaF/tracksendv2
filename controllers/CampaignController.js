@@ -11,6 +11,7 @@ var smsSendEngines = require('../my_modules/sms/smsSendEngines');
 var { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
 var uploadMyFile = require('../my_modules/uploadHandlers');
 var phoneformat = require('../my_modules/phoneformat');
+var apiAuthToken = require('../my_modules/apitokenauth');
 const randgen = require('../my_modules/randgen');
 var _message = require('../my_modules/output_messages');
 
@@ -193,24 +194,47 @@ exports.index = (req, res) => {
 };
 
 exports.add = async (req, res) => {
-    var user_id = req.user.id;
-    // var user_id = 10;
+    
+    var aux_obj = {};
+    try {
+        var user_id = req.user.id;
+        var is_api_access = false;
+        // var user_id = 10;
+    } catch {
+        console.log('---------------------'+JSON.stringify(req));
+        if(apiAuthToken(req.body.id, req.body.token)) {
+            var user_id = req.body.id;
+            var is_api_access = true;
+
+            let sms_service = await models.User.findByPk(user_id, {
+                attributes: ['sms_service'],
+            })
+            console.log('%%%%%%%%%%%%%%%%%sms_service='+JSON.stringify(sms_service));
+            
+            aux_obj = {
+                sms_service: sms_service.sms_service,
+            };
+        } else return;
+    }
+
     var tempid = req.body.analysis_id;
     var ctype = req.body.type;
     console.log('====================================');
     console.log('CAMPAIGN OPS: ' + (Array.isArray(tempid) ? 'yes' : 'no') + ' ; ' + tempid);
     console.log('====================================');
 
-    if(Array.isArray(tempid)) {
-
-    } else {
+    if(!Array.isArray(tempid)) {
         tempid = [tempid]
         ctype = [ctype]
     }
 
     for(var ii = 0; ii < tempid.length; ii++) {
         //  RETRIEVE CAMPAIGN DETAILS FROM TEMPORARY TABLE 
-        var info = await models.Tmpcampaign.findByPk(tempid[ii]);
+        if(is_api_access && tempid[0] == 'api') {
+            var info = req.body.info; ii = tempid.length;
+        } else {
+            var info = await models.Tmpcampaign.findByPk(tempid[ii]);
+        }
 
         if(ctype[ii] == "whatsapp") {
             doWhatsApp();
@@ -257,7 +281,9 @@ exports.add = async (req, res) => {
                 function _dosms(reff) {
                 } */
             } else {
-                doSMS(info, null);
+                let resp = await doSMS(info, null);                                                                                                                                                           
+                console.log('2++++++++++'+resp);
+                return resp;
             }
         } else {
             console.log('INVALID OPERATION!');
@@ -309,19 +335,20 @@ exports.add = async (req, res) => {
 
         
         //  create campaign
-        await Promise.all([models.Campaign.create({
-            name: info.name,
-            description: info.description,
-            userId: user_id,
-            senderId: info.senderId,
-            shortlinkId: info.shortlinkId,
-            message: originalmessage,
-            schedule: schedule_,
-            recipients: info.recipients,
-            has_utm: info.has_utm,
-            condition: info.grp,
-            within_days: info.within_days,
-            ref_campaign: nref,
+        let prom = await Promise.all([
+            models.Campaign.create({
+                name: info.name,
+                description: info.description,
+                userId: user_id,
+                senderId: info.senderId,
+                shortlinkId: info.shortlinkId,
+                message: originalmessage,
+                schedule: schedule_,
+                recipients: info.recipients,
+                has_utm: info.has_utm,
+                condition: info.grp,
+                within_days: info.within_days,
+                ref_campaign: nref,
             }),
             models.Sender.findByPk(info.senderId)
         ])
@@ -413,10 +440,10 @@ exports.add = async (req, res) => {
                     
                     //  merge contacts from all groups
                     var arr = [];
-                    dd.forEach((el) => {
+                    dd.forEach(async (el) => {
                         arr = arr.concat(el.contacts);
 
-                        models.CampaignGroup.create({
+                        await models.CampaignGroup.create({
                             campaignId: cpn.id,
                             groupId: el.id,
                         })
@@ -477,8 +504,11 @@ exports.add = async (req, res) => {
                 var SINGLE_MSG = false;
                 var chk_message = originalmessage
                 .replace(/\[firstname\]/g, 'X')
+                .replace(/\[first name\]/g, 'X')
                 .replace(/\[lastname\]/g, 'X')
+                .replace(/\[last name\]/g, 'X')
                 .replace(/\[email\]/g, 'X')
+                .replace(/\[e-mail\]/g, 'X')
                 .replace(/\[url\]/g, 'X');
 
                 if(chk_message == originalmessage) {
@@ -486,12 +516,14 @@ exports.add = async (req, res) => {
                 }
 
                 console.log('________________________INFO00='+ JSON.stringify(info));
-                await smsSendEngines(
+                let resp = await smsSendEngines(
                     req, res,
                     user_id, user_balance, sndr, info, contacts, schedule, schedule_, 
-                    cpn, originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL
+                    cpn, originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, is_api_access? aux_obj : null
                 );
-                
+                console.log('++++++++++++++++++++');
+                console.log(resp);
+                return resp;
 
             }
 
@@ -500,7 +532,7 @@ exports.add = async (req, res) => {
             console.error('BIG BIG ERROR: ' + err);
         }) */
 
-        return;
+        return prom;
 
     }	
 
@@ -712,8 +744,11 @@ exports.add = async (req, res) => {
                                                 
             let updatedmessage  = req.body.message
             .replace(/\[firstname\]/g, kont.firstname)
+            .replace(/\[first name\]/g, kont.firstname)
             .replace(/\[lastname\]/g, kont.lastname)
+            .replace(/\[last name\]/g, kont.lastname)
             .replace(/\[email\]/g, kont.email)
+            .replace(/\[e-mail\]/g, kont.email)
             .replace(/\[url\]/g, 'http://tsn.pub/' + args.slk + '/' + args.cid)
             .replace(/\s{2,}/g, '')
             // .replace(/\\r/g, '')
