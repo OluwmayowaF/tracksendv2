@@ -1296,7 +1296,7 @@ exports.smsNotifyInfobip = (req, res) => {
 
             models.Message.findByPk(id)
             .then((mg) => {
-                mg.update({
+                if(mg) mg.update({
                     deliverytime: dt,
                     status: sid,
                 })
