@@ -154,7 +154,7 @@ exports.addGroup = async (req, res) => {
             if(req.externalapi) {
                 req.body.group = group.id;
                 if(req.body.contacts && req.body.contacts.length > 0){
-                    contactController.addContact(req, res);
+                    return await contactController.addContact(req, res);
                 } else {
                     fl.mtype = "SUCCESS"
                     fl.msg = group.id;

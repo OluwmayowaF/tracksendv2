@@ -310,8 +310,7 @@ exports.saveGroup = async (req, res) => {
                 
                 if(req.externalapi && req.body.contacts && req.body.contacts.length) {
                     req.body.group = req.body.id;
-                    await contactController.addContact(req, res);
-                    return;
+                    return await contactController.addContact(req, res);
                 } else msg = "success";
             } catch(r) {
                 msg = "Error: Please try again later"
@@ -1521,12 +1520,10 @@ exports.updateGroup = async (req, res) => {
         req.user = {id : _id};
         req.externalapi = true;
         if(req.body.name && req.body.name.length > 0) {
-            await this.saveGroup(req, res);
-            return;
+            return await this.saveGroup(req, res);
         }
         if(req.body.contacts && Array.isArray(req.body.contacts) && req.body.contacts.length > 0) {
-            await groupController.addGroup(req, res);
-            return;
+            return await groupController.addGroup(req, res);
         }
     }
 

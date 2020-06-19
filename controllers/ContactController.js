@@ -302,6 +302,8 @@ exports.addContact = async (req, res) => {
         for(let p = 0; p < contacts.length; p++) {
             try {
                 let country   = (req.body.countryall) ? req.body.countryall : contacts[p].country;  //  .countryall is for externalapi API
+                console.log('COUNTRY = ' + country);
+                
                 if(!(contacts[p].phone = phoneval(contacts[p].phone, country))) throw { name: "Invalid" };
 
                 await group.createContact({
