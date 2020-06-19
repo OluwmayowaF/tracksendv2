@@ -202,8 +202,10 @@ exports.add = async (req, res) => {
         // var user_id = 10;
     } catch {
         console.log('---------------------'+JSON.stringify(req));
-        if(apiAuthToken(req.body.id, req.body.token)) {
-            var user_id = req.body.id;
+        let _id;
+        if(_id = await apiAuthToken(req.body.token)) {
+            req.user = {id : _id};
+            var user_id = req.user.id;
             var is_api_access = true;
 
             let sms_service = await models.User.findByPk(user_id, {

@@ -8,21 +8,22 @@
 */
 var models = require('../models');
 
-const apiAuthToken = async (id, token) => {
+const apiAuthToken = async (token) => {
   console.log('ggggggg');
   
-  if(!id || !token) return false;
+  if(!token) return false;
   console.log('rrrrrrrrr');
   
   let check = await models.User.findOne({
     where: {
-      id,
       api_key: token,
     },
     attributes: ['id']
   })
 
-  return check ? true : false;
+  console.log('check___', JSON.stringify(check));
+  
+  return check ? check.id : false;
 
 }
 

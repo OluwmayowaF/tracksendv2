@@ -262,7 +262,7 @@ exports.download = async (req, res) => {
 exports.addContact = async (req, res) => {
     var contacts = [];
     var groupId;
-    var err = { invalid: 0, dulicate: 0, total: 0 };
+    var err = { invalid: 0, duplicate: 0, total: 0 };
     var fl = { mtype: null, msg: '', code: '' };
 
     try {
@@ -335,7 +335,7 @@ exports.addContact = async (req, res) => {
             fl.mtype = 'SUCCESS';
             fl.msg = 'Your ' + (contacts.length - err.total) + ' new Contact(s) has been created.';
         }
-        if(err.dulicate > 0) {
+        if(err.duplicate > 0) {
             fl.mtype = fl.mtype || 'ERROR';
             fl.msg = fl.msg + err.duplicate + ' Duplicate Phone Number(s). ';
             fl.code = fl.code || "E033";
@@ -362,7 +362,7 @@ exports.addContact = async (req, res) => {
 
     if(req.externalapi) {
         res.send({
-            response: fl.mtype == "SUCCESS" ? {id: groupId, success: contacts.length - err.total, duplicate: err.dulicate, invalid: err.invalid } : "An error occurred.", 
+            response: fl.mtype == "SUCCESS" ? {id: groupId, success: contacts.length - err.total, duplicate: err.duplicate, invalid: err.invalid } : "An error occurred.", 
             responseType: fl.mtype, 
             responseCode: fl.code, 
             responseText: fl.mtype == "SUCCESS" ? "Group created successfully." : fl.msg, 

@@ -11,7 +11,6 @@ var contactController     = require('./ContactController');
 var customOptinController = require('./CustomOptinController');
 var whatsappController    = require('./WhatsAppController');
 var msgOptinController    = require('./MessageOptinController');
-var apiAuthToken          = require('../my_modules/apitokenauth');
 var filelogger            = require('../my_modules/filelogger');
 var phoneval              = require('../my_modules/phonevalidate');
 var apiAuthToken          = require('../my_modules/apitokenauth');
@@ -698,6 +697,7 @@ exports.analyseCampaign = async (req, res) => {
                 }
 
             } 
+            
         } catch(err) {
             console.log(err);
             if(err == 'sender' || err == 'group') throw err;
@@ -1028,7 +1028,7 @@ exports.analyseCampaign = async (req, res) => {
                     response: "Error: You're not logged in.", 
                     responseType: "ERROR", 
                     responseCode: "E001", 
-                    responseText: "Wrong ID/Token", 
+                    responseText: "Invalid Token", 
                 };
                 break;
             case 'balance':
@@ -1499,8 +1499,9 @@ exports.whatsAppNotify = (req, res) => {
 //  EXTERNAL API ACCESS
 exports.newGroup = async (req, res) => {
 
-    if(apiAuthToken(req.body.id, req.body.token)) {
-        req.user.id = req.body.id;
+    let _id;
+    if(_id = await apiAuthToken(req.body.token)) {
+        req.user = {id : _id};
         req.externalapi = true;
         groupController.addGroup(req, res);
     } else {
@@ -1508,15 +1509,16 @@ exports.newGroup = async (req, res) => {
             response: "Error: Authentication error.", 
             responseType: "ERROR", 
             responseCode: "E001", 
-            responseText: "Wrong ID/Token", 
+            responseText: "Invalid Token", 
         });
     }
 } 
 //  EXTERNAL API ACCESS
 exports.updateGroup = async (req, res) => {
 
-    if(apiAuthToken(req.body.id, req.body.token)) {
-        req.user.id = req.body.id;
+    let _id;
+    if(_id = await apiAuthToken(req.body.token)) {
+        req.user = {id : _id};
         req.externalapi = true;
         if(req.body.name && req.body.name.length > 0) {
             await this.saveGroup(req, res);
@@ -1532,14 +1534,16 @@ exports.updateGroup = async (req, res) => {
         response: "Error: Authentication error.", 
         responseType: "ERROR", 
         responseCode: "E001", 
-        responseText: "Wrong ID/Token", 
+        responseText: "Invalid Token", 
     });
 } 
 //  EXTERNAL API ACCESS
 exports.newCampaign = async (req, res) => {
 
-    if(await apiAuthToken(req.body.id, req.body.token)) {
-        req.user = { id: req.body.id };
+    let _id;
+    if(_id = await apiAuthToken(req.body.token)) {
+        req.user = {id : _id};
+        // req.user = { id: req.body.id };
         req.externalapi = true;
         this.analyseCampaign(req, res);
     } else {
@@ -1547,7 +1551,7 @@ exports.newCampaign = async (req, res) => {
             response: "Error: Authentication error.", 
             responseType: "ERROR", 
             responseCode: "E001", 
-            responseText: "Wrong ID/Token", 
+            responseText: "Invalid Token", 
         });
     }
 }

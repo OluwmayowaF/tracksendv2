@@ -183,7 +183,7 @@ exports.addGroup = async (req, res) => {
     
     if(req.externalapi) {
         res.send({
-            response: fl.mtype == "SUCCESS" ? {id: fl.msg, name: ""} : "An error occurred.", 
+            response: fl.mtype == "SUCCESS" ? {id: fl.msg, name: req.body.name} : "An error occurred.", 
             responseType: fl.mtype, 
             responseCode: fl.code, 
             responseText: fl.mtype == "SUCCESS" ? "Group created successfully." : fl.msg, 
