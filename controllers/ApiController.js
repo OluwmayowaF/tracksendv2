@@ -626,7 +626,7 @@ exports.analyseCampaign = async (req, res) => {
             if(is_api_access) {
                 console.log('___**********____*******________**********_________');
                 
-                user_id = req.body.id;
+                // user_id = req.body.id;
                 
                 msgcount = 0;
                 units = 0;
@@ -973,13 +973,13 @@ exports.analyseCampaign = async (req, res) => {
             if(units_ > bal.balance) throw 'balance'
             let req_ = {
                 body: {
-                    id: req.body.id,  
+                    // id: req.body.id,  
                     token: req.body.token,
                     analysis_id: ['api', 0, 0],
                     type: ['sms', 'sms', 'sms'],
                     info: {
                         name:       name[0],
-                        userId:     req.body.id,
+                        userId:     user_id,
                         senderId:   sender[0],
                         shortlinkId: shorturl[0],
                         // myshorturl: req.body.myshorturl,
