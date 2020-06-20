@@ -1048,18 +1048,18 @@ exports.analyseCampaign = async (req, res) => {
                 break;
             case 'group':
                 _status = {
-                    response: "Error: Invalid Group ID.", 
+                    response: "Error: Invalid Group Name.", 
                     responseType: "ERROR", 
                     responseCode: "E053", 
-                    responseText: "Invalid Group ID.", 
+                    responseText: "Invalid Group Name.", 
                 };
                 break;
             case 'sender':
                 _status = {
-                    response: "Error: Invalid Sender ID.", 
+                    response: "Error: Invalid Sender ID Name.", 
                     responseType: "ERROR", 
                     responseCode: "E043", 
-                    responseText: "Invalid Sender ID.", 
+                    responseText: "Invalid Sender ID Name.", 
                 };
                 break;
             case 'shorturl':
