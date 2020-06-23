@@ -232,9 +232,21 @@ exports.postOptin = async function(req, res) {
 
     var general = false, user_id, kont;
     let ucode;
-    if(req.query.code) ucode = req.query.code;
-    if(req.params.kid) ucode = req.params.kid;
-    if(req.params.optid) ucode = req.params.optid;  //  general opt-in
+    if(req.query.code) {
+        console.log('entry 1 (code)');
+        
+        ucode = req.query.code;
+    }
+    if(req.params.kid) {
+        console.log('entry 2 (kid)');
+        
+        ucode = req.params.kid;
+    } 
+    if(req.params.optid) {
+        console.log('entry 3 (optid)');
+        
+        ucode = req.params.optid;  //  general opt-in
+    } 
     // let  || req.params.kid || req.params.optid;
     console.log('code = ' + ucode);
     
@@ -270,10 +282,7 @@ exports.postOptin = async function(req, res) {
             return;
         }
     } else {
-        kont = await models.Contact.findOne({
-            where: {
-                misc: ucode,
-            },
+        kont = await models.Contact.findByPk(ucode, {
             attributes: ['userId', 'countryId'],
         });
 

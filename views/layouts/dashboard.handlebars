@@ -57,6 +57,16 @@
 					{{else}}
 						URL Error! <i class="im im-icon-Crying" style="text-shadow: none; color: #ff4a21"></i>
 					{{/if}}
+
+					{{#if page.length }}
+						<div class="unit_bal_box">
+							<a href="/dashboard/topups">
+								Units Balance: <strong>{{formatNumber balance }}</strong>
+							</a>
+						</div>	
+					{{else}}
+					{{/if}}
+
 				</div>
 				<div class="clearfix"></div>
 				<!-- Main Navigation / End -->
@@ -64,14 +74,6 @@
 			</div>
 			<div class="right-side">
 				
-				{{#if page.length }}
-				<div class="unit_bal_box">
-				<a href="/dashboard/topups">
-					Units Balance: <strong>{{formatNumber balance }}</strong>
-				</a>
-				</div>	
-				{{else}}
-				{{/if}}
 				<div class="clearfix"></div>
 			</div>
 			<!-- Left Side Content / End -->
