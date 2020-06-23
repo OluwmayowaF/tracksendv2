@@ -937,14 +937,7 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
                 )
 
                 //  REMOVE TEMPORARY DATA
-                console.log('INFO INFO IS = ', JSON.stringify(info));
-                
-                try {
-                    await info.destroy();
-                } catch(err) {
-                    info = await models.Tmpcampaign.findByPk(info.id);
-                    info.destroy();
-                }
+                if(!req.externalapi) await info.destroy();
 
                 let mm = (schedule_) ? 'scheduled to be sent out at ' + moment(schedule_, 'YYYY-MM-DD HH:mm:ss').add(1, 'hour').format('h:mm A, DD-MMM-YYYY') + '.' : 'sent out.';
                 
