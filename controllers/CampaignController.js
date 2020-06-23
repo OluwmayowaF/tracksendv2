@@ -194,6 +194,8 @@ exports.index = (req, res) => {
 };
 
 exports.add = async (req, res) => {
+    console.log('1\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\');
+    if(req.externalapi) console.log('1\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\');
     
     var aux_obj = {};
     try {

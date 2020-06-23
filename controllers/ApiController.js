@@ -998,12 +998,13 @@ exports.analyseCampaign = async (req, res) => {
                         within_days: null,    
                         ref_campaign: null,
                     }
-                }
+                },
+                externalapi: true,
             }
             // console.log(JSON.stringify(req_));
             
             let resp = await campaignController.add(req_, res);
-            console.log('3+++++++++++++'+resp);
+            console.log('3+++++++++++++'+JSON.stringify(resp));
             if(resp.status == "error") throw resp.msg;
             _status = resp;
         } else {

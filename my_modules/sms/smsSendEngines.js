@@ -26,7 +26,9 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
     var file_not_logged = true;
     SINGLE_MSG = SINGLE_MSG && !UNSUBMSG && !DOSUBMSG;    //  UNSUBMSG includes individual contact ids so invariable can't be single msg
     var sms_service;        
-
+    console.log('1~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~  ~~~~~~~~~~~~~');
+    if(req.externalapi) console.log('2~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~  ~~~~~~~~~~~~~');
+    
     try {
         if(aux_obj) {
             sms_service = aux_obj.sms_service;
@@ -275,7 +277,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                         console.log('________________________INFO11='+ JSON.stringify(info));
                         
                         let resp = await dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_);
-                        console.log('||||||||||||||||||||||||---' + resp);
+                        console.log('a||||||||||||||||||||||||---' + JSON.stringify(resp));
                         
                         // });
                 
@@ -302,7 +304,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
 
                 console.log('Start Looping...');
                 let runall = await doLoop(0);
-                console.log('@******************* ' + runall + ' ***********************@');
+                console.log('@******************* ' + JSON.stringify(runall) + ' ***********************@');
 
                 return runall;
 
@@ -937,51 +939,46 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
                 //  REMOVE TEMPORARY DATA
                 await info.destroy();
         
+                let mm = (schedule_) ? 'scheduled to be sent out at ' + moment(schedule_, 'YYYY-MM-DD HH:mm:ss').add(1, 'hour').format('h:mm A, DD-MMM-YYYY') + '.' : 'sent out.';
+                
                 _status = {
                     response: "Success. Messages sent.", 
                     responseType: "OK", 
                     responseCode: "P001", 
-                    responseText: "Messages sent successfully.", 
+                    responseText: "Campaign created successfully. Messages " + mm, 
                 }
 
-                let mm = (schedule_) ? 'scheduled to be sent out at ' + moment(schedule_, 'YYYY-MM-DD HH:mm:ss').add(1, 'hour').format('h:mm A, DD-MMM-YYYY') + '.' : 'sent out.';
-                req.flash('success', 'Campaign created successfully. Messages ' + mm);
-                var backURL = req.header('Referer') || '/';
-                res.redirect(backURL);
 
             } else if(networkerror) {
 
                 await cpn.destroy();
 
                 _status = {
-                    response: "Error: General Error!", 
+                    response: "Error: Campaign sending error!", 
                     responseType: "ERROR", 
-                    responseCode: "E002", 
-                    responseText: "General error. Please contact Tracksend admin.", 
+                    responseCode: "E006", 
+                    responseText: "An error occurred while sending out your Campaign. Check your network connection, and ensure you\'re logged in.", 
                 }
-                
-                req.flash('error', 'An error occurred while sending out your Campaign. Check your network connection, and ensure you\'re logged in.');
-                var backURL = req.header('Referer') || '/';
-                res.redirect(backURL);
             } else {
 
                 await cpn.destroy();
 
-                req.flash('error', 'An error occurred while sending out your Campaign. Please try again later or contact admin.');
-                var backURL = req.header('Referer') || '/';
-                res.redirect(backURL);
-
                 _status = {
-                    response: "Error: General Error!", 
+                    response: "Error: Campaign sending error!", 
                     responseType: "ERROR", 
-                    responseCode: "E003", 
-                    responseText: "General error. Please contact Tracksend admin.", 
+                    responseCode: "E007", 
+                    responseText: "An error occurred while sending out your Campaign. Please try again later or contact admin.", 
                 }
             }
         } catch (err) {
             console.error('THIS ERROR: ' + err);
+        }
+
+        if(req.externalapi) {
+            return _status;
+        } else {
             try {
-                req.flash('error', 'Error occurred while sending out your Campaign. Please try again later or contact admin.');
+                req.flash(_status.responseType == "OK" ? 'success' : _status.responseType.toLowerCase(), _status.responseText);
                 var backURL = req.header('Referer') || '/';
                 res.redirect(backURL);
             } catch(err) {
@@ -989,11 +986,7 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
                 
             }
         }
-
-        return _status;
-
     } 
-
 }
 
 
