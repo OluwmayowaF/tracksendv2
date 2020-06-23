@@ -937,6 +937,8 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
                 )
 
                 //  REMOVE TEMPORARY DATA
+                console.log('INFO INFO IS = ', JSON.stringify(info));
+                
                 try {
                     await info.destroy();
                 } catch(err) {
