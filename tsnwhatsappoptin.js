@@ -22,8 +22,10 @@
 											'<input type="text" name="fullname" id="" placeholder="Enter your full name" required />' +
 											'<input type="text" name="phone" id="" placeholder="Phone number" required />' +
 											'<select class="chosen-select-no-single _plain" name="country" required >' +
-												'<option value="234">Nigeria</option>' +
-												'<option value="225">Cote D\'Ivoire</option>' +
+											'<option value="225">Cote D\'Ivoire</option>' +
+											'<option value="234">Nigeria</option>' +
+											'<option value="27">South Africa</option>' +
+											'<option value="1">United States of America</option>' +
 											'</select>' +
 											'<button type="submit" name="done">Submit</button>' +
 										'</form>' +
