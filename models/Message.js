@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
+    contactId: DataTypes.INTEGER,
     contactlink: DataTypes.STRING,
     shortlinkId: {
       type: DataTypes.INTEGER,

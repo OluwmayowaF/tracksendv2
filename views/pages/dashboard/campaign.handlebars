@@ -23,91 +23,208 @@
 			</div>
 		{{/if}}
 
-		{{#if args.show_viewed}}
-		<input type="hidden" name="" id="values_viewed" value="{{ args.viewed }}">
-		{{/if}}
-		<input type="hidden" name="" id="values_delivered" value="{{ args.delivered }}">
-		<input type="hidden" name="" id="values_pending" value="{{ args.pending }}">
-		<input type="hidden" name="" id="values_failed" value="{{ args.failed }}">
-		<input type="hidden" name="" id="values_undeliverable" value="{{ args.undeliverable }}">
-
-		<input type="hidden" name="" id="values_messages" value="{{ args.recipients }}">
-		<input type="hidden" name="" id="values_ccount" value="{{ args.ccount }}">
-		<input type="hidden" name="" id="values_mcount" value="{{ args.mcount }}">
-
-
-		<!-- Content -->
+		<!-- Main Campaign Content -->
 		<div class="row">
+			{{#if args.show_viewed}}
+			<input type="hidden" name="" id="values_viewed" value="{{ args.viewed }}">
+			{{/if}}
+			<input type="hidden" name="" id="values_delivered" value="{{ args.delivered }}">
+			<input type="hidden" name="" id="values_pending" value="{{ args.pending }}">
+			<input type="hidden" name="" id="values_failed" value="{{ args.failed }}">
+			<input type="hidden" name="" id="values_undeliverable" value="{{ args.undeliverable }}">
 
-			<!-- Item -->
-			<div class="col-lg-2 col-md-6">
-				<div class="dashboard-stat color-1">
-					<div class="dashboard-stat-content" style="width: 38%; left: 25px; border-right: inset 1px;"><h4>{{ args.clicks }}</h4> <span>Total Clicks</span></div>
-					<div class="dashboard-stat-content" style="width: 33%; left: 170px;"><h4>{{ args.ctr }}</h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div>
-					<div class="dashboard-stat-icon"><i class="im im-icon-Mouse-2"></i></div>
+			<input type="hidden" name="" id="values_messages" value="{{ args.recipients }}">
+			<input type="hidden" name="" id="values_ccount" value="{{ args.clicks }}">
+			<input type="hidden" name="" id="values_mcount" value="{{ args.mcount }}">
+
+			{{#if args.refcpgns}}
+			<div class="toggle-wrap no_borders">
+			<div class="col-lg-12 trigger">
+				<div class="col-lg-12 page_box_header toggle active" style="display: flex">
+					<i class="im im-icon-Cursor-Click2"> </i> &nbsp;&nbsp; Main Campaign<i class="sl sl-icon-plus"></i>
+				  {{!-- <div style="flex: 90%">Main Campaign</div>	 --}}
 				</div>
 			</div>
-		
-			<div class="col-lg-3 col-md-6">
-				<div class="dashboard-stat color-2">
-					<div class="dashboard-stat-content"><h4>{{ args.mcount }}</h4> <span>Total Messages Sent</span></div>
-					<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
-				</div>
-			</div>
+			<div class="col-md-12 toggle-container" style="padding: 40px">
+			{{/if}}
 
-			<div class="col-lg-3 col-md-6">
-				<div class="dashboard-stat color-2">
-					<div class="dashboard-stat-content"><h4>{{ args.viewed }}</h4> <span>Total Messages Opened</span></div>
-					<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
-				</div>
-			</div>
+				{{#if args.refcpgns}}<div class="row">{{else}}<div class="col-lg-12">{{/if}}
 
-			<div class="col-lg-4 col-md-6">
-				<canvas id="myChart" height="200"></canvas>
-			</div>
+					<!-- Item -->
+					<div class="col-lg-2 col-md-6">
+						<div class="dashboard-stat color-1">
+							<div class="dashboard-stat-content" style="width: 38%; left: 25px; border-right: inset 1px;"><h4>{{ args.clicks }}</h4> <span>Total Clicks</span></div>
+							<div class="dashboard-stat-content" style="width: 33%; left: 170px;"><h4>{{ args.ctr }}</h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div>
+							<div class="dashboard-stat-icon"><i class="im im-icon-Mouse-2"></i></div>
+						</div>
+					</div>
+				
+					<div class="col-lg-3 col-md-6">
+						<div class="dashboard-stat color-2">
+							<div class="dashboard-stat-content"><h4>{{ args.mcount }}</h4> <span>Total Messages Sent</span></div>
+							<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
+						</div>
+					</div>
+
+					<div class="col-lg-3 col-md-6">
+						<div class="dashboard-stat color-2">
+							<div class="dashboard-stat-content"><h4>{{ args.viewed }}</h4> <span>Total Messages Opened</span></div>
+							<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
+						</div>
+					</div>
+
+					<div class="col-lg-4 col-md-6">
+						<canvas id="myChart" height="200"></canvas>
+					</div>
+				</div>
+
+				{{#if args.refcpgns}}<div class="row">{{else}}<div class="col-lg-12">{{/if}}
+					<div class="col-lg-12" style="margin-top: 30px">
+						<div class="col-lg-12 page_box_header" style="display: flex">
+							<div style="flex: 90%">Recipients</div>	
+							<div class="shadow_btn"  style="margin-right: 5px;"><a href="/dashboard/campaigns/campaign/download/{{ args.cmgnid }}" style="color: inherit"><i class="fa fa-file-excel-o"></i> Download Excel</a></div>	
+							<div class="shadow_btn"><a href="#msgtext-box" class="msgtext popup-with-zoom-anim" style="color: inherit">View Message</a></div>	
+						</div>
+					</div>
+					<div class="col-md-12 lists">
+						<ul>
+							<li class="list_item _hd" style="font-weight: bolder">
+								<ul class="saved_item">
+									<li style="flex: 4">First Name</li>
+									<li style="flex: 4">Last Name</li>
+									<li style="flex: 4">Phone</li>
+									<li style="flex: 2">Status</li>
+									{{!-- <li style="flex: 3">Delivered</li> --}}
+									<li style="flex: 3; text-align:center">Clicked</li>
+								</ul>
+							</li>
+							{{#each args.recipients}}
+
+							<li class="list_item campaign_list" data-wh="campaign">
+								<ul class="saved_item">
+									<form><input type="hidden" class="id" value="{{ id }}" /></form>
+									<li style="flex: 4">{{ contact.firstname }}</li>
+									<li style="flex: 4">{{ contact.lastname }}</li>
+									<li style="flex: 4">{{ contact.phone }}</li>
+									{{!-- <li style="flex: 2">{{ifCond status '==' 0 }} Pending </li> --}}
+									<li style="flex: 2">{{ status }} </li>
+									{{!-- <li style="flex: 3">{{formatDate deliverytime "short"}}</li> --}}
+									<li style="flex: 3; text-align:center">{{ clickcount }}</li>
+								</ul>
+							</li>
+
+							{{else}}
+								<em>No Contacts added.</em> 
+							{{/each}}
+						</ul>
+					</div>
+				</div>
+				{{#if args.refcpgns}}
+				</div>
+				</div>
+			{{/if}}
 		</div>
 
-		<div class="row">
-			<div class="col-lg-12" style="margin-top: 30px">
-				<div class="col-lg-12 page_box_header" style="display: flex">
-				  <div style="flex: 90%">Recipients</div>	
-				  <div class="shadow_btn"  style="margin-right: 5px;"><a href="/dashboard/campaigns/campaign/download/{{ args.cmgnid }}" style="color: inherit"><i class="fa fa-file-excel-o"></i> Download Excel</a></div>	
-				  <div class="shadow_btn"><a href="#msgtext-box" class="msgtext popup-with-zoom-anim" style="color: inherit">View Message</a></div>	
+		<!-- Follow-Up Campaign Content -->
+		{{#each args.refcpgns}}
+		<div class="row" style="margin-top: 30px;">
+			{{#if args.show_viewed}}
+			<input type="hidden" name="" id="values_viewed{{@index}}" value="{{ stats.viewed }}">
+			{{/if}}
+			<input type="hidden" name="" id="values_delivered{{@index}}" value="{{ stats.delivered }}">
+			<input type="hidden" name="" id="values_pending{{@index}}" value="{{ stats.pending }}">
+			<input type="hidden" name="" id="values_failed{{@index}}" value="{{ stats.failed }}">
+			<input type="hidden" name="" id="values_undeliverable{{@index}}" value="{{ stats.undeliverable }}">
+
+			<input type="hidden" name="" id="values_messages{{@index}}" value="{{ args.recipients }}">
+			<input type="hidden" name="" id="values_ccount{{@index}}" value="{{ stats.clickc }}">
+			<input type="hidden" name="" id="values_mcount{{@index}}" value="{{ stats.mcount }}">
+
+
+			<div class="toggle-wrap no_borders">
+				<div class="col-lg-12 trigger">
+					<div class="col-lg-12 page_box_header toggle active" style="display: flex">
+						<i class="fa fa-forward" style="line-height: 27px;"> </i> &nbsp;&nbsp; {{ name }}<i class="sl sl-icon-plus"></i>
+					</div>
+				</div>
+				<div class="col-md-12 toggle-container" style="padding: 40px">
+
+					<div class="row">
+
+						<!-- Item -->
+						<div class="col-lg-2 col-md-6">
+							<div class="dashboard-stat color-1">
+								<div class="dashboard-stat-content" style="width: 38%; left: 25px; border-right: inset 1px;"><h4>{{ stats.clickc }}</h4> <span>Total Clicks</span></div>
+								<div class="dashboard-stat-content" style="width: 33%; left: 170px;"><h4>{{ args.ctr }}</h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div>
+								<div class="dashboard-stat-icon"><i class="im im-icon-Mouse-2"></i></div>
+							</div>
+						</div>
+					
+						<div class="col-lg-3 col-md-6">
+							<div class="dashboard-stat color-2">
+								<div class="dashboard-stat-content"><h4>{{ stats.mcount }}</h4> <span>Total Messages Sent</span></div>
+								<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
+							</div>
+						</div>
+
+						<div class="col-lg-3 col-md-6">
+							<div class="dashboard-stat color-2">
+								<div class="dashboard-stat-content"><h4>{{ stats.viewed }}</h4> <span>Total Messages Opened</span></div>
+								<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
+							</div>
+						</div>
+
+						<div class="col-lg-4 col-md-6">
+							<canvas id="myChart{{@index}}" height="200"></canvas>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-lg-12" style="margin-top: 30px">
+							<div class="col-lg-12 page_box_header" style="display: flex">
+								<div style="flex: 90%">Recipients</div>	
+								<div class="shadow_btn"  style="margin-right: 5px;"><a href="/dashboard/campaigns/campaign/download/{{ id }}" style="color: inherit"><i class="fa fa-file-excel-o"></i> Download Excel</a></div>	
+								<div class="shadow_btn"><a href="#msgtext-box" class="msgtext popup-with-zoom-anim" style="color: inherit">View Message</a></div>	
+							</div>
+						</div>
+						<div class="col-md-12 lists">
+							<ul>
+								<li class="list_item _hd" style="font-weight: bolder">
+									<ul class="saved_item">
+										<li style="flex: 4">First Name</li>
+										<li style="flex: 4">Last Name</li>
+										<li style="flex: 4">Phone</li>
+										<li style="flex: 2">Status</li>
+										{{!-- <li style="flex: 3">Delivered</li> --}}
+										<li style="flex: 3; text-align:center">Clicked</li>
+									</ul>
+								</li>
+
+								{{#each messages}}
+
+								<li class="list_item campaign_list" data-wh="campaign">
+									<ul class="saved_item">
+										<form><input type="hidden" class="id" value="{{ id }}" /></form>
+										<li style="flex: 4">{{ contact.firstname }}</li>
+										<li style="flex: 4">{{ contact.lastname }}</li>
+										<li style="flex: 4">{{ contact.phone }}</li>
+										{{!-- <li style="flex: 2">{{ifCond status '==' 0 }} Pending </li> --}}
+										<li style="flex: 2">{{ status }} </li>
+										{{!-- <li style="flex: 3">{{formatDate deliverytime "short"}}</li> --}}
+										<li style="flex: 3; text-align:center">{{ clickcount }}</li>
+									</ul>
+								</li>
+
+								{{else}}
+									<em>No Contacts added.</em> 
+								{{/each}}
+							</ul>
+						</div>
+					</div>
 				</div>
 			</div>
-			<div class="col-md-12 lists">
-				<ul>
-					<li class="list_item _hd" style="font-weight: bolder">
-						<ul class="saved_item">
-							<li style="flex: 4">First Name</li>
-							<li style="flex: 4">Last Name</li>
-							<li style="flex: 4">Phone</li>
-							<li style="flex: 2">Status</li>
-							{{!-- <li style="flex: 3">Delivered</li> --}}
-							<li style="flex: 3; text-align:center">Clicked</li>
-						</ul>
-					</li>
-					{{#each args.recipients}}
-
-					<li class="list_item campaign_list" data-wh="campaign">
-						<ul class="saved_item">
-							<form><input type="hidden" class="id" value="{{ id }}" /></form>
-							<li style="flex: 4">{{ contact.firstname }}</li>
-							<li style="flex: 4">{{ contact.lastname }}</li>
-							<li style="flex: 4">{{ contact.phone }}</li>
-							{{!-- <li style="flex: 2">{{ifCond status '==' 0 }} Pending </li> --}}
-							<li style="flex: 2">{{ status }} </li>
-							{{!-- <li style="flex: 3">{{formatDate deliverytime "short"}}</li> --}}
-							<li style="flex: 3; text-align:center">{{ clickcount }}</li>
-						</ul>
-					</li>
-
-					{{else}}
-						<em>No Contacts added.</em> 
-					{{/each}}
-				</ul>
-			</div>
 		</div>
+		{{/each}}
 
 		<div id="msgtext-box" class="zoom-anim-dialog mfp-hide">
 
@@ -131,7 +248,7 @@
 			</div>
 		</div>
 
-	</div>
+</div>
 <script type="text/javascript" src="/scripts/chart.min.js"></script>
 <script>
 		var randomScalingFactor = function() {
@@ -198,9 +315,94 @@
 			}
 		};
 
+		// window.onload = function() {
+		//	var ctx = document.getElementById('myChart').getContext('2d');
+		//	window.myDoughnut = new Chart(ctx, config);
+		// };
+
+</script>
+
+{{#each args.refcpgns}}
+<script>
+		var randomScalingFactor{{@index}} = function() {
+			return Math.round(Math.random() * 100);
+		};
+		
+		{{#if args.show_viewed}}
+		var viewed{{@index}} = 				document.getElementById('values_viewed{{@index}}').value;
+		{{/if}}
+		var delivered{{@index}} = 		document.getElementById('values_delivered{{@index}}').value;
+		var pending{{@index}} = 			document.getElementById('values_pending{{@index}}').value;
+		var failed{{@index}} = 				document.getElementById('values_failed{{@index}}').value;
+		var undeliverable{{@index}} = document.getElementById('values_undeliverable{{@index}}').value;
+						
+		var config{{@index}} = {
+			type: 'doughnut',
+			data: {
+				datasets: [{
+					data: [
+						{{#if args.show_viewed}}
+						document.getElementById('values_viewed{{@index}}').value,
+						{{/if}}
+						document.getElementById('values_delivered{{@index}}').value,
+						document.getElementById('values_pending{{@index}}').value,
+						document.getElementById('values_failed{{@index}}').value,
+						document.getElementById('values_undeliverable{{@index}}').value,
+					],
+					backgroundColor: [
+								{{#if args.show_viewed}}
+                'rgba(49, 132, 174, 1)',
+								{{/if}}
+                'rgba(65, 193, 65, 1)',
+                'rgba(255, 174, 0, 1)',
+                //'rgba(202, 187, 170, 1)',
+                'rgba(255, 0, 0, 0.7)',
+                'rgba(222, 208, 191, 1)',
+					],
+					label: 'Dataset 1'
+				}],
+				labels: [
+					{{#if args.show_viewed}}
+					'Viewed',
+					{{/if}}
+					'Delivered',
+					'Pending',
+					'Failed',
+					'Undeliverable',
+				]
+			},
+			options: {
+				responsive: true,
+				legend: {
+					position: 'bottom',
+				},
+				title: {
+					display: true,
+					text: 'Follow-Up Campaign (Messages)'
+				},
+				animation: {
+					animateScale: true,
+					animateRotate: true
+				},
+				cutoutPercentage: 60
+			}
+		};
+
+		window.onload = function() {
+			var ctx{{@index}} = document.getElementById('myChart{{@index}}').getContext('2d');
+			window.myDoughnut{{@index}} = new Chart(ctx{{@index}}, config{{@index}});
+		};
+
+</script>
+{{/each}}
+<script>
 		window.onload = function() {
 			var ctx = document.getElementById('myChart').getContext('2d');
 			window.myDoughnut = new Chart(ctx, config);
+			{{#each args.refcpgns}}
+				var ctx{{@index}} = document.getElementById('myChart{{@index}}').getContext('2d');
+				window.myDoughnut{{@index}} = new Chart(ctx{{@index}}, config{{@index}});
+			{{/each}}
 		};
+</script>
 
-	</script>

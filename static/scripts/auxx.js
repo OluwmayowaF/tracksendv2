@@ -1887,10 +1887,10 @@ function validateAndSendCampaign(btn) {
 			return false;
 		}
 		else if($('._followup_campaign._1 #sel_contact_group').val() == $('._followup_campaign._2 #sel_contact_group').val()) {
-			if($('._followup_campaign._1 .chk_followup').is(':checked') && $('._followup_campaign._2 .chk_followup').is(':checked')) {
+			if($('._followup_campaign._1 .chk_followup').is(':checked') && $('._followup_campaign._2 .chk_followup').is(':checked') && $('._followup_campaign._1  #sel_contact_group').val() != "elapsed") {
 				$(btn).closest('div').find('.loading_icon').hide();
 				$(btn).closest('div').find('.activity_status').text('');
-				$form.find('._form_errors._e_analyse').html('Follow-up Campaign conditions must be unique. Please ensure that they are differrent.');
+				$form.find('._form_errors._e_analyse').html('Follow-up Campaign "conditions" must be unique. Please ensure that they are differrent.');
 				$form.find('._form_errors._e_analyse').show();
 				return false;
 			}

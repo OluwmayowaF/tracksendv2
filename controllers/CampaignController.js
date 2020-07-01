@@ -136,7 +136,9 @@ exports.index = (req, res) => {
                 ea.flwup.push({
                     id: ea.fid[f],
                     grp: ea.fgp[f],
+                    grp_desc: (ea.fgp[f] == "clicked" || ea.fgp[f] == "unclicked") ? "To recipients whose links are \"" + ea.fgp[f] + "\"" : "To all recipients",
                     wtd: ea.fwtd[f],
+                    wtd_desc: (ea.fgp[f] == "clicked" || ea.fgp[f] == "unclicked") ? "Within " + ea.fwtd[f] + " day(s)" : "After " + ea.fwtd[f] + " day(s)",
                     status: "active",
                 })
             }
@@ -363,7 +365,7 @@ exports.add = async (req, res) => {
             var HAS_SURL = false;
             console.log('info.grp = ' + info.grp + 'ppp-info.grp = ' + JSON.stringify(info.grp) + '______ref = ' + ref);
             console.log((info.grp != 0 && !Array.isArray(info.grp)) ? "NON-ARRAY" : "ARRAY");
-            var groups = ((info.grp == "clicked") || (info.grp == "unclicked")) ? [info.grp] : JSON.parse(info.grp);//
+            var groups = ((info.grp === "clicked") || (info.grp === "unclicked") || (info.grp === "elapsed")) ? [info.grp] : JSON.parse(info.grp);//
             
             console.log('______________________info.group = ' + groups + '; json = ' + JSON.stringify(groups));
             var skip = (info.skip_dnd && info.skip_dnd == "on");
@@ -463,15 +465,17 @@ exports.add = async (req, res) => {
                     let ref_campaign = await models.Campaign.findByPk(nref, {
                         include: [{
                             model: models.Message, 
-                            where: {
-                                ...( info.grp == "clicked" ? {
-                                    clickcount: {
-                                        [Sequelize.Op.gt] : 0
-                                    }
-                                } : {
-                                    clickcount: 0
-                                })
-                            },
+                            ...( info.grp != "elapsed" ? {
+                                where: {
+                                    ...( info.grp == "clicked" ? {
+                                        clickcount: {
+                                            [Sequelize.Op.gt] : 0
+                                        }
+                                    } : {
+                                        clickcount: 0
+                                    })
+                                },
+                            } : {}),
                             include: [{
                                 model: models.Contact, 
                             }],
@@ -882,7 +886,7 @@ exports.view = (req, res) => {
                     attributes: ['id', 'firstname', 'lastname', 'phone'],
                     // through: { }
                 }], 
-                attributes: ['status', 'deliverytime', 'readtime', 'firstclicktime', 'clickcount', 'destination'],
+                attributes: ['status', 'deliverytime', 'readtime', 'firstclicktime', 'clickcount', 'destination', 'contactId'],
                 // through: { }
             }], 
             order: [ 
@@ -911,11 +915,36 @@ exports.view = (req, res) => {
            
             return results.msgcount;
         }),
-    ]).then(([summary, cpgnrecp, mcount]) => {
-        console.log('qqq= '+cpgnrecp.length);
+
+        models.Campaign.findAll({ 
+            where: { 
+                ref_campaign: cmgnid,
+                userId: user_id,
+            },
+            include: [{
+                model: models.Message, 
+                limit: 99,
+                order: [ 
+                    ['createdAt', 'DESC']
+                ],
+                include: [{
+                    model: models.Contact, 
+                    attributes: ['id', 'firstname', 'lastname', 'phone'],
+                    // through: { }
+                }], 
+                attributes: ['status', 'deliverytime', 'readtime', 'firstclicktime', 'clickcount', 'destination', 'contactId'],
+                // through: { }
+            }], 
+            order: [ 
+                ['createdAt', 'DESC']
+            ],
+        }), 
+
+    ]).then(([summary, cpgnrecp, mcount, refcpgns]) => {
+        // console.log('qqq= '+cpgnrecp.length);
         var recipients = cpgnrecp[0].messages;
-        console.log('CONTA: ' + JSON.stringify(cpgnrecp[0]));
-        console.log('CONTA: ' + JSON.stringify(recipients));
+        console.log('REFERENCES: ' + JSON.stringify(refcpgns));
+        // console.log('CONTA: ' + JSON.stringify(recipients));
         
         recipients = recipients.map(ii => {
             // let jj = JSON.stringify(ii);
@@ -933,7 +962,7 @@ exports.view = (req, res) => {
                 }
             }
 
-            console.log('PHONE = ' + i.contact.phone);
+            // console.log('PHONE = ' + i.contact.phone);
             
             switch (st) {
                 case 0:
@@ -962,14 +991,70 @@ exports.view = (req, res) => {
             return i;
             
         });
-        console.log('====================================');
-        console.log('SUMM: ' + JSON.stringify(summary) + '; MESS: ' + JSON.stringify(cpgnrecp) + '; CMSG: ' + JSON.stringify(recipients.length));
-        console.log('====================================');
+        // console.log('====================================');
+        // console.log('SUMM: ' + JSON.stringify(summary) + '; MESS: ' + JSON.stringify(cpgnrecp) + '; CMSG: ' + JSON.stringify(recipients.length));
+        // console.log('====================================');
         var mname = cpgnrecp.map((r) => r.name);
         var mmsg = cpgnrecp.map((r) => r.message);
 
         let cpgntype = cpgnrecp[0].platformtypeId == 1 ? "SMS" : "WhatsApp";
         let show_viewed = cpgnrecp[0].platformtypeId == 1 ? false : true;
+        
+        // REFERENCE STUFFS (IF ANY)
+        let refmsgstat = [];
+        refcpgns = refcpgns.map(ref => {
+            let stats = {
+                pending: 0,      
+                delivered: 0,    
+                failed: 0,       
+                undeliverable: 0,
+                viewed: 0,       
+                clickc: 0,       
+                mcount: ref.messages.length,       
+            };
+            ref.messages.forEach(msg => {
+                switch (parseInt(msg.status)) {
+                    case 0:
+                        stats.pending += 1
+                        break;
+                    case 1:
+                        stats.delivered += 1
+                        break;
+                    case 2:
+                        stats.failed += 1
+                        break;
+                    case (3 || 4):
+                        stats.undeliverable += 1
+                        break;
+                    case 5:
+                        stats.viewed += 1
+                        break;
+                
+                    default:
+                        break;
+                }
+                stats.clickc += msg.clickcount;
+            });
+            // refmsgstat.push(stats) 
+            // ref.refmsgstat = stats; 
+            // const ref_ = Object.assign(ref, {stats});
+            let _ref = JSON.parse(JSON.stringify(ref));
+            const ref_ = Object.assign(_ref, {stats});
+            // let ref_ = {...ref, stats};
+            return ref_;
+        });
+
+        console.log('__________refcpgns=', JSON.stringify(refcpgns));
+        /* let seen = [];
+        console.log(JSON.stringify(refcpgns_, function (key, val) {
+            if (val != null && typeof val == "object") {
+                if (seen.indexOf(val) >= 0) {
+                    return;
+                }
+                seen.push(val);
+            }
+            return val;
+        }) ) */
         
         res.render('pages/dashboard/campaign', { 
             page: '(' + cpgntype + ') Campaign: "' + mname + '"', //'Campaigns',
@@ -989,6 +1074,8 @@ exports.view = (req, res) => {
                 mmsg,
                 mcount,
                 ctr: ((parseInt(summary.delivered) == 0) ? '0' : (parseInt(summary.clickc) * 100/parseInt(summary.delivered))),
+
+                refcpgns,   //  for follow-up campaigns
             }
         });
 

@@ -584,7 +584,7 @@ exports.analyseCampaign = async (req, res) => {
     var is_api_access = req.externalapi;
     var HAS_FOLLOWUP = false;
     var user_id, msgcount, units, name, groups, groups_, message, sender, sender_, shorturl, schedule, datepicker, tid, condition, within_days;
-    var skip, utm, cond_1, cond_2, unsub, dosub, tooptin, toawoptin, toall, tonone, has_clicked = false, has_unclicked = false;
+    var skip, utm, cond_1, cond_2, unsub, dosub, tooptin, toawoptin, toall, tonone, has_clicked = false, has_unclicked = false, has_elapsed = false;
 
     try {
         try {
@@ -620,6 +620,7 @@ exports.analyseCampaign = async (req, res) => {
             if(condition) {
                 has_clicked = (condition.indexOf('clicked') === 0 && cond_1) || (condition.indexOf('clicked') === 1 && cond_2);
                 has_unclicked = (condition.indexOf('unclicked') === 0 && cond_1) || (condition.indexOf('unclicked') === 1 && cond_2);
+                has_elapsed = (condition.indexOf('elapsed') === 0 && cond_1) || (condition.indexOf('elapsed') === 1 && cond_2);
             }
 
             //  API ACCESS
@@ -656,6 +657,7 @@ exports.analyseCampaign = async (req, res) => {
                 
                 has_clicked = false;
                 has_unclicked = false;
+                has_elapsed = false;
 
                 //  extract actual ids of sender and group
                 if(sender_) {
@@ -855,6 +857,9 @@ exports.analyseCampaign = async (req, res) => {
                 } else if(condition[int-1] == "unclicked") {
                     contactcount_1 = Math.round(ESTIMATED_UNCLICK_PERCENTAGE * contactcount_.counts[0]);
                     units_1 = Math.round(ESTIMATED_UNCLICK_PERCENTAGE * units_.counts[0]);
+                } else if(condition[int-1] == "elapsed") {
+                    contactcount_1 = contactcount_.counts[0];
+                    units_1 = units_.counts[0];
                 }
                 let msgcnt = getSMSCount(message[int]);
                 let msgcount_1 = Math.round(msgcnt * contactcount_1); 
@@ -924,7 +929,7 @@ exports.analyseCampaign = async (req, res) => {
                         add_optout: (unsub) ? 1 : 0,
                         add_optin:  (dosub) ? 1 : 0,
                         units_used: units,
-                        total_units: units + (has_clicked ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0),
+                        total_units: units + (has_clicked ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0) + (has_elapsed ? units : 0),
                         within_days: within_days[int-1],
                         ref_campaign: (int === 0) ? "" : "tmpref_" + tids[0],
                     });
@@ -948,7 +953,7 @@ exports.analyseCampaign = async (req, res) => {
                         add_optout: (unsub ? 1 : 0),
                         add_optin:  (dosub ? 1 : 0),
                         units_used: units,
-                        total_units: units + (has_clicked ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0),
+                        total_units: units + (has_clicked ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0) + (has_elapsed ? units : 0),
                         within_days: within_days[int-1],
                         ref_campaign: (int === 0) ? "" : "tmpref_" + tids[0],
                     })

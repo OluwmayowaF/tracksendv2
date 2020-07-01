@@ -327,6 +327,7 @@
 																			<option label="blank" value="0">Select Condition</option>
 																			<option value="clicked">Recipient clicks on URL</option>
 																			<option value="unclicked">Recipient does not click on URL</option>
+																			<option value="elapsed">Number of days elapses</option>
 																		</select>
 																	</div>
 
@@ -422,6 +423,7 @@
 																				<option label="blank" value="0">Select Condition</option>
 																				<option value="clicked">Recipient clicks on URL</option>
 																				<option value="unclicked">Recipient does not click on URL</option>
+																				<option value="elapsed">Number of days elapses</option>
 																			</select>
 																		</div>
 
@@ -983,8 +985,8 @@
 							<input type="hidden" class="id" value="{{ fid }}" />
 							<li style="flex: 1; text-align: right;"><i style="margin: 5px;" class="fa fa-forward"></i></li>
 							<li style="flex: 4">Follow-up Campaign:</li>
-							<li style="flex: 6">To contacts whose links are "{{ grp }}"</li>
-							<li style="flex: 4">Within {{ wtd }} days</li>
+							<li style="flex: 6">{{ grp_desc }}</li>
+							<li style="flex: 4">{{ wtd_desc }}</li>
 							<li style="flex: 2">[{{ status }}]</li>
 						</ul>
 					</li>
