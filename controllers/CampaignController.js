@@ -238,16 +238,20 @@ exports.add = async (req, res) => {
 
     for(var ii = 0; ii < tempid.length; ii++) {
         //  RETRIEVE CAMPAIGN DETAILS FROM TEMPORARY TABLE 
+        console.log(ii + " - RETRIEVE CAMPAIGN DETAILS FROM TEMPORARY TABLE____________________________________________________") 
         if(is_api_access && tempid[0] == 'api') {
             var info = req.body.info; ii = tempid.length;
         } else {
+            console.log("______________________________________________TMPTABLE____________________________________________________") 
             var info = await models.Tmpcampaign.findByPk(tempid[ii]);
         }
 
         if(ctype[ii] == "whatsapp") {
             doWhatsApp();
         } else if(info) {
+            console.log("______________________________________________info____________________________________________________") 
             if(info.ref_campaign) {
+            console.log("______________________________________________ref_campaign____________________________________________________") 
                 let ref = info.ref_campaign;
                 let schedule = info.schedule;
                 let within_days = info.within_days;

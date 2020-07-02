@@ -1226,15 +1226,15 @@ exports.smsNotifyInfobip = (req, res) => {
             var dt = msg.sentAt;
             var sid;
 
-            console.log('====================================');
-            console.log('MSG STATUS = ' + status);
-            console.log('====================================');
-
             if(status_ == "REJECTED_NOT_ENOUGH_CREDITS") return;
             
             let pref = phone.substr(0, 3);
             // let phn = '0' + phone.substr(3);
             let phn = phoneval(phone, pref);
+
+            console.log('====================================');
+            console.log('MSG STATUS = ' + status + "; phone = " + phone + "; pref = " + pref + "; phn = " + phn);
+            console.log('====================================');
 
 
             if (status == 'DELIVERED') {
