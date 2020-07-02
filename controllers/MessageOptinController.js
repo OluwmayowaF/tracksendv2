@@ -526,6 +526,8 @@ exports.completeOptin = async function(req, res) {
         let phone_ = phoneformat(phone, countryId);
         let body, charge_sms = false;
 
+        console.log('++++++++++phone_='+phone_);
+        
         if(req.body.twoclick) {
             res.send({
                 status: "PASS",
@@ -559,17 +561,17 @@ exports.completeOptin = async function(req, res) {
                         if(a == 'sms') {
                             let platform = 'infobip'; // user.sms_service 
                             let senderid = 'spaceba'; // 'tracksend'; // user.sms_service 
-                            let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
+                            let new_resp = await sendSMS(platform, null, null, body, senderid, phone_);
                             charge_sms = true;
                         } else if(a == 'whatsapp') {
-                            let new_resp = await whatsappSendMessage('message', phone, body, user.wa_instanceid, user.wa_instancetoken);
+                            let new_resp = await whatsappSendMessage('message', phone_, body, user.wa_instanceid, user.wa_instancetoken);
                         }
                     });
                 } else {
                     //  default notification channel
                     let platform = 'infobip'; // user.sms_service 
                     let senderid = 'spaceba'; // 'tracksend'; // user.sms_service 
-                    let new_resp = await sendSMS(platform, null, null, body, senderid, phone);
+                    let new_resp = await sendSMS(platform, null, null, body, senderid, phone_);
                     charge_sms = true;
                 }
 
