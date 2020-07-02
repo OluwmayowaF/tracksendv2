@@ -428,6 +428,8 @@ exports.completeOptin = async function(req, res) {
             if(!kont) {
                 error = "requesterror";
             } else {
+                console.log('___________kont=====', JSON.stringify(kont));
+                
                 kont_ = kont;
                 firstname = kont.firstname;
                 lastname = kont.lastname;
