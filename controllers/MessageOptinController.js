@@ -374,7 +374,7 @@ exports.completeOptin = async function(req, res) {
     let firstname, lastname, phone, userId, countryId, sms, whatsapp;
     let custom = false, kont_, error;
 
-    console.log('*********** completeOptin ****************');
+    console.log('*********** completeOptin ****************', JSON.stringify(req.body));
 
     try {
 
