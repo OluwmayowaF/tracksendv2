@@ -102,8 +102,8 @@ exports.campaign = async function(req, res) {
     console.log('______shurl.url=', shurl.url);
     console.log('______utm=', utm);
     
-    // res.redirect(shurl.url + utm);
-    location.replace(shurl.url + utm);
+    res.redirect(shurl.url + utm);
+    // location.replace(shurl.url + utm);
 
 
 };
