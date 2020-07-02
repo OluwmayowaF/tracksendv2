@@ -228,7 +228,7 @@ exports.add = async (req, res) => {
     var tempid = req.body.analysis_id;
     var ctype = req.body.type;
     console.log('====================================');
-    console.log('CAMPAIGN OPS: ' + (Array.isArray(tempid) ? 'yes' : 'no') + ' ; ' + tempid);
+    console.log('CAMPAIGN OPS: ' + (Array.isArray(tempid) ? 'yes' : 'no') + ' ; ' + tempid + "tempid.length="+tempid.length);
     console.log('====================================');
 
     if(!Array.isArray(tempid)) {
