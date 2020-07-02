@@ -297,7 +297,7 @@ exports.add = async (req, res) => {
             } else {
                 let resp = await doSMS(info, null);                                                                                                                                                           
                 console.log('2++++++++++'+resp);
-                return resp;
+                if(is_api_access && tempid[0] == 'api') return resp;
             }
         } else {
             console.log('INVALID OPERATION!');
