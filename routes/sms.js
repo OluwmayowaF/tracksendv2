@@ -240,7 +240,7 @@ router.post('/optout', async(req, res) => {
     }
 
 }); */
-router.get('/optin/:kid', msgOptinController.postOptin);    //  controller should be reworded/rejigged 
+router.get('/optin/:smssubid', msgOptinController.postOptin);    //  controller should be reworded/rejigged 
 
 router.post('/optin', async(req, res) => {
 

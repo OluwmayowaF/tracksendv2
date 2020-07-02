@@ -235,8 +235,13 @@ exports.postOptin = async function(req, res) {
         
         ucode = req.query.tsncode;
     }
+    if(req.params.smssubid) {
+        console.log('entry 2a (smssubid)');
+        
+        ucode = req.params.smssubid;
+    } 
     if(req.params.subid) {
-        console.log('entry 2 (subid)');
+        console.log('entry 2b (subid)');
         
         ucode = req.params.subid;
     } 
