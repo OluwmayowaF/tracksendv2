@@ -50,7 +50,10 @@ const phoneFormat = (phone, ctrycode) => {
       
     }  
 
-  } else return false;
+  } else {
+    console.log('|||||| phoneformat FALSE! phone = ' + phone + "; ctrycode = " + ctrycode);
+    return false;
+  }
 
 }
 

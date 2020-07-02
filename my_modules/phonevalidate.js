@@ -50,7 +50,10 @@ const phoneValidity = (phone, ctrycode) => {
       
     }  
 
-  } else return false;
+  } else {
+    console.log('|||||| phonevlidate FALSE! phone = ' + phone + "; ctrycode = " + ctrycode);
+    return false;
+  }
 
 }
 
