@@ -294,6 +294,7 @@ exports.postOptin = async function(req, res) {
             
             res.render('pages/redirect-error', {
                 page: '',
+                validity: true,
         
             });
             return;
@@ -309,6 +310,9 @@ exports.postOptin = async function(req, res) {
         where: {
             userId: user_id,
             can_optin: true,
+            name: {
+                [Sequelize.Op.ne] : "[Uncategorized]",
+            },
         },
         attributes: ['id', 'name'],
     })
@@ -415,7 +419,12 @@ exports.completeOptin = async function(req, res) {
             
             custom = true;
             let ucode = req.body.optinusercode;
-            let kont = await models.Contact.findByPk(ucode);
+            let kont = await models.Contact.findByPk(ucode,{
+                include: [{
+                    model: models.Group, 
+                    attributes: ['name'],
+                }],
+            });
             if(!kont) {
                 error = "requesterror";
             } else {
@@ -513,13 +522,13 @@ exports.completeOptin = async function(req, res) {
         // console.log('grps = ' + grps.length + 'grps = ' + (newk));
     
 
-
-
         //  delete contact's uncategorized record
         // let killk = await models.Contact.findByPk(kont.id);
         console.log('pre kill');
-        if(kont_) await kont_.destroy();
-        console.log('after destroy');
+        if(kont_ && kont_.group.name == "[Uncategorized]") {
+            await kont_.destroy();
+            console.log('after destroy');
+        }
 
         //  send success message to user
         let user = await models.User.findByPk(userId);
