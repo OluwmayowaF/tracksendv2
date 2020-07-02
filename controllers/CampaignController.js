@@ -253,7 +253,7 @@ exports.add = async (req, res) => {
                 let within_days = info.within_days;
 
                 console.log('====================================');
-                console.log('dataa = '+ ii + ' - ' + ref);
+                console.log('|||||||||||||||||| dataa = '+ ii + ' - ' + ref);
                 console.log('====================================');
 
                 if(!schedule || schedule === 'null') {
