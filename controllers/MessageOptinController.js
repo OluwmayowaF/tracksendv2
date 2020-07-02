@@ -376,60 +376,61 @@ exports.completeOptin = async function(req, res) {
 
     console.log('*********** completeOptin ****************');
 
-    if(req.body.twoclick) {
-        console.log('*********** twoklik-optin ****************');
-        
-        firstname = req.body.firstname;
-        lastname = req.body.lastname;
-        phone = req.body.phone;
-        userId = req.body.userId;
-        countryId = req.body.countryId;
-        sms = req.body.sms && req.body.sms == 'on';
-        whatsapp = req.body.whatsapp && req.body.whatsapp == 'on';
-
-    } else if(req.body.generaloptin) {        //  if through general link optin
-        console.log('*********** general-link-optin ****************');
-
-        custom = true;
-        firstname = req.body.fullname.split(' ')[0];
-        lastname = req.body.fullname.split(' ')[1];
-        phone = req.body.phone;
-        userId = req.body.user_id;
-        countryId = req.body.country;
-    } else {
-        console.log('*********** double/complete-optin ****************');
-        
-        custom = true;
-        let ucode = req.body.code;
-        let kont = await models.Contact.findOne({
-            where: {
-                misc: ucode,
-            },
-        });
-        if(!kont) {
-            error = "requesterror";
-        } else {
-            kont_ = kont;
-            firstname = kont.firstname;
-            lastname = kont.lastname;
-            phone = kont.phone;
-            userId = kont.userId;
-            countryId = kont.countryId;
-        }
-    }
-
-    if(custom) {
-        console.log('__________custom');
-        
-        let opt = await models.Customoptin.findByPk(userId);
-        if(opt.optin_channels) {
-            sms = opt.optin_channels.toString().split(',').includes('sms');
-            whatsapp = opt.optin_channels.toString().split(',').includes('whatsapp');
-        }
-    }
-
-    //  get new contact's saved details
     try {
+
+        if(req.body.twoclick) {
+            console.log('*********** twoklik-optin ****************');
+            
+            firstname = req.body.firstname;
+            lastname = req.body.lastname;
+            phone = req.body.phone;
+            userId = req.body.userId;
+            countryId = req.body.countryId;
+            sms = req.body.sms && req.body.sms == 'on';
+            whatsapp = req.body.whatsapp && req.body.whatsapp == 'on';
+
+        } else if(req.body.generaloptin) {        //  if through general link optin
+            console.log('*********** general-link-optin ****************');
+
+            custom = true;
+            firstname = req.body.fullname.split(' ')[0];
+            lastname = req.body.fullname.split(' ')[1];
+            phone = req.body.phone;
+            userId = req.body.user_id;
+            countryId = req.body.country;
+        } else {
+            console.log('*********** double/complete-optin ****************');
+            
+            custom = true;
+            let ucode = req.body.code;
+            let kont = await models.Contact.findOne({
+                where: {
+                    misc: ucode,
+                },
+            });
+            if(!kont) {
+                error = "requesterror";
+            } else {
+                kont_ = kont;
+                firstname = kont.firstname;
+                lastname = kont.lastname;
+                phone = kont.phone;
+                userId = kont.userId;
+                countryId = kont.countryId;
+            }
+        }
+
+        if(!error && custom) {
+            console.log('__________custom');
+            
+            let opt = await models.Customoptin.findByPk(userId);
+            if(opt.optin_channels) {
+                sms = opt.optin_channels.toString().split(',').includes('sms');
+                whatsapp = opt.optin_channels.toString().split(',').includes('whatsapp');
+            }
+        }
+
+        //  get new contact's saved details
         if(error) throw error;
         console.log('_________no-error');
 
@@ -637,7 +638,7 @@ exports.completeOptin = async function(req, res) {
             console.error('====================================');
             console.error('ERRORa: ' + JSON.stringify(e) + ' ... ' + e);
             console.error('====================================');
-            req.flash('error', 'An error occurred, please try again later.');
+            req.flash('error', 'An error occurred, please contact Admin.');
             var backURL = req.header('Referer') || '/';
             res.redirect(backURL);
         }
