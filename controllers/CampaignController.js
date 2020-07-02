@@ -121,7 +121,9 @@ exports.index = (req, res) => {
                 ea.tmp.push({
                     id: ea.tid[t],
                     grp: ea.tgp[t],
+                    grp_desc: (ea.tgp[t] == "clicked" || ea.tgp[t] == "unclicked") ? "To recipients whose links are \"" + ea.tgp[t] + "\"" : "To all recipients",
                     wtd: ea.wtd[t],
+                    wtd_desc: (ea.tgp[t] == "clicked" || ea.tgp[t] == "unclicked") ? "Within " + ea.wtd[t] + " day(s)" : "After " + ea.wtd[t] + " day(s)",
                     status: "pending",
                 })
             }
