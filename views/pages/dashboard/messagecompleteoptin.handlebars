@@ -1,4 +1,10 @@
 	<div class="dashboard-content">
+		{{#if flash}}
+			<div class="notification {{ flashtype }} closeable no-shadow">
+				<p><span style="text-transform: capitalize">{{ flashtype }}!</span> {{ flash }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
 
 		<div class="row">
 
@@ -34,7 +40,7 @@
 							{{/if}}
 							<div class="col-md-12">
 								<h5>Select Group(s) </h5>
-								<input type="hidden" name="code" value="{{ ucode }}" />
+								<input type="hidden" name="optinusercode" value="{{ ucode }}" />
 								<select class="chosen-select-no-single _plain" name="groups" id="sel_contact_group" required multiple>
 									<option label="blank" value="0">Select Group</option>
 									{{#each args.grps}}

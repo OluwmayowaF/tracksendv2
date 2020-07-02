@@ -20,8 +20,6 @@ exports.preOptIn = async (req, res) => {
     var phoneval = require('../my_modules/phonevalidate');
     var phoneformat = require('../my_modules/phoneformat');
 
-    //  for the sake of it, the only useful part of the 'clientid' is the third part of it... which is the client's userId
-
     // req.body.fullname = 'Buhari Obasanjo';
     // req.body.clientid = 'M7H2JZD5FXs3__MlnO2KjL7bzLwjx1QfKQab1hJLDFZexOCQqC';
     // req.body.phone = '08022222222';
@@ -105,7 +103,7 @@ exports.preOptIn = async (req, res) => {
             misc: uniquecode,
         })
 
-        let newurl = env.SERVER_BASE + '/messages/optin?code='+uniquecode;
+        let newurl = env.SERVER_BASE + '/messages/optin?tsncode='+uniquecode;
         let phone = phoneformat(req.body.phone, req.body.country);
         let body;
 
@@ -227,27 +225,27 @@ exports.preOptIn = async (req, res) => {
 
 }
 
-//  clicking of optin link on whatsapp message lands here
+//  clicking of optin link on whatsapp/sms message lands here
 exports.postOptin = async function(req, res) {
 
     var general = false, user_id, kont;
     let ucode;
-    if(req.query.code) {
+    if(req.query.tsncode) {
         console.log('entry 1 (code)');
         
-        ucode = req.query.code;
+        ucode = req.query.tsncode;
     }
-    if(req.params.kid) {
-        console.log('entry 2 (kid)');
+    if(req.params.subid) {
+        console.log('entry 2 (subid)');
         
-        ucode = req.params.kid;
+        ucode = req.params.subid;
     } 
     if(req.params.optid) {
         console.log('entry 3 (optid)');
         
         ucode = req.params.optid;  //  general opt-in
     } 
-    // let  || req.params.kid || req.params.optid;
+    // let  || req.params.subid || req.params.optid;
     console.log('code = ' + ucode);
     
     var optlnk = req.params.optid
@@ -350,9 +348,18 @@ exports.postOptin = async function(req, res) {
         })
     }
 
+    var flashtype, flash = req.flash('error');
+    if(flash.length > 0) {
+        flashtype = "error";           
+    } else {
+        flashtype = "success";
+        flash = req.flash('success');
+    }
+
     res.render('pages/dashboard/messagecompleteoptin', {
         layout: 'dashboard_blank',
         _page: 'Message Opt-In',
+        flashtype, flash,
         ucode,
 
         args: {
@@ -402,12 +409,8 @@ exports.completeOptin = async function(req, res) {
             console.log('*********** double/complete-optin ****************');
             
             custom = true;
-            let ucode = req.body.code;
-            let kont = await models.Contact.findOne({
-                where: {
-                    misc: ucode,
-                },
-            });
+            let ucode = req.body.optinusercode;
+            let kont = await models.Contact.findByPk(ucode);
             if(!kont) {
                 error = "requesterror";
             } else {

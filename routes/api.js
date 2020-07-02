@@ -37,8 +37,8 @@ module.exports = function(app) {
   app.options ('/api/whatsappoptin', cors()); // deprecated
   app.post ('/api/whatsappoptin', cors(), apiController.whatsAppOptIn); //  deprecated
 
-  app.options ('/api/messageoptin', cors());
-  app.post ('/api/messageoptin', cors(), apiController.messageOptIn);
+  app.options ('/api/messageoptin', cors());      //  from tsnwhatsappoptin api on external webpage
+  app.post ('/api/messageoptin', cors(), apiController.messageOptIn);     //  from tsnwhatsappoptin api on external webpage
 
   app.post('/api/sms/infobip/notify',       apiController.smsNotifyInfobip);   //  for INFOBIP
   app.get('/api/sms/messagebird/notify',    apiController.smsNotifyMessagebird);   //  for MESSAGEBIRD

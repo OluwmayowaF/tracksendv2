@@ -188,7 +188,7 @@ exports.preOptIn = async (req, res) => {
             misc: uniquecode,
         })
 
-        let newurl = env.SERVER_BASE + '/messages/optin?code='+uniquecode;
+        let newurl = env.SERVER_BASE + '/messages/optin?tsncode='+uniquecode;
         let phone = phoneformat(req.body.phone, req.body.country);
         let body;
 
