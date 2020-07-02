@@ -99,6 +99,10 @@ exports.campaign = async function(req, res) {
     console.log(JSON.stringify(shh));
     console.log('===================================='); */
 
+    console.log('______shurl.url=', shurl.url);
+    console.log('______utm=', utm);
+    
+
     res.redirect(shurl.url + utm);
 
 };
