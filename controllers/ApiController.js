@@ -740,234 +740,235 @@ exports.analyseCampaign = async (req, res) => {
         console.log('group= ' + JSON.stringify(groups));
 
         while(int < sender.length) {
-            if((!cond_1 && int == 1) || (!cond_2 && int == 2)) {
-                int++;
-                continue;
-            }
-            if(tonone) throw {error: "nocontacts"};
+            if(sender[int] != 0) {
+                if((!cond_1 && int == 1) || (!cond_2 && int == 2)) {
+                    int++;
+                    continue;
+                }
+                if(tonone) throw {error: "nocontacts"};
 
-            console.log('THE END!!! balance ' + JSON.stringify(schedule));
-            console.log('THE END!!!' +  moment.utc(moment(schedule, 'YYYY-MM-DD HH:mm:ss')).format('YYYY-MM-DD HH:mm:ss'));
+                console.log('THE END!!! balance ' + JSON.stringify(schedule));
+                console.log('THE END!!!' +  moment.utc(moment(schedule, 'YYYY-MM-DD HH:mm:ss')).format('YYYY-MM-DD HH:mm:ss'));
 
-            console.log('====================================');
-            console.log('iiiiiiiiiiiiiiiiiiii = ' + int);
-            console.log('====================================');
-            if(int === 0) {  //  done only for the main campaign...followups would get only contact length from here
-            //  extract groups contacts
-                var dd = await models.Group.findAll({
-                    include: [{
-                        model: models.Contact, 
-                        ...(
-                            /* skip ? {
-                                where: {
-                                    status: {
-                                            [Sequelize.Op.ne] : 2, 
+                console.log('====================================');
+                console.log('iiiiiiiiiiiiiiiiiiii = ' + int);
+                console.log('====================================');
+                if(int === 0) {  //  done only for the main campaign...followups would get only contact length from here
+                //  extract groups contacts
+                    var dd = await models.Group.findAll({
+                        include: [{
+                            model: models.Contact, 
+                            ...(
+                                /* skip ? {
+                                    where: {
+                                        status: {
+                                                [Sequelize.Op.ne] : 2, 
+                                        }
+                                    }
+                                } : {} */
+                                skip ? {
+                                    where: {
+                                        [Sequelize.Op.and]: [
+                                            {
+                                                status: {
+                                                    [Sequelize.Op.ne] : 2
+                                                }
+                                            },
+                                            {
+                                                status: {
+                                                    [Sequelize.Op.ne] : 3
+                                                }
+                                            }
+                                        ],
+                                        ...(
+                                            toall ? {
+                                                [Sequelize.Op.or]: [
+                                                    {
+                                                        do_sms: 0
+                                                    },
+                                                    {
+                                                        do_sms: 1
+                                                    }
+                                                ],
+                                            } : {
+                                                do_sms: (tooptin ? 1 : 0)         //  opted-ins = 1; awaiting = 0
+                                            }
+                                        )
+                                    }
+                                } : {
+                                    where: {
+                                        ...(
+                                            toall ? {
+                                                [Sequelize.Op.or]: [
+                                                    {
+                                                        do_sms: 0
+                                                    },
+                                                    {
+                                                        do_sms: 1
+                                                    }
+                                                ],
+                                            } : {
+                                                do_sms: (tooptin ? 1 : 0  )       //  opted-ins = 1; awaiting = 0
+                                            }
+                                        )
                                     }
                                 }
-                            } : {} */
-                            skip ? {
-                                where: {
-                                    [Sequelize.Op.and]: [
-                                        {
-                                            status: {
-                                                [Sequelize.Op.ne] : 2
-                                            }
-                                        },
-                                        {
-                                            status: {
-                                                [Sequelize.Op.ne] : 3
-                                            }
-                                        }
-                                    ],
-                                    ...(
-                                        toall ? {
-                                            [Sequelize.Op.or]: [
-                                                {
-                                                    do_sms: 0
-                                                },
-                                                {
-                                                    do_sms: 1
-                                                }
-                                            ],
-                                        } : {
-                                            do_sms: (tooptin ? 1 : 0)         //  opted-ins = 1; awaiting = 0
-                                        }
-                                    )
-                                }
-                            } : {
-                                where: {
-                                    ...(
-                                        toall ? {
-                                            [Sequelize.Op.or]: [
-                                                {
-                                                    do_sms: 0
-                                                },
-                                                {
-                                                    do_sms: 1
-                                                }
-                                            ],
-                                        } : {
-                                            do_sms: (tooptin ? 1 : 0  )       //  opted-ins = 1; awaiting = 0
-                                        }
-                                    )
-                                }
-                            }
-                        )
-                    }],
-                    where: {
-                        id: {
-                            [Op.in]: groups[0],
+                            )
+                        }],
+                        where: {
+                            id: {
+                                [Op.in]: groups[0],
+                            },
+                            userId: user_id,
                         },
-                        userId: user_id,
-                    },
-                })
-
-                //  merge contacts from all groups
-                var contacts_arr = [];
-                dd.forEach(el => {
-                    contacts_arr = contacts_arr.concat(el.contacts);
-                }); 
-
-                //  remove duplicates
-                contacts_arr = _.uniqBy(contacts_arr, 'phone');
-
-                contactslength =  contacts_arr.length;
-                for (let i = 0; i < contacts_arr.length; i++) {
-                    allresults.push(await checkAndAggregate(contacts_arr[i]));
-                }
-
-                [all, bal] = await Promise.all([
-                    allresults,
-                    models.User.findByPk((user_id), {
-                        attributes: ['balance'],
-                        raw: true
                     })
-                ]);
 
-                name = [name];
-                contactcount_ = { counts: [contactslength] };
-                msgcount_ = { counts: [msgcount], acc: msgcount };
-                units_ = { counts: [units], acc: units };
-            } else {
-                let contactcount_1;
-                let units_1;
-                if(condition[int-1] == "clicked") {
-                    contactcount_1 = Math.round(ESTIMATED_CLICK_PERCENTAGE * contactcount_.counts[0]);
-                    units_1 = Math.round(ESTIMATED_CLICK_PERCENTAGE * units_.counts[0]);
-                } else if(condition[int-1] == "unclicked") {
-                    contactcount_1 = Math.round(ESTIMATED_UNCLICK_PERCENTAGE * contactcount_.counts[0]);
-                    units_1 = Math.round(ESTIMATED_UNCLICK_PERCENTAGE * units_.counts[0]);
-                } else if(condition[int-1] == "elapsed") {
-                    contactcount_1 = contactcount_.counts[0];
-                    units_1 = units_.counts[0];
-                }
-                let msgcnt = getSMSCount(message[int]);
-                let msgcount_1 = Math.round(msgcnt * contactcount_1); 
+                    //  merge contacts from all groups
+                    var contacts_arr = [];
+                    dd.forEach(el => {
+                        contacts_arr = contacts_arr.concat(el.contacts);
+                    }); 
 
-                name.push(name[0] + "_(followup: " + condition[int - 1] + ")")
-                contactcount_.counts.push(contactcount_1);
-                msgcount_.counts.push(msgcount_1);
-                msgcount_.acc += msgcount_1;
-                units_.counts.push(units_1);
-                units_.acc += units_1;
-            }
-            console.log('====================================');
-            console.log('iiiiiiiiiiiiiiiiiiii = ' + JSON.stringify(name));
-            console.log('====================================');
+                    //  remove duplicates
+                    contacts_arr = _.uniqBy(contacts_arr, 'phone');
 
-            async function checkAndAggregate(kont) { 
+                    contactslength =  contacts_arr.length;
+                    for (let i = 0; i < contacts_arr.length; i++) {
+                        allresults.push(await checkAndAggregate(contacts_arr[i]));
+                    }
 
-                if(shorturl[0] ) {
-                    var shorturl_ = await models.Shortlink.findByPk(shorturl[int]);
-                }
-                console.log('====================================');
-                console.log('cmpan is: ' + message[int]) ;
-                console.log('====================================');
-                var message_  = message[int]
-                    .replace(/\[firstname\]/g, kont.firstname)
-                    .replace(/\[first name\]/g, kont.firstname)
-                    .replace(/\[lastname\]/g, kont.lastname)
-                    .replace(/\[last name\]/g, kont.lastname)
-                    .replace(/\[email\]/g, kont.email)
-                    .replace(/\[e-mail\]/g, kont.email)
-                    .replace(/\[url\]/g, 'https://tsn.go/' + (shorturl_ ? shorturl_.shorturl : '') + '/' + uid)
-                    // .replace(/\[url\]/g, 'https://tsn.go/' + shorturl.shorturl + '/' + uid)
-                    .replace(/&nbsp;/g, ' ');
+                    [all, bal] = await Promise.all([
+                        allresults,
+                        models.User.findByPk((user_id), {
+                            attributes: ['balance'],
+                            raw: true
+                        })
+                    ]);
 
-                let cc = getSMSCount(message_);
-                msgcount += cc;
-
-                if(file_not_logged) {
-                    filelogger('sms', 'API Controller', 'analysing campaign', message_);
-                    file_not_logged = false;
-                }
-
-                let unit_ = await getRateCharge(kont.phone, kont.countryId, user_id);
-
-                units += unit_ * cc;
-                return unit_;
-
-            }
-
-            if(!is_api_access) {
-                let nint = (int == 2 && condition[0] == 0) ? int - 1 : int;
-                if(tid[int] == 0) {
-                    var tt = await models.Tmpcampaign.create({
-                        name:       name[nint],
-                        userId:     user_id,
-                        senderId:   sender[int],
-                        shortlinkId: (shorturl[int].length > 0) ? shorturl[int] : null,
-                        // myshorturl: req.body.myshorturl,
-                        grp:        (int === 0) ? JSON.stringify(groups[int]) : groups[int],
-                        message:    message[int],
-                        // schedule: (req.body.schedule) ? moment(req.body.schedule, 'DD/MM/YYYY h:mm:ss A').format('YYYY-MM-DD HH:mm:ss') : null, //req.body.schedule,
-                        schedule:   (datepicker) ? schedule : null, //req.body.schedule,
-                        skip_dnd:   (skip) ? skip : null,
-                        has_utm:    (utm) ? 1 : 0,
-                        to_optin:   (tooptin) ? 1 : 0,
-                        to_awoptin: (toawoptin) ? 1 : 0,
-                        add_optout: (unsub) ? 1 : 0,
-                        add_optin:  (dosub) ? 1 : 0,
-                        units_used: units,
-                        total_units: units + (has_clicked ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0) + (has_elapsed ? units : 0),
-                        within_days: within_days[int-1],
-                        ref_campaign: (int === 0) ? "" : "tmpref_" + tids[0],
-                    });
-
-                    tt = tt.id;
+                    name = [name];
+                    contactcount_ = { counts: [contactslength] };
+                    msgcount_ = { counts: [msgcount], acc: msgcount };
+                    units_ = { counts: [units], acc: units };
                 } else {
-                    var tp = await models.Tmpcampaign.findByPk(tid[int]);
-                    var tt = await tp.update({
-                        name:       name[nint],
-                        userId:     user_id,
-                        senderId:   sender[int],
-                        shortlinkId: (shorturl[int].length > 0) ? shorturl[int] : null,
-                        // myshorturl: req.body.myshorturl, 
-                        grp:        (int === 0) ? JSON.stringify(groups[int]) : groups[int],
-                        message:    message[int], 
-                        schedule:   (datepicker) ? schedule : null, //req.body.schedule,
-                        skip_dnd:   (skip) ? skip : null,
-                        has_utm:    (utm ? 1 : 0),
-                        to_optin:   (tooptin ? 1 : 0),
-                        to_awoptin: (toawoptin ? 1 : 0),
-                        add_optout: (unsub ? 1 : 0),
-                        add_optin:  (dosub ? 1 : 0),
-                        units_used: units,
-                        total_units: units + (has_clicked ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0) + (has_elapsed ? units : 0),
-                        within_days: within_days[int-1],
-                        ref_campaign: (int === 0) ? "" : "tmpref_" + tids[0],
-                    })
+                    let contactcount_1;
+                    let units_1;
+                    if(condition[int-1] == "clicked") {
+                        contactcount_1 = Math.round(ESTIMATED_CLICK_PERCENTAGE * contactcount_.counts[0]);
+                        units_1 = Math.round(ESTIMATED_CLICK_PERCENTAGE * units_.counts[0]);
+                    } else if(condition[int-1] == "unclicked") {
+                        contactcount_1 = Math.round(ESTIMATED_UNCLICK_PERCENTAGE * contactcount_.counts[0]);
+                        units_1 = Math.round(ESTIMATED_UNCLICK_PERCENTAGE * units_.counts[0]);
+                    } else if(condition[int-1] == "elapsed") {
+                        contactcount_1 = contactcount_.counts[0];
+                        units_1 = units_.counts[0];
+                    }
+                    let msgcnt = getSMSCount(message[int]);
+                    let msgcount_1 = Math.round(msgcnt * contactcount_1); 
 
-                    tt = tid[int];
+                    name.push(name[0] + "_(followup: " + condition[int - 1] + ")")
+                    contactcount_.counts.push(contactcount_1);
+                    msgcount_.counts.push(msgcount_1);
+                    msgcount_.acc += msgcount_1;
+                    units_.counts.push(units_1);
+                    units_.acc += units_1;
                 }
-                
-                tids.push(parseInt(tt)); 
+                console.log('====================================');
+                console.log('iiiiiiiiiiiiiiiiiiii = ' + JSON.stringify(name));
+                console.log('====================================');
 
-                fin = [bal.balance, tids];
+                async function checkAndAggregate(kont) { 
 
-                console.log('post2... ' + JSON.stringify(fin));
+                    if(shorturl[0] ) {
+                        var shorturl_ = await models.Shortlink.findByPk(shorturl[int]);
+                    }
+                    console.log('====================================');
+                    console.log('cmpan is: ' + message[int]) ;
+                    console.log('====================================');
+                    var message_  = message[int]
+                        .replace(/\[firstname\]/g, kont.firstname)
+                        .replace(/\[first name\]/g, kont.firstname)
+                        .replace(/\[lastname\]/g, kont.lastname)
+                        .replace(/\[last name\]/g, kont.lastname)
+                        .replace(/\[email\]/g, kont.email)
+                        .replace(/\[e-mail\]/g, kont.email)
+                        .replace(/\[url\]/g, 'https://tsn.go/' + (shorturl_ ? shorturl_.shorturl : '') + '/' + uid)
+                        // .replace(/\[url\]/g, 'https://tsn.go/' + shorturl.shorturl + '/' + uid)
+                        .replace(/&nbsp;/g, ' ');
+
+                    let cc = getSMSCount(message_);
+                    msgcount += cc;
+
+                    if(file_not_logged) {
+                        filelogger('sms', 'API Controller', 'analysing campaign', message_);
+                        file_not_logged = false;
+                    }
+
+                    let unit_ = await getRateCharge(kont.phone, kont.countryId, user_id);
+
+                    units += unit_ * cc;
+                    return unit_;
+
+                }
+
+                if(!is_api_access) {
+                    let nint = (int == 2 && condition[0] == 0) ? int - 1 : int;
+                    if(tid[int] == 0) {
+                        var tt = await models.Tmpcampaign.create({
+                            name:       name[nint],
+                            userId:     user_id,
+                            senderId:   sender[int],
+                            shortlinkId: (shorturl[int].length > 0) ? shorturl[int] : null,
+                            // myshorturl: req.body.myshorturl,
+                            grp:        (int === 0) ? JSON.stringify(groups[int]) : groups[int],
+                            message:    message[int],
+                            // schedule: (req.body.schedule) ? moment(req.body.schedule, 'DD/MM/YYYY h:mm:ss A').format('YYYY-MM-DD HH:mm:ss') : null, //req.body.schedule,
+                            schedule:   (datepicker) ? schedule : null, //req.body.schedule,
+                            skip_dnd:   (skip) ? skip : null,
+                            has_utm:    (utm) ? 1 : 0,
+                            to_optin:   (tooptin) ? 1 : 0,
+                            to_awoptin: (toawoptin) ? 1 : 0,
+                            add_optout: (unsub) ? 1 : 0,
+                            add_optin:  (dosub) ? 1 : 0,
+                            units_used: units,
+                            total_units: units + (has_clicked ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0) + (has_elapsed ? units : 0),
+                            within_days: within_days[int-1],
+                            ref_campaign: (int === 0) ? "" : "tmpref_" + tids[0],
+                        });
+
+                        tt = tt.id;
+                    } else {
+                        var tp = await models.Tmpcampaign.findByPk(tid[int]);
+                        var tt = await tp.update({
+                            name:       name[nint],
+                            userId:     user_id,
+                            senderId:   sender[int],
+                            shortlinkId: (shorturl[int].length > 0) ? shorturl[int] : null,
+                            // myshorturl: req.body.myshorturl, 
+                            grp:        (int === 0) ? JSON.stringify(groups[int]) : groups[int],
+                            message:    message[int], 
+                            schedule:   (datepicker) ? schedule : null, //req.body.schedule,
+                            skip_dnd:   (skip) ? skip : null,
+                            has_utm:    (utm ? 1 : 0),
+                            to_optin:   (tooptin ? 1 : 0),
+                            to_awoptin: (toawoptin ? 1 : 0),
+                            add_optout: (unsub ? 1 : 0),
+                            add_optin:  (dosub ? 1 : 0),
+                            units_used: units,
+                            total_units: units + (has_clicked ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0) + (has_elapsed ? units : 0),
+                            within_days: within_days[int-1],
+                            ref_campaign: (int === 0) ? "" : "tmpref_" + tids[0],
+                        })
+
+                        tt = tid[int];
+                    }
+                    
+                    tids.push(parseInt(tt)); 
+
+                    fin = [bal.balance, tids];
+
+                    console.log('post2... ' + JSON.stringify(fin));
+                }
             }
-            
             int++;
         }
         
