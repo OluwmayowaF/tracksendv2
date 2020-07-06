@@ -241,19 +241,220 @@ $(document).ready(function() {
 		countChars($we);
 	});
 
-	if($('._followup_campaign._1 .chk_followup').is(':checked')) {
+	/* if($('._followup_campaign._1 .chk_followup').is(':checked')) {
 		$('._followup_campaign._1 .chk_followup').parent().click();
 		$('._followup_campaign._2').show();
 	} 
 	if($('._followup_campaign._2 .chk_followup').is(':checked')) {
 		$('._followup_campaign._2').show();
 		$('._followup_campaign._2 .chk_followup').parent().click();
+		$('._followup_campaign._3').show();
 	}
-	
+	if($('._followup_campaign._3 .chk_followup').is(':checked')) {
+		$('._followup_campaign._3').show();
+		$('._followup_campaign._3 .chk_followup').parent().click();
+		$('._followup_campaign._4').show();
+	}
+	if($('._followup_campaign._4 .chk_followup').is(':checked')) {
+		$('._followup_campaign._4').show();
+		$('._followup_campaign._4 .chk_followup').parent().click();
+	} */
 
-	$('.chk_followup').on('click', (e) => {
-		e.stopPropagation();
-	})
+	(function newCampaignFollowupCheckBoxEvents() {
+
+		$('._followup_campaign .chk_followup').off('change');
+		$('._followup_campaign .chk_followup').on('change', function(e) {
+			let $new;
+			let cumm = parseInt($('#followup_campaign_cumm').val()) + 1;
+			console.log('__changed__');
+
+			let $cpgnhtml = $('<div class="_followup_campaign _' + cumm + ' _collection" style="margin-top: 20px;"><hr><input type="hidden" data-name="analysis_id" id="analysis_id" value="0"><div class="trigger"><div class="col-lg-12  checkboxes toggle active"><input id="chk_followup' + cumm + '" class="chk_followup" type="checkbox" name="chk_followup"><label for="chk_followup' + cumm + '" style="width: 100%;">Create <b>Follow-Up</b> Campaign</label></div></div><div class="clearfix"></div></div>');
+
+			let $tg = $(e.target);
+			if($tg.is(':checked')) {
+				console.log('__checked__');
+				let $cpgn_ = $tg.closest('._followup_campaign');
+				let $cpgn = $cpgn_.find('.toggle-container');
+				$cpgn_.find('.trigger .checkboxes label').append('<span> [uncheck to remove follow-up campaign]</span>');
+
+				$cpgn.show(function() {		//	callback after show comlpletes
+					$cpgn.find('.chosen-select-no-single').each(function(i, el) {
+						$(el).chosen("destroy");
+					})
+
+					let $nxt = $cpgn.clone();
+					$cpgnhtml.insertAfter($cpgn_);
+
+					$new = $('.all_campaigns ._followup_campaign._' + cumm);
+					$nxt.insertAfter($new.find('.trigger'));
+
+					// $new.find('._sel_contact_group').attr('id', 'sel_contact_group'+cumm);
+					// $new.find('._sel_sender_id').attr('id', 'sel_sender_id'+cumm);
+					// $new.find('._sel_short_url').attr('id', 'sel_short_url'+cumm);
+
+					$('._followup_campaign .chosen-select-no-single').each(function(i, el) {
+						console.log('chosen-here-'+i);
+						$(el).chosen({
+							disable_search_threshold: 4,
+						});
+					})
+
+					$new.find('.toggle-container').hide();
+
+					$cpgn_.find('[data-name]').each(function(i, el) {
+						console.log('data-name='+$(el).attr('data-name'));
+						
+						$(el).attr('name', $(el).attr('data-name'));
+					})
+
+					$('#followup_campaign_cumm').val(cumm);
+
+					newCampaignFollowupCheckBoxEvents();
+
+				});
+
+
+			} else {
+
+				let count = $('.all_campaigns ._followup_campaign').length;
+				if(count > 1) {
+					$tg.closest('._followup_campaign').remove();
+				} else {
+					let $cpgn = $tg.closest('._followup_campaign');
+
+					$cpgn.find('[data-name]').each(function(i, el) {
+						console.log('data-name='+$(el).attr('data-name'));
+						
+						$(el).removeAttr('name');
+					})
+					$cpgn.hide();
+				}
+
+				console.log('__unchecked__');
+				
+			}
+			
+		});
+
+		$('.compose_options_box > li').off('click');
+		$('.compose_options_box > li').on('click', function(e) {
+	
+			var $wh = $(this);
+			var $we = $wh.closest('._collection');
+			var inp = $wh.attr('class');
+			// if(inp != 'ch-url') return;
+			console.log('you selected: ' + $(e.target).attr('class'));
+			var t, id;
+	
+			switch (inp) {
+				case 'ch-firstname':
+					t = 'firstname';
+					id = 'firstname-in';
+					
+					break;
+				case 'ch-lastname':
+					t = 'lastname';
+					id = 'lastname-in';
+					
+					break;
+				case 'ch-email':
+					t = 'email';
+					id = 'email-in';
+					
+					break;
+				case 'ch-url':
+					t = 'url';
+					id = 'url-in';
+					
+					if(!($we.find('#sel_short_url').val() > 0)) {
+						alert('Please select the Short URL to insert from above.');
+						return false;
+					}
+	
+					$we.find('.add_utm').show('fade');
+					
+					break;
+				case 'ch-emoji':
+					t = 'emoji';
+					id = 'emj-in';
+					
+					$we.find('#emoji_list').toggle();
+					// picker.pickerVisible ? picker.hidePicker() : picker.showPicker();
+			}
+	
+			inp = $wh.attr('id');
+			if(id == null) {
+	
+				if(inp == 'clr_msg_butt') {
+					if(window.confirm('Clear message?')) {
+						$we.find('.editable_div').html('').focus();
+						countChars($we);
+					}
+					return;
+				}
+	
+				let wha = ($(this).attr('id') == 'add_img_butt') ? 'image' : 'video';
+				let whb = ($(this).attr('id') == 'add_img_butt') ? 'im-icon-Photo' : 'im-icon-Video-4';
+				let init = ($('.content_attachments input').length == 0) ? true : false;
+				$we.find('.content_attachments').html('<input type="file" name="att_file" id="att_file" accept="'+ wha +'/*" hidden>');
+	
+				$we.find('.content_attachments #att_file').click(() => {
+					$we.find('.content_attachments #att_file').change(() => {
+						if($we.find('.content_attachments #att_file').val()) {
+							// $('.content_attachments').html('<input type="file" name="att_file" id="att_file" accept="'+ wha +'/*" hidden>');
+							console.log('file = ' + $we.find('.content_attachments #att_file').val());
+							
+							$we.find('.content_attachments').css('display','flex');
+							$we.find('.content_attachments').append('Attachment: <i class="im '+ whb +'" style="font-size:2em;margin: 0 5px;"></i> <span class="att_file_name">' + $we.find('.content_attachments #att_file').val() + '</span> [ <span id="remove_attachment" style="color:red;color:red;font-size:0.7em;cursor:pointer"> remove </span> ]');
+	
+							$we.find('#remove_attachment').click(() => {
+								console.log('GO!');
+								
+								$we.find('.content_attachments').hide();
+								$we.find('.content_attachments').html('');
+							})
+						} else {
+							console.log('NO-FILE');
+							
+							$we.find('.content_attachments').html('');
+						}
+					})
+				});
+				$we.find('.content_attachments #att_file').click();
+				
+				/* $('#att_img, #att_vid').off('change');
+				$('#att_img, #att_vid').on('change', () => {
+					if($('#att_img, #att_vid').val()) {
+						$('.content_attachments').show(); 
+						console.log('id = ' + $(this).attr('id'));
+						 
+					}
+				}) */
+	
+				switch(inp) {
+					case 'add_img_butt':
+						// $('#att_img').click();
+						$we.find('.editable_div').focus();
+						break;
+					case 'add_vid_butt':
+						// $('#att_vid').click();
+						$we.find('.editable_div').focus();
+						break;
+				}
+			} else {
+	
+					if(t != 'emoji') insertText(id, 'arg', t, 'span');
+					countChars($we);
+			}
+		})
+		
+		$('.chk_followup').on('click', (e) => {
+			e.stopPropagation();
+		})
+	})()
+
+
+	/* 
 
 	$('._followup_campaign._1 .chk_followup').on('change', (e) => {
 		if($(e.target).is(':checked')) {
@@ -262,6 +463,20 @@ $(document).ready(function() {
 			if(!$('._followup_campaign._2 .chk_followup').is(':checked')) $('._followup_campaign._2').hide()
 		}
 	})
+	$('._followup_campaign._2 .chk_followup').on('change', (e) => {
+		if($(e.target).is(':checked')) {
+			$('._followup_campaign._3').show()
+		} else {
+			if(!$('._followup_campaign._3 .chk_followup').is(':checked')) $('._followup_campaign._3').hide()
+		}
+	})
+	$('._followup_campaign._3 .chk_followup').on('change', (e) => {
+		if($(e.target).is(':checked')) {
+			$('._followup_campaign._4').show()
+		} else {
+			if(!$('._followup_campaign._4 .chk_followup').is(':checked')) $('._followup_campaign._4').hide()
+		}
+	}) */
 
 	//	FOR CALCULATION OF TOPUPS 
 	var topupbands = [];
@@ -370,119 +585,6 @@ $(document).ready(function() {
       $('#_new_group_info').find('input[name="name"]').removeAttr('required');
     }
   })
-
-	$('.compose_options_box > li').off('click');
-	$('.compose_options_box > li').on('click', function(e) {
-		// if($(e.target).attr('name') != 'check') return;
-
-		var $wh = $(this);
-		var $we = $wh.closest('._collection');
-		var inp = $wh.attr('class');
-		// if(inp != 'ch-url') return;
-		console.log('you selected: ' + $(e.target).attr('class'));
-		var t, id;
-
-		switch (inp) {
-			case 'ch-firstname':
-				t = 'firstname';
-				id = 'firstname-in';
-				
-				break;
-			case 'ch-lastname':
-				t = 'lastname';
-				id = 'lastname-in';
-				
-				break;
-			case 'ch-email':
-				t = 'email';
-				id = 'email-in';
-				
-				break;
-			case 'ch-url':
-				t = 'url';
-				id = 'url-in';
-				
-				if(!($we.find('#sel_short_url').val() > 0)) {
-					alert('Please select the Short URL to insert from above.');
-					return false;
-				}
-
-				$we.find('.add_utm').show('fade');
-				
-				break;
-			case 'ch-emoji':
-				t = 'emoji';
-				id = 'emj-in';
-				
-				$we.find('#emoji_list').toggle();
-				// picker.pickerVisible ? picker.hidePicker() : picker.showPicker();
-		}
-
-		inp = $wh.attr('id');
-		if(id == null) {
-
-			if(inp == 'clr_msg_butt') {
-				if(window.confirm('Clear message?')) {
-					$we.find('.editable_div').html('').focus();
-					countChars($we);
-				}
-				return;
-			}
-
-			let wha = ($(this).attr('id') == 'add_img_butt') ? 'image' : 'video';
-			let whb = ($(this).attr('id') == 'add_img_butt') ? 'im-icon-Photo' : 'im-icon-Video-4';
-			let init = ($('.content_attachments input').length == 0) ? true : false;
-			$we.find('.content_attachments').html('<input type="file" name="att_file" id="att_file" accept="'+ wha +'/*" hidden>');
-
-			$we.find('.content_attachments #att_file').click(() => {
-				$we.find('.content_attachments #att_file').change(() => {
-					if($we.find('.content_attachments #att_file').val()) {
-						// $('.content_attachments').html('<input type="file" name="att_file" id="att_file" accept="'+ wha +'/*" hidden>');
-						console.log('file = ' + $we.find('.content_attachments #att_file').val());
-						
-						$we.find('.content_attachments').css('display','flex');
-						$we.find('.content_attachments').append('Attachment: <i class="im '+ whb +'" style="font-size:2em;margin: 0 5px;"></i> <span class="att_file_name">' + $we.find('.content_attachments #att_file').val() + '</span> [ <span id="remove_attachment" style="color:red;color:red;font-size:0.7em;cursor:pointer"> remove </span> ]');
-
-						$we.find('#remove_attachment').click(() => {
-							console.log('GO!');
-							
-							$we.find('.content_attachments').hide();
-							$we.find('.content_attachments').html('');
-						})
-					} else {
-						console.log('NO-FILE');
-						
-						$we.find('.content_attachments').html('');
-					}
-				})
-			});
-			$we.find('.content_attachments #att_file').click();
-			
-			/* $('#att_img, #att_vid').off('change');
-			$('#att_img, #att_vid').on('change', () => {
-				if($('#att_img, #att_vid').val()) {
-					$('.content_attachments').show(); 
-					console.log('id = ' + $(this).attr('id'));
-					 
-				}
-			}) */
-
-			switch(inp) {
-				case 'add_img_butt':
-					// $('#att_img').click();
-					$we.find('.editable_div').focus();
-					break;
-				case 'add_vid_butt':
-					// $('#att_vid').click();
-					$we.find('.editable_div').focus();
-					break;
-			}
-		} else {
-
-				if(t != 'emoji') insertText(id, 'arg', t, 'span');
-				countChars($we);
-		}
-	})
 
 	$('.ch-emoji #emoji_list li').on('click', function (e) {
 		console.log('emoji = ' + $(this).text());
@@ -789,8 +891,19 @@ $(document).ready(function() {
 
 				console.log(data);
 				if(data.code == "SUCCESS") {
+
+					/* data.tmpid.forEach(id => {
+						
+					}); */
+
+
+
 					$('._main_campaign #analysis_id').val(data.tmpid[0]);
-					$('._followup_campaign._1 #analysis_id').val(
+
+					$('._followup_campaign .chk_followup:checked').each(function(i, el) {
+						$(el).closest('._followup_campaign').find('#analysis_id').val(data.tmpid[i + 1])
+					})
+					/* $('._followup_campaign._1 #analysis_id').val(
 						data.followups[0] ? 
 							data.tmpid[1] : 
 							($('._followup_campaign._1 #analysis_id').val() ? 
@@ -808,35 +921,42 @@ $(document).ready(function() {
 								$('._followup_campaign._2 #analysis_id').val() : 
 								0
 							)
-					);
+					); */
 
 					var tot = 0;
 					var len = data.tmpid.length;
-					for(var i = 0; i < len; i++) {
-						let j = ((i > 0) && (data.followups[i - 1] == 0)) ? i + 1 : i;
-						console.log('====================================');
-						console.log('bbbbbbbbbbbbbb= ', j);
-						console.log('====================================');
-						let $fr = $('#campaign_form_sms ._' + j);
-						let $bo = $('#analysis-box ._' + i);
+					let $bo = $('#analysis-box .sign-in-form');
+					$bo.html('');
+
+					$('.all_campaigns ._collection').each(function(i, el) {
+						// $bo.show();
+						if(i >= len) return;
+
+						let cpm_summary_title 	= (i === 0) ? "Main Campaign" : "Follow-Up Campaign " + i;
+						let cpm_summary_name 		= (i === 0) ? $(el).find('#campaign_name').val() : "";
+						let cpm_summary_sender 	= $(el).find('._sel_sender_id option:selected').text();
+						let cpm_summary_msg 		=	sanitizeMsg($(el), true);
+						let cpm_summary_to 			=	$(el).find('._sel_contact_group option:selected').text();
+						let cpm_summary_recp 		=	data.contactcount.counts[i] + (i > 0 ? ' (est.)' : '');
+						let cpm_summary_count 	= data.msgcount.counts[i] + (i > 0 ? ' (est.)' : '');
+						let cpm_summary_avg 		=	(parseInt(data.contactcount.counts[i]) > 0) ? (parseInt(data.msgcount.counts[i])/parseInt(data.contactcount.counts[i])) + (i > 0 ? ' (est.)' : '') : '--';
+						let cpm_units_chrg 			=	data.units.counts[i] + (i > 0 ? ' (est.)' : '');
+
+						let $su = $('<div class="_su"><div class="trigger"><div class="col-lg-12 toggle active _hdr">' + cpm_summary_title + '</div></div><div class="col-lg-12 toggle-container" style="display: none"><div class="row with-forms">' + ((i === 0) ? '<div class="col-md-12"><h5>Campaign Name: </h5><span id="cpm_summary_name">' + cpm_summary_name + '</span></div>' : '') + '<div class="col-md-12"><h5>Sender ID: </h5><span id="cpm_summary_sender">' + cpm_summary_sender + '</span></div><div class="col-md-12"><h5>Message: </h5><span id="cpm_summary_msg">' + cpm_summary_msg + '</span></div><div class="col-md-12"><h5>To: </h5><span id="cpm_summary_to">' + cpm_summary_to + '</span></div><div class="col-md-12"><h5>Send Time: </h5><span id="cpm_summary_time">Immediately</span></div><div class="col-md-12 sepr"></div><div class="col-md-12"><h5>Number of Recipients: </h5><span id="cpm_summary_recp">' + cpm_summary_recp + '</span></div><div class="col-md-12"><h5>Total Messages: </h5><span id="cpm_summary_count">' + cpm_summary_count + '</span></div><div class="col-md-12"><h5>Average Message(s) per Recipient: </h5><span id="cpm_summary_avg">' + cpm_summary_avg + '</span></div><div class="col-md-12"><h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">' + cpm_units_chrg + '</span></div><div class="col-md-12 sepr"></div></div></div><div class="clearfix"></div></div>')
 						
-						$bo.show();
-						$bo.find('#cpm_summary_name')		.text($fr.find('#campaign_name').val());
-						$bo.find('#cpm_summary_sender')	.text($fr.find('#sel_sender_id option:selected').text());
-						$bo.find('#cpm_summary_msg')		.html(sanitizeMsg($fr, true));
-						$bo.find('#cpm_summary_to')			.text($fr.find('#sel_contact_group option:selected').text());
-						$bo.find('#cpm_summary_recp')		.text(data.contactcount.counts[i] + (i > 0 ? ' (est.)' : ''));
-						$bo.find('#cpm_summary_count')	.text(data.msgcount.counts[i] + (i > 0 ? ' (est.)' : ''));
-						$bo.find('#cpm_summary_avg')		.text(parseInt(data.msgcount.counts[i])/parseInt(data.contactcount.counts[i]) + (i > 0 ? ' (est.)' : ''));
-						$bo.find('#cpm_units_chrg')			.text(data.units.counts[i] + (i > 0 ? ' (est.)' : ''));
-
+						$bo.append($su);
 						tot += data.contactcount.counts[i];
-					}
+						
+					})
 					
-					$('#analysis-box .su_totals #cpm_summary_recp').text(tot + (len > 1 ? ' (est.)' : ''));
-					$('#analysis-box .su_totals #cpm_summary_count').text(data.msgcount.acc + (len > 1 ? ' (est.)' : ''));
-					$('#analysis-box .su_totals #cpm_units_chrg').text(data.units.acc + (len > 1 ? ' (est.)' : ''));
+					let cpm_summary_recp 	= tot + (len > 1 ? ' (est.)' : '') + (data.invalidphones > 0 ? ' <span style="display: inline;font-size: 0.85em;color: #ff4a21;"> * invalid: ' + data.invalidphones + ' *</spa>' : '');
+					let cpm_summary_count = data.msgcount.acc + (len > 1 ? ' (est.)' : '');
+					let cpm_units_chrg 		= data.units.acc + (len > 1 ? ' (est.)' : '');
 
+					let $sutt = '<div class="su_totals" style="background-color: #bae7ec;margin-top: 5px;"><div class="row with-forms"><div style="text-align: center;padding: 5px;font-weight: bold;background-color: #85ccd2;color: #444;border-bottom: solid white 1px;">Totals</div><div class="col-md-12"><h5>Number of Recipients: </h5><span id="cpm_summary_recp">' + cpm_summary_recp + '</span></div><div class="col-md-12"><h5>Total Messages: </h5><span id="cpm_summary_count">' + cpm_summary_count + '</span></div><div class="col-md-12"><h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">' + cpm_units_chrg + '</span></div><div class="col-md-12 sepr"></div><div class="col-md-12"><h5>Available Balance: </h5><span id="cpm_units_balance" style="font-weight: bold">--</span></div></div></div>';
+
+					$bo.append($sutt);
+					
 					var bal, noc;
 					if(data.units.acc > data.balance) {
 						bal = '<span style="color: red">' + data.balance + ' (INSUFFICIENT) </span>';
@@ -862,6 +982,12 @@ $(document).ready(function() {
 
 					$butt.closest('div').find('.loading_icon').hide();
 					$butt.closest('div').find('.activity_status').text('');
+
+					$('#analysis-box .trigger').click(function(e) {
+						e.stopPropagation()
+						$(e.target).closest('._su').find('.toggle-container').slideToggle();
+					})
+
 				} else {
 					$butt.closest('div').find('.loading_icon').hide();
 					$butt.closest('div').find('.activity_status').text('');
@@ -1854,6 +1980,7 @@ function sanitizeMsg($fr, html) {
 
 function validateAndSendCampaign(btn) {
 
+	var has_error = false;
 	function checkElements($we) {
 
 		sanitizeMsg($we);
@@ -1879,14 +2006,15 @@ function validateAndSendCampaign(btn) {
 			$form.find('._form_errors._e_analyse').show();
 			return false;
 		}
-		else if($we.find('#to_optin').length && !$we.find('#to_optin').is(':checked') && $we.find('#to_awoptin').length && !$we.find('#to_awoptin').is(':checked')) {
+		
+		if($we.find('#to_optin').length && !$we.find('#to_optin').is(':checked') && $we.find('#to_awoptin').length && !$we.find('#to_awoptin').is(':checked')) {
 			$(btn).closest('div').find('.loading_icon').hide();
 			$(btn).closest('div').find('.activity_status').text('');
 			$form.find('._form_errors._e_analyse').html('Select between <b>\'Send to Opted in Contacts\'</b> and <b>\'Send to Awaiting-Opt-In Contacts\'</b>');
 			$form.find('._form_errors._e_analyse').show();
 			return false;
 		}
-		else if($('._followup_campaign._1 #sel_contact_group').val() == $('._followup_campaign._2 #sel_contact_group').val()) {
+		/* else if($('._followup_campaign._1 #sel_contact_group').val() == $('._followup_campaign._2 #sel_contact_group').val()) {
 			if($('._followup_campaign._1 .chk_followup').is(':checked') && $('._followup_campaign._2 .chk_followup').is(':checked') && $('._followup_campaign._1  #sel_contact_group').val() != "elapsed") {
 				$(btn).closest('div').find('.loading_icon').hide();
 				$(btn).closest('div').find('.activity_status').text('');
@@ -1894,7 +2022,7 @@ function validateAndSendCampaign(btn) {
 				$form.find('._form_errors._e_analyse').show();
 				return false;
 			}
-		}
+		} */
 
 		return true;
 	}
@@ -1905,21 +2033,27 @@ function validateAndSendCampaign(btn) {
 
 	//	first, main campaign
 	var $we = $(btn).closest('form').find('._main_campaign');
-	if(!checkElements($we)) return false;
+	if(!checkElements($we)) has_error = true;
 
-	//	next, first followup campaign
-	if($('._followup_campaign._1 .chk_followup').is(':checked')) {
+	//	next, followup campaigns
+	$('._followup_campaign .chk_followup:checked').each(function (i, el) {
+		var $we = $(el).closest('._followup_campaign');
+		if(!checkElements($we)) has_error = true;
+	}) 
+	/* {
 		var $we = $(btn).closest('form').find('._followup_campaign._1');
 		if(!checkElements($we)) return false;
-	}
+	} */
 	
 	//	lastly, second followup campaign
-	if($('._followup_campaign._2 .chk_followup').is(':checked')) {
+	/* if($('._followup_campaign._2 .chk_followup').is(':checked')) {
 		var $we = $(btn).closest('form').find('._followup_campaign._2');
 		if(!checkElements($we)) return false;
-	}
+	} */
 		
-	$form.submit();
+	if(has_error) {
+		return false
+	} else $form.submit();
 
 }
 

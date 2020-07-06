@@ -101,8 +101,11 @@ exports.campaign = async function(req, res) {
 
     console.log('______shurl.url=', shurl.url);
     console.log('______utm=', utm);
-    
-    res.redirect(shurl.url + utm);
+
+    // NEXT IMPOSE 'HTTP' ON URL. IF ABSENT
+    let url_ = shurl.url;
+    url_ = (url_.substr(0, 7) == 'http://' || url_.substr(0, 8) == 'https://') ? url_ : 'http://' + url_;
+    res.redirect(url_ + utm);
     // location.replace(shurl.url + utm);
 
 

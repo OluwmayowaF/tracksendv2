@@ -584,7 +584,7 @@ exports.analyseCampaign = async (req, res) => {
     var is_api_access = req.externalapi;
     var HAS_FOLLOWUP = false;
     var user_id, msgcount, units, name, groups, groups_, message, sender, sender_, shorturl, schedule, datepicker, tid, condition, within_days;
-    var skip, utm, cond_1, cond_2, unsub, dosub, tooptin, toawoptin, toall, tonone, has_clicked = false, has_unclicked = false, has_elapsed = false;
+    var skip, utm, isfollowup, cond_1, cond_2, unsub, dosub, tooptin, toawoptin, toall, tonone; //  has_clicked = false, has_unclicked = false, has_elapsed = false;
 
     try {
         try {
@@ -607,8 +607,10 @@ exports.analyseCampaign = async (req, res) => {
             skip = (req.body.skip_dnd && req.body.skip_dnd == "on");
             utm = (req.body.add_utm && req.body.add_utm == "on");
 
-            cond_1    = (req.body.chk_followup_1 && req.body.chk_followup_1 == "on");
-            cond_2    = (req.body.chk_followup_2 && req.body.chk_followup_2 == "on");
+            // cond_1    = (req.body.chk_followup_1 && req.body.chk_followup_1 == "on");
+            // cond_2    = (req.body.chk_followup_2 && req.body.chk_followup_2 == "on");
+
+            isfollowup= req.body.chk_followup;
 
             unsub     = (req.body.add_optout && req.body.add_optout == "on");
             dosub     = (req.body.add_optin && req.body.add_optin == "on");
@@ -617,11 +619,11 @@ exports.analyseCampaign = async (req, res) => {
             toall     = (tooptin && toawoptin);
             tonone    = (!tooptin && !toawoptin);
 
-            if(condition) {
+            /* if(condition) {
                 has_clicked = (condition.indexOf('clicked') === 0 && cond_1) || (condition.indexOf('clicked') === 1 && cond_2);
                 has_unclicked = (condition.indexOf('unclicked') === 0 && cond_1) || (condition.indexOf('unclicked') === 1 && cond_2);
                 has_elapsed = (condition.indexOf('elapsed') === 0 && cond_1) || (condition.indexOf('elapsed') === 1 && cond_2);
-            }
+            } */
 
             //  API ACCESS
             if(is_api_access) {
@@ -638,15 +640,15 @@ exports.analyseCampaign = async (req, res) => {
                 shorturl = req.body.shorturl;
                 schedule = req.body.schedule;
                 datepicker = req.body.datepicker;
-                tid = [0, 0, 0];
-                condition = [0, 0];
-                within_days = [5, 5];
+                tid = [0];
+                // condition = [0, 0];
+                // within_days = [5, 5];
 
                 skip = true;
                 utm = true;
 
-                cond_1    = false;
-                cond_2    = false;
+                // cond_1    = false;
+                // cond_2    = false;
 
                 unsub     = false;
                 dosub     = false;
@@ -655,11 +657,13 @@ exports.analyseCampaign = async (req, res) => {
                 toall     = (tooptin && toawoptin);
                 tonone    = (!tooptin && !toawoptin);
                 
-                has_clicked = false;
-                has_unclicked = false;
-                has_elapsed = false;
+                // has_clicked = false;
+                // has_unclicked = false;
+                // has_elapsed = false;
 
-                //  extract actual ids of sender and group
+                /* 
+                * these extract actual ids of sender and group nd url stuff...particularly for externalapi
+                */
                 if(sender_) {
                     let sender__ = await models.Sender.findOne({
                         where: {
@@ -714,12 +718,15 @@ exports.analyseCampaign = async (req, res) => {
             console.log('====================================');
             HAS_FOLLOWUP = true;
             if(!Array.isArray(groups)) groups = [groups];
+            condition = req.body.condition ? (Array.isArray(req.body.condition) ? req.body.condition : [req.body.condition]) : nulll;
             groups  = [groups].concat(req.body.condition);
+            within_days = within_days ? (Array.isArray(within_days) ? within_days : [within_days]) : within_days;
         } else {
+            tid = [tid];
             message = [message];
             sender = [sender];
             shorturl = [shorturl];
-            if(!Array.isArray(groups)) groups = is_api_access ? [groups] : [[groups]];
+            groups = (Array.isArray(groups) || is_api_access) ? [groups] : [[groups]];
             console.log('====================================');
             console.log('noarray'+JSON.stringify(sender));
             console.log('====================================');
@@ -734,17 +741,18 @@ exports.analyseCampaign = async (req, res) => {
         var contactslength = 0;
         var tids = [];
         var msgcount_ = {}, contactcount_ = {}, units_ = {};
+        var invalidphones = 0;
         var all, bal, fin;
         var int = 0;
 
         console.log('group= ' + JSON.stringify(groups));
 
         while(int < sender.length) {
-            if(sender[int] != 0) {
-                if((!cond_1 && int == 1) || (!cond_2 && int == 2)) {
+            if((message[int].length > 1) && (groups[int].toString().length > 0) && (sender[int].toString().length > 0)) {
+                /* if((!cond_1 && int == 1) || (!cond_2 && int == 2)) {
                     int++;
                     continue;
-                }
+                } */
                 if(tonone) throw {error: "nocontacts"};
 
                 console.log('THE END!!! balance ' + JSON.stringify(schedule));
@@ -753,7 +761,9 @@ exports.analyseCampaign = async (req, res) => {
                 console.log('====================================');
                 console.log('iiiiiiiiiiiiiiiiiiii = ' + int);
                 console.log('====================================');
+
                 if(int === 0) {  //  done only for the main campaign...followups would get only contact length from here
+                    console.log('-------------22--------------', JSON.stringify(groups));
                 //  extract groups contacts
                     var dd = await models.Group.findAll({
                         include: [{
@@ -823,6 +833,8 @@ exports.analyseCampaign = async (req, res) => {
                         },
                     })
 
+                    console.log('-------------22--------------');
+                    
                     //  merge contacts from all groups
                     var contacts_arr = [];
                     dd.forEach(el => {
@@ -848,22 +860,38 @@ exports.analyseCampaign = async (req, res) => {
                     name = [name];
                     contactcount_ = { counts: [contactslength] };
                     msgcount_ = { counts: [msgcount], acc: msgcount };
-                    units_ = { counts: [units], acc: units };
+                    units_ = { counts: [units], acc: units };       //  units accumulated from checkAndAggregate call above
                 } else {
                     let contactcount_1;
                     let units_1;
+
+                    let message_tmp  = message[int]     //  just for temporary estimation
+                    .replace(/\[firstname\]/g,  'kont.firstname')
+                    .replace(/\[first name\]/g, 'kont.firstname')
+                    .replace(/\[lastname\]/g,   'kont.lastname')
+                    .replace(/\[last name\]/g,  'kont.lastname')
+                    .replace(/\[email\]/g,      'kont.emailkont.email')
+                    .replace(/\[e-mail\]/g,     'kont.emailkont.email')
+                    .replace(/\[url\]/g,        'https://tsn.go/xxx/xxx')
+                    .replace(/&nbsp;/g,         ' ');
+
+                    let msgcnt = getSMSCount(message_tmp);
+
+                    //  LET'S GET THE PROPORTION OF MAIN MSG TO THIS FLWP MSG AND ESTIMATE UNITS
+                    console.log('...........||..........', JSON.stringify(msgcount_), msgcnt, JSON.stringify(contactcount_), JSON.stringify(units_), JSON.stringify(condition));
+                    
+                    let avgunt = units_.counts[0] / msgcount_.counts[0];        //  OR = 1
+
                     if(condition[int-1] == "clicked") {
                         contactcount_1 = Math.round(ESTIMATED_CLICK_PERCENTAGE * contactcount_.counts[0]);
-                        units_1 = Math.round(ESTIMATED_CLICK_PERCENTAGE * units_.counts[0]);
                     } else if(condition[int-1] == "unclicked") {
                         contactcount_1 = Math.round(ESTIMATED_UNCLICK_PERCENTAGE * contactcount_.counts[0]);
-                        units_1 = Math.round(ESTIMATED_UNCLICK_PERCENTAGE * units_.counts[0]);
                     } else if(condition[int-1] == "elapsed") {
                         contactcount_1 = contactcount_.counts[0];
-                        units_1 = units_.counts[0];
                     }
-                    let msgcnt = getSMSCount(message[int]);
+
                     let msgcount_1 = Math.round(msgcnt * contactcount_1); 
+                    units_1 = Math.round(msgcount_1 * avgunt);
 
                     name.push(name[0] + "_(followup: " + condition[int - 1] + ")")
                     contactcount_.counts.push(contactcount_1);
@@ -871,7 +899,9 @@ exports.analyseCampaign = async (req, res) => {
                     msgcount_.acc += msgcount_1;
                     units_.counts.push(units_1);
                     units_.acc += units_1;
+                    console.log('...........|||.........', JSON.stringify(name), msgcount_1, JSON.stringify(contactcount_), JSON.stringify(units_), JSON.stringify(units_));
                 }
+
                 console.log('====================================');
                 console.log('iiiiiiiiiiiiiiiiiiii = ' + JSON.stringify(name));
                 console.log('====================================');
@@ -904,17 +934,27 @@ exports.analyseCampaign = async (req, res) => {
                     }
 
                     let unit_ = await getRateCharge(kont.phone, kont.countryId, user_id);
+                    if(!unit_) {
+                        invalidphones++;
+                        unit_ = 0;
+                    }
+                    console.log('+++++++0000+++++++', kont.phone, units, unit_, cc);
 
                     units += unit_ * cc;
+                    
                     return unit_;
 
                 }
 
+                console.log('______00______');
                 if(!is_api_access) {
-                    let nint = (int == 2 && condition[0] == 0) ? int - 1 : int;
+                    // let nint = (int == 2 && condition[0] == 0) ? int - 1 : int;
+                    console.log('______11______');
+                    
                     if(tid[int] == 0) {
+                    console.log(int, '______22aa______', JSON.stringify(name), JSON.stringify(sender), JSON.stringify(shorturl), JSON.stringify(groups), JSON.stringify(message), JSON.stringify(units_), JSON.stringify(within_days), JSON.stringify(tids));
                         var tt = await models.Tmpcampaign.create({
-                            name:       name[nint],
+                            name:       name[int],
                             userId:     user_id,
                             senderId:   sender[int],
                             shortlinkId: (shorturl[int].length > 0) ? shorturl[int] : null,
@@ -929,17 +969,18 @@ exports.analyseCampaign = async (req, res) => {
                             to_awoptin: (toawoptin) ? 1 : 0,
                             add_optout: (unsub) ? 1 : 0,
                             add_optin:  (dosub) ? 1 : 0,
-                            units_used: units,
-                            total_units: units + (has_clicked ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0) + (has_elapsed ? units : 0),
-                            within_days: within_days[int-1],
-                            ref_campaign: (int === 0) ? "" : "tmpref_" + tids[0],
+                            units_used: units_.counts[int], //(int===0 ? units : 0) + (condition[int]=="clicked" ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (condition[int]=="unclicked" ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0),
+                            total_units: units_.acc, // + (condition[int] ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0) + (has_elapsed ? units : 0),
+                            within_days: (int === 0) ? null : within_days[int-1],
+                            ref_campaign: (int === 0) ? null : "tmpref_" + tids[0],
                         });
+                    console.log('______33______');
 
                         tt = tt.id;
                     } else {
-                        var tp = await models.Tmpcampaign.findByPk(tid[int]);
-                        var tt = await tp.update({
-                            name:       name[nint],
+                        console.log(int, '______22bb______', JSON.stringify(name), JSON.stringify(sender), JSON.stringify(shorturl), JSON.stringify(groups), JSON.stringify(message), JSON.stringify(units_), JSON.stringify(within_days), JSON.stringify(tids));
+                        await models.Tmpcampaign.update({
+                            name:       name[int],
                             userId:     user_id,
                             senderId:   sender[int],
                             shortlinkId: (shorturl[int].length > 0) ? shorturl[int] : null,
@@ -953,11 +994,15 @@ exports.analyseCampaign = async (req, res) => {
                             to_awoptin: (toawoptin ? 1 : 0),
                             add_optout: (unsub ? 1 : 0),
                             add_optin:  (dosub ? 1 : 0),
-                            units_used: units,
-                            total_units: units + (has_clicked ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0) + (has_elapsed ? units : 0),
-                            within_days: within_days[int-1],
-                            ref_campaign: (int === 0) ? "" : "tmpref_" + tids[0],
-                        })
+                            units_used: units_.counts[int], //(int===0 ? units : 0) + (condition[int]=="clicked" ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (condition[int]=="unclicked" ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0),
+                            total_units: units_.acc, // + (condition[int] ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0) + (has_elapsed ? units : 0),
+                            within_days: (int == 0) ? null : within_days[int-1],
+                            ref_campaign: (int === 0) ? null : "tmpref_" + tids[0],
+                        }, {
+                            where: {
+                                id: tid[int],
+                            }
+                        });
 
                         tt = tid[int];
                     }
@@ -968,7 +1013,7 @@ exports.analyseCampaign = async (req, res) => {
 
                     console.log('post2... ' + JSON.stringify(fin));
                 }
-            }
+            } else throw 'fields';
             int++;
         }
         
@@ -976,13 +1021,13 @@ exports.analyseCampaign = async (req, res) => {
         console.log('END OF ANALYSIS!');
         console.log('====================================');
         if(is_api_access) {
-            if(units_ > bal.balance) throw 'balance'
+            if(units > bal.balance) throw 'balance'
             let req_ = {
                 body: {
                     // id: req.body.id,  
                     token: req.body.token,
-                    analysis_id: ['api', 0, 0],
-                    type: ['sms', 'sms', 'sms'],
+                    analysis_id: ['api'],
+                    type: ['sms'],
                     info: {
                         name:       name[0],
                         userId:     user_id,
@@ -1019,9 +1064,10 @@ exports.analyseCampaign = async (req, res) => {
                 tmpid: fin[1],
                 contactcount: contactcount_,
                 msgcount: msgcount_,
+                invalidphones,      //  optional
                 units: units_,
                 balance: fin[0],
-                followups: [cond_1 ? 1 : 0, cond_2 ? 1 : 0],
+                // followups: [cond_1 ? 1 : 0, cond_2 ? 1 : 0],
             };
             // return;
         }

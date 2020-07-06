@@ -1,14 +1,18 @@
 /* 
 
-   
-
 */
+var phoneval = require('../phonevalidate');
 
 const getRateCharge = async (phone, ctry, user_id) => {
   const sequelize = require('../../config/cfg/db');
   var models = require('../../models');
 
-  let prefix = phone.substr(0, 4);
+  let formatphone = phoneval(phone, ctry);
+
+  if(!formatphone) return null;
+  
+  //  this prefix concept only works for nigerian phone lines
+  let prefix = formatphone.substr(0, 4);
 
   var res_charge = await sequelize.query(
     "SELECT units FROM settingsuserbillings " +
@@ -45,7 +49,7 @@ const getRateCharge = async (phone, ctry, user_id) => {
 // console.log('%%%%%%%%%%%%%%%%%%%%%: ' + phone + ' = ' + results);
 
 
-  return results;
+  return results.length ? results[0] : null;
 
 }
 

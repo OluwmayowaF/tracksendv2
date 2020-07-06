@@ -59,7 +59,7 @@ exports.add = (req, res) => {
                 //  send mail to notify someone
                 var data = {
                     from: 'Tracksend <info@tracksend.co>',
-                    to: 'Sender ID <senderid@tracksend.co>',
+                    to: 'Sender ID <sendername@tracksend.co>',
                     subject: 'Tracksend: New SenderID Created.',
                     text: 'A new SenderID called ' + req.body.name + ' has just been created by ' + user.name + ' (' + user.business + ').',
                 };
