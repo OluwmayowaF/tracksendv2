@@ -37,7 +37,6 @@ exports.index = (req, res) => {
     });
 };
 
-
 exports.add = (req, res) => {
     var mgauth = require('../config/cfg/mailgun')();
     const mailgun = require('mailgun-js')({apiKey: mgauth.APIKEY, domain: mgauth.DOMAIN});

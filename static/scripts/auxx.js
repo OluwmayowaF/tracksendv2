@@ -319,6 +319,17 @@ $(document).ready(function() {
 				let count = $('.all_campaigns ._followup_campaign').length;
 				if(count > 1) {
 					$tg.closest('._followup_campaign').remove();
+
+					$('.notification.other3').removeClass('success error').addClass('success');
+					$('.notification.other3 p').text('Follow-up removed.');
+					$('.notification.other3').css('opacity',100);
+					$('.notification.other3').show();
+					setTimeout(() => {
+						$('.notification.other3').hide('fade');
+						$('.notification.other3 p').text('');
+						$('.notification.other3').removeClass('success error');
+					}, 2000);
+					
 				} else {
 					let $cpgn = $tg.closest('._followup_campaign');
 

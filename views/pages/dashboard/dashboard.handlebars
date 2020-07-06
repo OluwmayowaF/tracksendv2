@@ -49,15 +49,15 @@
 
 		<div class="row">
 			<div class="col-lg-3 col-md-6 col-sm-6 hidden-xs _screen_adjust_1">
-				<div class="notification notice margin-bottom-30 no-shadow" style="border: outset 2px; border-radius: 10px 10px 0 0;">
+				<div class="notification notice margin-bottom-30 no-shadow" style="border: outset 2px; border-radius: 10px 10px 0 0; background-color: #097b92;">
 					{{!-- <p>Your Last Campaign: <strong>" {{ args.latestcampaign }} "</strong></p> --}}
-					<p>Your Last Campaign <i class="tip" data-tip-content='" {{ args.latestcampaign.name }} " ({{ args.latestcampaign.platform }})'></i></p>
+					<p style="color:#FFFFFF">Your Last Campaign <i class="tip" data-tip-content='" {{ args.latestcampaign.name }} " ({{ args.latestcampaign.platform }})'></i></p>
 					<a class="close" href="#"></a>
 				</div>
 			</div>
 			<div class="col-lg-9 col-md-6 col-sm-6 hidden-xs _screen_adjust_2">
-				<div class="notification notice margin-bottom-30 no-shadow" style="border: outset 2px; border-radius: 10px 10px 0 0; background-color: #e5f0f3;">
-					<p><strong>Activities So Far...</strong> </p>
+				<div class="notification notice margin-bottom-30 no-shadow" style="border: outset 2px; border-radius: 10px 10px 0 0; background-color: #097b92;">
+					<p><strong style="color:#FFFFFF">Activities So Far...</strong> </p>
 					<a class="close" href="#"></a>
 					
 				</div>
@@ -97,12 +97,12 @@
 
 			<!-- Item -->
 			<div class="col-lg-3 col-md-6 col-sm-6">
-				<div class="dashboard-stat color-1">
+				<div class="dashboard-stat color-2">
 					{{!-- <div class="dashboard-stat-content" style="width: 38%; left: 25px; border-right: inset 1px;"><h4>{{formatNumber args.clicks }}</h4> <span>Total Clicks</span></div>
 					<div class="dashboard-stat-content" style="width: 33%; left: 170px;"><h4>{{ args.ctr }}</h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div> --}}
-					<div class="dashboard-stat-content" style="border-right: inset 1px; width:34%; float:left; position: relative; margin-right: 16px"><h4>{{formatNumber args.clicks }}</h4> <span>Total Clicks</span></div>
-					<div class="dashboard-stat-content" style="width: 33%; float:left; position: relative; "><h4>{{ args.ctr }}</h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div>
-					<div class="dashboard-stat-icon"><i class="im im-icon-Mouse-2"></i></div>
+					<div class="dashboard-stat-content" style="top: 33%; width: auto; margin-top: 0; border-bottom: solid 1px; position: relative; margin-right: 16px"><h4>{{formatNumber args.clicks }}</h4> <span>Total Clicks</span></div>
+					<div class="dashboard-stat-content" style="top: 25%; width: auto; position: relative; "><h4 style="display: inline;">{{ args.ctr }}</h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div>
+					<i class="im im-icon-Mouse-2" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
 				</div>
 
 				<canvas id="myChart" height="300"></canvas>
@@ -116,9 +116,21 @@
 		{{/if}}
 		
 			<div class="col-lg-3 col-md-6 col-sm-6">
-				<div class="dashboard-stat color-2">
+				{{!-- <div class="dashboard-stat color-2">
 					<div class="dashboard-stat-content"><h4>{{ args.mcount }}</h4> <span>Total Messages Sent</span></div>
 					<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
+				</div> --}}
+				<div class="dashboard-stat color-3">
+					<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber args.ccount }}</h4> <span style="width: 45%">Total Contacts</span></div>
+					<i class="im im-icon-Add-UserStar" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
+				</div>
+				<canvas id="cGrowth" height="300"></canvas>
+			</div>
+
+			<div class="col-lg-3 col-md-6 col-sm-6">
+				<div class="dashboard-stat color-1">
+					<div class="dashboard-stat-content" style="width: auto"><h4>{{ args.mcount }}</h4> <span style="width: 45%">Total Messages Sent</span></div>
+					<i class="im im-icon-Mail-Send" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
 				</div>
 				{{!-- <div class="dashboard-stat color-4">
 					<div class="dashboard-stat-content"><h4>{{ args.ccount }}</h4> <span>Total Contacts</span></div>
@@ -132,21 +144,9 @@
 					<div class="dashboard-stat-content"><h4>{{ args.mcount }}</h4> <span>Total Messages Sent</span></div>
 					<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
 				</div> --}}
-				<div class="dashboard-stat color-3">
-					<div class="dashboard-stat-content"><h4>{{formatNumber args.ccount }}</h4> <span>Total Contacts</span></div>
-					<div class="dashboard-stat-icon"><i class="im im-icon-Add-UserStar"></i></div>
-				</div>
-				<canvas id="cGrowth" height="300"></canvas>
-			</div>
-
-			<div class="col-lg-3 col-md-6 col-sm-6">
-				{{!-- <div class="dashboard-stat color-2">
-					<div class="dashboard-stat-content"><h4>{{ args.mcount }}</h4> <span>Total Messages Sent</span></div>
-					<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
-				</div> --}}
 				<div class="dashboard-stat color-4">
-					<div class="dashboard-stat-content"><h4>{{formatNumber args.ocount }}</h4> <span>Total WhatsApp Optouts</span></div>
-					<div class="dashboard-stat-icon"><i class="im im-icon-End-2"></i></div>
+					<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber args.ocount }}</h4> <span style="width: 45%">Total WhatsApp Optouts</span></div>
+					<i class="im im-icon-End-2" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
 				</div>
 				<canvas id="oGrowth" height="300"></canvas>
 			</div>
