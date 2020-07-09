@@ -1164,6 +1164,9 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
             console.log('let recps = response.SMSMessageData.Recipients');
             let recps = response.SMSMessageData.Recipients;
             recps.forEach(async recp => {
+                if(recp.statusCode === 101 || recp.statusCode === 100) successfuls++;
+                else failures++;
+
                 await models.Message.update(
                     {
                         message_id: recp.messageId
