@@ -140,13 +140,17 @@ const sendSMS =  async (platform, params, url = null, message = null, sender = n
 
     if(platform == 'africastalking') {
         const sms = africastalking.SMS;
+        console.log('afrikastalking -- aa: ' + JSON.stringify(params));
 
         if(message) {
+            
             params = {
-                "from" : sender,
-                "recipients" : phone,
-                "message" : message,
+                "username"  : "sandbox",        //  correct this
+                "from"      : sender,
+                "to"        : phone,
+                "message"   : message,
             }
+            console.log('afrikastalking -- bb: ' + JSON.stringify(params));
         }
         let ret = await sms.send(params)
         .then(async response => {

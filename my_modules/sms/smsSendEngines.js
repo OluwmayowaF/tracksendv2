@@ -951,7 +951,8 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                         return cpn.createMessage({
                             shortlinkId: args.sid,
                             contactlink: args.cid,
-                            contactId: kont.id,
+                            contactId:   kont.id,
+                            destination: "+" + phoneformat(kont.phone, kont.countryId),
                         })
                         .then((shrt) => {
                             console.log('MESSAGE ENTRY CREATE STARTED.:::' + JSON.stringify(shrt));
@@ -1038,8 +1039,9 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                             }
 
                             var msgfull = { //  STEP 1 OF MESSAGE CONSTRUCTION
+                                "username" : m_name,
                                 "from" : m_from,
-                                "recipients" : destinations,
+                                "to" : destinations,
                                 "message" : originalmessage,
                             }; 
 
@@ -1064,14 +1066,15 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
 
                         Promise.all(actions)
                         .then(async (data) => {
-                            console.log('MSGS ARE: ' + JSON.stringify(data[0]));
+                            console.log('MSGS ARE: ' + JSON.stringify(data));
                             
                             let params = data[0];
 
                             let response = await sendSMS('africastalking', params);
-                            let resp_ = null;
-                            console.log(response);
-                            return;
+                            // let resp_ = null;
+                            let resp_ = response;
+                            console.log(JSON.stringify(response));
+                            // return;
 
                             //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
                             let klist = sub_list.map(k => { return k.id })
@@ -1132,6 +1135,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                 console.log('END... NEW PAGE!');
             })()
         }
+
     } catch(err) {
         console.log('%%%%%%%%%%%'+err);
         
@@ -1151,23 +1155,42 @@ function makeId(length) {
 
 async function dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_, klist = null, response = null) {
     //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
+    console.log('dbPostSMSSend -- 11');
     
     if(response) {
+        console.log('dbPostSMSSend -- 22');
         //  update message with id after success
-        await models.Message.update(
-            {
-                message_id: response.id
-            },
-            {
-                where: {
-                    campaignId: cpn.id,
-                    contactId: {
-                        [Op.in]: klist,
+        if(response.SMSMessageData) {   //  afrikastalking response
+            console.log('let recps = response.SMSMessageData.Recipients');
+            let recps = response.SMSMessageData.Recipients;
+            recps.forEach(async recp => {
+                await models.Message.update(
+                    {
+                        message_id: recp.messageId
                     },
-               }
-            }
-        )
-        
+                    {
+                        where: {
+                            campaignId: cpn.id,
+                            destination: recp.number,
+                        }
+                    }
+                )
+            });
+        } else {
+            await models.Message.update(
+                {
+                    message_id: response.id
+                },
+                {
+                    where: {
+                        campaignId: cpn.id,
+                        contactId: {
+                            [Op.in]: klist,
+                        },
+                    }
+                }
+            )
+        }
     }
 
     console.log('SUCCESSFULS: ' + successfuls + '; FAILURES : ' + failures + '; batches = ' + batches);
