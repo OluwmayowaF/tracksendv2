@@ -1122,7 +1122,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                 var start = 0;
                 var len     = contacts.length;
                 var counter = 1;
-                var batches = Math.ceil(len/grpn);
+                var batches = len;  //  Math.ceil(len/grpn);    //  afriksatalking has unique difference in successfuls + failures == batched?
 
                 var successfuls = 0;
                 var failures    = 0;
@@ -1197,7 +1197,7 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
     }
 
     console.log('SUCCESSFULS: ' + successfuls + '; FAILURES : ' + failures + '; batches = ' + batches);
-    if((successfuls + failures) == batches) {
+    if((successfuls + failures) >= batches) {
         console.log('SUCCESSFULS: ' + successfuls + '; FAILURES : ' + failures);
         console.log('________________________INFO22='+ JSON.stringify(info));
 
