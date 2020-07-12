@@ -11,6 +11,9 @@ var _message = require('../output_messages');
 var sendSMS = require('./sendSMS');
 var networkerror = false;
 
+var successfuls = 0;
+var failures    = 0;
+
 //  INFOBIP INIT
 const { tracksend_user, tracksend_pwrd, tracksend_base_url } = require('../../config/cfg/infobip')();
 var buff = Buffer.from(tracksend_user + ':' + tracksend_pwrd);
@@ -276,7 +279,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                         //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
                         console.log('________________________INFO11='+ JSON.stringify(info));
                         
-                        let resp = await dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_);
+                        let resp = await dbPostSMSSend(req, res, batches, info, user_balance, user_id, cpn, schedule_);
                         console.log('a||||||||||||||||||||||||---' + JSON.stringify(resp));
                         
                         // });
@@ -299,8 +302,8 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                 var counter = 1;
                 var batches = Math.ceil(len/grpn);
 
-                var successfuls = 0;
-                var failures = 0;
+                // var successfuls = 0;
+                // var failures = 0;
 
                 console.log('Start Looping...');
                 let runall = await doLoop(0);
@@ -555,7 +558,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                         //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
                         console.log('________________________INFO11='+ JSON.stringify(info));
                         
-                        let resp = await dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_);
+                        let resp = await dbPostSMSSend(req, res, batches, info, user_balance, user_id, cpn, schedule_);
                         console.log('a||||||||||||||||||||||||---' + JSON.stringify(resp));
                         
                         // });
@@ -578,8 +581,8 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                 var counter = 1;
                 var batches = Math.ceil(len/grpn);
 
-                var successfuls = 0;
-                var failures = 0;
+                // var successfuls = 0;
+                // var failures = 0;
 
                 console.log('Start Looping...');
                 let runall = await doLoop(0);
@@ -836,7 +839,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
 
                             //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
                             let klist = sub_list.map(k => { return k.id })
-                            await dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_, klist, resp_);
+                            await dbPostSMSSend(req, res, batches, info, user_balance, user_id, cpn, schedule_, klist, resp_);
                             // });
 
                             /* const options = {
@@ -882,9 +885,6 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
                 var len     = contacts.length;
                 var counter = 1;
                 var batches = Math.ceil(len/grpn);
-
-                var successfuls = 0;
-                var failures    = 0;
 
                 console.log('Start Looping...');
                 let runall = await doLoop(0);
@@ -1078,7 +1078,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
 
                             //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
                             let klist = sub_list.map(k => { return k.id })
-                            await dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_, klist, resp_);
+                            await dbPostSMSSend(req, res, batches, info, user_balance, user_id, cpn, schedule_, klist, resp_);
 
                             /* const options = {
                                 url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',
@@ -1115,17 +1115,17 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
 
                 }
 
-                const MAX_NO_IF_NOT_SINGLE_MSGS     = 1;    // FIXED FOR MESSAGEBIRD
-                const MAX_NO_IF_SINGLE_MSGS         = 50;   // FIXED FOR MESSAGEBIRD
-                const GROUPING_NO_IF_SINGLE_MSGS    = 3;   // FIXED FOR MESSAGEBIRD
-                var grpn    = (SINGLE_MSG) ? Math.min(MAX_NO_IF_SINGLE_MSGS, GROUPING_NO_IF_SINGLE_MSGS) : MAX_NO_IF_NOT_SINGLE_MSGS;   //  MAXIMUM FOR MESSAGEBIRD = 50
-                var start = 0;
+                const MAX_NO_IF_NOT_SINGLE_MSGS     = 1;        // NOT FIXED FOR AFRICASTALKING
+                const MAX_NO_IF_SINGLE_MSGS         = 1000;     // NOT FIXED FOR AFRICASTALKING
+                const GROUPING_NO_IF_SINGLE_MSGS    = 1000;     // NOT FIXED FOR AFRICASTALKING
+                var grpn    = (SINGLE_MSG) ? Math.min(MAX_NO_IF_SINGLE_MSGS, GROUPING_NO_IF_SINGLE_MSGS) : MAX_NO_IF_NOT_SINGLE_MSGS;   
+                var start   = 0;
                 var len     = contacts.length;
                 var counter = 1;
                 var batches = len;  //  Math.ceil(len/grpn);    //  afriksatalking has unique difference in successfuls + failures == batched?
 
-                var successfuls = 0;
-                var failures    = 0;
+                // var successfuls = 0;
+                // var failures    = 0;
 
                 console.log('Start Looping...');
                 let runall = await doLoop(0);
@@ -1153,7 +1153,7 @@ function makeId(length) {
     return result;
 }
 
-async function dbPostSMSSend(req, res, successfuls, failures, batches, info, user_balance, user_id, cpn, schedule_, klist = null, response = null) {
+async function dbPostSMSSend(req, res, batches, info, user_balance, user_id, cpn, schedule_, klist = null, response = null) {
     //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
     console.log('dbPostSMSSend -- 11');
     
