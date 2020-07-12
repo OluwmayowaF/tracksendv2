@@ -1501,28 +1501,111 @@ exports.smsNotifyMessagebird = (req, res) => {
 
 exports.smsNotifyAfricastalking = (req, res) => {
     
-    console.log('[[====================================');
+    console.log('[[=============https://build.at-labs.io/docs/sms%2Fnotifications=======================');
     console.log('AFRICASTALKING RESPONSE: ' + JSON.stringify(req.query));
-    console.log('====================================]]');
-    /* MESSAGEBIRD RESPONSE: {
-        "id":"57b4844594de4f1392809a799c9ae855",
-        "mccmnc":"62130",
-        "ported":"0",
-        "recipient":"2348033235527",
-        "reference":"Testing_Refactoring_MessageBird_11",
-        "status":"delivery_failed",
-        "statusDatetime":"2020-02-12T15:06:43+00:00",
-        "statusErrorCode":"5"
-    } */
-    /* MESSAGEBIRD RESPONSE: {
-        "id":"8b9e6ed1072249718282a080fdde419e",
-        "mccmnc":"62130",
-        "ported":"0",
-        "recipient":"2348033235527",
-        "reference":"Testing_Refactoring_MessageBird_12 364369",
-        "status":"delivered",
-        "statusDatetime":"2020-02-12T15:18:47+00:00"
-    } */
+    console.log('===============https://build.at-labs.io/docs/sms%2Fnotifications=====================]]');
+
+    if(req.body) {          //  for AFRICASTALKING...maybe
+    
+        var resp = req.body;
+        resp.results.forEach(msg => {
+            var id = msg.messageId;
+            var phone = msg.to;
+            var status_ = msg.status.name; 
+            var status = msg.status.groupName; 
+            var dt = msg.sentAt;
+            var sid;
+
+            if(status_ == "REJECTED_NOT_ENOUGH_CREDITS") return;
+            
+            let pref = phone.substr(0, 3);
+            // let phn = '0' + phone.substr(3);
+            let phn = phoneval(phone, pref);
+
+            console.log('====================================');
+            console.log('MSG STATUS = ' + status + "; phone = " + phone + "; pref = " + pref + "; phn = " + phn);
+            console.log('====================================');
+
+
+            if (status == 'DELIVERED') {
+                sid = 1;
+
+                models.Contact.update(
+                    {
+                        status: 1
+                    },
+                    {
+                        where: {
+                            countryId: pref,
+                            phone: phn,
+                        }
+                    }
+                )
+
+            } else if (status == 'REJECTED') {
+                sid = 4;
+
+                models.Contact.update(
+                    {
+                        status: 3
+                    },
+                    {
+                        where: {
+                            countryId: pref,
+                            phone: phn,
+                        }
+                    }
+                )
+                
+            } else if (status == 'UNDELIVERABLE') {
+                sid = 3;
+
+                models.Contact.update(
+                    {
+                        status: 2
+                    },
+                    {
+                        where: {
+                            countryId: pref,
+                            phone: phn,
+                        }
+                    }
+                )
+
+            } else {
+                sid = 2;
+
+                models.Contact.update(
+                    {
+                        status: 1
+                    },
+                    {
+                        where: {
+                            countryId: pref,
+                            phone: phn,
+                        }
+                    }
+                )
+
+            }
+
+            models.Message.findByPk(id)
+            .then((mg) => {
+                if(mg) mg.update({
+                    deliverytime: dt,
+                    status: sid,
+                })
+                .then(() => {
+                    // console.log('====================================');
+                    // console.log('DOOOOOOOONNNNNNNNNNNNEEEEEEEEEEEEEE');
+                    // console.log('====================================');
+                })
+            })
+
+        });
+
+    } 
+
 
 
     if(req.query) {  //  for MESSAGEBIRD

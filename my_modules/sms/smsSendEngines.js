@@ -1179,6 +1179,7 @@ async function dbPostSMSSend(req, res, successfuls, failures, batches, info, use
                     }
                 )
             });
+            if(!recps.length) failures++;
         } else {
             await models.Message.update(
                 {
