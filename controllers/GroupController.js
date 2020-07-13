@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const sequelize = require('../config/cfg/db');
 var models = require('../models');
 var contactController = require('./ContactController');
 
@@ -19,17 +20,41 @@ exports.listGroup = (req, res) => {
             name: {
                 [Sequelize.Op.ne]: '[Uncategorized]',
             },
-        },
+        }, 
+        include: [{
+            model: models.Contact,
+            where: {
+                userId: user_id,
+            },
+            attributes: [[sequelize.fn('count', sequelize.col('groupId')), 'ccount']],
+        }],
+        group: ['Group.id'],
         order: [ 
             ['createdAt', 'DESC']
-        ]
+        ],
+        // raw: true,
     })
     .then(grps => {
-        // console.log('groups are: ' + JSON.stringify(grps) + '; flash: ' + req.flash('error'));
+
+        console.log('1groups are: ' + JSON.stringify(grps));
+        grps = grps.map(grp => {
+            // let ww1 = JSON.stringify(grp.contacts);
+            let ww2 = JSON.parse(JSON.stringify(grp));
+            // let cc = JSON.parse(JSON.stringify(grp.contacts)).map(r => {return r.ccount});
+            let cc = ww2.contacts.map(r => {return r.ccount});
+            console.log('grp.contacts.ccount = ' + cc[0]);
+            
+            // grp.contacts = cc || 0;
+            // let nw =  Object.assign(ww2, { contacts1: 'cc || 0' });
+            // console.log(JSON.stringify(grp));
+            
+            return Object.assign(ww2, { contacts: cc[0] || 0 });
+        })
+        console.log('2groups are: ' + JSON.stringify(grps));
 
         var flashtype, flash = req.flash('error');
         if(flash.length > 0) {
-            flashtype = "error";           
+            flashtype = "error";
         } else {
             flashtype = "success";
             flash = req.flash('success');

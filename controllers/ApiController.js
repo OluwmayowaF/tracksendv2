@@ -136,7 +136,19 @@ exports.getContacts = async (req, res) => {
                         },
                         type: sequelize.QueryTypes.SELECT,
                     }
-                )
+                ),
+                models.Group.findByPk(req.query.grp, {
+                    include: [{
+                        model: models.Contact,
+                        where: {
+                            userId: user_id,
+                        },
+                        attributes: [[sequelize.fn('count', sequelize.col('groupId')), 'ccount']],
+                    }],
+                    attributes: ['id'],
+                    group: ['Group.id'],
+                    // raw: true,
+                })
             ]);
         }
 

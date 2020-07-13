@@ -1257,6 +1257,11 @@ async function dbPostSMSSend(req, res, batches, info, user_balance, user_id, cpn
 
             } else if(networkerror) {
 
+                await models.Message.destroy({
+                    where: {
+                        campaignId: cpn.id,
+                    }
+                });
                 await cpn.destroy();
 
                 _status = {

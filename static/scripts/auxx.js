@@ -1254,6 +1254,7 @@ console.log('====================================');
 						$('#_group_info #_udate').text('');
 						
 					} else {
+						console.log('ount: ' + JSON.stringify(data[2].contacts[0].ccount));
 						
 						if(switchgrp) {
 							$('#search_conts_box #search_conts').val('');
@@ -1262,7 +1263,7 @@ console.log('====================================');
 							$('#group_contact_count').text(data[0].contacts.length);
 							
 							$('#_group_info #_desc').text(data[0].description ? data[0].description : '[none]');
-							$('#_group_info #_conts').text(data[0].contacts.length);
+							$('#_group_info #_conts').text(data[2].contacts[0].ccount); //data[0].contacts.length);
 							$('#_group_info #_dnds').text(data[1][0].dnd);
 							$('#_group_info #_ndnds').text(data[1][0].ndnd);
 							$('#_group_info #_awoptin').text(data[1][0].awoptin);

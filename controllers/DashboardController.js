@@ -40,13 +40,13 @@ exports.index = async(req, res) => {
 
     Promise.all([
         sequelize.query(
-            "SELECT * FROM ( SELECT COUNT(status) AS pending        FROM messages WHERE status = 0 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t1," +
-            "              ( SELECT COUNT(status) AS delivered      FROM messages WHERE status = 1 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t2," +
-            "              ( SELECT COUNT(status) AS failed         FROM messages WHERE status = 2 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t3," +
-            "              ( SELECT COUNT(status) AS undeliverable  FROM messages WHERE status = 3 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t4," +
-            "              ( SELECT COUNT(status) AS viewed         FROM messages WHERE status = 5 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t5," +
-            "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE clickcount > 0 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t6," +
-            "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 ORDER BY createdAt DESC LIMIT 1 ) ) t7", {
+            "SELECT * FROM ( SELECT COUNT(status) AS pending        FROM messages WHERE status = 0 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 AND ref_campaign IS NULL ORDER BY createdAt DESC LIMIT 1 ) ) t1," +
+            "              ( SELECT COUNT(status) AS delivered      FROM messages WHERE status = 1 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 AND ref_campaign IS NULL ORDER BY createdAt DESC LIMIT 1 ) ) t2," +
+            "              ( SELECT COUNT(status) AS failed         FROM messages WHERE status = 2 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 AND ref_campaign IS NULL ORDER BY createdAt DESC LIMIT 1 ) ) t3," +
+            "              ( SELECT COUNT(status) AS undeliverable  FROM messages WHERE status = 3 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 AND ref_campaign IS NULL ORDER BY createdAt DESC LIMIT 1 ) ) t4," +
+            "              ( SELECT COUNT(status) AS viewed         FROM messages WHERE status = 5 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 AND ref_campaign IS NULL ORDER BY createdAt DESC LIMIT 1 ) ) t5," +
+            "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE clickcount > 0 AND campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 AND ref_campaign IS NULL ORDER BY createdAt DESC LIMIT 1 ) ) t6," +
+            "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = ( SELECT id FROM campaigns WHERE userId = (:id) AND status = 1 AND ref_campaign IS NULL ORDER BY createdAt DESC LIMIT 1 ) ) t7", {
                 replacements: {id: user_id},
                 type: sequelize.QueryTypes.SELECT,
             }
@@ -72,6 +72,7 @@ exports.index = async(req, res) => {
             where: { 
                 userId: user_id,
                 status: 1,
+                ref_campaign: null,
             },
             include: [{
                 model: models.Message, 
@@ -397,7 +398,7 @@ exports.index = async(req, res) => {
                 ccount,
                 ocount,
                 mcount,
-                ctr: ((parseInt(summary.delivered) == 0) ? '0' : (parseInt(summary.clickc) * 100/parseInt(summary.delivered))),
+                ctr: ((parseInt(summary.delivered) == 0) ? '0' : Math.round((parseInt(summary.clickc) * 100/parseInt(summary.delivered) * 100)) / 100),
 
                 mgrowth: JSON.stringify(mgrowth),
                 ogrowth: JSON.stringify(ogrowth),
