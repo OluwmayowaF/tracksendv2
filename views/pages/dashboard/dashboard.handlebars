@@ -77,7 +77,7 @@
 		<input type="hidden" name="" id="values_mcount" value="{{ args.mcount }}">
 		<input type="hidden" name="" id="values_ocount" value="{{ args.ocount }}">
 
-		<input type="hidden" name="" id="values_mgrowth" value="{{ args.mgrowth }}">
+		<input type="hidden" name="" id="values_igrowth" value="{{ args.igrowth }}">
 		<input type="hidden" name="" id="values_ogrowth" value="{{ args.ogrowth }}">
 		<input type="hidden" name="" id="values_cgrowth" value="{{ args.cgrowth }}">
 
@@ -130,14 +130,14 @@
 
 			<div class="col-lg-3 col-md-6 col-sm-6">
 				<div class="dashboard-stat color-1">
-					<div class="dashboard-stat-content" style="width: auto"><h4>{{ args.mcount }}</h4> <span style="width: 45%">Total Messages Sent</span></div>
+					<div class="dashboard-stat-content" style="width: auto"><h4>{{ args.icount }}</h4> <span style="width: 45%">Total SMS Opt-Ins</span></div>
 					<i class="im im-icon-Mail-Send" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
 				</div>
 				{{!-- <div class="dashboard-stat color-4">
 					<div class="dashboard-stat-content"><h4>{{ args.ccount }}</h4> <span>Total Contacts</span></div>
 					<div class="dashboard-stat-icon"><i class="im im-icon-Add-UserStar"></i></div>
 				</div> --}}
-				<canvas id="mGrowth" height="300"></canvas>
+				<canvas id="iGrowth" height="300"></canvas>
 			</div>
 
 			<div class="col-lg-3 col-md-6 col-sm-6">
@@ -146,7 +146,7 @@
 					<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
 				</div> --}}
 				<div class="dashboard-stat color-4">
-					<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber args.ocount }}</h4> <span style="width: 45%">Total WhatsApp Optouts</span></div>
+					<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber args.ocount }}</h4> <span style="width: 45%">Total WhatsApp Opt-Outs</span></div>
 					<i class="im im-icon-End-2" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
 				</div>
 				<canvas id="oGrowth" height="300"></canvas>
@@ -286,7 +286,7 @@
 		var pending = 			document.getElementById('values_pending').value;
 		var failed = 				document.getElementById('values_failed').value;
 		var undeliverable = document.getElementById('values_undeliverable').value;
-		var msggrowth = 		JSON.parse(document.getElementById('values_mgrowth').value)
+		var msggrowth = 		JSON.parse(document.getElementById('values_igrowth').value)
 		var congrowth = 		JSON.parse(document.getElementById('values_cgrowth').value)
 		var optgrowth = 		JSON.parse(document.getElementById('values_ogrowth').value)
 						
@@ -344,7 +344,7 @@
 			}
 		};
 
-		var config_mgrowth = {
+		var config_igrowth = {
 			type: 'line',
 			data: {
 				labels: msggrowth.map((dat) => {
@@ -368,7 +368,7 @@
 				},
 				title: {
 					display: true,
-					text: 'Outbound Messages Growth (6 Months)'
+					text: 'SMS Opt-In Growth (6 Months)'
 				},
 				animation: {
 					animateScale: true,
@@ -401,7 +401,7 @@
 				},
 				title: {
 					display: true,
-					text: 'WhatsApp OptOut Growth (6 Months)'
+					text: 'WhatsApp Opt-Out Growth (6 Months)'
 				},
 				animation: {
 					animateScale: true,
@@ -446,8 +446,8 @@
 		window.onload = function() {
 			var ctx = document.getElementById('myChart').getContext('2d');
 			window.myDoughnut = new Chart(ctx, config);
-			var ctx2 = document.getElementById('mGrowth').getContext('2d');
-			window.myGraph1 = new Chart(ctx2, config_mgrowth);
+			var ctx2 = document.getElementById('iGrowth').getContext('2d');
+			window.myGraph1 = new Chart(ctx2, config_igrowth);
 			var ctx3 = document.getElementById('cGrowth').getContext('2d');
 			window.myGraph2 = new Chart(ctx3, config_cgrowth);
 			var ctx4 = document.getElementById('oGrowth').getContext('2d');

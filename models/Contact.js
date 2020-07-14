@@ -23,6 +23,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     email:        DataTypes.STRING,
     do_sms:       DataTypes.INTEGER,
+    smsoptintime: DataTypes.DATE,
+    smsoptouttime:DataTypes.DATE,
     do_whatsapp:  DataTypes.INTEGER,
     status:       DataTypes.INTEGER,
     misc:         DataTypes.STRING,

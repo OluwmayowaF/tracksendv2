@@ -8,7 +8,8 @@ const { default: axios } = require('axios');
 exports.index = async(req, res) => {
     const ACCUMULATE_MESSAGES = true;
     const ACCUMULATE_CONTACTS = true;
-    const ACCUMULATE_OPTOUTS = true;
+    const ACCUMULATE_OPTOUTS  = true;
+    const ACCUMULATE_OPTINS   = true;
 
     var user_id = req.user.id;
 
@@ -19,6 +20,7 @@ exports.index = async(req, res) => {
     var acc_m = 0;    //  accumulating msgs
     var acc_c = 0;    //  accumulating contacts
     var acc_o = 0;    //  accumulating optouts
+    var acc_i = 0;    //  accumulating optins
 
     //  check if user has api_key and create
     if(!req.user.api_key || req.user.api_key.length == 0) {
@@ -102,24 +104,24 @@ exports.index = async(req, res) => {
                 // status: 1
             }
         }), 
-        models.Contact.count({
+        /* models.Contact.count({
             where: { 
                 userId: user_id,
             },
             attributes: [[Sequelize.literal('DISTINCT `phone`'), 'phone']],
             group: ['phone']
-        }), 
-        models.Optout.count({
+        }),  */
+        /* models.Optout.count({
             where: { 
                 userId: user_id,
             },
-        }), 
+        }),  */
         /* models.Message.count({
             where: { 
                 userId: user_id,
             }
         }),  */
-        sequelize.query(
+        /* sequelize.query(
             "SELECT COUNT(messages.id) AS msgcount FROM messages " +
             "JOIN campaigns ON messages.campaignId = campaigns.id " +
             "WHERE campaigns.userId = (:id) " +
@@ -131,7 +133,8 @@ exports.index = async(req, res) => {
             console.log('unt is = ' + JSON.stringify(results));
            
             return results.msgcount;
-        }),
+        }), */
+        //  MESSAGE GROWTH
         sequelize.query(
             "SELECT COUNT(messages.id) AS premsgcount FROM messages " +
             "JOIN campaigns ON messages.campaignId = campaigns.id " +
@@ -144,7 +147,7 @@ exports.index = async(req, res) => {
         ).then(([results, metadata]) => {
             console.log('unt is = ' + JSON.stringify(results));
 
-            var msg_sub_6 = results.premsgcount;
+            let msg_sub_6 = results.premsgcount;
             if(ACCUMULATE_MESSAGES) acc_m += msg_sub_6;    //   count of msgs before 6 months
             
             return sequelize.query(
@@ -162,19 +165,19 @@ exports.index = async(req, res) => {
             ).then(([results, metadata]) => {
                 console.log('ungrowtht is = ' + JSON.stringify(results) + '...' + results.length);
 
-                var arr = []; 
+                let arr = []; 
 
-                var init = parseInt(moment().format('M'));   
-                var initd = 5;   // for the first month of the last 6 months
-                var initt = (init - initd < 1) ? init - initd + 12 : init - initd;   
+                let init = parseInt(moment().format('M'));   
+                let initd = 5;   // for the first month of the last 6 months
+                let initt = (init - initd < 1) ? init - initd + 12 : init - initd;   
 
-                for(var r = 0; r < 6; r++) {
-                    var i = null;
+                for(let r = 0; r < 6; r++) {
+                    let i = null;
 
                     results.forEach(res => {
                         if(res.MONTH == initt) {
                             acc_m = (ACCUMULATE_MESSAGES) ? acc_m + res.COUNT : res.COUNT;
-                            var _init = (init < res.MONTH) ? init - res.MONTH + 12 : init - res.MONTH;
+                            let _init = (init < res.MONTH) ? init - res.MONTH + 12 : init - res.MONTH;
                             i = {
                                 "MONTH" : moment().subtract(_init, 'months').format('MMM-YY'),
                                 "COUNT" : acc_m,                            
@@ -200,6 +203,7 @@ exports.index = async(req, res) => {
                 return arr;
             })  
         }),
+        //  CONTACTS GROWTH
         sequelize.query(
             "SELECT COUNT(id) AS preconcount FROM contacts " +
             "WHERE userId = (:id) " +
@@ -210,7 +214,7 @@ exports.index = async(req, res) => {
         ).then(([results, metadata]) => {
             console.log('unt is = ' + JSON.stringify(results));
 
-            var con_sub_6 = results.preconcount;
+            let con_sub_6 = results.preconcount;
             if(ACCUMULATE_CONTACTS) acc_c += con_sub_6;    //   count of contacts before 6 months
             
             return sequelize.query(
@@ -226,19 +230,19 @@ exports.index = async(req, res) => {
             ).then(([results, metadata]) => {
                 console.log('cungrowtht is = ' + JSON.stringify(results) + '...' + results.length);
 
-                var arr = []; 
+                let arr = []; 
 
-                var init = parseInt(moment().format('M'));   
-                var initd = 5;   // for the first month of the last 6 months
-                var initt = (init - initd < 1) ? init - initd + 12 : init - initd;   
+                let init = parseInt(moment().format('M'));   
+                let initd = 5;   // for the first month of the last 6 months
+                let initt = (init - initd < 1) ? init - initd + 12 : init - initd;   
 
-                for(var r = 0; r < 6; r++) {
-                    var i = null;
+                for(let r = 0; r < 6; r++) {
+                    let i = null;
 
                     results.forEach(res => {
                         if(res.MONTH == initt) {
                             acc_c = (ACCUMULATE_CONTACTS) ? acc_c + res.COUNT : res.COUNT;
-                            var _init = (init < res.MONTH) ? init - res.MONTH + 12 : init - res.MONTH;
+                            let _init = (init < res.MONTH) ? init - res.MONTH + 12 : init - res.MONTH;
                             i = {
                                 "MONTH" : moment().subtract(_init, 'months').format('MMM-YY'),
                                 "COUNT" : acc_c,                            
@@ -264,6 +268,7 @@ exports.index = async(req, res) => {
                 return arr;
             })  
         }),
+        //  OPTOUT GROWTH
         sequelize.query(
             "SELECT COUNT(id) AS optouts FROM optouts " +
             "WHERE userId = (:id) " +
@@ -274,7 +279,7 @@ exports.index = async(req, res) => {
         ).then(([results, metadata]) => {
             console.log('opts1 is = ' + JSON.stringify(results));
 
-            var opt_sub_6 = results.optouts;
+            let opt_sub_6 = results.optouts;
             if(ACCUMULATE_OPTOUTS) acc_o += opt_sub_6;    //   count of contacts before 6 months
             
             return sequelize.query(
@@ -290,19 +295,19 @@ exports.index = async(req, res) => {
             ).then(([results, metadata]) => {
                 console.log('optgrowtht is = ' + JSON.stringify(results) + '...' + results.length);
 
-                var arr = []; 
+                let arr = []; 
 
-                var init = parseInt(moment().format('M'));   
-                var initd = 5;   // for the first month of the last 6 months
-                var initt = (init - initd < 1) ? init - initd + 12 : init - initd;   
+                let init = parseInt(moment().format('M'));   
+                let initd = 5;   // for the first month of the last 6 months
+                let initt = (init - initd < 1) ? init - initd + 12 : init - initd;   
 
-                for(var r = 0; r < 6; r++) {
-                    var i = null;
+                for(let r = 0; r < 6; r++) {
+                    let i = null;
 
                     results.forEach(res => {
                         if(res.MONTH == initt) {
                             acc_o = (ACCUMULATE_OPTOUTS) ? acc_o + res.COUNT : res.COUNT;
-                            var _init = (init < res.MONTH) ? init - res.MONTH + 12 : init - res.MONTH;
+                            let _init = (init < res.MONTH) ? init - res.MONTH + 12 : init - res.MONTH;
                             i = {
                                 "MONTH" : moment().subtract(_init, 'months').format('MMM-YY'),
                                 "COUNT" : acc_o,                            
@@ -328,18 +333,90 @@ exports.index = async(req, res) => {
                 return arr;
             })  
         }),
-    ]).then(([summary, messageslastcmpg, cgroup, csender, ccount, ocount, mcount, mgrowth, cgrowth, ogrowth]) => {
-        console.log('qqq= '+messageslastcmpg.length);
+        //  OPTIN GROWTH
+        sequelize.query(
+            "SELECT COUNT(contacts.id) AS prekontcount FROM contacts " +
+            "WHERE userId = (:id) " +
+            "AND do_sms = 1 " +
+            "AND smsoptintime < DATE_SUB(now(), INTERVAL 6 MONTH) ", {
+                replacements: {id: user_id},
+                type: sequelize.QueryTypes.SELECT,
+            },
+        ).then(([results, metadata]) => {
+            console.log('unt is = ' + JSON.stringify(results));
+
+            let opt_sub_6 = results.prekontcount;
+            if(ACCUMULATE_OPTINS) acc_i += opt_sub_6;    //   count of msgs before 6 months
+            
+            return sequelize.query(
+                "SELECT MONTH(smsoptintime) MONTH, COUNT(*) COUNT " + 
+                "FROM contacts " +
+                "WHERE userId = (:id) " +
+                "AND do_sms = 1 " +
+                "AND smsoptintime > DATE_SUB(now(), INTERVAL 6 MONTH) " +
+                "GROUP BY 1 " +
+                "ORDER BY 1 ", {
+                    replacements: {id: user_id},
+                    // type: sequelize.QueryTypes.SELECT,
+                },
+            ).then(([results, metadata]) => {
+                console.log('ungrowtht is = ' + JSON.stringify(results) + '...' + results.length);
+
+                let arr = []; 
+
+                let init = parseInt(moment().format('M'));   
+                let initd = 5;   // for the first month of the last 6 months
+                let initt = (init - initd < 1) ? init - initd + 12 : init - initd;   
+
+                for(let r = 0; r < 6; r++) {
+                    let i = null;
+
+                    results.forEach(res => {
+                        if(res.MONTH == initt) {
+                            acc_i = (ACCUMULATE_OPTINS) ? acc_i + res.COUNT : res.COUNT;
+                            let _init = (init < res.MONTH) ? init - res.MONTH + 12 : init - res.MONTH;
+                            i = {
+                                "MONTH" : moment().subtract(_init, 'months').format('MMM-YY'),
+                                "COUNT" : acc_i,                            
+                            };
+
+                        }
+                    });
+                    if(!i) {
+                        i = { 
+                            "MONTH" : moment().subtract(initd, 'months').format('MMM-YY'),
+                            "COUNT" : acc_i,
+                        };
+                    }
+    console.log("results= "+ JSON.stringify(i));
+
+                    arr.push(i)
+                    initt = (initt + 1 > 12) ? initt + 1 - 12 : initt + 1;
+                    initd--;
+                };
+                console.log('new array : ' +    JSON.stringify(arr));
+                
+                
+                return arr;
+            })  
+        }),
+    ]).then(([summary, messageslastcmpg, cgroup, csender, mgrowth, cgrowth, ogrowth, igrowth]) => {
+        let ccount = cgrowth[cgrowth.length - 1].COUNT;
+        let mcount = mgrowth[mgrowth.length - 1].COUNT;
+        let ocount = ogrowth[ogrowth.length - 1].COUNT;
+        let icount = igrowth[igrowth.length - 1].COUNT;
+
+        console.log('qqq= '+ icount);
         
         console.log('====================================');
-        console.log('OPTOUTS: '+ JSON.stringify(ocount));
+        console.log('OPTOUTS: '+ JSON.stringify(cgrowth));
         console.log('====================================');
 
-        let c_array = ccount;
+        /* let c_array = ccount;
         ccount = 0;
         c_array.forEach(c => {
             ccount += c.count;
-        });;
+        });; */
 
         console.log('====================================');
         console.log('NEW CCOUNT = ' + ccount);
@@ -396,13 +473,15 @@ exports.index = async(req, res) => {
                 clicks: summary.clicks,
                 messageslastcmpg,
                 ccount,
-                ocount,
                 mcount,
+                ocount,
+                icount,
                 ctr: ((parseInt(summary.delivered) == 0) ? '0' : Math.round((parseInt(summary.clickc) * 100/parseInt(summary.delivered) * 100)) / 100),
 
                 mgrowth: JSON.stringify(mgrowth),
                 ogrowth: JSON.stringify(ogrowth),
                 cgrowth: JSON.stringify(cgrowth),
+                igrowth: JSON.stringify(igrowth),
             }
         }); 
     });

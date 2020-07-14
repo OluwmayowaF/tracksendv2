@@ -456,6 +456,11 @@ exports.completeOptin = async function(req, res) {
                     countryId,
                     do_whatsapp: whatsapp ? 1 : 0,
                     do_sms: sms,
+                    ...(
+                        sms ? {
+                            smsoptintime: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+                        } : {}
+                    ),
                 });
                 
                 //  check for questions and responses

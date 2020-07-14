@@ -3,23 +3,23 @@
 module.exports = (sequelize, DataTypes) => {
   var Message = sequelize.define('message', {
     id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
+      type:         DataTypes.INTEGER,
+      primaryKey:   true,
       autoIncrement: true,
     },
-    contactId: DataTypes.INTEGER,
-    contactlink: DataTypes.STRING,
+    contactId:      DataTypes.INTEGER,
+    contactlink:    DataTypes.STRING,
     shortlinkId: {
-      type: DataTypes.INTEGER,
-      allowNull: true
+      type:         DataTypes.INTEGER,
+      allowNull:    true
     },
     platformtypeId: DataTypes.INTEGER,
-    clickcount: DataTypes.INTEGER,
-    deliverytime: DataTypes.DATE,
-    readtime: DataTypes.DATE,
+    clickcount:     DataTypes.INTEGER,
+    deliverytime:   DataTypes.DATE,
+    readtime:       DataTypes.DATE,
     firstclicktime: DataTypes.DATE,
-    message_id: DataTypes.STRING,
-    status: DataTypes.INTEGER,
+    message_id:     DataTypes.STRING,
+    status:         DataTypes.INTEGER,
   }, {});
 
   Message.associate = function (models) {
