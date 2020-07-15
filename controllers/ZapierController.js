@@ -80,7 +80,7 @@ exports.delete = async (req, res) => {
 exports.testdata = (req, res) => {
 
     console.log('ZZZZZAAAAAAPPPPPPPIIIIIEEEEEEEEEEERRRRRRRR');
-    console.log('AUTH = ' + req.header('authorization'));
+    console.log('AUTH = ' + req.header('X-API-KEY'));
 
     return('OK')
 
