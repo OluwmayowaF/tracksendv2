@@ -28,7 +28,7 @@ exports.listGroup = (req, res) => {
                 userId: user_id,
             },
             attributes: {
-                include: [[sequelize.fn('count', sequelize.col('groupId')), 'ccount'], 'groupId'],
+                include: [[sequelize.fn('count', sequelize.col('groupId')), 'ccount'], [sequelize.fn('max', sequelize.col('contacts.id')), 'id']],
                 exclude: ['id']
             },
             raw: true,
