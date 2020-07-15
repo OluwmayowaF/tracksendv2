@@ -143,9 +143,9 @@ exports.getContacts = async (req, res) => {
                         where: {
                             userId: user_id,
                         },
-                        attributes: [[sequelize.fn('count', sequelize.col('groupId')), 'ccount'], 'groupId'],
+                        attributes: [[sequelize.fn('count', sequelize.col('groupId')), 'ccount']],
                     }],
-                    attributes: ['group.id', 'contacts.groupId'],
+                    attributes: ['contacts.groupId'],
                     group: ['contacts.groupId'],
                     // raw: true,
                 })
