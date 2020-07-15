@@ -82,7 +82,7 @@ exports.testdata = (req, res) => {
     console.log('ZZZZZAAAAAAPPPPPPPIIIIIEEEEEEEEEEERRRRRRRR');
     console.log('AUTH = ' + req.header('X-API-KEY'));
 
-    res.sendStatus(200).json({status: "OK"});
+    res.status(200).json({status: "OK"});
     // res.status(200).send('some text');
 
 };
