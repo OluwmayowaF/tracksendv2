@@ -9,6 +9,10 @@ var env = require('../config/env');
 exports.add = async (req, res) => {
     
     
+    console.log('NEW -- ZZZZZAAAAAAPPPPPPPIIIIIEEEEEEEEEEERRRRRRRR');
+    console.log('AUTH = ' + req.header('X-API-KEY'));
+
+    res.status(200).json({status: "OK"});
 
 
     console.log('showing page...'); 
