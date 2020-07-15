@@ -8,8 +8,17 @@ var env = require('../config/env');
 
 exports.add = async (req, res) => {
     
-    
-    console.log('RES = ' + JSON.stringify(req));
+    let seen = [];
+    console.log(JSON.stringify(req, function (key, val) {
+        if (val != null && typeof val == "object") {
+            if (seen.indexOf(val) >= 0) {
+                return;
+            }
+            seen.push(val);
+        }
+        return val;
+    }) )
+
     console.log('AUTH = ' + req.header('X-API-KEY'));
 
     res.status(200).json({status: "OK"});
