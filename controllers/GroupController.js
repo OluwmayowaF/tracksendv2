@@ -23,10 +23,17 @@ exports.listGroup = (req, res) => {
         }, 
         include: [{
             model: models.Contact,
+            as: 'contacts',
             where: {
                 userId: user_id,
             },
-            attributes: [[sequelize.fn('count', sequelize.col('groupId')), 'ccount'], 'groupId'],
+            attributes: {
+                include: [[sequelize.fn('count', sequelize.col('groupId')), 'ccount'], 'groupId'],
+                exclude: ['id']
+            },
+            raw: true,
+            // joinTableAttributes: [],
+            // through: { attributes: [] },
         }],
         group: ['contacts.groupId'],
         order: [ 
