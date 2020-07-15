@@ -28,7 +28,7 @@ exports.listGroup = (req, res) => {
             },
             attributes: [[sequelize.fn('count', sequelize.col('groupId')), 'ccount']],
         }],
-        group: ['groups.id'],
+        group: ['id'],
         order: [ 
             ['createdAt', 'DESC']
         ],
