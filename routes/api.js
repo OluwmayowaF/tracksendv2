@@ -3,6 +3,7 @@ var router = express.Router();
 // var contactController = require('../controllers/ContactController');
 var apiController = require('../controllers/ApiController');
 var customOptinController = require('../controllers/CustomOptinController');
+var zapierRouter = require('./zapier');
 
 // Home page route.
 // router.get('/groupconts', apiController.getContacts);
@@ -50,6 +51,7 @@ module.exports = function(app) {
   app.delete('/api/customoptin/delete/question/:id',  customOptinController.delquestion);   
   // app.post('/api/customoptin/save',                   customOptinController.saveoption);   
   
+  app.use('/api/zapier', zapierRouter);     //  from tsnwhatsappoptin api on external webpage
 
   
   
