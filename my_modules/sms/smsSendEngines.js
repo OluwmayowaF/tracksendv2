@@ -1179,7 +1179,7 @@ async function dbPostSMSSend(req, res, batches, info, user_balance, user_id, cpn
                     }
                 )
             });
-            if(!recps.length) failures++;
+            if(!recps.length) failures = batches;
         } else {
             await models.Message.update(
                 {
