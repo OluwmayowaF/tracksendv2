@@ -31,6 +31,7 @@ const models = {
   Tmpoptin:     sequelize.import('./Tmpoptin'),
   Payment:      sequelize.import('./Payment'),
   Country:      sequelize.import('./Country'),
+  Zapiertrigger:          sequelize.import('./ZapiertTrigger'),
 };
 
 Object.keys(models).forEach(modelName => {

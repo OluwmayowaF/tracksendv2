@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const { default: axios } = require('axios');
 
 var phoneval = require('../my_modules/phonevalidate');
 var models = require('../models');
@@ -261,13 +262,22 @@ exports.download = async (req, res) => {
 // Handle contact create on POST.
 exports.addContact = async (req, res) => {
     var contacts = [];
-    var groupId;
+    var groupId, last_contactid;
     var err = { invalid: 0, duplicate: 0, total: 0 };
     var fl = { mtype: null, msg: '', code: '' };
 
     try {
 
         var user_id = req.user.id;
+
+        //  CHECK IF USER HAS ZAPPIER TRIGGER INTEGRATED
+        let zap = await models.Zapiertrigger.findOne({
+            where: {
+                userId: user_id,
+                name: 'newcontact',
+            },
+            attributes: ['hookUrl'],
+        })
 
         console.log('form details are now: ' + JSON.stringify(req.body)); 
 
@@ -293,11 +303,13 @@ exports.addContact = async (req, res) => {
                 firstname : req.body.firstname,
                 lastname  : req.body.lastname,
                 email     : req.body.email,
-                country     : req.body.country,
+                country   : req.body.country,
             }]
         } else {
             contacts = req.body.contacts;           //  for externalapi API
         }
+
+        let zap_list = [];
 
         for(let p = 0; p < contacts.length; p++) {
             try {
@@ -306,7 +318,7 @@ exports.addContact = async (req, res) => {
                 
                 if(!(contacts[p].phone = phoneval(contacts[p].phone, country))) throw { name: "Invalid" };
 
-                await group.createContact({
+                let contact = await group.createContact({
                     firstname: contacts[p].firstname,
                     lastname:  contacts[p].lastname,
                     phone:     contacts[p].phone,
@@ -316,14 +328,30 @@ exports.addContact = async (req, res) => {
                     status:    status,
                 })
 
-                await group.update({
+
+                console.log('new contact id = ' + contact.id);
+                last_contactid = contact.id;
+                /* await group.update({
                     count: Sequelize.literal('count + 1'),
-                });
+                }); */
+
+                if(zap) {
+                    let i_d = parseInt(user_id + "" + contact.id + "" + new Date().getTime());
+                    zap_list.push({
+                        id: i_d,
+                        contact_id: contact.id,
+                        action_type: "add",
+                    })
+                }
 
             } catch(err) {
                 console.error(err);
                 if(err.name == 'SequelizeUniqueConstraintError') {
-                    err.duplicate += 1;
+                    if(req.zapier) {    //  IF ZAPIER THEN UPDATE CONTACT
+                        req.body.id = null;
+                        return await this.saveContact(req, res);
+                    }
+                    else err.duplicate += 1;
                 } else if(err.name == 'Invalid') {
                     err.invalid += 1;
                 } 
@@ -331,6 +359,18 @@ exports.addContact = async (req, res) => {
                 // throw {name: err.name + '-contact'};
                 // throw 'error';
             };
+        }
+
+        if(zap) {
+            let ret = await axios({
+                method: 'POST',
+                url: zap.hookUrl,
+                data: zap_list,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
         }
 
         if(contacts.length > err.total) {
@@ -347,6 +387,7 @@ exports.addContact = async (req, res) => {
             fl.msg = fl.msg + err.invalid + ' Invalid Phone Number(s). ';
             fl.code = fl.code || "E032";
         }
+
     } catch(err) {
         console.error('errorerr = ' + err);
         
@@ -363,16 +404,291 @@ exports.addContact = async (req, res) => {
     };
 
     if(req.externalapi) {
-        res.send({
-            response: fl.mtype == "SUCCESS" ? {id: groupId, success: contacts.length - err.total, duplicate: err.duplicate, invalid: err.invalid } : "An error occurred.", 
-            responseType: fl.mtype, 
-            responseCode: fl.code, 
-            responseText: fl.mtype == "SUCCESS" ? "Group created successfully." : fl.msg, 
-       })
+        if(req.zapier) {
+            let i_d = groupId + "" + new Date().getTime();
+            res.send([{
+                status: "OK",
+                id: i_d,
+                group_id: groupId,
+                contact_id: last_contactid,
+            }])
+        } else {
+            res.send({
+                response: fl.mtype == "SUCCESS" ? {id: groupId, success: contacts.length - err.total, duplicate: err.duplicate, invalid: err.invalid } : "An error occurred.", 
+                responseType: fl.mtype, 
+                responseCode: fl.code, 
+                responseText: fl.mtype == "SUCCESS" ? "Group created successfully." : fl.msg, 
+            })
+        }
     } else {
         req.flash(fl.mtype, fl.msg);
         var backURL = req.header('Referer') || '/';
         res.redirect(backURL);
     }
 }
+
+//  from apiController
+exports.saveContact = async (req, res) => {
+
+    try {
+        var user_id = req.user.id;
+        if(user_id.length == 0)  throw "Authentication Error!!!";
+
+        //  CHECK IF USER HAS ZAPIER TRIGGER INTEGRATED
+        let zap = await models.Zapiertrigger.findOne({
+            where: {
+                userId: user_id,
+                name: 'contact',
+            },
+            attributes: ['hookUrl'],
+        })
+        
+        let id_, i_d;
+        if(!req.body.id && req.zapier) {  //  IF THROUGH ZAPIER
+            id_ = await models.Contact.findOne({
+                where: {
+                    phone:     req.body.phone,
+                    countryId: req.body.country,
+                    userId:    user_id,
+                },
+                attributes: ['id'],
+            })
+        } else id_ = req.body.id;
+
+        let con = await models.Contact.findByPk(id_)
+        if(con.userId == user_id) {
+            await con.update({
+                ...(req.body.firstname ? {
+                    firstname: req.body.firstname,
+                } : {}),
+                ...(req.body.lastname ? {
+                    lastname: req.body.lastname,
+                } : {}),
+                ...(req.body.email ? {
+                    email: req.body.email,
+                } : {}),
+            })
+
+            //  ZAPIER
+            if(zap) {
+                let i_d = parseInt(user_id + "" + id_ + "" + new Date().getTime());
+                let ret = await axios({
+                    method: 'POST',
+                    url: zap.hookUrl,
+                    data: [{
+                        id: i_d,
+                        contact_id: id_,
+                        action_type: "modify",
+                    }],
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+            }
+    
+            res.send({
+                response: "success",
+            });
+        } else {
+            throw "Error: Invalid permission";
+        }
+    } catch(err) {
+        console.log('ERROR: ' + JSON.stringify(err));
+        
+        res.send({
+            response: "Error: Please try again later",
+        });
+    }
+
+}
+
+//  from apiController
+exports.delContact = async (req, res) => {
+
+    try {
+        var user_id = req.user.id;
+        if(user_id.length == 0)  throw "Authentication Error!!!";
+
+        //  CHECK IF USER HAS ZAPPIER TRIGGER INTEGRATED
+        let zap = await models.Zapiertrigger.findOne({
+            where: {
+                userId: user_id,
+                name: 'contact',
+            },
+            attributes: ['hookUrl'],
+        })
+        
+        //  get groups with the contact
+        var con = await models.Contact.findByPk(req.query.id)
+        if(con.userId == user_id) {
+            await con.destroy();
+            // var grp = await models.Group.findByPk(con.groupId);
+            /* await grp.update({
+                count: Sequelize.literal('count - 1'),
+            }) */
+
+            //  ZAPIER
+            if(zap) {
+                let i_d = parseInt(user_id + "" + req.query.id + "" + new Date().getTime());
+                let ret = await axios({
+                    method: 'POST',
+                    url: zap.hookUrl,
+                    data: [{
+                        id: req.query.id,
+                        contact_id: req.query.id,
+                        action_type: "delete",
+                    }],
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+            }
+            
+            res.send({
+                response: "success",
+            });
+        } else {
+            throw "Error: Invalid permission";
+        }
+    } catch (err) {
+        console.log('ERROR: ' + JSON.stringify(err));
+        
+        res.send({
+            response: "Error: Please try again or contact Admin."
+        });
+        return;
+    }
+        
+
+}
+
+//  from apiController
+exports.getContacts = async (req, res) => {
+
+    try {
+        var user_id = req.user.id;
+        if(user_id.length == 0)  throw "error";
+    } catch (e) {
+        res.send({
+            error: "Authentication Error!!!"
+        });
+        return;
+    }
+
+    var q;
+    if(req.query.grp != -1) {
+        
+        if(req.query.txt) {
+            console.log('yes ttt');
+            
+            q = await sequelize.query(
+                "SELECT * FROM contacts " +
+                "WHERE (" + 
+                    " firstname LIKE :tt OR " +
+                    " lastname LIKE :tt OR " + 
+                    " phone LIKE :tt OR " +
+                    " email LIKE :tt " +
+                ") AND groupId = (:grp) " +
+                "AND userId = (:usr) " +
+                "LIMIT 100 ",
+                {
+                    replacements: {
+                        tt: '%' + req.query.txt + '%',
+                        grp: req.query.grp,
+                        usr: user_id,
+                    },
+                    type: sequelize.QueryTypes.SELECT,
+                },
+            );
+        } else {
+            console.log('no tt');
+            
+            q = await Promise.all([
+                    models.Group.findByPk(req.query.grp, {
+                    include: [{
+                        model: models.Contact, 
+                        where: { userId: user_id },
+                        limit: 100,
+                        // attributes: ['id', 'name', 'nameKh'], 
+                        // through: { }
+                    }],
+                    where: { userId: user_id } 
+                }),
+                sequelize.query(
+                    "SELECT * FROM ( SELECT COUNT(status) AS unverified FROM contacts WHERE status = 0 AND groupId = :gid AND userId = :uid) t1, " +
+                    "              ( SELECT COUNT(status) AS ndnd       FROM contacts WHERE status = 1 AND groupId = :gid AND userId = :uid) t2, " +
+                    "              ( SELECT COUNT(status) AS dnd        FROM contacts WHERE status = 2 AND groupId = :gid AND userId = :uid) t3, " +
+                    "              ( SELECT COUNT(do_sms) AS awoptin    FROM contacts WHERE do_sms = 0 AND groupId = :gid AND userId = :uid) t4, " +
+                    "              ( SELECT COUNT(do_sms) AS optin      FROM contacts WHERE do_sms = 1 AND groupId = :gid AND userId = :uid) t5, " +
+                    "              ( SELECT COUNT(do_sms) AS optout     FROM contacts WHERE do_sms = 2 AND groupId = :gid AND userId = :uid) t6 " , {
+                        replacements: {
+                            gid: req.query.grp,
+                            uid: user_id,
+                        },
+                        type: sequelize.QueryTypes.SELECT,
+                    }
+                ),
+                models.Group.findByPk(req.query.grp, {
+                    include: [{
+                        model: models.Contact,
+                        where: {
+                            userId: user_id,
+                        },
+                        attributes: [[sequelize.fn('count', sequelize.col('groupId')), 'ccount']],
+                    }],
+                    attributes: ['contacts.groupId'],
+                    group: ['contacts.groupId'],
+                    // raw: true,
+                })
+            ]);
+        }
+
+        res.send(q); 
+        /* q.then((cg, conts) => {
+            console.log(JSON.stringify(cg));
+            
+            res.send([cg, conts]); 
+        }); */
+    } else {
+
+        if(req.query.txt) {
+            console.log('yes ttt');
+            
+            q = await sequelize.query(
+                "SELECT * FROM contacts " +
+                "WHERE (" + 
+                    " firstname LIKE :tt OR " +
+                    " lastname LIKE :tt OR " + 
+                    " phone LIKE :tt OR " +
+                    " email LIKE :tt " +
+                ") AND userId = :usr " +
+                "LIMIT 100 ",
+                {
+                    replacements: {
+                        tt: '%' + req.query.txt + '%',
+                        usr: user_id,
+                    },
+                    type: sequelize.QueryTypes.SELECT,
+                },
+            );
+        } else {
+            console.log('no tt');
+        
+            q = await models.Contact.findAll({
+                // raw: true,
+                where: { 
+                    userId: user_id, 
+                },
+                limit: 100,
+            });
+        }
+
+        res.send(q); 
+    }
+
+}
+
+
 

@@ -5,11 +5,13 @@ const request = require('request');
 const { initializePayment, verifyPayment } = require('../config/paystack')(request);
 const randgen = require('../my_modules/randgen');
 var env = require('../config/env');
+var apiController     = require('./ApiController');
 
-exports.add = async (req, res) => {
+exports.triggerHookAdd = async (req, res) => {
     
+    let snd;
     console.log('NEW -- AUTH = ' + req.header('X-API-KEY'));
-    let seen = [];
+    /* let seen = [];
     console.log(JSON.stringify(req, function (key, val) {
         if (val != null && typeof val == "object") {
             if (seen.indexOf(val) >= 0) {
@@ -18,75 +20,143 @@ exports.add = async (req, res) => {
             seen.push(val);
         }
         return val;
-    }) )
+    }) ) */
 
+    try {
+        let usr = await models.User.findOne({
+            where: {
+                api_key: req.header('X-API-KEY'),
+            },
+            attributes: ['id'],
+        })
 
-    res.status(200).json({status: "OK"});
+        if(usr) {
+            let zp = await usr.createZapiertrigger({
+                name: req.body.triggername,
+                hookUrl: req.body.hookUrl,
+            });
 
+            if(zp) {
+                console.log('zp id = ' + zp.id);
+                
+                snd = {
+                    status: "OK",
+                    url: req.body.hookUrl,
+                    trigger: req.body.triggername,
+                    id: zp.id,
+                }
+            } else throw 'my create trigger error'
+        } else throw 'user select error: wrong api_key'
 
-    console.log('showing page...'); 
-    // var flash = req.flash('success')
-    // console.log('flash details are now: ' + flash); 
+    } catch(err) {
+        console.log('Zapier Trigger Error: ' + JSON.stringify(err));
+        snd = {
+            status: "ERROR",
+            url: req.body.hookUrl,
+            trigger: req.body.triggername,
+        }
+    }
 
-    /* models.Sender.findAll({ 
-        where: { 
-            userId: user_id
-        },
-        order: [ 
-            ['createdAt', 'DESC']
-        ]
-    })
-    .then((sids) => {
-        console.log('groups are: ' + JSON.stringify(sids));
-    }); */
+    res.status(200).json(snd);
+
 };
 
-exports.delete = async (req, res) => {
+exports.triggerHookRemove = async (req, res) => {
 
-    var form = _.pick(req.body,['amount','phone','email','full_name','metadata','reference','callback_url']);
-    form.full_name = req.user.name;
-    form.phone = req.user.phone;
-    form.email = req.user.email;
-    form.reference = await randgen('paymentref', models.Payment);
-    form.callback_url = env.SERVER_BASE + '/dashboard/topups/ref';
-    form.amount *= 100;
-    
-    models.Payment.create({
-        paymentref: form.reference,
-        userId: req.user.id,
-        name: form.full_name,
-        phone: form.phone,
-        email: form.email,
-        amount: form.amount,       //   amount in kobo
-        currency: 'NGN',
-        channel: '-',
-    })
-    .then((pay) => {
-        initializePayment(form, (error, body)=>{
-            if(error){
-                //handle errors
-                console.log(error);
-                req.flash('error', 'An error occurred. Please refresh page and try again.');
-                res.redirect('/dashboard/topups/');
-                return;
+    let snd;
+    console.log('DEL -- AUTH = ' + req.header('X-API-KEY'));
+    console.log('body = ' + JSON.stringify(req.body));
+
+    try {
+        let usr = await models.User.findOne({
+            where: {
+                api_key: req.header('X-API-KEY'),
+            },
+            attributes: ['id'],
+        })
+
+        if(usr) {
+            models.Zapiertrigger({
+                where: {
+                    userId: usr.id,
+                    id: req.body.triggerid,
+                    name: req.body.triggername,
+                }
+            });
+
+            console.log('zp deleted');
+            
+            snd = {
+                status: "OK",
             }
-            const response = JSON.parse(body);
-            console.log('====================================');
-            console.log('RESPONSE: ' + JSON.stringify(response));
-            console.log('====================================');
-            if(!response.status) {
-                console.log(error);
-                req.flash('error', response.message);
-                res.redirect('/dashboard/topups/');
-                return;                
-            }
-            res.redirect(response.data.authorization_url)
-        });
-        
-    } )
-    /* form.metadata = {
-        full_name : form.full_name
-    } */
+        } else throw 'user select error: wrong api_key'
+
+    } catch(err) {
+        console.log('Zapier Trigger Error: ' + JSON.stringify(err));
+        snd = {
+            status: "ERROR",
+        }
+    }
+
+    res.status(200).json(snd);
+
+
+};
+
+exports.contactUpdate = async (req, res) => {
+
+    let snd;
+    console.log('CONTACT -- AUTH = ' + req.header('X-API-KEY'));
+    console.log('body = ' + JSON.stringify(req.body));
+
+    try {
+
+        req.externalapi = true;
+        req.zapier = true;
+        req.body.token = req.header('X-API-KEY');
+
+        // if(req.body.id)
+        return await apiController.updateGroup(req, res);
+
+    } catch(err) {
+        console.log('Zapier Trigger Error: ' + JSON.stringify(err));
+        snd = {
+            status: "ERROR",
+        }
+    }
+
+    res.status(200).json(snd);
+
+};
+
+exports.groupUpdate = async (req, res) => {
+
+    let snd;
+    console.log('CONTACT -- AUTH = ' + req.header('X-API-KEY'));
+    console.log('body = ' + JSON.stringify(req.body));
+
+    try {
+
+        req.externalapi = true;
+        req.zapier = true;
+        req.body.token = req.header('X-API-KEY');
+
+        // if(req.body.id)
+        return await apiController.updateGroup(req, res);
+
+    } catch(err) {
+        console.log('Zapier Trigger Error: ' + JSON.stringify(err));
+        snd = {
+            status: "ERROR",
+        }
+    }
+
+    res.status(200).json(snd);
+
+};
+
+exports.optinOptout = async (req, res) => {
+
 
 };
 

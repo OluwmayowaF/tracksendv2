@@ -1161,7 +1161,7 @@ async function dbPostSMSSend(req, res, batches, info, user_balance, user_id, cpn
         console.log('dbPostSMSSend -- 22');
         //  update message with id after success
         if(response.SMSMessageData) {   //  afrikastalking response
-            console.log('let recps = response.SMSMessageData.Recipients');
+            console.log('let recps = ' + JSON.stringify(response.SMSMessageData));
             let recps = response.SMSMessageData.Recipients;
             recps.forEach(async recp => {
                 if(recp.statusCode === 101 || recp.statusCode === 100) successfuls++;

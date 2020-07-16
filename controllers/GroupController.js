@@ -227,3 +227,132 @@ exports.addGroup = async (req, res) => {
         res.redirect(backURL);
     }
 }
+
+//  from apiController
+exports.saveGroup = async (req, res) => {
+
+    var msg;
+
+    try {
+        var user_id = req.user.id;
+        if(user_id.length == 0)  throw "error";
+
+        // console.log('optin='+(req.body.can_optin && (req.body.can_optin == "on") ? 'yes' : 'no'))
+        const grp = await models.Group.findByPk(req.body.id)
+        if(grp.userId == user_id) {
+            try {
+                const r = await grp.update({
+                    ...( req.body.name ? {
+                        name: req.body.name,
+                    }: {}),
+                    ...( req.body.description ? {
+                        description: req.body.description,
+                    }: {}),
+                    can_optin: (req.body.can_optin && req.body.can_optin == "on") ? true : false,
+                })
+                
+                if(req.externalapi && req.body.contacts && req.body.contacts.length) {
+                    req.body.group = req.body.id;
+                    return await contactController.addContact(req, res);
+                } else msg = "success";
+            } catch(r) {
+                msg = "Error: Please try again later"
+            }
+        } else {
+            msg = "Error: Invalid permission";
+        }
+    } catch (e) {
+        msg =  "Authentication Error!!!";
+    }
+        
+    res.send({
+        response: msg,
+    });
+
+}
+
+//  from apiController
+exports.getGroups = async (req, res) => {
+
+    try {
+        var user_id = req.user.id;
+        if(user_id.length == 0)  throw "error";
+    } catch (e) {
+        res.send({
+            error: "Authentication Error!!!"
+        });
+        return;
+    }
+
+    var lnkgrp = req.params.lnkgrp;
+    var gtype = req.query.grptype;
+
+    var grps = await models.Group.findAll({ 
+        where: { 
+            userId: user_id,
+            name: {
+                [Sequelize.Op.ne]: '[Uncategorized]',
+            },
+            platformtypeId: gtype
+        },
+        order: [ 
+            ['createdAt', 'DESC']
+        ]
+    });
+
+    if(gtype == 1) {
+        var non = await models.Group.findAll({ 
+            where: { 
+                userId: user_id,
+                name: '[Uncategorized]',
+            },
+        });
+    } else {
+        var non = null;
+    }
+
+    if(non) grps.push(non[0]);
+
+    res.send(grps); 
+
+};
+
+//  from apiController
+exports.delGroup = (req, res) => {
+
+    try {
+        var user_id = req.user.id;
+        if(user_id.length == 0)  throw "error";
+    } catch (e) {
+        res.send({
+            error: "Authentication Error!!!"
+        });
+        return;
+    }
+
+    console.log('dele = ' + req.query.id);
+    
+    models.Group.findByPk(req.query.id)
+    .then(grp => {
+        if(grp.userId == user_id) {
+            grp.destroy()
+            .then((r) => {
+                res.send({
+                    response: "success",
+                });
+            }) 
+            .error((r) => {
+                res.send({
+                    response: "Error: Please try again later",
+                });
+            })
+        } else {
+            res.send({
+                response: "Error: Invalid permission",
+            });
+        }
+    });
+        
+
+}
+

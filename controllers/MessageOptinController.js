@@ -5,6 +5,8 @@ const CHARS_PER_SMS = 160;
 const _ = require('lodash');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
+const { default: axios } = require('axios');
+
 var whatsappSendMessage = require('../my_modules/whatsappSendMessage');
 var _message = require('../my_modules/output_messages');
 var env = require('../config/env');
@@ -478,6 +480,32 @@ exports.completeOptin = async function(req, res) {
                     ),
                 });
                 
+                //  ZAPIER
+                if(sms) {
+                    let zap = await models.Zapiertrigger.findOne({
+                        where: {
+                            userId,
+                            name: 'contactopts',
+                        },
+                        attributes: ['hookUrl'],
+                    })
+
+                    if(zap) {
+                        let ret = await axios({
+                            method: 'POST',
+                            url: zap.hookUrl,
+                            data: [{
+                                id: newk.id,
+                                contact_id: newk.id,
+                                action_type: "optin",
+                            }],
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            }
+                        })
+                    }
+                }
                 //  check for questions and responses
                 if(req.body.question && !ques_saved) {
                     var qi = 0;

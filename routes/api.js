@@ -39,11 +39,11 @@ module.exports = function(app) {
   app.post ('/api/whatsappoptin', cors(), apiController.whatsAppOptIn); //  deprecated
 
   app.options ('/api/messageoptin', cors());      //  from tsnwhatsappoptin api on external webpage
-  app.post ('/api/messageoptin', cors(), apiController.messageOptIn);     //  from tsnwhatsappoptin api on external webpage
+  app.post('/api/messageoptin', cors(), apiController.messageOptIn);     //  from tsnwhatsappoptin api on external webpage
 
   app.post('/api/sms/infobip/notify',       apiController.smsNotifyInfobip);   //  for INFOBIP
-  app.get('/api/sms/messagebird/notify',    apiController.smsNotifyMessagebird);   //  for MESSAGEBIRD
-  app.get('/api/sms/africastalking/notify', apiController.smsNotifyAfricastalking);   //  for MESSAGEBIRD
+  app.get ('/api/sms/messagebird/notify',    apiController.smsNotifyMessagebird);   //  for MESSAGEBIRD
+  app.get ('/api/sms/africastalking/notify', apiController.smsNotifyAfricastalking);   //  for MESSAGEBIRD
 
   app.post('/api/whatsapphooks',    apiController.whatsAppNotify);
 
@@ -51,7 +51,7 @@ module.exports = function(app) {
   app.delete('/api/customoptin/delete/question/:id',  customOptinController.delquestion);   
   // app.post('/api/customoptin/save',                   customOptinController.saveoption);   
   
-  app.use('/api/zapier', zapierRouter);     //  from tsnwhatsappoptin api on external webpage
+  app.use ('/api/zapier', zapierRouter);     //  from tsnwhatsappoptin api on external webpage
 
   
   

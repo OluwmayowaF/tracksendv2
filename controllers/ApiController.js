@@ -4,6 +4,7 @@ var moment      = require('moment');
 const _         = require('lodash');
 const Sequelize = require('sequelize');
 const Op        = Sequelize.Op;
+const { default: axios } = require('axios');
 
 var campaignController    = require('./CampaignController');
 var groupController       = require('./GroupController');
@@ -28,172 +29,14 @@ exports.index = function(req, res) {
 // Display Groups List Based on Selection of Group Type .. NOT DONE
 exports.getGroups = async (req, res) => {
 
-    try {
-        var user_id = req.user.id;
-        if(user_id.length == 0)  throw "error";
-    } catch (e) {
-        res.send({
-            error: "Authentication Error!!!"
-        });
-        return;
-    }
+    return await groupController.getGroups(req, res);
 
-    var lnkgrp = req.params.lnkgrp;
-    var gtype = req.query.grptype;
-
-    var grps = await models.Group.findAll({ 
-        where: { 
-            userId: user_id,
-            name: {
-                [Sequelize.Op.ne]: '[Uncategorized]',
-            },
-            platformtypeId: gtype
-        },
-        order: [ 
-            ['createdAt', 'DESC']
-        ]
-    });
-
-    if(gtype == 1) {
-        var non = await models.Group.findAll({ 
-            where: { 
-                userId: user_id,
-                name: '[Uncategorized]',
-            },
-        });
-    } else {
-        var non = null;
-    }
-
-    if(non) grps.push(non[0]);
-
-    res.send(grps); 
-
-};
+}
 
 // Display detail page for a specific contact.
 exports.getContacts = async (req, res) => {
 
-    try {
-        var user_id = req.user.id;
-        if(user_id.length == 0)  throw "error";
-    } catch (e) {
-        res.send({
-            error: "Authentication Error!!!"
-        });
-        return;
-    }
-
-    var q;
-    if(req.query.grp != -1) {
-        
-        if(req.query.txt) {
-            console.log('yes ttt');
-            
-            q = await sequelize.query(
-                "SELECT * FROM contacts " +
-                "WHERE (" + 
-                    " firstname LIKE :tt OR " +
-                    " lastname LIKE :tt OR " + 
-                    " phone LIKE :tt OR " +
-                    " email LIKE :tt " +
-                ") AND groupId = (:grp) " +
-                "AND userId = (:usr) " +
-                "LIMIT 100 ",
-                {
-                    replacements: {
-                        tt: '%' + req.query.txt + '%',
-                        grp: req.query.grp,
-                        usr: user_id,
-                    },
-                    type: sequelize.QueryTypes.SELECT,
-                },
-            );
-        } else {
-            console.log('no tt');
-            
-            q = await Promise.all([
-                    models.Group.findByPk(req.query.grp, {
-                    include: [{
-                        model: models.Contact, 
-                        where: { userId: user_id },
-                        limit: 100,
-                        // attributes: ['id', 'name', 'nameKh'], 
-                        // through: { }
-                    }],
-                    where: { userId: user_id } 
-                }),
-                sequelize.query(
-                    "SELECT * FROM ( SELECT COUNT(status) AS unverified FROM contacts WHERE status = 0 AND groupId = :gid AND userId = :uid) t1, " +
-                    "              ( SELECT COUNT(status) AS ndnd       FROM contacts WHERE status = 1 AND groupId = :gid AND userId = :uid) t2, " +
-                    "              ( SELECT COUNT(status) AS dnd        FROM contacts WHERE status = 2 AND groupId = :gid AND userId = :uid) t3, " +
-                    "              ( SELECT COUNT(do_sms) AS awoptin    FROM contacts WHERE do_sms = 0 AND groupId = :gid AND userId = :uid) t4, " +
-                    "              ( SELECT COUNT(do_sms) AS optin      FROM contacts WHERE do_sms = 1 AND groupId = :gid AND userId = :uid) t5, " +
-                    "              ( SELECT COUNT(do_sms) AS optout     FROM contacts WHERE do_sms = 2 AND groupId = :gid AND userId = :uid) t6 " , {
-                        replacements: {
-                            gid: req.query.grp,
-                            uid: user_id,
-                        },
-                        type: sequelize.QueryTypes.SELECT,
-                    }
-                ),
-                models.Group.findByPk(req.query.grp, {
-                    include: [{
-                        model: models.Contact,
-                        where: {
-                            userId: user_id,
-                        },
-                        attributes: [[sequelize.fn('count', sequelize.col('groupId')), 'ccount']],
-                    }],
-                    attributes: ['contacts.groupId'],
-                    group: ['contacts.groupId'],
-                    // raw: true,
-                })
-            ]);
-        }
-
-        res.send(q); 
-        /* q.then((cg, conts) => {
-            console.log(JSON.stringify(cg));
-            
-            res.send([cg, conts]); 
-        }); */
-    } else {
-
-        if(req.query.txt) {
-            console.log('yes ttt');
-            
-            q = await sequelize.query(
-                "SELECT * FROM contacts " +
-                "WHERE (" + 
-                    " firstname LIKE :tt OR " +
-                    " lastname LIKE :tt OR " + 
-                    " phone LIKE :tt OR " +
-                    " email LIKE :tt " +
-                ") AND userId = :usr " +
-                "LIMIT 100 ",
-                {
-                    replacements: {
-                        tt: '%' + req.query.txt + '%',
-                        usr: user_id,
-                    },
-                    type: sequelize.QueryTypes.SELECT,
-                },
-            );
-        } else {
-            console.log('no tt');
-        
-            q = await models.Contact.findAll({
-                // raw: true,
-                where: { 
-                    userId: user_id, 
-                },
-                limit: 100,
-            });
-        }
-
-        res.send(q); 
-    }
+    return await contactController.getContacts(req, res);
 
 }
 
@@ -304,77 +147,13 @@ exports.delSenderId = (req, res) => {
 
 exports.saveGroup = async (req, res) => {
 
-    var msg;
-
-    try {
-        var user_id = req.user.id;
-        if(user_id.length == 0)  throw "error";
-
-        // console.log('optin='+(req.body.can_optin && (req.body.can_optin == "on") ? 'yes' : 'no'))
-        const grp = await models.Group.findByPk(req.body.id)
-        if(grp.userId == user_id) {
-            try {
-                const r = await grp.update({
-                    name: req.body.name,
-                    description: req.body.description,
-                    can_optin: (req.body.can_optin && req.body.can_optin == "on") ? true : false,
-                })
-                
-                if(req.externalapi && req.body.contacts && req.body.contacts.length) {
-                    req.body.group = req.body.id;
-                    return await contactController.addContact(req, res);
-                } else msg = "success";
-            } catch(r) {
-                msg = "Error: Please try again later"
-            }
-        } else {
-            msg = "Error: Invalid permission";
-        }
-    } catch (e) {
-        msg =  "Authentication Error!!!";
-    }
-        
-    res.send({
-        response: msg,
-    });
+    return await groupController.saveGroup(req, res);
 
 }
 
-exports.delGroup = (req, res) => {
+exports.delGroup = async (req, res) => {
 
-    try {
-        var user_id = req.user.id;
-        if(user_id.length == 0)  throw "error";
-    } catch (e) {
-        res.send({
-            error: "Authentication Error!!!"
-        });
-        return;
-    }
-
-    console.log('dele = ' + req.query.id);
-    
-    models.Group.findByPk(req.query.id)
-    .then(grp => {
-        if(grp.userId == user_id) {
-            grp.destroy()
-            .then((r) => {
-                res.send({
-                    response: "success",
-                });
-            }) 
-            .error((r) => {
-                res.send({
-                    response: "Error: Please try again later",
-                });
-            })
-        } else {
-            res.send({
-                response: "Error: Invalid permission",
-            });
-        }
-    });
-        
+    return await groupController.delGroup(req, res);
 
 }
 
@@ -421,84 +200,15 @@ exports.delCampaign = (req, res) => {
 
 }
 
-exports.saveContact = (req, res) => {
+exports.saveContact = async (req, res) => {
 
-    try {
-        var user_id = req.user.id;
-        if(user_id.length == 0)  throw "error";
-    } catch (e) {
-        res.send({
-            error: "Authentication Error!!!"
-        });
-        return;
-    }
-
-    models.Contact.findByPk(req.body.id)
-    .then(con => {
-        if(con.userId == user_id) {
-            con.update({
-                firstname: req.body.firstname,
-                lastname: req.body.lastname,
-                email: req.body.email,
-            })
-            .then((r) => {
-                res.send({
-                    response: "success",
-                });
-            }) 
-            .error((r) => {
-                res.send({
-                    response: "Error: Please try again later",
-                });
-            })
-        } else {
-            res.send({
-                response: "Error: Invalid permission",
-            });
-        }
-    });
-        
+    return await contactController.saveContact(req, res);
 
 }
 
 exports.delContact = async (req, res) => {
 
-    try {
-        var user_id = req.user.id;
-        if(user_id.length == 0)  throw "error";
-    } catch (e) {
-        res.send({
-            error: "Authentication Error!!!"
-        });
-        return;
-    }
-
-    console.log('dele = ' + req.query.id);
-    
-    //  get groups with the contact
-    var con = await models.Contact.findByPk(req.query.id)
-    if(con.userId == user_id) {
-        try {
-            await con.destroy();
-            var grp = await models.Group.findByPk(con.groupId);
-            await grp.update({
-                count: Sequelize.literal('count - 1'),
-            })
-            res.send({
-                response: "success",
-            });
-        }
-        catch (r) {
-            res.send({
-                response: "Error: Please try again later",
-            });
-        }
-    } else {
-        res.send({
-            response: "Error: Invalid permission",
-        });
-    }
-        
+    return await contactController.delContact(req, res);
 
 }
 
@@ -1650,7 +1360,9 @@ exports.newGroup = async (req, res) => {
     if(_id = await apiAuthToken(req.body.token)) {
         req.user = {id : _id};
         req.externalapi = true;
-        groupController.addGroup(req, res);
+        if(req.body.name && req.body.name.length > 0) {
+            return await groupController.addGroup(req, res);
+        }
     } else {
         res.send({
             response: "Error: Authentication error.", 
@@ -1667,12 +1379,14 @@ exports.updateGroup = async (req, res) => {
     if(_id = await apiAuthToken(req.body.token)) {
         req.user = {id : _id};
         req.externalapi = true;
-        if(req.body.name && req.body.name.length > 0) {
+        //  update group
+        if(req.body.id) {
             return await this.saveGroup(req, res);
         }
-        if(req.body.contacts && Array.isArray(req.body.contacts) && req.body.contacts.length > 0) {
+        //  new group
+        /* if(req.body.name && req.body.name.length > 0) {
             return await groupController.addGroup(req, res);
-        }
+        } */
     }
 
     res.send({
