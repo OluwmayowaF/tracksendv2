@@ -98,9 +98,9 @@ exports.newContact = (req, res) => {
     ])
     .then(([grps, non, ctry]) => { 
         var ngrp = non[0].id;
-        console.log('NGRP = ' + JSON.stringify(non[0].id));
         
         var flashtype, flash = req.flash('error');
+        console.log('flashy = ' + JSON.stringify(flash) + JSON.stringify(flashtype));
         if(flash.length > 0) {
             flashtype = "error";           
         } else {
@@ -345,15 +345,15 @@ exports.addContact = async (req, res) => {
                     })
                 }
 
-            } catch(err) {
-                console.error(err);
-                if(err.name == 'SequelizeUniqueConstraintError') {
+            } catch(erro) {
+                console.error('erro' , erro);
+                if(erro.name == 'SequelizeUniqueConstraintError') {
                     if(req.zapier) {    //  IF ZAPIER THEN UPDATE CONTACT
                         req.body.id = null;
                         return await this.saveContact(req, res);
                     }
                     else err.duplicate += 1;
-                } else if(err.name == 'Invalid') {
+                } else if(erro.name == 'Invalid') {
                     err.invalid += 1;
                 } 
                 err.total += 1;
@@ -373,7 +373,8 @@ exports.addContact = async (req, res) => {
                 }
             })
         }
-
+        console.log('COUNTS = ' + contacts.length + '; ' + JSON.stringify(err));
+        
         if(contacts.length > err.total) {
             fl.mtype = 'SUCCESS';
             fl.msg = 'Your ' + (contacts.length - err.total) + ' new Contact(s) has been created.';
@@ -422,7 +423,9 @@ exports.addContact = async (req, res) => {
             })
         }
     } else {
-        req.flash(fl.mtype, fl.msg);
+        console.log('REQ FLASH = ' + JSON.stringify(fl.mtype.toLowerCase()) + JSON.stringify(fl.msg));
+        
+        req.flash(fl.mtype.toLowerCase(), fl.msg); 
         var backURL = req.header('Referer') || '/';
         res.redirect(backURL);
     }

@@ -222,7 +222,7 @@ exports.addGroup = async (req, res) => {
             responseText: fl.mtype == "SUCCESS" ? "Group created successfully." : fl.msg, 
         })
     } else {
-        req.flash(fl.mtype, fl.msg);
+        req.flash(fl.mtype.toLowerCase(), fl.msg);
         var backURL = req.header('Referer') || '/';
         res.redirect(backURL);
     }

@@ -2,6 +2,9 @@ const request = require('request');
 const { default: axios } = require('axios');
 var env = require('../../config/env');
 
+//  KIRUSA INIT
+const kirusa = require('../../config/cfg/kirusa');
+
 //  INFOBIP INIT
 const { tracksend_user, tracksend_pwrd, tracksend_base_url } = require('../../config/cfg/infobip')();
 var buff = Buffer.from(tracksend_user + ':' + tracksend_pwrd);
@@ -19,6 +22,94 @@ var africastalking = require('africastalking')(africastalkingOptions);
 
 const sendSMS =  async (platform, params, url = null, message = null, sender = null, phone = null, tracking = null, bulkid = null, type = null ) => {
     
+    if(platform == 'kirusa') {
+        if(message) {  //   if not from campaign
+            console.log('======= ++++++ =======' + JSON.stringify(platform));
+            let data = {
+                "id" : new Date().getTime().toString(),
+                "sender_mask" : sender,
+                "to" : phone,
+                "body" : message,
+                "callback_url" : env.SERVER_BASE + '/api/sms/kirusa/notify',
+            };
+
+            params = {
+                url: url || 'https://konnect.kirusa.com/api/v1/Accounts/' + kirusa.accountid + '/Messages',
+                json: data,
+                headers: {
+                    'Authorization': kirusa.apiKey,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            }
+        }
+
+        console.log('____________________ PARAMS = ' + JSON.stringify(params));
+        
+        try {
+            let tosend_ = {
+                method: 'POST',
+                url: params.url,
+                data: params,
+                headers: params.headers
+            };
+
+            console.log('PRESEND: ' + JSON.stringify(tosend_));
+            
+            let ret = await axios(tosend_);
+
+            /* let ret = {
+                status: 200
+            } */
+            /* let ret = await request.post(params, async (err, response) => {
+                if(err) {
+                    console.log('---' + err);
+                    console.log('j---' + JSON.stringify(err));
+                    
+                    return err
+                }
+                else {
+                    console.log('-+-+-' + response);
+                    console.log('j-+-+-' + JSON.stringify(response));
+                    return response;
+                }
+            }); */
+            let seen = [];
+            console.log('1a~~~d~~~e~~~l~~~e~~~~')
+            console.log('1a~~~~~~~~~~~~~~~~' + JSON.stringify(ret, function (key, val) {
+                if (val != null && typeof val == "object") {
+                    if (seen.indexOf(val) >= 0) {
+                        return;
+                    }
+                    seen.push(val);
+                }
+                return val;
+            }));
+            return ret;
+        } catch(err) {
+            console.log('1b~~~~~~~~~~~~~~~~' + err);
+            console.log('j1b~~~~~~~~~~~~~~~~' + JSON.stringify(err));
+            return err;
+        }
+        /* .then(res => {
+            console.log('respons = ' + JSON.stringify(res.data.code));
+        }) */
+        
+        
+        /* let ret = await request.post(body, async (err, response) => {
+            if(err) {
+                console.log('---' + JSON.stringify(err));
+                
+                return err
+            }
+            else {
+                console.log('-+-+-' + JSON.stringify(response));
+                return response;
+            }
+        }); */
+        
+    }
+
     if(platform == 'infobip') {
         if(message) {
             console.log('======= ++++++ =======' + JSON.stringify(platform));
