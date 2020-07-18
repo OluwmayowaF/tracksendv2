@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const sequelize = require('../config/cfg/db');
 const { default: axios } = require('axios');
 
 var phoneval = require('../my_modules/phonevalidate');
