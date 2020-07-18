@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-  const Zapiertrigger = sequelize.define('Zapiertrigger', {
+  const Zapiertrigger = sequelize.define('zapiertrigger', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
