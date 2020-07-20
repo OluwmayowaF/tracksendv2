@@ -1090,6 +1090,9 @@ exports.smsNotifyKirusa = (req, res) => {
             }
         })
         .then((mg) => {
+            console.log('POST DB CHECK...');
+            console.log('POST DB CHECK... = ' , JSON.stringify(mg));
+            
             if(mg) mg.update({
                 deliverytime: dt,
                 status: sid,

@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull:    true
     },
     platformtypeId: DataTypes.INTEGER,
+    destination:    DataTypes.STRING,
     clickcount:     DataTypes.INTEGER,
     deliverytime:   DataTypes.DATE,
     readtime:       DataTypes.DATE,
