@@ -42,22 +42,25 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
 
         if(sms_service == 'kirusa') {
             console.log('0011~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~  ~~~~~~~~~~~~~');
-            await kirusa.kirusaPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
+            let resp = await kirusa.kirusaPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
                                   originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj);
+
+            console.log('returned: 0011~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~  ~~~~~~~~~~~~~', JSON.stringify(resp));
+            return resp;
         }
 
         if(sms_service == 'infobip') {
-            await infobip.infobipPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
+            return await infobip.infobipPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
                                     originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj);
         }
 
         if(sms_service == 'messagebird') {
-            await messagebird.messagebirdPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
+            return await messagebird.messagebirdPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
                                             originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj);
         }
 
         if(sms_service == 'africastalking') {
-            await africastalking.africastalkingPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
+            return await africastalking.africastalkingPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
                                                   originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj);
         }
 

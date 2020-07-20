@@ -69,15 +69,15 @@
 				
 					<div class="col-lg-3 col-md-6">
 						<div class="dashboard-stat color-2">
-							<div class="dashboard-stat-content"><h4>{{ args.mcount }}</h4> <span>Total Messages Sent</span></div>
-							<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
+							<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber stats.mcount }}</h4> <span style="width: 45%">Messages Sent</span></div>
+							<i class="im im-icon-Mail-Send" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
 						</div>
 					</div>
 
 					<div class="col-lg-3 col-md-6">
 						<div class="dashboard-stat color-2">
-							<div class="dashboard-stat-content"><h4>{{ args.viewed }}</h4> <span>Total Messages Opened</span></div>
-							<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
+							<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber stats.viewed }}</h4> <span style="width: 45%">Messages Opened</span></div>
+							<i class="im im-icon-Mail-Send" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
 						</div>
 					</div>
 
@@ -176,15 +176,15 @@
 					
 						<div class="col-lg-3 col-md-6">
 							<div class="dashboard-stat color-2">
-								<div class="dashboard-stat-content"><h4>{{ stats.mcount }}</h4> <span>Total Messages Sent</span></div>
-								<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
+								<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber stats.mcount }}</h4> <span style="width: 45%">Messages Sent</span></div>
+								<i class="im im-icon-Mail-Send" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
 							</div>
 						</div>
 
 						<div class="col-lg-3 col-md-6">
 							<div class="dashboard-stat color-2">
-								<div class="dashboard-stat-content"><h4>{{ stats.viewed }}</h4> <span>Total Messages Opened</span></div>
-								<div class="dashboard-stat-icon"><i class="im im-icon-Mail-Send"></i></div>
+								<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber stats.viewed }}</h4> <span style="width: 45%">Messages Opened</span></div>
+								<i class="im im-icon-Mail-Send" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
 							</div>
 						</div>
 

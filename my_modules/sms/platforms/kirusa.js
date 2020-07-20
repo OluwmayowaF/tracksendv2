@@ -196,8 +196,8 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
 
           }
 
-          Promise.all(actions)
-          .then(async (data) => {
+          let data = await Promise.all(actions)
+        //   .then(async (data) => {
               console.log('MSGS ARE: ' + JSON.stringify(data));
               
               let params = data[0];
@@ -222,10 +222,11 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
               let resp = await dbPostSMSSend.dbPostSMSSend(req, res, batches, successfuls, failures, info, user_balance, user_id, cpn, schedule_, null, null, networkerror);
               console.log('a||||||||||||||||||||||||---' + JSON.stringify(resp));
         
-              console.log(JSON.stringify(params));
               counter++;
               if(end < len) await doLoop(end)
-          })
+              console.log('paramsparams=' + JSON.stringify(params));
+              return resp;
+          
       }
 
   }
