@@ -991,7 +991,7 @@ exports.smsNotifyKirusa = (req, res) => {
 
     console.log('[[====================================');
     console.log('KIRUSA RESPONSE...');
-    console.log('KIRUSA RESPONSE1: ' + (req.body));
+    // console.log('KIRUSA RESPONSE1: ' + (req.body));
     console.log('KIRUSA RESPONSE2: ' + JSON.stringify(req.body));
     console.log('KIRUSA RESPONSE3: ' + JSON.parse(JSON.stringify(req.body)));
     console.log('KIRUSA RESPONSE4: ' + JSON.stringify(JSON.parse(JSON.stringify(req.body))));
