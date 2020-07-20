@@ -29,7 +29,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
     var file_not_logged = true;
     SINGLE_MSG = SINGLE_MSG && !UNSUBMSG && !DOSUBMSG;    //  UNSUBMSG includes individual contact ids so invariable can't be single msg
     var sms_service;        
-    console.log('1~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~  ~~~~~~~~~~~~~');
+    console.log('001~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~  ~~~~~~~~~~~~~');
     if(req.externalapi) console.log('2~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~  ~~~~~~~~~~~~~');
     
     try {
@@ -40,6 +40,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
         }
 
         if(sms_service == 'kirusa') {
+            console.log('0011~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~  ~~~~~~~~~~~~~');
             await kirusa.kirusaPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
                                   originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj);
         }
