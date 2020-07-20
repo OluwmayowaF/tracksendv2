@@ -1005,7 +1005,7 @@ exports.smsNotifyKirusa = (req, res) => {
         if(resp.ref_ids) {};
 
         var cpgnid  = resp.id.split('-')[0];
-        var phone   = resp.phone_number;
+        var phone   = resp.to;
         var status  = resp.status; 
         var dt      = resp.timestamp;
         var sid;
