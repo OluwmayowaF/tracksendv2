@@ -44,7 +44,8 @@ module.exports = function(app) {
   app.post('/api/sms/kirusa/notify',         apiController.smsNotifyKirusa);            //  for KIRUSA
   app.post('/api/sms/infobip/notify',        apiController.smsNotifyInfobip);           //  for INFOBIP
   app.get ('/api/sms/messagebird/notify',    apiController.smsNotifyMessagebird);       //  for MESSAGEBIRD
-  app.get ('/api/sms/africastalking/notify', apiController.smsNotifyAfricastalking);    //  for MESSAGEBIRD
+  app.get ('/api/sms/africastalking/notify', apiController.smsNotifyAfricastalking);    //  for AFRICASTALKING (not sure of the method yet)
+  app.post ('/api/sms/africastalking/notify',apiController.smsNotifyAfricastalking);    //  for AFRICASTALKING (not sure of the method yet)
 
   app.post('/api/whatsapphooks',    apiController.whatsAppNotify);
 

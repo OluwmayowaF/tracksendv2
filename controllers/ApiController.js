@@ -1358,7 +1358,8 @@ exports.smsNotifyMessagebird = (req, res) => {
 exports.smsNotifyAfricastalking = (req, res) => {
     
     console.log('[[=============https://build.at-labs.io/docs/sms%2Fnotifications=======================');
-    console.log('AFRICASTALKING RESPONSE: ' + JSON.stringify(req.query));
+    console.log('AFRICASTALKING RESPONSE GET: '  + JSON.stringify(req.query));
+    console.log('AFRICASTALKING RESPONSE POST: ' + JSON.stringify(req.body));
     console.log('===============https://build.at-labs.io/docs/sms%2Fnotifications=====================]]');
 
     if(req.body) {          //  for AFRICASTALKING...maybe
