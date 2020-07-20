@@ -996,98 +996,105 @@ exports.smsNotifyKirusa = (req, res) => {
     if(req.body) {          //  for KIRUSA
     
         var resp = req.body;
-        resp.ref_ids.forEach(msg => {
-            var cpgnid = resp.id.split('-')[0];
-            var phone = msg.phone_number;
-            var status = resp.status; 
-            var dt = msg.sentAt;
-            var sid;
-          
-            let pref = phone.substr(0, 3);
-            // let phn = '0' + phone.substr(3);
-            let phn = phoneval(phone, pref);
+        if(resp.ref_ids) {};
 
-            console.log('====================================');
-            console.log('MSG STATUS = ' + status + "; phone = " + phone + "; pref = " + pref + "; phn = " + phn);
-            console.log('====================================');
+        var cpgnid  = resp.id.split('-')[0];
+        var phone   = resp.phone_number;
+        var status  = resp.status; 
+        var dt      = resp.timestamp;
+        var sid;
+        
+        let pref = phone.substr(0, 3);
+        // let phn = '0' + phone.substr(3);
+        let phn = phoneval(phone, pref);
 
+        console.log('====================================');
+        console.log('MSG STATUS = ' + status + "; phone = " + phone + "; pref = " + pref + "; phn = " + phn + "; cpgid = " + cpgnid);
+        console.log('====================================');
 
-            if (status == 'delivered') {
-                sid = 1;
+        
+        if (status == 'delivered') {
+            sid = 1;
 
-                models.Contact.update(
-                    {
-                        status: 1
-                    },
-                    {
-                        where: {
-                            countryId: pref,
-                            phone: phn,
-                        }
+            models.Contact.update(
+                {
+                    status: 1
+                },
+                {
+                    where: {
+                        countryId: pref,
+                        phone: phn,
                     }
-                )
+                }
+            )
 
-            } else if (status == 'rejected') {
-                sid = 4;
+        } else if (status == 'rejected') {
+            sid = 4;
 
-                models.Contact.update(
-                    {
-                        status: 3
-                    },
-                    {
-                        where: {
-                            countryId: pref,
-                            phone: phn,
-                        }
+            models.Contact.update(
+                {
+                    status: 3
+                },
+                {
+                    where: {
+                        countryId: pref,
+                        phone: phn,
                     }
-                )
-                
-            } else if (status == 'failed' || status == 'undelivered') {
-                sid = 3;
+                }
+            )
+            
+        } else if (status == 'failed' || status == 'undelivered') {
+            sid = 3;
 
-                models.Contact.update(
-                    {
-                        status: 2
-                    },
-                    {
-                        where: {
-                            countryId: pref,
-                            phone: phn,
-                        }
+            models.Contact.update(
+                {
+                    status: 2
+                },
+                {
+                    where: {
+                        countryId: pref,
+                        phone: phn,
                     }
-                )
+                }
+            )
 
-            } else {
-                sid = 2;
+        } else {
+            sid = 2;
 
-                models.Contact.update(
-                    {
-                        status: 1
-                    },
-                    {
-                        where: {
-                            countryId: pref,
-                            phone: phn,
-                        }
+            models.Contact.update(
+                {
+                    status: 1
+                },
+                {
+                    where: {
+                        countryId: pref,
+                        phone: phn,
                     }
-                )
+                }
+            )
 
+        }
+
+        if(!sid) return;
+        
+        models.Message.findOne({
+            where: {
+                campaignId: cpgnid,
+                destination: "+" + resp.phone_number,
             }
-
-            models.Message.findByPk(id)
-            .then((mg) => {
-                if(mg) mg.update({
-                    deliverytime: dt,
-                    status: sid,
-                })
-                .then(() => {
-                    // console.log('====================================');
-                    // console.log('DOOOOOOOONNNNNNNNNNNNEEEEEEEEEEEEEE');
-                    // console.log('====================================');
-                })
+        })
+        .then((mg) => {
+            if(mg) mg.update({
+                deliverytime: dt,
+                status: sid,
             })
+            .then(() => {
+                // console.log('====================================');
+                // console.log('DOOOOOOOONNNNNNNNNNNNEEEEEEEEEEEEEE');
+                // console.log('====================================');
+            })
+        })
 
-        });
 
     } 
 
