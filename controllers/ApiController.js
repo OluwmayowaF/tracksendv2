@@ -1362,121 +1362,107 @@ exports.smsNotifyAfricastalking = (req, res) => {
     console.log('AFRICASTALKING RESPONSE POST: ' + JSON.stringify(req.body));
     console.log('===============https://build.at-labs.io/docs/sms%2Fnotifications=====================]]');
 
-    if(req.body) {          //  for AFRICASTALKING...maybe
+    if(req.body) {          //  for KIRUSA
     
         var resp = req.body;
-        resp.results.forEach(msg => {
-            var id = msg.messageId;
-            var phone = msg.to;
-            var status_ = msg.status.name; 
-            var status = msg.status.groupName; 
-            var dt = msg.sentAt;
-            var sid;
+        if(resp.ref_ids) {};
 
-            if(status_ == "REJECTED_NOT_ENOUGH_CREDITS") return;
+        var msgid  = resp.id;
+        var phone   = resp.phoneNumber.substr(1);   //  exclude the '+'
+        var status  = resp.status; 
+        var dt_      = moment(resp.timestamp, "MMM DD, YYYY hh:mm:ss A Z");    //"Jul 20, 2020 9:49:44 AM WAT"
+        var dt      = moment.utc(dt_).format('YYYY-MM-DD HH:mm:ss');    //"Jul 20, 2020 9:49:44 AM WAT"
+        console.log('MOMENTS TIME = ', dt);
+        
+        var sid;
+        
+        let pref = phone.substr(0, 3);
+        // let phn = '0' + phone.substr(3);
+        let phn = phoneval(phone, pref);
+
+        console.log('====================================');
+        console.log('MSG STATUS = ' + status + "; phone = " + phone + "; pref = " + pref + "; phn = " + phn + "; cpgid = " + msgid);
+        console.log('====================================');
+
+        
+        if (status == 'Success') {
+            sid = 1;
+
+            models.Contact.update(
+                {
+                    status: 1
+                },
+                {
+                    where: {
+                        countryId: pref,
+                        phone: phn,
+                    }
+                }
+            )
+
+        } else if (status == 'Rejected') {
+            sid = 4;
+
+            models.Contact.update(
+                {
+                    status: 3
+                },
+                {
+                    where: {
+                        countryId: pref,
+                        phone: phn,
+                    }
+                }
+            )
             
-            let pref = phone.substr(0, 3);
-            // let phn = '0' + phone.substr(3);
-            let phn = phoneval(phone, pref);
+        } else if (status == 'Failed') {
+            sid = 3;
 
-            console.log('====================================');
-            console.log('MSG STATUS = ' + status + "; phone = " + phone + "; pref = " + pref + "; phn = " + phn);
-            console.log('====================================');
-
-
-            if (status == 'DELIVERED') {
-                sid = 1;
-
-                models.Contact.update(
-                    {
-                        status: 1
-                    },
-                    {
-                        where: {
-                            countryId: pref,
-                            phone: phn,
-                        }
+            models.Contact.update(
+                {
+                    status: 2
+                },
+                {
+                    where: {
+                        countryId: pref,
+                        phone: phn,
                     }
-                )
+                }
+            )
 
-            } else if (status == 'REJECTED') {
-                sid = 4;
+        } else {
+            sid = 2;
 
-                models.Contact.update(
-                    {
-                        status: 3
-                    },
-                    {
-                        where: {
-                            countryId: pref,
-                            phone: phn,
-                        }
+            models.Contact.update(
+                {
+                    status: 1
+                },
+                {
+                    where: {
+                        countryId: pref,
+                        phone: phn,
                     }
-                )
-                
-            } else if (status == 'UNDELIVERABLE') {
-                sid = 3;
+                }
+            )
 
-                models.Contact.update(
-                    {
-                        status: 2
-                    },
-                    {
-                        where: {
-                            countryId: pref,
-                            phone: phn,
-                        }
-                    }
-                )
+        }
 
-            } else {
-                sid = 2;
-
-                models.Contact.update(
-                    {
-                        status: 1
-                    },
-                    {
-                        where: {
-                            countryId: pref,
-                            phone: phn,
-                        }
-                    }
-                )
-
+        if(!sid) return;
+        
+        models.Message.update({
+            status: sid,
+        }, {
+            where: {
+                message_id: msgid,
             }
+        })
+        .then((mg) => {
+            console.log('POST DB CHECK...');
+            console.log('POST DB CHECK... = ' , JSON.stringify(mg));
+        })
 
-            models.Message.findByPk(id)
-            .then((mg) => {
-                if(mg) mg.update({
-                    deliverytime: dt,
-                    status: sid,
-                })
-                .then(() => {
-                    // console.log('====================================');
-                    // console.log('DOOOOOOOONNNNNNNNNNNNEEEEEEEEEEEEEE');
-                    // console.log('====================================');
-                })
-            })
-
-        });
 
     } 
-
-
-
-    if(req.query) {  //  for MESSAGEBIRD
-
-        // GET http://your-own.url/script?
-        //      id=efa6405d518d4c0c88cce11f7db775fb&
-        //      reference=the-customers-reference&
-        //      recipient=31612345678&
-        //      status=delivered&
-        //      statusDatetime=2017-09-01T10:00:05+00:00
-
-        res.send("OK");
-
-    }
 
 }
 
