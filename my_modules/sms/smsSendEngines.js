@@ -40,22 +40,22 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
         }
 
         if(sms_service == 'kirusa') {
-            kirusa.kirusaPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
+            await kirusa.kirusaPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
                                   originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj);
         }
 
         if(sms_service == 'infobip') {
-            infobip.infobipPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
+            await infobip.infobipPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
                                     originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj);
         }
 
         if(sms_service == 'messagebird') {
-            messagebird.messagebirdPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
+            await messagebird.messagebirdPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
                                             originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj);
         }
 
         if(sms_service == 'africastalking') {
-            africastalking.africastalkingPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
+            await africastalking.africastalkingPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
                                                   originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj);
         }
 

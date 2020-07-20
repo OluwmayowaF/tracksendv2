@@ -19,7 +19,7 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
     
   var file_not_logged = true;
   var networkerror = false;
-  console.log('1~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~  ~~~~~~~~~~~~~');
+  console.log('000111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~  ~~~~~~~~~~~~~');
 
   SINGLE_MSG = SINGLE_MSG && !UNSUBMSG && !DOSUBMSG;    //  UNSUBMSG includes individual contact ids so invariable can't be single msg
 
