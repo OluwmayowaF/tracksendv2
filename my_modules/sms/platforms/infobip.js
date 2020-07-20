@@ -263,7 +263,7 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
             //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
             console.log('________________________INFO11='+ JSON.stringify(info));
             
-            let resp = await dbPostSMSSend.dbPostSMSSend(req, res, batches, info, user_balance, user_id, cpn, schedule_);
+            let resp = await dbPostSMSSend.dbPostSMSSend(req, res, batches, successfuls, failures, info, user_balance, user_id, cpn, schedule_, null, null, networkerror);
             console.log('a||||||||||||||||||||||||---' + JSON.stringify(resp));
             
             // });

@@ -14,6 +14,9 @@ const kirusa = require('../../../config/cfg/kirusa');
 exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
   originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj) => {
 
+  var successfuls = 0;
+  var failures    = 0;
+    
   var file_not_logged = true;
   var networkerror = false;
   console.log('1~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~  ~~~~~~~~~~~~~');
@@ -94,7 +97,7 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
                   return msgto;
               } else {
                   var msgfull = { //  STEP 1 OF MESSAGE CONSTRUCTION
-                    "id" : new Date().getTime().toString(),
+                    "id" : cpn.id + "-" + new Date().getTime().toString(),
                     // "from" : m_from,
                     "sender_mask" : sndr.name,
                     "to" : ["+" + formatted_phone],
@@ -159,7 +162,7 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
               }
 
               var msgfull = { //  STEP 1 OF MESSAGE CONSTRUCTION
-                  "id" : new Date().getTime().toString(),
+                  "id" : cpn.id + "-" + new Date().getTime().toString(),
                   // "from" : m_from,
                   "sender_mask" : sndr.name,
                   "to" : destinations,
@@ -201,41 +204,24 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
 
               let response = await sendSMS('kirusa', params);
               // let resp_ = null;
-              let resp_ = response;
-              // console.log(JSON.stringify(response));
-              // return;
+              if (response) {
+                //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
+                console.log('KIRUSA Status code: ' + JSON.stringify(response.data.status));
+                
+                if(response.code == "ENOTFOUND") networkerror = true;
+
+                if(response.data.status == "ok") {
+                    successfuls++;
+                } else {
+                    failures++;
+                }
+            }
 
               //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
               let klist = sub_list.map(k => { return k.id })
-              await dbPostSMSSend.dbPostSMSSend(req, res, batches, info, user_balance, user_id, cpn, schedule_, klist, resp_);
-
-              /* const options = {
-                  url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',
-                  json: tosend,
-                  headers: {
-                      'Authorization': 'Basic ' + base64encode,
-                      'Content-Type': 'application/json',
-                      'Accept': 'application/json'
-                  }
-              } 
-              
-              request.post(options, async (err, response) => {
-                  if (err){
-                      console.log('ERROR = ' + err);
-                      failures++;
-                  } else {
-                      //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
-                      console.log('Status code: ' + response.statusCode + '; Message: ' + JSON.stringify(response.body));
-
-                      if(response.statusCode == 200) {
-                          successfuls++;
-                      } else {
-                          failures++;
-                      }
-                  }
-              }); */
-      
-      
+              let resp = await dbPostSMSSend.dbPostSMSSend(req, res, batches, successfuls, failures, info, user_balance, user_id, cpn, schedule_, null, null, networkerror);
+              console.log('a||||||||||||||||||||||||---' + JSON.stringify(resp));
+        
               console.log(JSON.stringify(params));
               counter++;
               if(end < len) await doLoop(end)
@@ -251,7 +237,7 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
   var start   = 0;
   var len     = contacts.length;
   var counter = 1;
-  var batches = len;  //  Math.ceil(len/grpn);    //  afriksatalking has unique difference in successfuls + failures == batched?
+  var batches = Math.ceil(len/grpn);    //  afriksatalking has unique difference in successfuls + failures == batched?
 
   // var successfuls = 0;
   // var failures    = 0;

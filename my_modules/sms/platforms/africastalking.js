@@ -202,7 +202,7 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
 
               //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
               let klist = sub_list.map(k => { return k.id })
-              await dbPostSMSSend.dbPostSMSSend(req, res, batches, info, user_balance, user_id, cpn, schedule_, klist, resp_);
+              await dbPostSMSSend.dbPostSMSSend(req, res, batches, null, null, info, user_balance, user_id, cpn, schedule_, klist, resp_);
 
               /* const options = {
                   url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',

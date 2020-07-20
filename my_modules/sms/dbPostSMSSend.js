@@ -3,17 +3,14 @@ const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 var models = require('../../models');
 
-var successfuls = 0;
-var failures    = 0;
-
-exports.dbPostSMSSend = async(req, res, batches, info, user_balance, user_id, cpn, schedule_, klist = null, response = null, networkerror = null) => {
+exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, info, user_balance, user_id, cpn, schedule_, klist = null, response = null, networkerror = null) => {
   //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
   console.log('dbPostSMSSend -- 11');
   
   if(response) {
       console.log('dbPostSMSSend -- 22');
       //  update message with id after success
-      if(response.SMSMessageData) {   //  afrikastalking response
+      if(response.SMSMessageData) {         //  afrikastalking response
           console.log('let recps = ' + JSON.stringify(response.SMSMessageData));
           let recps = response.SMSMessageData.Recipients;
           recps.forEach(async recp => {
@@ -33,22 +30,6 @@ exports.dbPostSMSSend = async(req, res, batches, info, user_balance, user_id, cp
               )
           });
           if(!recps.length) failures = batches;
-      } else if(response.status) {    //  probably kirusa
-        if(response.status == "ok") {    //  probably kirusa
-          await models.Message.update(
-              {
-                  message_id: response.id
-              },
-              {
-                  where: {
-                      campaignId: cpn.id,
-                      contactId: {
-                          [Op.in]: klist,
-                      },
-                  }
-              }
-          )
-        } else failures = batches;
       } else {
           await models.Message.update(
               {

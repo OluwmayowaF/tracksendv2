@@ -978,6 +978,121 @@ exports.saveOptinLink = (req, res) => {
     customOptinController.saveoptinlink(req, res);
 }
 
+exports.smsNotifyKirusa = (req, res) => {
+    
+    /* {
+        “id”:” A10579090909090”,
+        "status":"accepted",
+        "ref_ids": [{“phone_number”:” 919886038842”,”ref_id”:"AC5ef8732a3c49700934481addd5ce1659”},{“phone_number”:” 919886038843”,”ref_id”:”BD6ef8732a3c49700934481addd5ce16560”}]
+    } 
+    
+    rejected, sent, failed, delivered and undelivered.
+    */
+
+    console.log('[[====================================');
+    console.log('KIRUSA RESPONSE: ' + JSON.stringify(req.body));
+    console.log('====================================]]');
+
+    if(req.body) {          //  for KIRUSA
+    
+        var resp = req.body;
+        resp.ref_ids.forEach(msg => {
+            var cpgnid = resp.id.split('-')[0];
+            var phone = msg.phone_number;
+            var status = resp.status; 
+            var dt = msg.sentAt;
+            var sid;
+          
+            let pref = phone.substr(0, 3);
+            // let phn = '0' + phone.substr(3);
+            let phn = phoneval(phone, pref);
+
+            console.log('====================================');
+            console.log('MSG STATUS = ' + status + "; phone = " + phone + "; pref = " + pref + "; phn = " + phn);
+            console.log('====================================');
+
+
+            if (status == 'delivered') {
+                sid = 1;
+
+                models.Contact.update(
+                    {
+                        status: 1
+                    },
+                    {
+                        where: {
+                            countryId: pref,
+                            phone: phn,
+                        }
+                    }
+                )
+
+            } else if (status == 'rejected') {
+                sid = 4;
+
+                models.Contact.update(
+                    {
+                        status: 3
+                    },
+                    {
+                        where: {
+                            countryId: pref,
+                            phone: phn,
+                        }
+                    }
+                )
+                
+            } else if (status == 'failed' || status == 'undelivered') {
+                sid = 3;
+
+                models.Contact.update(
+                    {
+                        status: 2
+                    },
+                    {
+                        where: {
+                            countryId: pref,
+                            phone: phn,
+                        }
+                    }
+                )
+
+            } else {
+                sid = 2;
+
+                models.Contact.update(
+                    {
+                        status: 1
+                    },
+                    {
+                        where: {
+                            countryId: pref,
+                            phone: phn,
+                        }
+                    }
+                )
+
+            }
+
+            models.Message.findByPk(id)
+            .then((mg) => {
+                if(mg) mg.update({
+                    deliverytime: dt,
+                    status: sid,
+                })
+                .then(() => {
+                    // console.log('====================================');
+                    // console.log('DOOOOOOOONNNNNNNNNNNNEEEEEEEEEEEEEE');
+                    // console.log('====================================');
+                })
+            })
+
+        });
+
+    } 
+
+}
+
 exports.smsNotifyInfobip = (req, res) => {
     
     console.log('[[====================================');

@@ -41,9 +41,10 @@ module.exports = function(app) {
   app.options ('/api/messageoptin', cors());      //  from tsnwhatsappoptin api on external webpage
   app.post('/api/messageoptin', cors(), apiController.messageOptIn);     //  from tsnwhatsappoptin api on external webpage
 
-  app.post('/api/sms/infobip/notify',       apiController.smsNotifyInfobip);   //  for INFOBIP
-  app.get ('/api/sms/messagebird/notify',    apiController.smsNotifyMessagebird);   //  for MESSAGEBIRD
-  app.get ('/api/sms/africastalking/notify', apiController.smsNotifyAfricastalking);   //  for MESSAGEBIRD
+  app.post('/api/sms/kirusa/notify',         apiController.smsNotifyKirusa);            //  for KIRUSA
+  app.post('/api/sms/infobip/notify',        apiController.smsNotifyInfobip);           //  for INFOBIP
+  app.get ('/api/sms/messagebird/notify',    apiController.smsNotifyMessagebird);       //  for MESSAGEBIRD
+  app.get ('/api/sms/africastalking/notify', apiController.smsNotifyAfricastalking);    //  for MESSAGEBIRD
 
   app.post('/api/whatsapphooks',    apiController.whatsAppNotify);
 
