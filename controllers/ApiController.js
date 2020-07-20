@@ -990,12 +990,12 @@ exports.smsNotifyKirusa = (req, res) => {
     */
 
     console.log('[[====================================');
-    console.log('KIRUSA RESPONSE: ' + JSON.stringify(req.body));
+    console.log('KIRUSA RESPONSE: ' + JSON.stringify(JSON.parse(req.body)));
     console.log('====================================]]');
 
     if(req.body) {          //  for KIRUSA
     
-        var resp = req.body;
+        var resp = JSON.parse(req.body);
         if(resp.ref_ids) {};
 
         var cpgnid  = resp.id.split('-')[0];
@@ -1076,7 +1076,7 @@ exports.smsNotifyKirusa = (req, res) => {
         }
 
         if(!sid) return;
-        
+
         models.Message.findOne({
             where: {
                 campaignId: cpgnid,
