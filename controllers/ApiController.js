@@ -1086,7 +1086,7 @@ exports.smsNotifyKirusa = (req, res) => {
         models.Message.findOne({
             where: {
                 campaignId: cpgnid,
-                destination: "+" + resp.phone_number,
+                destination: "+" + resp.to,
             }
         })
         .then((mg) => {
