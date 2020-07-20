@@ -475,7 +475,7 @@ exports.completeOptin = async function(req, res) {
                     do_sms: sms,
                     ...(
                         sms ? {
-                            smsoptintime: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+                            smsoptintime: moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss'),
                         } : {}
                     ),
                 });

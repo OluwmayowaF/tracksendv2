@@ -60,7 +60,7 @@ exports.notifyAck = (req, res) => {
             console.log('doing status del');
                 models.Message.update(
                     {
-                        deliverytime: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+                        deliverytime: moment.utc(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
                         status: 1,
                     },
                     {
@@ -74,7 +74,7 @@ exports.notifyAck = (req, res) => {
             console.log('doing status viewd');
                 models.Message.update(
                     {
-                        readtime: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+                        readtime: moment.utc(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
                         status: 5,
                     },
                     {
@@ -458,7 +458,7 @@ exports.completeOptin = async function(req, res) {
                     do_sms: sms,
                     ...(
                         sms ? {
-                            smsoptintime: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+                            smsoptintime: moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss'),
                         } : {}
                     ),
                 });

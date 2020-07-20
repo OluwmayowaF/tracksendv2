@@ -57,7 +57,7 @@ exports.campaign = async function(req, res) {
     console.log('this is: ' + JSON.stringify(pro));
     
     //  update msg clicks and date (if first time)
-    var mysqlTimestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+    var mysqlTimestamp = moment.utc(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     await pro[0][0].update({
         clickcount: Sequelize.literal('clickcount + 1'),
         ...((pro[0][0].firstclicktime == null) ? {firstclicktime: mysqlTimestamp} : {})
