@@ -1007,7 +1007,10 @@ exports.smsNotifyKirusa = (req, res) => {
         var cpgnid  = resp.id.split('-')[0];
         var phone   = resp.to;
         var status  = resp.status; 
-        var dt      = moment(resp.timestamp, "MMM DD, YYYY hh:mm:ss A Z");    //"Jul 20, 2020 9:49:44 AM WAT"
+        var dt_      = moment(resp.timestamp, "MMM DD, YYYY hh:mm:ss A Z");    //"Jul 20, 2020 9:49:44 AM WAT"
+        var dt      = moment.utc(dt_).format('YYYY-MM-DD HH:mm:ss');    //"Jul 20, 2020 9:49:44 AM WAT"
+        console.log('MOMENTS TIME = ', dt);
+        
         var sid;
         
         let pref = phone.substr(0, 3);
@@ -1094,7 +1097,7 @@ exports.smsNotifyKirusa = (req, res) => {
             console.log('POST DB CHECK... = ' , JSON.stringify(mg));
             
             if(mg) mg.update({
-                deliverytime: moment.utc(dt).format('YYYY-MM-DD HH:mm:ss'),
+                deliverytime: dt,
                 status: sid,
             })
             .then(() => {
