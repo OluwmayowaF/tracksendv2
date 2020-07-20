@@ -38,6 +38,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
         } else {
             sms_service = req.user.sms_service;
         }
+        console.log('001~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~  ~~~~~~~~~~~~~sms_service = ', sms_service);
 
         if(sms_service == 'kirusa') {
             console.log('0011~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~  ~~~~~~~~~~~~~');
