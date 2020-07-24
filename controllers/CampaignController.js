@@ -864,7 +864,7 @@ exports.view = (req, res) => {
             "              ( SELECT COUNT(status) AS failed         FROM messages WHERE (status = 2 OR status = 3) AND campaignId = :cid ) t3," +
             "              ( SELECT COUNT(status) AS undeliverable  FROM messages WHERE status = 4 AND campaignId = :cid ) t4," +
             "              ( SELECT COUNT(status) AS viewed         FROM messages WHERE status = 5 AND campaignId = :cid ) t5," +
-            "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE clickcount > 0 AND campaignId = :cid ) t6," + 
+            "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE status = 1 AND clickcount > 0 AND campaignId = :cid ) t6," + 
             "              ( SELECT SUM(clickcount) AS clicks       FROM messages WHERE campaignId = :cid ) t7," + 
             "              ( SELECT userId                          FROM campaigns WHERE id = :cid ) t8 " +
             "WHERE t8.userId = :id" , {
