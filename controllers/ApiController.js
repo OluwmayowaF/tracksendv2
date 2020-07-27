@@ -1009,6 +1009,7 @@ exports.smsNotifyKirusa = (req, res) => {
         var status  = resp.status; 
         var dt_      = moment(resp.timestamp, "MMM DD, YYYY hh:mm:ss A Z");    //"Jul 20, 2020 9:49:44 AM WAT"
         var dt      = moment.utc(dt_).format('YYYY-MM-DD HH:mm:ss');    //"Jul 20, 2020 9:49:44 AM WAT"
+        var dt__x   = moment.utc(new Date().getTime()).format('YYYY-MM-DD HH:mm:ss');    
         console.log('MOMENTS TIME = ', dt);
         
         var sid;
@@ -1097,8 +1098,8 @@ exports.smsNotifyKirusa = (req, res) => {
             console.log('POST DB CHECK... = ' , JSON.stringify(mg));
             
             if(mg) mg.update({
-                deliverytime: dt,
                 status: sid,
+                ...( dt != "Invalid date" ? { deliverytime: dt, } : { deliverytime: dt__x, } ),
             })
             .then(() => {
                 // console.log('====================================');
@@ -1127,6 +1128,7 @@ exports.smsNotifyInfobip = (req, res) => {
             var status_ = msg.status.name; 
             var status = msg.status.groupName; 
             var dt = msg.sentAt;
+            var dt__x   = moment.utc(new Date().getTime()).format('YYYY-MM-DD HH:mm:ss');    
             var sid;
 
             if(status_ == "REJECTED_NOT_ENOUGH_CREDITS") return;
@@ -1205,8 +1207,8 @@ exports.smsNotifyInfobip = (req, res) => {
             models.Message.findByPk(id)
             .then((mg) => {
                 if(mg) mg.update({
-                    deliverytime: dt,
                     status: sid,
+                    ...( dt != "Invalid date" ? { deliverytime: dt, } : { deliverytime: dt__x, } ),
                 })
                 .then(() => {
                     // console.log('====================================');
@@ -1253,6 +1255,7 @@ exports.smsNotifyMessagebird = (req, res) => {
         var phone = msg.recipient;
         var status = msg.status; 
         var dt = msg.statusDatetime;
+        var dt__x   = moment.utc(new Date().getTime()).format('YYYY-MM-DD HH:mm:ss');    
         var sid;
 
         console.log('====================================');
@@ -1327,8 +1330,8 @@ exports.smsNotifyMessagebird = (req, res) => {
 
         models.Message.update(
             {
-                deliverytime: dt,
                 status: sid,
+                ...( dt != "Invalid date" ? { deliverytime: dt, } : { deliverytime: dt__x, } ),
             }, 
             {
                 where: {
