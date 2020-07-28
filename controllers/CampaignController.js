@@ -1081,7 +1081,7 @@ exports.view = (req, res) => {
                 mname,
                 mmsg,
                 mcount,
-                ctr: ((parseInt(summary.delivered) == 0) ? '0' : (parseInt(summary.clickc) * 100/parseInt(summary.delivered))),
+                ctr: ((parseInt(summary.delivered) == 0) ? '0' : Math.round((parseInt(summary.clickc) * 10/parseInt(summary.delivered) * 100)) / 10),
 
                 refcpgns,   //  for follow-up campaigns
             }
