@@ -60,6 +60,7 @@ exports.campaign = async function(req, res) {
     var mysqlTimestamp = moment.utc(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     await pro[0][0].update({
         clickcount: Sequelize.literal('clickcount + 1'),
+        status: 1,
         ...((pro[0][0].firstclicktime == null) ? {firstclicktime: mysqlTimestamp} : {})
     })
 
