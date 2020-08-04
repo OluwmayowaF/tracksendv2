@@ -10,7 +10,7 @@ exports.index = (req, res) => {
     models.User.findByPk(user_id, 
         {
             raw: true,
-            attributes: ['name', 'email', 'phone'], 
+            // attributes: ['name', 'email', 'phone'], 
         })
     .then(user => { 
         console.log("user: " + JSON.stringify(user));
