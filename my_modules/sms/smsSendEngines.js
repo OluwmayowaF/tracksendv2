@@ -34,8 +34,10 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
     
     try {
         if(aux_obj) {
+            console.log('aux_obj', JSON.stringify(req.aux_obj));
             sms_service = aux_obj.sms_service;
         } else {
+            console.log('req.user=', JSON.stringify(req.user));
             sms_service = req.user.sms_service;
         }
         console.log('001~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~  ~~~~~~~~~~~~~sms_service = ', sms_service);
