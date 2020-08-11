@@ -96,6 +96,13 @@ const whatsappHandlers = () => {
 
         var instance_id = wainstance.wa_instanceid;
         var api_url = wainstance.wa_instanceurl;
+        if(api_url.substr(api_url.length - 1) == '/') {
+            console.log(api_url, ' has "/"');
+            api_url = api_url.substr(0, api_url.length - 1);
+        } else {
+            console.log(api_url, ' does not have "/"');
+        }
+        console.log('111 - so api_url is = ', api_url);
         var api_token = wainstance.wa_instancetoken;
 
         console.log('====================================');
@@ -163,7 +170,7 @@ const whatsappHandlers = () => {
                     } else {
                         console.log(api_url, ' does not have "/"');
                     }
-                    console.log('so api_url is = ', api_url);
+                    console.log('222 - so api_url is = ', api_url);
                     api_token =  instance_info.token;
 
                     //  set webhook for instance
