@@ -157,6 +157,13 @@ const whatsappHandlers = () => {
 
                     instance_id = instance_info.id;
                     api_url = instance_info.apiUrl;
+                    if(api_url.substr(api_url.length - 1) == '/') {
+                        console.log(api_url, ' has "/"');
+                        api_url = api_url.substr(0, api_url.length - 1);
+                    } else {
+                        console.log(api_url, ' does not have "/"');
+                    }
+                    console.log('so api_url is = ', api_url);
                     api_token =  instance_info.token;
 
                     //  set webhook for instance
