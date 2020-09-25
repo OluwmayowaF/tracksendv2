@@ -6,6 +6,7 @@ var models = require('../../models');
 exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, info, user_balance, user_id, cpn, schedule_, klist = null, response = null, networkerror = null) => {
   //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
   console.log('dbPostSMSSend -- 11');
+  user_balance = (user_balance.balance) ? user_balance.balance : user_balance;
   
   if(response) {
       console.log('dbPostSMSSend -- 22');
@@ -57,8 +58,8 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
       try {
           if(!networkerror && successfuls > 0) {   
           // if(true) {       //  kenni
-              let new_bal = parseFloat(user_balance.balance) - parseFloat(info.units_used);
-              console.log('old bal = ' + user_balance.balance + '; units used = ' + info.units_used + '; NEW BALANCE = ' + new_bal);
+              let new_bal = parseFloat(user_balance) - parseFloat(info.units_used);
+              console.log('old bal = ' + user_balance + '; units used = ' + info.units_used + '; NEW BALANCE = ' + new_bal);
 
               let usr = await models.User.findByPk(user_id)
               //  UPDATE UNITS USER BALANCE
@@ -66,7 +67,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                   balance: new_bal,
               });
               //  UPDATE UNITS USED FOR CAMPAIGN
-              await cpn.update({
+              if(!req.txnmessaging) await cpn.update({
                   units_used: info.units_used,
                   status: 1
               });
@@ -75,14 +76,14 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
               await models.Transaction.create({
                   description: 'DEBIT',
                   userId: user_id,
-                  type: 'CAMPAIGN',
-                  ref_id: cpn.id,
+                  type: (req.txnmessaging) ? 'TXN-MESSAGING' : 'CAMPAIGN',
+                  ref_id: (req.txnmessaging) ? new Date().getTime() : cpn.id,
                   units: (-1) * info.units_used,
                   status: 1,
               })
 
               //  CONVERT REFS FROM TEMP REFS TO REAL REFS
-              await models.Tmpcampaign.update(
+              if(!req.txnmessaging) await models.Tmpcampaign.update(
                   {
                       ref_campaign: cpn.id,
                   }, {
@@ -105,7 +106,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
               }
 
 
-          } else if(networkerror) {
+          } else if(networkerror && !req.txnmessaging) {
 
               await models.Message.destroy({
                   where: {
@@ -120,15 +121,22 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                   responseCode: "E006", 
                   responseText: "An error occurred while sending out your Campaign. Check your network connection, and ensure you\'re logged in.", 
               }
-          } else {
+          } else if(!req.txnmessaging) {
 
-              await cpn.destroy();
+               await cpn.destroy();
 
               _status = {
                   response: "Error: Campaign sending error!", 
                   responseType: "ERROR", 
                   responseCode: "E007", 
                   responseText: "An error occurred while sending out your Campaign. Please try again later or contact admin.", 
+              }
+          } else {      //  transactional message
+              _status = {
+                  response: "Error: Transaction message sending error!", 
+                  responseType: "ERROR", 
+                  responseCode: "E008", 
+                  responseText: "An error occurred while sending out your Transaction message. Please try again later or contact admin.", 
               }
           }
       } catch (err) {
