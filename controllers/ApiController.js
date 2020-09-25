@@ -1635,8 +1635,9 @@ exports.newTxnMessage = async (req, res) => {
 
             console.log('===============contacts== ' + JSON.stringify(contacts));
             contacts.forEach(async (i) => {
+                console.log('1______contyconty');
                 if(!i.phone || !i.countryId) throw 'contacts';
-                console.log('______contyconty');
+                console.log('2______contyconty');
                 let chg = await getRateCharge(i.phone, i.countryId, user_id);
                 units += cc * chg;
             })
