@@ -1559,6 +1559,7 @@ exports.newTxnMessage = async (req, res) => {
             req.txnmessaging = true;
 
             console.log('___**********____*******________**********_________balance=', user_balance);
+            console.log('___**********____*******________**********_________balance=', JSON.stringify(req.body));
             let file_not_logged = true;
             let msgcount = 0;
             let units = 0;
@@ -1572,8 +1573,8 @@ exports.newTxnMessage = async (req, res) => {
             let schedule_ = schedule ? moment(schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss') : null;  //  for DB
             schedule = schedule ? moment(schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DDTHH:mm:ss.000Z') : null;   //  for infobip
     
-            if(!message || !sender) throw 'fields1';
-            if(!(message.length > 1) || !(sender.toString().length > 0)) throw 'fields2';
+            if(!message || !sender) throw 'fields';
+            if(!(message.length > 1) || !(sender.toString().length > 0)) throw 'fields';
             if(!Array.isArray(contacts)) throw 'contacts';
 
             /* 
@@ -1709,6 +1710,14 @@ exports.newTxnMessage = async (req, res) => {
                     responseType: "ERROR", 
                     responseCode: "E003", 
                     responseText: "Check the fields for valid entries: 'name'; 'message'; 'sender'; 'group'.", 
+                };
+                break;
+            case 'contacts':
+                _status = {
+                    response: "Error: Invalid Contacts.", 
+                    responseType: "ERROR", 
+                    responseCode: "E052", 
+                    responseText: "Invalid Contacts.", 
                 };
                 break;
             case 'group':
