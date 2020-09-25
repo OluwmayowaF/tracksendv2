@@ -1634,13 +1634,13 @@ exports.newTxnMessage = async (req, res) => {
             msgcount += cc;
 
             console.log('===============contacts== ' + JSON.stringify(contacts));
-            contacts.forEach(async (i) => {
+            for(let i = 0; i < contacts.length; i++) {
                 console.log('1______contyconty');
-                if(!i.phone || !i.countryId) throw 'contacts';
+                if(!contacts[i].phone || !contacts[i].countryId) throw 'contacts';
                 console.log('2______contyconty');
-                let chg = await getRateCharge(i.phone, i.countryId, user_id);
+                let chg = await getRateCharge(contacts[i].phone, contacts[i].countryId, user_id);
                 units += cc * chg;
-            })
+            }
 
             if(file_not_logged) {
                 filelogger('sms', 'Transaction Message', 'sending message', message);
