@@ -697,6 +697,9 @@ exports.testerly = async (req, res) => {
             attributes: ['id','name','abbreviation'], 
         }]
     });
+    
+    console.log('FOUND ' + contacts.length + ' contacts.');
+    console.log('PROCESSING...');
 
     for(let c = 0; c < contacts.length; c++) {
         for(let g = 0; g < grplist.length; g++) {
@@ -707,12 +710,13 @@ exports.testerly = async (req, res) => {
         }
         // if(c < 10) console.log('_______ ' + JSON.stringify(contacts[c]));
     }
+    console.log('LOADING...');
         // console.log('Migrating ' + JSON.stringify(contacts));
     await mongmodels.Contact.deleteMany({});
     mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(contacts))) //   for massive amount of bulk insert
     // mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(contacts)))
     .then(() => {
-        console.log('Migration ' + contacts.length + ' Contacts...DONE');
+        console.log('Migration of' + contacts.length + ' Contacts...DONE');
     })
     .catch((err) => {
         console.log('Contacts migration ERROR' + err);
