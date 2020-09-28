@@ -56,6 +56,8 @@ module.exports = function(app) {
   // });
   app.post('/dashboard/m_a_n_u_a_l', isAdministrator, dashboardController.manualpost);
 
+  app.get('/dashboard/testerly', isAdministrator, dashboardController.testerly);
+
 /*   app.get("/", function(req, res) {
     // If the user already has an account send them to the members page
     if (req.user) {

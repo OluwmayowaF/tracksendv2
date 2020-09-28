@@ -1,7 +1,9 @@
 var models = require('../models');
+var mongmodels = require('../models/_mongomodels');
 var moment = require('moment');
 const sequelize = require('../config/cfg/db');
 const Sequelize = require('sequelize');
+const mongodb = require('mongoose');
 const randgen = require('../my_modules/randgen');
 const { default: axios } = require('axios');
 
@@ -657,6 +659,64 @@ exports.manualpost = async (req, res) => {
 
 
     console.log('showing page...'); 
+    
+};
+
+exports.testerly = async (req, res) => {
+
+    return;
+    const groups = await models.Group.findAll();
+    await mongmodels.Group.deleteMany({});
+    var grplist = [];
+    await mongmodels.Group.insertMany(JSON.parse(JSON.stringify(groups))) //   for massive amount of bulk insert
+    // mongmodels.Group.insertMany(JSON.parse(JSON.stringify(groups)))
+    .then(() => {
+        console.log('Migration ' + groups.length + ' Groups...DONE');
+
+        mongmodels.Group.aggregate([
+            {
+                $project: {
+                    _id: 1,
+                    id: 1
+                }
+            }
+        ], (err, res) => {
+            grplist = res;
+        })
+    })
+    .catch((err) => {
+        console.log('Groups migration ERROR' + err);
+    })
+    
+    const contacts = await models.Contact.findAll({
+        /* where: {
+            groupId: 1
+        }, */
+        include: [{
+            model: models.Country, 
+            attributes: ['id','name','abbreviation'], 
+        }]
+    });
+
+    for(let c = 0; c < contacts.length; c++) {
+        for(let g = 0; g < grplist.length; g++) {
+            if(contacts[c].groupId == grplist[g].id) {
+                // if(c < 10) console.log('found');
+                contacts[c].groupId = grplist[g]._id;
+            }
+        }
+        // if(c < 10) console.log('_______ ' + JSON.stringify(contacts[c]));
+    }
+        // console.log('Migrating ' + JSON.stringify(contacts));
+    await mongmodels.Contact.deleteMany({});
+    mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(contacts))) //   for massive amount of bulk insert
+    // mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(contacts)))
+    .then(() => {
+        console.log('Migration ' + contacts.length + ' Contacts...DONE');
+    })
+    .catch((err) => {
+        console.log('Contacts migration ERROR' + err);
+    })
     
 };
 
