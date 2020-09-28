@@ -106,10 +106,10 @@
 									</li>
 									{{#each args.grps}}
 
-									<a href="/dashboard/contacts/list/{{ id }}">
+									<a href="/dashboard/contacts/list/{{ _id }}">
 									<li class="list_item" data-wh="group">
 										<ul class="saved_item _clickable">
-											<input type="hidden" class="cid" value="'+i.id+'" />
+											<input type="hidden" class="cid" value="{{ _id }}" />
 											<li style="flex: 6" class="dv_name">{{ name }}</li>
 											<li style="flex: 8" class="dv_desc">{{ description }}</li>
 											<li style="flex: 2">{{ contacts }}</li>
@@ -128,7 +128,7 @@
 												<div class="col-md-4">
 													<h5>Group Name </h5>
 													<input type="text" name="name" class="ed_name" maxlength="50" value="{{ name }}">
-													<input type="hidden" name="id" class="id" value="{{ id }}">
+													<input type="hidden" name="id" class="id" value="{{ _id }}">
 												</div>
 
 												<div class="col-md-5">

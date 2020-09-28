@@ -25,7 +25,7 @@ const messagebird = require('./platforms/messagebird');
 const africastalking = require('./platforms/africastalking');
 
 const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
-                              originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj) => {
+                              originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj = null) => {
     var file_not_logged = true;
     SINGLE_MSG = SINGLE_MSG && !UNSUBMSG && !DOSUBMSG;    //  UNSUBMSG includes individual contact ids so invariable can't be single msg
     var sms_service;        
@@ -34,7 +34,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
     
     try {
         if(aux_obj) {
-            console.log('aux_obj', JSON.stringify(req.aux_obj));
+            console.log('aux_obj=', JSON.stringify(req.aux_obj));
             sms_service = aux_obj.sms_service;
         } else {
             console.log('req.user=', JSON.stringify(req.user));

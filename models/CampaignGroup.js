@@ -10,7 +10,8 @@ module.exports = (sequelize, DataTypes) => {
     groupId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-    }
+    },
+    groupName: DataTypes.STRING,
   }, {
     timestamps: false
   })

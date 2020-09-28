@@ -66,7 +66,7 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
     async function messagebird_checkAndAggregate(kont) {
         k++;
         console.log('*******   Aggregating Contact #' + k + ':...    ********');
-        let formatted_phone = phoneformat(kont.phone, kont.countryId);
+        let formatted_phone = phoneformat(kont.phone, kont.country.id);
         if(!formatted_phone) return;
           
         // return new Promise(resolve => {
@@ -78,7 +78,13 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
                 var uid = makeId(3);
                 var exists = await models.Message.findAll({
                     where: { 
-                        campaignId: cpn.id,
+                        ...(
+                            (req.txnmessaging) ? {
+                                shortlinkId: info.shortlinkId,
+                            } : {
+                                campaignId: cpn.id,
+                            }
+                        ),
                         contactlink: uid,
                     },
                 })
@@ -97,13 +103,24 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
             };
         }
         
-        function saveMsg(args) {
-            return cpn.createMessage({
-                shortlinkId: args.sid,
-                contactlink: args.cid,
-                contactId: kont.id,
-            })
-            .then((shrt) => {
+        async function saveMsg(args) {
+            let shrt;
+
+            try {
+                if(req.txnmessaging) {
+                    shrt = await models.Message.create({
+                        shortlinkId: args.sid,
+                        contactlink: args.cid,
+                        contactId: kont._id,
+                    });
+                } else {
+                    shrt = await cpn.createMessage({
+                        shortlinkId: args.sid,
+                        contactlink: args.cid,
+                        contactId: kont._id,
+                    });
+                }
+
                 console.log('MESSAGE ENTRY CREATE STARTED.:::' + JSON.stringify(shrt));
                                                 
                 var updatedmessage  = originalmessage
@@ -120,11 +137,11 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
                 // .replace(/\\t/g, '')
                 .replace(/&nbsp;/g, ' ');
 
-                updatedmessage += (UNSUBMSG) ? _message('msg', 1091, kont.countryId, kont.id) : '';     //  add unsubscribe text
-                updatedmessage += (DOSUBMSG) ? _message('msg', 1092, kont.countryId, kont.id) : '';     //  add unsubscribe text
+                updatedmessage += (UNSUBMSG) ? _message('msg', 1091, kont.countryId, kont._id) : '';     //  add unsubscribe text
+                updatedmessage += (DOSUBMSG) ? _message('msg', 1092, kont.countryId, kont._id) : '';     //  add unsubscribe text
 
                 console.log('====================================');
-                console.log('UNSUB MSG IS:::' + _message('msg', 1091, kont.countryId, kont.id));
+                console.log('UNSUB MSG IS:::' + _message('msg', 1091, kont.countryId, kont._id));
                 console.log('====================================');
                 
                 if(SINGLE_MSG) {
@@ -150,7 +167,7 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
                     }; 
                     
                     console.log('UNSINGLE MESSAGE ENTRY CREATE DONE.');
-                    if(file_not_logged) {
+                    if(file_not_logged && !req.txnmessaging) {
                         filelogger('sms', 'Send Campaign (MessageBird)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
                         file_not_logged = false;
                     }    
@@ -158,10 +175,12 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
                     return msgfull;
                 }
                 
-            })
-            .error((r) => {
-                console.log("Error: Please try again later");
-            })
+            
+            } catch(err) {
+                console.log('________________________________');
+                
+               throw "111Error: Please try again later";
+            }
                         
         }
 
@@ -215,7 +234,7 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
                 }; 
 
                 console.log('SINGLE COMPILED!');
-                if(file_not_logged) {
+                if(file_not_logged && !req.txnmessaging) {
                     filelogger('sms', 'Send Campaign (MessageBird)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
                     file_not_logged = false;
                 }    
@@ -232,72 +251,71 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
 
             }
 
-            Promise.all(actions)
-            .then(async (data) => {
-                console.log('MSGS ARE: ' + JSON.stringify(data[0]));
-                
-                let params = data[0];
+            let data = Promise.all(actions);
 
-                let response = await sendSMS('messagebird', params);
+            console.log('MSGS ARE: ' + JSON.stringify(data[0]));
+            
+            let params = data[0];
 
-                let err;
-                console.log('********' + JSON.stringify(response));
+            let response = await sendSMS('messagebird', params);
+
+            let err;
+            console.log('********' + JSON.stringify(response));
+            
+            // await messagebird.messages.create(params, async function (err, response) {
+            let resp_ = null;
+            if (err) {
+                console.log('ERROR = ' + err);
+                failures++;
+            } else {
+                console.log(response);
+                //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
+                response.recipients.items.id = response.id;
                 
-                // await messagebird.messages.create(params, async function (err, response) {
-                let resp_ = null;
-                if (err) {
+                if(response.id) {
+                    resp_ = response.id;
+                    successfuls++;
+                } else {
+                    failures++;
+                }
+                console.log('mITEMS: ' + JSON.stringify(response.recipients.items) + '; Message(s) ID: ' + JSON.stringify(response.id));
+            }
+
+            //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
+            let klist = sub_list.map(k => { return k._id })
+            await dbPostSMSSend.dbPostSMSSend(req, res, batches, null, null, info, user_balance, user_id, cpn, schedule_, klist, resp_);
+            // });
+
+            /* const options = {
+                url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',
+                json: tosend,
+                headers: {
+                    'Authorization': 'Basic ' + base64encode,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            } 
+            
+            request.post(options, async (err, response) => {
+                if (err){
                     console.log('ERROR = ' + err);
                     failures++;
                 } else {
-                    console.log(response);
                     //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
-                    response.recipients.items.id = response.id;
-                    
-                    if(response.id) {
-                        resp_ = response.id;
+                    console.log('Status code: ' + response.statusCode + '; Message: ' + JSON.stringify(response.body));
+
+                    if(response.statusCode == 200) {
                         successfuls++;
                     } else {
                         failures++;
                     }
-                    console.log('mITEMS: ' + JSON.stringify(response.recipients.items) + '; Message(s) ID: ' + JSON.stringify(response.id));
                 }
-
-                //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
-                let klist = sub_list.map(k => { return k.id })
-                await dbPostSMSSend.dbPostSMSSend(req, res, batches, null, null, info, user_balance, user_id, cpn, schedule_, klist, resp_);
-                // });
-
-                /* const options = {
-                    url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',
-                    json: tosend,
-                    headers: {
-                        'Authorization': 'Basic ' + base64encode,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                } 
-                
-                request.post(options, async (err, response) => {
-                    if (err){
-                        console.log('ERROR = ' + err);
-                        failures++;
-                    } else {
-                        //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
-                        console.log('Status code: ' + response.statusCode + '; Message: ' + JSON.stringify(response.body));
-
-                        if(response.statusCode == 200) {
-                            successfuls++;
-                        } else {
-                            failures++;
-                        }
-                    }
-                }); */
-        
-        
-                console.log(JSON.stringify(params));
-                counter++;
-                if(end < len) await doLoop(end)
-            })
+            }); */
+    
+    
+            console.log(JSON.stringify(params));
+            counter++;
+            if(end < len) await doLoop(end)
         }
 
     }

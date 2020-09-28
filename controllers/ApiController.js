@@ -4,6 +4,8 @@ var moment      = require('moment');
 const _         = require('lodash');
 const Sequelize = require('sequelize');
 const Op        = Sequelize.Op;
+const mongoose = require('mongoose');
+var mongmodels = require('../models/_mongomodels');
 const { default: axios } = require('axios');
 
 var campaignController    = require('./CampaignController');
@@ -402,16 +404,13 @@ exports.analyseCampaign = async (req, res) => {
                     
                 }
                 if(groups_) {
-                    let groups__ = await models.Group.findOne({
-                        where: {
+                    let groups__ = await mongmodels.Group.findOne({
                             userId: user_id,
                             name: groups_,
-                        },
-                        attributes: ['id'],
-                    })
+                    }).select([ '_id' ]);
 
                     if(!groups__) throw 'group';
-                    groups = groups__.id
+                    groups = groups__._id
                     // console.log('................group='+groups.id);
                 }
                 if(req.body.url) {  //  if actual url is sent instead of shorturl id
@@ -468,7 +467,7 @@ exports.analyseCampaign = async (req, res) => {
         var all, bal, fin;
         var int = 0;
 
-        console.log('group= ' + JSON.stringify(groups));
+        console.log('_______________11group= ' + JSON.stringify(groups));
 
         while(int < sender.length) {
             if((message[int].length > 1) && (groups[int].toString().length > 0) && (sender[int].toString().length > 0)) {
@@ -486,77 +485,85 @@ exports.analyseCampaign = async (req, res) => {
                 console.log('====================================');
 
                 if(int === 0) {  //  done only for the main campaign...followups would get only contact length from here
-                    console.log('-------------22--------------', JSON.stringify(groups));
-                //  extract groups contacts
-                    var dd = await models.Group.findAll({
-                        include: [{
-                            model: models.Contact, 
-                            ...(
-                                /* skip ? {
-                                    where: {
-                                        status: {
-                                                [Sequelize.Op.ne] : 2, 
-                                        }
-                                    }
-                                } : {} */
-                                skip ? {
-                                    where: {
-                                        [Sequelize.Op.and]: [
-                                            {
-                                                status: {
-                                                    [Sequelize.Op.ne] : 2
-                                                }
-                                            },
-                                            {
-                                                status: {
-                                                    [Sequelize.Op.ne] : 3
-                                                }
-                                            }
-                                        ],
-                                        ...(
-                                            toall ? {
-                                                [Sequelize.Op.or]: [
-                                                    {
-                                                        do_sms: 0
-                                                    },
-                                                    {
-                                                        do_sms: 1
-                                                    }
-                                                ],
-                                            } : {
-                                                do_sms: (tooptin ? 1 : 0)         //  opted-ins = 1; awaiting = 0
-                                            }
-                                        )
-                                    }
-                                } : {
-                                    where: {
-                                        ...(
-                                            toall ? {
-                                                [Sequelize.Op.or]: [
-                                                    {
-                                                        do_sms: 0
-                                                    },
-                                                    {
-                                                        do_sms: 1
-                                                    }
-                                                ],
-                                            } : {
-                                                do_sms: (tooptin ? 1 : 0  )       //  opted-ins = 1; awaiting = 0
-                                            }
-                                        )
-                                    }
-                                }
-                            )
-                        }],
-                        where: {
-                            id: {
-                                [Op.in]: groups[0],
-                            },
-                            userId: user_id,
-                        },
+                    console.log('-------------22a--------------', JSON.stringify(groups));
+                    let group_ = groups[0].map(g => {
+                        return mongoose.Types.ObjectId(g);
                     })
+                //  extract groups contacts
 
-                    console.log('-------------22--------------');
+                    var dd = await mongmodels.Group.aggregate([
+                        {
+                            $match: {
+                                _id: {
+                                    $in: group_
+                                },
+                                userId: user_id,
+                            }
+                        }, {
+                            $lookup: {
+                                from: "contacts",
+                                // localField: '_id', 
+                                // foreignField: 'groupId',
+                                as: 'contacts',
+                                let: {
+                                    "group_id": "$_id"
+                                },
+                                pipeline: [
+                                    {
+                                        $match: {
+                                            userId:  user_id, 
+                                            $expr: {
+                                                $eq: [
+                                                    "$groupId", "$$group_id"
+                                                ],
+                                            },
+                                            ...(
+                                                skip ? {
+                                                    $and: [
+                                                        {status: { $ne: 2 }},
+                                                        {status: { $ne: 3 }}
+                                                    ],
+                                                    ...(
+                                                        toall ? {
+                                                            $or: [
+                                                                { do_sms: 0 },
+                                                                { do_sms: 1 }
+                                                            ],
+                                                        } : {
+                                                            do_sms: tooptin ? 1 : 0         //  opted-ins = 1; awaiting = 0
+                                                        }
+                                                    )
+                                                } : {
+                                                    ...(
+                                                        toall ? {
+                                                            $or: [
+                                                                { do_sms: 0 },
+                                                                { do_sms: 1 }
+                                                            ],
+                                                        } : {
+                                                            do_sms: tooptin ? 1 : 0         //  opted-ins = 1; awaiting = 0
+                                                        }
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    },
+                                ]
+                            }
+                        }, {
+                            $project: {
+                                "contacts.firstname": 1,
+                                "contacts.lastname": 1,
+                                "contacts.phone": 1,
+                                "contacts.email": 1,
+                                "contacts.country.id": 1,
+                                "contacts._id": 1,
+                                // "_id": 0
+                            }
+                        }
+                    ])      //  consider adding .exec() for proper promise handling
+
+                    console.log('-------------22b--------------' + JSON.stringify(dd));
                     
                     //  merge contacts from all groups
                     var contacts_arr = [];
@@ -656,7 +663,7 @@ exports.analyseCampaign = async (req, res) => {
                         file_not_logged = false;
                     }
 
-                    let unit_ = await getRateCharge(kont.phone, kont.countryId, user_id);
+                    let unit_ = await getRateCharge(kont.phone, kont.country.id, user_id);
                     if(!unit_) {
                         invalidphones++;
                         unit_ = 0;
@@ -929,16 +936,9 @@ exports.loadCampaign = (req, res) => {
             ],
             limit: 1,
         }), 
-        models.Contact.count({
-            where: { 
-                userId: user_id,
-            }
-        }), 
-        /* models.Message.count({
-            where: { 
-                userId: user_id,
-            }
-        }),  */
+        mongmodels.Contact.count({   //  get count of contacts
+            userId: user_id,
+        }),                          //  consider adding the .exec() to make it full-fledged promise
         sequelize.query(
             "SELECT COUNT(messages.id) AS msgcount FROM messages " +
             "JOIN campaigns ON messages.campaignId = campaigns.id " +
@@ -1027,61 +1027,53 @@ exports.smsNotifyKirusa = (req, res) => {
         if (status == 'delivered') {
             sid = 1;
 
-            models.Contact.update(
+            mongmodels.Contact.updateMany(
+                {
+                    'country.id': pref,
+                    phone: phn,
+                },
                 {
                     status: 1
                 },
-                {
-                    where: {
-                        countryId: pref,
-                        phone: phn,
-                    }
-                }
             )
 
         } else if (status == 'rejected') {
             sid = 4;
 
-            models.Contact.update(
+            mongmodels.Contact.updateMany(
+                {
+                    'country.id': pref,
+                    phone: phn,
+                },
                 {
                     status: 3
                 },
-                {
-                    where: {
-                        countryId: pref,
-                        phone: phn,
-                    }
-                }
             )
             
         } else if (status == 'failed' || status == 'undelivered') {
             sid = 3;
 
-            models.Contact.update(
+            mongmodels.Contact.updateMany(
+                {
+                    'country.id': pref,
+                    phone: phn,
+                },
                 {
                     status: 2
                 },
-                {
-                    where: {
-                        countryId: pref,
-                        phone: phn,
-                    }
-                }
             )
 
         } else {
             sid = 2;
 
-            models.Contact.update(
+            mongmodels.Contact.updateMany(
+                {
+                    'country.id': pref,
+                    phone: phn,
+                },
                 {
                     status: 1
                 },
-                {
-                    where: {
-                        countryId: pref,
-                        phone: phn,
-                    }
-                }
             )
 
         }
@@ -1146,63 +1138,55 @@ exports.smsNotifyInfobip = (req, res) => {
             if (status == 'DELIVERED') {
                 sid = 1;
 
-                models.Contact.update(
+                mongmodels.Contact.updateMany(
+                    {
+                        'country.id': pref,
+                        phone: phn,
+                    },
                     {
                         status: 1
                     },
-                    {
-                        where: {
-                            countryId: pref,
-                            phone: phn,
-                        }
-                    }
                 )
-
+    
             } else if (status == 'REJECTED') {
                 sid = 4;
 
-                models.Contact.update(
+                mongmodels.Contact.updateMany(
+                    {
+                        'country.id': pref,
+                        phone: phn,
+                    },
                     {
                         status: 3
                     },
-                    {
-                        where: {
-                            countryId: pref,
-                            phone: phn,
-                        }
-                    }
                 )
-                
+                    
             } else if (status == 'UNDELIVERABLE') {
                 sid = 3;
 
-                models.Contact.update(
+                mongmodels.Contact.updateMany(
+                    {
+                        'country.id': pref,
+                        phone: phn,
+                    },
                     {
                         status: 2
                     },
-                    {
-                        where: {
-                            countryId: pref,
-                            phone: phn,
-                        }
-                    }
                 )
-
+    
             } else {
                 sid = 2;
 
-                models.Contact.update(
+                mongmodels.Contact.updateMany(
+                    {
+                        'country.id': pref,
+                        phone: phn,
+                    },
                     {
                         status: 1
                     },
-                    {
-                        where: {
-                            countryId: pref,
-                            phone: phn,
-                        }
-                    }
                 )
-
+    
             }
 
             models.Message.findByPk(id)
@@ -1270,61 +1254,53 @@ exports.smsNotifyMessagebird = (req, res) => {
         if (status == 'delivered') {
             sid = 1;
 
-            models.Contact.update(
+            mongmodels.Contact.updateMany(
+                {
+                    'country.id': pref,
+                    phone: phn,
+                },
                 {
                     status: 1
                 },
-                {
-                    where: {
-                        countryId: pref,
-                        phone: phn,
-                    }
-                }
             )
 
         } else if (status == 'delivery_failed') {
             sid = 4;
 
-            models.Contact.update(
+            mongmodels.Contact.updateMany(
+                {
+                    'country.id': pref,
+                    phone: phn,
+                },
                 {
                     status: 3
                 },
-                {
-                    where: {
-                        countryId: pref,
-                        phone: phn,
-                    }
-                }
             )
             
         } else if (status == 'undeliverable') {
             sid = 3;
 
-            models.Contact.update(
+            mongmodels.Contact.updateMany(
+                {
+                    'country.id': pref,
+                    phone: phn,
+                },
                 {
                     status: 2
                 },
-                {
-                    where: {
-                        countryId: pref,
-                        phone: phn,
-                    }
-                }
             )
 
         } else {
             sid = 2;
 
-            models.Contact.update(
+            mongmodels.Contact.updateMany(
+                {
+                    'country.id': pref,
+                    phone: phn,
+                },
                 {
                     status: 1
                 },
-                {
-                    where: {
-                        countryId: pref,
-                        phone: phn,
-                    }
-                }
             )
 
         }
@@ -1392,63 +1368,54 @@ exports.smsNotifyAfricastalking = (req, res) => {
         if (status == 'Success') {
             sid = 1;
 
-            models.Contact.update(
+            mongmodels.Contact.updateMany(
+                {
+                    'country.id': pref,
+                    phone: phn,
+                },
                 {
                     status: 1
                 },
-                {
-                    where: {
-                        countryId: pref,
-                        phone: phn,
-                    }
-                }
             )
 
         } else if (status == 'Rejected') {
             sid = 4;
 
-            models.Contact.update(
+            mongmodels.Contact.updateMany(
+                {
+                    'country.id': pref,
+                    phone: phn,
+                },
                 {
                     status: 3
                 },
-                {
-                    where: {
-                        countryId: pref,
-                        phone: phn,
-                    }
-                }
             )
             
         } else if (status == 'Failed') {
             sid = 3;
 
-            models.Contact.update(
+            mongmodels.Contact.updateMany(
+                {
+                    'country.id': pref,
+                    phone: phn,
+                },
                 {
                     status: 2
                 },
-                {
-                    where: {
-                        countryId: pref,
-                        phone: phn,
-                    }
-                }
             )
 
         } else {
             sid = 2;
 
-            models.Contact.update(
+            mongmodels.Contact.updateMany(
+                {
+                    'country.id': pref,
+                    phone: phn,
+                },
                 {
                     status: 1
                 },
-                {
-                    where: {
-                        countryId: pref,
-                        phone: phn,
-                    }
-                }
             )
-
         }
 
         if(!sid) return;
@@ -1559,7 +1526,6 @@ exports.newTxnMessage = async (req, res) => {
             req.txnmessaging = true;
 
             console.log('___**********____*******________**********_________balance=', user_balance);
-            console.log('___**********____*******________**********_________balance=', JSON.stringify(req.body));
             let file_not_logged = true;
             let msgcount = 0;
             let units = 0;
@@ -1573,8 +1539,8 @@ exports.newTxnMessage = async (req, res) => {
             let schedule_ = schedule ? moment(schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss') : null;  //  for DB
             schedule = schedule ? moment(schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DDTHH:mm:ss.000Z') : null;   //  for infobip
     
-            if(!message || !sender) throw 'fields';
-            if(!(message.length > 1) || !(sender.toString().length > 0)) throw 'fields';
+            if(!message || !sender) throw 'fields1';
+            if(!(message.length > 1) || !(sender.toString().length > 0)) throw 'fields2';
             if(!Array.isArray(contacts)) throw 'contacts';
 
             /* 
@@ -1633,11 +1599,8 @@ exports.newTxnMessage = async (req, res) => {
             let cc = getSMSCount(message_);
             msgcount += cc;
 
-            console.log('===============contacts== ' + JSON.stringify(contacts));
             for(let i = 0; i < contacts.length; i++) {
-                console.log('1______contyconty');
                 if(!contacts[i].phone || !contacts[i].countryId) throw 'contacts';
-                console.log('2______contyconty');
                 let chg = await getRateCharge(contacts[i].phone, contacts[i].countryId, user_id);
                 units += cc * chg;
             }
@@ -1714,20 +1677,20 @@ exports.newTxnMessage = async (req, res) => {
                     responseText: "Check the fields for valid entries: 'name'; 'message'; 'sender'; 'group'.", 
                 };
                 break;
-            case 'contacts':
-                _status = {
-                    response: "Error: Invalid Contacts.", 
-                    responseType: "ERROR", 
-                    responseCode: "E052", 
-                    responseText: "Invalid Contacts.", 
-                };
-                break;
             case 'group':
                 _status = {
                     response: "Error: Invalid Group Name.", 
                     responseType: "ERROR", 
                     responseCode: "E053", 
                     responseText: "Invalid Group Name.", 
+                };
+                break;
+            case 'contacts':
+                _status = {
+                    response: "Error: Invalid Contacts.", 
+                    responseType: "ERROR", 
+                    responseCode: "E052", 
+                    responseText: "Invalid Contacts.", 
                 };
                 break;
             case 'sender':

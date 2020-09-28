@@ -4,7 +4,7 @@ const { hbs }    = require('./my_modules/handlebarhelpers')();
 const bodyParser = require('body-parser');
 const path       = require('path');
 const fileUpload = require('express-fileupload');
-// const http = require('http');
+// const MongoClient = require('mongodb').MongoClient;
 // var handlebars = require('handlebars');
 // Requiring passport as we've configured it
 var passport     = require("./config/passport");
@@ -26,7 +26,6 @@ const app = express();
 var sessionStore = new session.MemoryStore;
 
 const PORT = process.env.PORT || 3000;
-
 
 //  set view engine
 app.engine('handlebars', hbs.engine);
@@ -65,23 +64,44 @@ app.use(passport.session());
 // require("./routes/html-routes.js")(app);
 // require("./routes/api-routes.js")(app);
 
-require("./routes/dashboard")(app);
-require("./routes/api.js")(app);
-require("./routes/pages")(app);
-//
-// app.use('/', homeRouter);
-// app.use('/dashboard', dashboardRouter);
-// app.use('/api', apiRouter);
 
-//  init database
-const db = require('./config/cfg/db');
-db.authenticate()
+/* const mongo_username = '';
+const mongo_password = '';
+const mongo_db = 'tracksend';
+
+const mongoconnectionurl = 'mongodb://' + 
+                           mongo_username + 
+                           (mongo_username ? ':' : '') +
+                           mongo_password + 
+                           (mongo_password ? '@' : '') +
+                           'localhost:27017';
+                          //  + mongo_db;
+                          console.log('url is ' + mongoconnectionurl);
+MongoClient.connect(mongoconnectionurl, { useUnifiedTopology: true, useNewUrlParser: true }, function (err, client) {
+  if (err) throw err 
+
+  var mdb = client.db(mongo_db)
+  console.log('mongo database connected...');
+
+  // mdb.collection('contacts').insertMany();
+  app.use(function(req, res, next) {
+    req.mdb = mdb;
+    next();
+  })
+
+  require("./routes/dashboard")(app);
+  require("./routes/api.js")(app);
+  require("./routes/pages")(app);
+  
+  //  init database
+  const db = require('./config/cfg/db');
+  db.authenticate()
   .then(() => {
-    console.log   ('0Database connected...');
-    console.debug ('1Database connected...');
-    console.info  ('3Database connected...');
-    console.warn  ('4Database connected...');
-    console.error ('5Database connected...');
+    console.log   ('Main Database connected...');
+    // console.debug ('1Database connected...');
+    // console.info  ('3Database connected...');
+    // console.warn  ('4Database connected...');
+    // console.error ('5Database connected...');
     // console.clear();
     //  start server
     app.listen(PORT, console.log(`Server running on port ${PORT} ...`));
@@ -90,3 +110,27 @@ db.authenticate()
     // console.log(`Server running on port ${PORT} ...`)
   })
   .catch(err => console.log('Error: ' + err));
+
+}) */
+
+require("./routes/dashboard")(app);
+require("./routes/api.js")(app);
+require("./routes/pages")(app);
+
+//  init database
+const db = require('./config/cfg/db');
+db.authenticate()
+.then(() => {
+  console.log   ('Main Database connected...');
+  // console.debug ('1Database connected...');
+  // console.info  ('3Database connected...');
+  // console.warn  ('4Database connected...');
+  // console.error ('5Database connected...');
+  // console.clear();
+  //  start server
+  app.listen(PORT, console.log(`Server running on port ${PORT} ...`));
+  // var server = http.createServer(app);
+  // server.listen(PORT);
+  // console.log(`Server running on port ${PORT} ...`)
+})
+.catch(err => console.log('Error: ' + err));

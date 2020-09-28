@@ -1,6 +1,8 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../config/cfg/db');
+const mongoose = require('mongoose');
 var models = require('../models');
+var mongmodels = require('../models/_mongomodels');
 var contactController = require('./ContactController');
 
 exports.index = function(req, res) {
@@ -9,79 +11,97 @@ exports.index = function(req, res) {
 
 
 // Display detail page for a specific contact. 
-exports.listGroup = (req, res) => {
+exports.listGroup = async (req, res) => {
     var user_id = req.user.id;
 
     // ContactGroup.findAll()
     // ContactGroup.findAll({ where: { userId: { [Op.eq]: req.query.uid} }})
-    models.Group.findAll({ 
-        where: { 
-            userId: user_id,
-            name: {
-                [Sequelize.Op.ne]: '[Uncategorized]',
-            },
-        }, 
-        include: [{
-            model: models.Contact,
-            as: 'contacts',
-            where: {
+    let grps = await mongmodels.Group.aggregate([
+        { 
+            $match: { 
                 userId: user_id,
-            },
-            /* attributes: {
-                include: [[sequelize.fn('count', sequelize.col('groupId')), 'ccount'], [sequelize.fn('max', sequelize.col('contacts.id')), 'id']],
-                exclude: ['id']
-            }, */
-            // raw: true,
-            // joinTableAttributes: [],
-            // through: { attributes: [] },
-            attributes: [[sequelize.fn('count', sequelize.col('groupId')), 'ccount']],
-        }],
-        group: ['contacts.groupId'],
+                name: {
+                    $ne: '[Uncategorized]',
+                }
+            }, 
+        },
+        {
+            $lookup: {
+                from: "contacts",
+                // localField: '_id', 
+                // foreignField: 'groupId',
+                as: 'contacts',
+                let: {
+                    "group_id": "$_id"
+                },
+                pipeline: [
+                    {
+                        $match: {
+                            userId:  user_id, 
+                            $expr: {
+                                $eq: [
+                                    "$groupId", "$$group_id"
+                                ]
+                            }
+                        },
+                    },
+                    {
+                        $count: 'ccount',
+                    },
+                    // {   $unwind:"$contacts" },
+                ]
+            }
+        },
+        /* {
+            $project: {
+                "contacts.ccount": 1,
+                "_id": 0,
+            }
+        },
         order: [ 
             ['createdAt', 'DESC']
-        ],
+        ], */
         // raw: true,
+    ])
+
+    console.log('_____________________1groups are: ' + JSON.stringify(grps));
+    grps = grps.map(grp => {
+        // let ww1 = JSON.stringify(grp.contacts);
+        let ww2 = JSON.parse(JSON.stringify(grp));
+        // let cc = JSON.parse(JSON.stringify(grp.contacts)).map(r => {return r.ccount});
+        let cc = ww2.contacts.map(r => {return r.ccount});
+        console.log('grp.contacts.ccount = ' + cc[0]);
+        
+        // grp.contacts = cc || 0;
+        // let nw =  Object.assign(ww2, { contacts1: 'cc || 0' });
+        // console.log(JSON.stringify(grp));
+        
+        return Object.assign(ww2, { contacts: cc[0] || 0 });
     })
-    .then(grps => {
+    console.log('2groups are: ' + JSON.stringify(grps));
 
-        console.log('1groups are: ' + JSON.stringify(grps));
-        grps = grps.map(grp => {
-            // let ww1 = JSON.stringify(grp.contacts);
-            let ww2 = JSON.parse(JSON.stringify(grp));
-            // let cc = JSON.parse(JSON.stringify(grp.contacts)).map(r => {return r.ccount});
-            let cc = ww2.contacts.map(r => {return r.ccount});
-            console.log('grp.contacts.ccount = ' + cc[0]);
-            
-            // grp.contacts = cc || 0;
-            // let nw =  Object.assign(ww2, { contacts1: 'cc || 0' });
-            // console.log(JSON.stringify(grp));
-            
-            return Object.assign(ww2, { contacts: cc[0] || 0 });
-        })
-        console.log('2groups are: ' + JSON.stringify(grps));
+    var flashtype, flash = req.flash('error');
+    if(flash.length > 0) {
+        flashtype = "error";
+    } else {
+        flashtype = "success";
+        flash = req.flash('success');
+    }
 
-        var flashtype, flash = req.flash('error');
-        if(flash.length > 0) {
-            flashtype = "error";
-        } else {
-            flashtype = "success";
-            flash = req.flash('success');
+    res.render('pages/dashboard/new_group', {
+        page: 'CONTACT GROUPS',
+        groups: true,
+        grouptype: '',
+        flashtype, flash,
+
+        args: {
+            grps: grps,
         }
-
-        res.render('pages/dashboard/new_group', {
-            page: 'CONTACT GROUPS',
-            groups: true,
-            grouptype: '',
-            flashtype, flash,
-
-            args: {
-                grps: grps,
-            }
-        });
     });
 
 }
 
+//  deprecated
 exports.listSMSGroup = (req, res) => {
     var user_id = req.user.id;
 
@@ -124,6 +144,7 @@ exports.listSMSGroup = (req, res) => {
 
 }
 
+//  deprecated
 exports.listWAGroup = (req, res) => {
     var user_id = req.user.id;
 
@@ -176,21 +197,23 @@ exports.addGroup = async (req, res) => {
     const user = await models.User.findByPk(user_id);
     if(req.body.name.length > 0) {
         try {
-            const group = await user.createGroup({
+            const group = await mongmodels.Group.create({
+                // id: 123,
+                userId: user_id,
                 name: req.body.name,
                 description: req.body.description,
                 can_optin: req.body.can_optin && (req.body.can_optin == 'on') ? true : false,
-            });
+            })
 
             console.log('group created');
 
             if(req.externalapi) {
-                req.body.group = group.id;
+                req.body.group = group._id;
                 if(req.body.contacts && req.body.contacts.length > 0){
                     return await contactController.addContact(req, res);
                 } else {
                     fl.mtype = "SUCCESS"
-                    fl.msg = group.id;
+                    fl.msg = group._id;
                     fl.code = "OK";
                 }
             } else {
@@ -238,19 +261,28 @@ exports.saveGroup = async (req, res) => {
         if(user_id.length == 0)  throw "error";
 
         // console.log('optin='+(req.body.can_optin && (req.body.can_optin == "on") ? 'yes' : 'no'))
-        const grp = await models.Group.findByPk(req.body.id)
+        const grp = await mongmodels.Group.findOne({
+            _id: mongoose.Types.ObjectId(req.body.id) 
+        });
+
         if(grp.userId == user_id) {
             try {
-                const r = await grp.update({
-                    ...( req.body.name ? {
-                        name: req.body.name,
-                    }: {}),
-                    ...( req.body.description ? {
-                        description: req.body.description,
-                    }: {}),
-                    can_optin: (req.body.can_optin && req.body.can_optin == "on") ? true : false,
-                })
-                
+                const r = await mongmodels.Group.findOneAndUpdate(
+                    { 
+                        _id: mongoose.Types.ObjectId(req.body.id),
+                        userId: user_id,        //  for authentication
+                    },
+                    {
+                        ...( req.body.name ? {
+                            name: req.body.name,
+                        }: {}),
+                        ...( req.body.description ? {
+                            description: req.body.description,
+                        }: {}),
+                        can_optin: (req.body.can_optin && req.body.can_optin == "on") ? true : false,
+                    }
+                )
+                        
                 if(req.externalapi && req.body.contacts && req.body.contacts.length) {
                     req.body.group = req.body.id;
                     return await contactController.addContact(req, res);
@@ -286,39 +318,42 @@ exports.getGroups = async (req, res) => {
 
     var lnkgrp = req.params.lnkgrp;
     var gtype = req.query.grptype;
+    var grpsarr = [];
 
-    var grps = await models.Group.findAll({ 
-        where: { 
-            userId: user_id,
-            name: {
-                [Sequelize.Op.ne]: '[Uncategorized]',
-            },
-            platformtypeId: gtype
+    var grps = await mongmodels.Group.find({
+        userId: user_id,
+        name: {
+            $ne: '[Uncategorized]',
         },
-        order: [ 
-            ['createdAt', 'DESC']
-        ]
-    });
+        platformtypeId: gtype
+    }, (err, res) => {
+        console.log('EXTRACTED 1: ' + JSON.stringify(res));
+        grpsarr.push(...res);
+    })
+    .sort({
+        "createdAt": -1
+    })
 
     if(gtype == 1) {
-        var non = await models.Group.findAll({ 
-            where: { 
-                userId: user_id,
-                name: '[Uncategorized]',
-            },
-        });
+
+        var non = await mongmodels.Group.find({
+            userId: user_id,
+            name: '[Uncategorized]'
+        }, (err, res) => {
+            console.log('EXTRACTED 2: ' + JSON.stringify(res));
+            grpsarr.push(...res);
+        })
+    
     } else {
         var non = null;
     }
 
-    if(non) grps.push(non[0]);
-
-    res.send(grps); 
+    res.send(grpsarr); 
 
 };
 
 //  from apiController
-exports.delGroup = (req, res) => {
+exports.delGroup = async(req, res) => {
 
     try {
         var user_id = req.user.id;
@@ -331,28 +366,26 @@ exports.delGroup = (req, res) => {
     }
 
     console.log('dele = ' + req.query.id);
-    
-    models.Group.findByPk(req.query.id)
-    .then(grp => {
-        if(grp.userId == user_id) {
-            grp.destroy()
-            .then((r) => {
-                res.send({
-                    response: "success",
-                });
-            }) 
-            .error((r) => {
-                res.send({
-                    response: "Error: Please try again later",
-                });
-            })
+
+    await mongmodels.Contact.deleteMany({
+        groupId: mongoose.Types.ObjectId(req.query.id),
+        userId: user_id,        //  for authentication
+    })
+
+    await mongmodels.Group.findOneAndDelete({
+        _id: mongoose.Types.ObjectId(req.query.id),
+        userId: user_id,        //  for authentication
+    }, (err, res_) => {
+        if(err) {
+            res.send({
+                response: "Error: Please try again later",
+            });
         } else {
             res.send({
-                response: "Error: Invalid permission",
+                response: "success",
             });
         }
     });
-        
 
 }
 

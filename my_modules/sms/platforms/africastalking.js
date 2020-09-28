@@ -40,7 +40,7 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
   async function africastalking_checkAndAggregate(kont) {
       k++;
       console.log('*******   Aggregating Contact #' + k + ':...    ********');
-      let formatted_phone = phoneformat(kont.phone, kont.countryId);
+      let formatted_phone = phoneformat(kont.phone, kont.country.id);
       if(!formatted_phone) return;
       
       // return new Promise(resolve => {
@@ -51,11 +51,17 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
 
               var uid = makeId(3);
               var exists = await models.Message.findAll({
-                  where: { 
-                      campaignId: cpn.id,
-                      contactlink: uid,
-                  },
-              })
+                where: { 
+                    ...(
+                        (req.txnmessaging) ? {
+                            shortlinkId: info.shortlinkId,
+                        } : {
+                            campaignId: cpn.id,
+                        }
+                    ),
+                    contactlink: uid,
+                },
+                })
               .error((r) => {
                   console.log("Error: Please try again later");
               })
@@ -71,14 +77,24 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
           };
       }
       
-      function saveMsg(args) {
-          return cpn.createMessage({
-              shortlinkId: args.sid,
-              contactlink: args.cid,
-              contactId:   kont.id,
-              destination: "+" + formatted_phone,
-          })
-          .then((shrt) => {
+      async function saveMsg(args) {
+        let shrt;
+        console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+        try {
+            if(req.txnmessaging) {
+                shrt = await models.Message.create({
+                    shortlinkId: args.sid,
+                    contactlink: args.cid,
+                    contactId: kont._id,
+                });
+            } else {
+                shrt = await cpn.createMessage({
+                    shortlinkId: args.sid,
+                    contactlink: args.cid,
+                    contactId: kont._id,
+                });
+            }
+
               console.log('MESSAGE ENTRY CREATE STARTED.:::' + JSON.stringify(shrt));
                                               
               var updatedmessage  = originalmessage
@@ -95,11 +111,11 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
               // .replace(/\\t/g, '')
               .replace(/&nbsp;/g, ' ');
 
-              updatedmessage += (UNSUBMSG) ? _message('msg', 1091, kont.countryId, kont.id) : '';     //  add unsubscribe text
-              updatedmessage += (DOSUBMSG) ? _message('msg', 1092, kont.countryId, kont.id) : '';     //  add unsubscribe text
+              updatedmessage += (UNSUBMSG) ? _message('msg', 1091, kont.country.id, kont._id) : '';     //  add unsubscribe text
+              updatedmessage += (DOSUBMSG) ? _message('msg', 1092, kont.country.id, kont._id) : '';     //  add unsubscribe text
 
               console.log('====================================');
-              console.log('UNSUB MSG IS:::' + _message('msg', 1091, kont.countryId, kont.id));
+              console.log('UNSUB MSG IS:::' + _message('msg', 1091, kont.country.id, kont._id));
               console.log('====================================');
               
               if(SINGLE_MSG) {
@@ -115,17 +131,19 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
                   }; 
                   
                   console.log('UNSINGLE MESSAGE ENTRY CREATE DONE.');
-                  if(file_not_logged) {
-                      filelogger('sms', 'Send Campaign (AfricasTalking)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
+                  if(file_not_logged && !req.txnmessaging) {
+                    filelogger('sms', 'Send Campaign (AfricasTalking)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
                       file_not_logged = false;
                   }    
               
                   return msgfull;
               }
-          })
-          .error((r) => {
-              console.log("Error: Please try again later");
-          })
+
+            } catch(err) {
+                console.log('________________________________');
+                
+               throw "111Error: Please try again later";
+            }
                       
       }
 
@@ -171,8 +189,8 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
 
               
               console.log('SINGLE COMPILED!');
-              if(file_not_logged) {
-                  filelogger('sms', 'Send Campaign (AfricasTalking)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
+              if(file_not_logged && !req.txnmessaging) {
+                filelogger('sms', 'Send Campaign (AfricasTalking)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
                   file_not_logged = false;
               }    
               
@@ -188,54 +206,54 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
 
           }
 
-          Promise.all(actions)
-          .then(async (data) => {
-              console.log('MSGS ARE: ' + JSON.stringify(data));
-              
-              let params = data[0];
+          let data = Promise.all(actions);
 
-              let response = await sendSMS('africastalking', params);
-              // let resp_ = null;
-              let resp_ = response;
-              console.log(JSON.stringify(response));
-              // return;
+            console.log('MSGS ARE: ' + JSON.stringify(data));
+            
+            let params = data[0];
 
-              //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
-              let klist = sub_list.map(k => { return k.id })
-              await dbPostSMSSend.dbPostSMSSend(req, res, batches, null, null, info, user_balance, user_id, cpn, schedule_, klist, resp_);
+            let response = await sendSMS('africastalking', params);
+            // let resp_ = null;
+            let resp_ = response;
+            console.log(JSON.stringify(response));
+            // return;
 
-              /* const options = {
-                  url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',
-                  json: tosend,
-                  headers: {
-                      'Authorization': 'Basic ' + base64encode,
-                      'Content-Type': 'application/json',
-                      'Accept': 'application/json'
-                  }
-              } 
-              
-              request.post(options, async (err, response) => {
-                  if (err){
-                      console.log('ERROR = ' + err);
-                      failures++;
-                  } else {
-                      //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
-                      console.log('Status code: ' + response.statusCode + '; Message: ' + JSON.stringify(response.body));
+            //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
+            let klist = sub_list.map(k => { return k._id })
+            await dbPostSMSSend.dbPostSMSSend(req, res, batches, null, null, info, user_balance, user_id, cpn, schedule_, klist, resp_);
 
-                      if(response.statusCode == 200) {
-                          successfuls++;
-                      } else {
-                          failures++;
-                      }
-                  }
-              }); */
-      
-      
-              console.log(JSON.stringify(params));
-              counter++;
-              if(end < len) await doLoop(end)
-          })
-      }
+            /* const options = {
+                url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',
+                json: tosend,
+                headers: {
+                    'Authorization': 'Basic ' + base64encode,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            } 
+            
+            request.post(options, async (err, response) => {
+                if (err){
+                    console.log('ERROR = ' + err);
+                    failures++;
+                } else {
+                    //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
+                    console.log('Status code: ' + response.statusCode + '; Message: ' + JSON.stringify(response.body));
+
+                    if(response.statusCode == 200) {
+                        successfuls++;
+                    } else {
+                        failures++;
+                    }
+                }
+            }); */
+    
+    
+            console.log(JSON.stringify(params));
+            counter++;
+            if(end < len) await doLoop(end)
+
+        }
 
   }
 

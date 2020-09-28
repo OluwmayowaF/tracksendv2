@@ -42,59 +42,28 @@
 						<!-- Row -->
 						<div class="row with-forms">
 							<br>
-							<h5>Match your headers with Ours <span>(where relevant)</span>: </h5>
-							<div class="col-md-12">
-								<div class="col-md-3">
-									<h5>First name: </h5>
+							<h5>Match your columns with column names <span>(where relevant)</span>: </h5>
+							{{#args.result}}
+							<div class="col-md-12 all_columns">
+								<div class="col-md-3" style="border: solid 1px;">
+									<h5 style="line-height: unset; margin-bottom: 10px;">" {{ this }} "</h5>
 								</div>
-								<div class="col-md-9">
-									<select class="chosen-select-no-single" name="row">
-										<option>[ignore]</option>
-										{{#each args.result}}
-										<option>{{ this }}</option>
-										{{/each}}
+								<div class="col-md-9 _for_new_field">
+									<select class="chosen-select" id="column_field_{{ @index }}" name="row_{{ @index }}">
+										<option value="n_0">[ignore]</option>
+										<option value="n_f">[ New field ]</option>
+										<option disabled>---------------------------------------</option>
+										{{#../args.standard_fields }}	
+										<option value="{{ this.value }}">{{ this.name }}</option>
+										{{/../args.standard_fields }}	
 									</select>
+									<input type="text" style="display: none" placeholder="Specify text field name" name="newfield_{{ @index }}"/>
 								</div>
 							</div>
-							<div class="col-md-12">
-								<div class="col-md-3">
-									<h5>Last name: </h5>
-								</div>
-								<div class="col-md-9">
-									<select class="chosen-select-no-single" name="row">
-										<option>[ignore]</option>
-										{{#each args.result}}
-										<option>{{ this }}</option>
-										{{/each}}
-									</select>
-								</div>
-							</div>
-							<div class="col-md-12">
-								<div class="col-md-3">
-									<h5>Phone: </h5>
-								</div>
-								<div class="col-md-9">
-									<select class="chosen-select-no-single" name="row">
-										{{#each args.result}}
-										<option>{{ this }}</option>
-										{{/each}}
-									</select>
-								</div>
-							</div>
-							<div class="col-md-12">
-								<div class="col-md-3">
-									<h5>Email: </h5>
-								</div>
-								<div class="col-md-9">
-									<select class="chosen-select-no-single" name="row">
-										<option>[ignore]</option>
-										{{#each args.result}}
-										<option>{{ this }}</option>
-										{{/each}}
-									</select>
-								</div>
-							</div>
+										{{!-- {{ ../args.standard_fields }} --}}
+							{{/args.result}}
 							<input type="hidden" name="fid" id="fid" value="{{ args.fid }}">
+							<input type="hidden" name="fieldscount" id="fc" value="{{ args.result.length }}">
 							<input type="hidden" name="rows" id="rows" value="{{ args.rows }}">
 							<input type="hidden" name="group" id="v_grp" value="{{ args.grp }}">
 							<input type="hidden" name="country" id="v_ctry" value="{{ args.ctry }}">
@@ -158,7 +127,7 @@
 									<option label="blank" disabled>--------------------------------</option>
 									{{/if}}
 									{{#each args.grps}}
-									<option value="{{ id }}">{{ name }}</option>
+									<option value="{{ _id }}">{{ name }}</option>
 									{{/each}}
 								</select>
 							</div>

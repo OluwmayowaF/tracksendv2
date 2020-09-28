@@ -4,11 +4,11 @@ var contactController = require('../controllers/ContactController');
 var groupController = require('../controllers/GroupController');
 
 // Home page route.
-router.get('/',                contactController.index);
+// router.get('/',                contactController.index);
 router.get('/list',            contactController.contactList);
 router.get('/list/:lnkgrp',    contactController.contactList);
 router.get('/new',             contactController.newContact);
-router.get('/download/:gid',   contactController.download);  //  redundant for now
+router.get('/download/:gid/:gname',   contactController.download);  //  redundant for now
 router.get('/groups/',         groupController.listGroup);
 router.get('/groups/sms',      groupController.listSMSGroup);  //  redundant for now
 router.get('/groups/whatsapp', groupController.listWAGroup);  //  redundant for now

@@ -4,6 +4,8 @@ const _ = require('lodash');
 const Sequelize = require('sequelize');
 const sequelize = require('../config/cfg/db');
 const Op = Sequelize.Op;
+const mongoose = require('mongoose');
+var mongmodels = require('../models/_mongomodels');
 const fs = require('fs'); 
 var scheduler = require('node-schedule');
 
@@ -16,19 +18,19 @@ const randgen = require('../my_modules/randgen');
 var _message = require('../my_modules/output_messages');
 
 
-exports.index = (req, res) => {
+exports.index = async (req, res) => {
     var user_id = req.user.id;
     // var user_id = 10;
     
     console.log('....................showing page......................'); 
-        
+
     Promise.all([
         sequelize.query( 
             "SELECT " +
             "   C1.id, " +        //      kenni 
             "   C1.name, " +
             "   C1.units_used, " +
-            "   GROUP_CONCAT(G1.name SEPARATOR ', ') AS grpname, " +
+            "   GROUP_CONCAT(CG1.groupname SEPARATOR ', ') AS grpname, " +
             "   IF(C1.status = 1, 'Active', 'Error') AS status, " +
             "   IF(C1.platformtypeId = 1, 'SMS', 'WhatsApp') AS platform, " +
             "   GROUP_CONCAT(T1.id SEPARATOR ',') AS tid, " +
@@ -40,7 +42,6 @@ exports.index = (req, res) => {
             "   C1.createdAt " +
             "FROM campaigns C1 " +
             "LEFT OUTER JOIN campaign_groups CG1 ON CG1.campaignId = C1.id " +
-            "LEFT OUTER JOIN groups G1 ON G1.id = CG1.groupId " +
             "LEFT OUTER JOIN campaigns C2 ON C2.ref_campaign = C1.id " +       //  kenni
             "LEFT OUTER JOIN tmpcampaigns T1 ON T1.ref_campaign = C1.id " +       //  kenni
             "WHERE C1.userId = :uid AND (C1.ref_campaign = '' OR ISNULL(C1.ref_campaign)) " +
@@ -61,40 +62,34 @@ exports.index = (req, res) => {
                 ['createdAt', 'DESC']
             ]
         }), 
-        models.Group.findAll({      //  get all groups for display in form, except uncategorized group
-            where: { 
-                userId: user_id,
-                name: {
-                    [Sequelize.Op.ne]: '[Uncategorized]',
-                }
+        mongmodels.Group.find({     //  get all groups for display in form, except uncategorized group
+            userId: user_id,
+            name: {
+                $ne: '[Uncategorized]',
             },
-            order: [ 
-                ['createdAt', 'DESC']
-            ]
+        })
+        .sort({
+            "createdAt": -1
         }),
-        models.Group.findAll({      //  get only the uncategorized group
-            where: { 
-                userId: user_id,
-                name: '[Uncategorized]',
-            },
+        mongmodels.Group.find({      //  get only the uncategorized group
+            userId: user_id,
+            name: '[Uncategorized]',
         }),
-        models.Sender.count({       //  get count of sender ids
+        models.Sender.count({        //  get count of sender ids
             where: { 
                 userId: user_id,
                 // status: 1
             }
         }), 
-        models.Sender.count({       //  get count of "active" sender ids
+        models.Sender.count({        //  get count of "active" sender ids
             where: { 
                 userId: user_id,
                 status: 1
             }
         }), 
-        models.Contact.count({      //  get count of contacts
-            where: { 
-                userId: user_id,
-            }
-        }), 
+        mongmodels.Contact.count({   //  get count of contacts
+            userId: user_id,
+        }),                          //  consider adding the .exec() to make it full-fledged promise
         models.Shortlink.findAll({ 
             where: { 
                 userId: user_id,
@@ -148,9 +143,7 @@ exports.index = (req, res) => {
 
             
         });
-        // console.log('====================================');
-        // console.log('cpns: ' + JSON.stringify(cpns)); // + ', sids: ' + JSON.stringify(sids) + ', grps: ' + JSON.stringify(grps) + ', csender: ' + csender + ', casender: ' + casender + ', ccontact' + ccontact);
-        // console.log('====================================');
+
         if(!csender) var nosenderids = true; else var nosenderids = false;
         if(!casender) var noasenderids = true; else var noasenderids = false;
         if(!ccontact) var nocontacts = true; else var nocontacts = false;
@@ -207,7 +200,6 @@ exports.add = async (req, res) => {
         var is_api_access = false;
         // var user_id = 10;
     } catch {
-        console.log('---------------------'+JSON.stringify(req));
         let _id;
         if(_id = await apiAuthToken(req.body.token)) {
             req.user = {id : _id};
@@ -257,7 +249,7 @@ exports.add = async (req, res) => {
                 let within_days = info.within_days;
 
                 console.log('====================================');
-                console.log('|||||||||||||||||| dataa = '+ ii + ' - ' + ref);
+                console.log('|||||||||||||||||| dataa = '+ ii + ' - ');
                 console.log('====================================');
 
                 if(!schedule || schedule === 'null') {
@@ -316,22 +308,20 @@ exports.add = async (req, res) => {
         }
 
         //  GET USER BALANCE
-        var user_balance = await models.User.findByPk(user_id, {
+        let user_balance_ = await models.User.findByPk(user_id, {
             attributes: ['balance'], 
             raw: true, 
         })
-        
+        var user_balance = user_balance_.balance;
         console.log('USER BALANCE IS ' + JSON.stringify(user_balance));
         
-        if(!ref && (user_balance.balance < info.total_units)) {
+        if(!ref && (user_balance < info.total_units)) {
             console.log('INSUFFICIENT UNITS!');
 
             return;
         }
         
         console.log('form details are now...'); 
-
-        console.log('form details are now: ' + JSON.stringify(info)); 
 
         var originalmessage  = info.message.replace(/[^\x00-\x7F]/g, "");
         
@@ -371,11 +361,20 @@ exports.add = async (req, res) => {
             // var group = info.grp;
             
             var HAS_SURL = false;
-            console.log('info.grp = ' + info.grp + 'ppp-info.grp = ' + JSON.stringify(info.grp) + '______ref = ' + ref);
-            console.log((info.grp != 0 && !Array.isArray(info.grp)) ? "NON-ARRAY" : "ARRAY");
-            var groups = ((info.grp === "clicked") || (info.grp === "unclicked") || (info.grp === "elapsed")) ? [info.grp] : JSON.parse(info.grp);//
+            // console.log('info.grp = ' + info.grp + 'ppp-info.grp = ' + JSON.stringify(info.grp) + '______ref = ' + ref);
+            // console.log((info.grp != 0 && !Array.isArray(info.grp)) ? "NON-ARRAY" : "ARRAY");
+
+            var groups
+            if ((info.grp === "clicked") || (info.grp === "unclicked") || (info.grp === "elapsed")) {
+                groups = [info.grp]; 
+            } else {
+                let groups_ = JSON.parse(info.grp);//
+                groups = groups_.map(g => {
+                    return mongoose.Types.ObjectId(g);
+                })
+            }
             
-            console.log('______________________info.group = ' + groups + '; json = ' + JSON.stringify(groups));
+            // console.log('______________________info.group = ' + groups + '; json = ' + JSON.stringify(groups));
             var skip = (info.skip_dnd && info.skip_dnd == "on");
             var unsub     = info.add_optout;
             var dosub     = info.add_optin;
@@ -390,67 +389,77 @@ exports.add = async (req, res) => {
             if(groups !== 0) {
 
                 if(!ref) {
-                    var dd = await models.Group.findAll({
-                        include: [{
-                            model: models.Contact, 
-                            ...(
-                                skip ? {
-                                    where: {
-                                        [Sequelize.Op.and]: [
-                                            {
-                                                status: {
-                                                    [Sequelize.Op.ne] : 2
-                                                }
+                    var dd = await mongmodels.Group.aggregate([
+                        {
+                            $match: {
+                                _id: {
+                                    $in: groups,
+                                },
+                                userId: user_id,
+                            }
+                        }, {
+                            $lookup: {
+                                from: "contacts",
+                                // localField: '_id', 
+                                // foreignField: 'groupId',
+                                as: 'contacts',
+                                let: {
+                                    "group_id": "$_id"
+                                },
+                                pipeline: [
+                                    {
+                                        $match: {
+                                            userId:  user_id, 
+                                            $expr: {
+                                                $eq: [
+                                                    "$groupId", "$$group_id"
+                                                ],
                                             },
-                                            {
-                                                status: {
-                                                    [Sequelize.Op.ne] : 3
+                                            ...(
+                                                skip ? {
+                                                    $and: [
+                                                        {status: { $ne: 2 }},
+                                                        {status: { $ne: 3 }}
+                                                    ],
+                                                    ...(
+                                                        toall ? {
+                                                            $or: [
+                                                                { do_sms: 0 },
+                                                                { do_sms: 1 }
+                                                            ],
+                                                        } : {
+                                                            do_sms: tooptin ? 1 : 0         //  opted-ins = 1; awaiting = 0
+                                                        }
+                                                    )
+                                                } : {
+                                                    ...(
+                                                        toall ? {
+                                                            $or: [
+                                                                { do_sms: 0 },
+                                                                { do_sms: 1 }
+                                                            ],
+                                                        } : {
+                                                            do_sms: tooptin ? 1 : 0         //  opted-ins = 1; awaiting = 0
+                                                        }
+                                                    )
                                                 }
-                                            }
-                                        ],
-                                        ...(
-                                            toall ? {
-                                                [Sequelize.Op.or]: [
-                                                    {
-                                                        do_sms: 0
-                                                    },
-                                                    {
-                                                        do_sms: 1
-                                                    }
-                                                ],
-                                            } : {
-                                                do_sms: tooptin ? 1 : 0         //  opted-ins = 1; awaiting = 0
-                                            }
-                                        )
+                                            )
                                         }
-                                } : {
-                                    where: {
-                                        ...(
-                                            toall ? {
-                                                [Sequelize.Op.or]: [
-                                                    {
-                                                        do_sms: 0
-                                                    },
-                                                    {
-                                                        do_sms: 1
-                                                    }
-                                                ],
-                                            } : {
-                                                do_sms: tooptin ? 1 : 0         //  opted-ins = 1; awaiting = 0
-                                            }
-                                        )
-                                    }
-                                }
-                            )
-                        }],
-                        where: {
-                            id: {
-                                [Op.in]: groups,
-                            },
-                            userId: user_id,
-                        },
-                    })
-                    console.log('______________________groups=' + JSON.stringify(dd));
+                                    },
+                                ]
+                            }
+                        }, {
+                            $project: {
+                                "contacts.firstname": 1,
+                                "contacts.lastname": 1,
+                                "contacts.phone": 1,
+                                "contacts.email": 1,
+                                "contacts.country.id": 1,
+                                "contacts._id": 1,
+                                // "_id": 0
+                            }
+                        }                        
+                    ])      //  consider adding .exec() for proper promise handling
                     
                     //  merge contacts from all groups
                     var arr = [];
@@ -459,7 +468,8 @@ exports.add = async (req, res) => {
 
                         await models.CampaignGroup.create({
                             campaignId: cpn.id,
-                            groupId: el.id,
+                            groupId: el._id,
+                            groupName: el.name,
                         })
                         .error((err) => {
                             console.log('2BIG ERROR: ' + err);
@@ -484,14 +494,19 @@ exports.add = async (req, res) => {
                                     })
                                 },
                             } : {}),
-                            include: [{
+                            /* include: [{
                                 model: models.Contact, 
-                            }],
+                            }], */
                         }],
                     });
                 
                     if(ref_campaign) {
-                        var arr = ref_campaign.messages.map( k => { return k.contact });
+                        var arr_ = ref_campaign.messages.map( k => { return mongoose.Types.ObjectId(k.contactId) });
+                        var arr = await mongmodels.Contact.find({
+                            _id: {
+                                $in: arr_, 
+                            }
+                        })
                     } else {
                         //  if no valid message
                         info.destroy();
@@ -531,7 +546,6 @@ exports.add = async (req, res) => {
                     SINGLE_MSG = true;
                 }
 
-                console.log('________________________INFO00='+ JSON.stringify(info));
                 let resp = await smsSendEngines(
                     req, res,
                     user_id, user_balance, sndr, info, contacts, schedule, schedule_, 
@@ -587,28 +601,57 @@ exports.add = async (req, res) => {
             // console.log('req.body.group = ' + groups + '; json = ' + JSON.stringify(groups));
 
             if (groups == 0) throw "1001";
+            let ggs_ = groups.map(g => {
+                return mongoose.Types.ObjectId(g);
+            })
             var everything = [];
             var k = 0;
 
             if (sendmethod === 1) {
-                var dd = await models.Group.findAll({
-                    include: [{
-                        model: models.Contact, 
-                        where: {
-                            do_whatsapp: 1
+                var dd = await mongmodels.Group.aggregate([
+                    {
+                        $match: {
+                            _id: {
+                                $in: ggs_,
+                            },
+                            userId: user_id,
                         }
-                    }],
-                    where: {
-                        id: {
-                            [Op.in]: groups,
-                        },
-                        userId: req.user.id,
-                    },
-                })
+                    }, {
+                        $lookup: {
+                            from: "contacts",
+                            // localField: '_id', 
+                            // foreignField: 'groupId',
+                            as: 'contacts',
+                            let: {
+                                "group_id": "$_id"
+                            },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        userId:  user_id, 
+                                        $expr: {
+                                            $eq: [
+                                                "$groupId", "$$group_id"
+                                            ],
+                                        },
+                                        do_whatsapp: 1
+                                    }
+                                },
+                            ]
+                        }
+                    }, {
+                        $project: {
+                            "contacts.createdAt": 0,
+                            "contacts.updatedAt": 0,
+                            "createdAt": 0,
+                            "updatedAt": 0,
+                        }
+                    }                        
+                ])      //  consider adding .exec() for proper promise handling
 
                 //  merge contacts from all groups...
                 console.log('====================================');
-                console.log('GROUP OUTPUT = ' + JSON.stringify(dd));
+                // console.log('GROUP OUTPUT = ' + JSON.stringify(dd));
                 console.log('====================================');
 
                 if(dd.length == 0) throw "1002";
@@ -621,7 +664,7 @@ exports.add = async (req, res) => {
                     
                     await models.CampaignGroup.create({
                         campaignId: cpn.id,
-                        groupId: el.id,
+                        groupId: el._id,
                     });
                 });
 
@@ -632,10 +675,6 @@ exports.add = async (req, res) => {
                 
                 //  loop through all the batches
                 for (let i = 0; i < contacts.length; i++) {
-
-                    console.log('====================================');
-                    console.log('kontakt 1 is = ' + JSON.stringify(contacts[i]));
-                    console.log('====================================');
                     everything.push(await sendWhatsAppMessage(contacts[i]), "single");
                 }
         
@@ -751,7 +790,7 @@ exports.add = async (req, res) => {
             let nmsg = await cpn.createMessage({
                 shortlinkId: args.sid,
                 contactlink: args.cid,
-                contactId: kont.id,
+                contactId: kont._id,
                 platformtypeId: 2,
                 status: 0,
             })
@@ -775,7 +814,7 @@ exports.add = async (req, res) => {
             //  { SEND_SINGLE_MESSAGES_TO_CHAT-API }
                 console.log('1 kont = ' + JSON.stringify(kont));
 
-            let tophone = phoneformat(kont.phone, kont.countryId);
+            let tophone = phoneformat(kont.phone, kont.country.id);
             // console.log('====================================');
             // console.log(nmsg, tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken);
             // console.log('====================================');
@@ -784,7 +823,7 @@ exports.add = async (req, res) => {
                 // sendSingleMsg(nmsg, tophone, updatedmessage, req.user.wa_instanceurl, req.user.wa_instancetoken, kont.id, req.body.schedulewa);
                 console.log('2 kont = ' + JSON.stringify(kont));
                 
-                await whatsappSendMessage('message', tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken, kont.id, nmsg.id, req.body.schedulewa);
+                await whatsappSendMessage('message', tophone, updatedmessage, req.user.wa_instanceid, req.user.wa_instancetoken, kont._id, nmsg.id, req.body.schedulewa);
             } else {
 
                 let uploadedfile = await uploadMyFile(req.files.att_file, 'whatsapp');
@@ -809,7 +848,7 @@ exports.add = async (req, res) => {
                 nfile = 'data:' + uploadedfile.mimetype + ';base64,' + nfile;
                 // console.log('tepfile = ' + tempfilename + '; filenae = ' + filename + '; base64 = ' + nfile);
                 // sendSingleFile(nmsg, tophone, nfile, req.user.wa_instanceurl, req.user.wa_instancetoken, kont.id, req.body.schedulewa, filename, updatedmessage);
-                await whatsappSendMessage('file', tophone, nfile, req.user.wa_instanceid, req.user.wa_instancetoken, kont.id, nmsg.id, req.body.schedulewa, uploadedfile.filename, updatedmessage);
+                await whatsappSendMessage('file', tophone, nfile, req.user.wa_instanceid, req.user.wa_instancetoken, kont._id, nmsg.id, req.body.schedulewa, uploadedfile.filename, updatedmessage);
             }
             /* console.log('====================================');
             console.log('RECEIVED DATA: ' + JSON.stringify(req.body));
@@ -1210,6 +1249,7 @@ exports.download = (req, res) => {
     });
 };
 
+// not maintained
 exports.copy = (req, res) => {
     var user_id = req.user.id;
     var id = req.query.id;

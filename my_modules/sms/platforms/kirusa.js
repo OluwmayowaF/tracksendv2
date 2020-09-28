@@ -28,8 +28,11 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
   async function checkAndAggregate(kont) {
       k++;
       console.log('*******   Aggregating Contact #' + k + ':...    ******** kont = ' + JSON.stringify(kont) );
-      let formatted_phone = phoneformat(kont.phone, kont.countryId);
-      if(!formatted_phone) return;
+      let formatted_phone = phoneformat(kont.phone, kont.country.id);
+      if(!formatted_phone) {
+          console.log('phone NOT formatted');
+          return;
+      }
 
       // return new Promise(resolve => {
 
@@ -76,13 +79,13 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
                     contactId: '00000',
                 });
             } else {
-                // console.log('__________________contactID = ' + kont._id);
+                console.log('__________________contactID = ' + kont._id);
                 shrt = await cpn.createMessage({
                     shortlinkId: args.sid,
                     contactlink: args.cid,
-                    contactId: kont.id,
+                    contactId: kont._id,
                 });
-        }
+            }
 
               console.log('MESSAGE ENTRY CREATE STARTED.:::' + JSON.stringify(shrt));
                                               
@@ -100,11 +103,11 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
               // .replace(/\\t/g, '')
               .replace(/&nbsp;/g, ' ');
 
-              updatedmessage += (UNSUBMSG) ? _message('msg', 1091, kont.countryId, kont.id) : '';     //  add unsubscribe text
-              updatedmessage += (DOSUBMSG) ? _message('msg', 1092, kont.countryId, kont.id) : '';     //  add subscribe text
+              updatedmessage += (UNSUBMSG) ? _message('msg', 1091, kont.country.id, kont._id) : '';     //  add unsubscribe text
+              updatedmessage += (DOSUBMSG) ? _message('msg', 1092, kont.country.id, kont._id) : '';     //  add unsubscribe text
 
               console.log('====================================');
-            //   console.log('UNSUB MSG IS:::' + _message('msg', 1091, kont.country.id, kont._id));
+              console.log('UNSUB MSG IS:::' + _message('msg', 1091, kont.country.id, kont._id));
               console.log('====================================');
               
               if(SINGLE_MSG) {
@@ -245,7 +248,7 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
               }
 
               //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
-              let klist = sub_list.map(k => { return k.id })
+              let klist = sub_list.map(k => { return k._id })
               let resp = await dbPostSMSSend.dbPostSMSSend(req, res, batches, successfuls, failures, info, user_balance, user_id, cpn, schedule_, null, null, networkerror);
               console.log('a||||||||||||||||||||||||---' + JSON.stringify(resp));
         

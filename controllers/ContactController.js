@@ -1,54 +1,43 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../config/cfg/db');
+const mongoose = require('mongoose');
 const { default: axios } = require('axios');
 
 var phoneval = require('../my_modules/phonevalidate');
 var models = require('../models');
-
-exports.index = function(req, res) {
-    res.send('NOT IMPLEMENTED: Site Home Page');
-};
+var mongmodels = require('../models/_mongomodels');
+const { ObjectId } = require('mongoose');
+// const { Server } = require('mongodb');
 
 // Display list of all contacts
 exports.contactList = async (req, res) => {
     var user_id = req.user.id;
     var lnkgrp = req.params.lnkgrp;
-    // var defgtyp = null;
+
+    var grps = [];
+    var grps_ = await mongmodels.Group.find({
+        userId: user_id,
+        name: {
+            $ne: '[Uncategorized]',
+        }
+    }, (err, res) => {
+        console.log('EXTRACTED 1: ' + JSON.stringify(res));
+        grps.push(...res);
+    })
+    .sort({
+        "createdAt": -1
+    })
 
 
-    /* var grptyps = await models.Platformtype.findAll({
-        order: [ 
-            ['id', 'ASC']
-        ]
-    }); */
+    var non = await mongmodels.Group.find({
+        userId: user_id,
+        name: '[Uncategorized]'
+    }, (err, res) => {
+        console.log('EXTRACTED 2: ' + JSON.stringify(res));
+        grps.push(...res);
+    })
 
-    /* if(lnkgrp) {
-        defgtyp = await models.Group.findByPk(lnkgrp, {
-            attributes: ['platformtypeId']
-        });
-    } */
-
-
-    var grps = await models.Group.findAll({ 
-        where: { 
-            userId: user_id,
-            name: {
-                [Sequelize.Op.ne]: '[Uncategorized]',
-            }
-        },
-        order: [ 
-            ['createdAt', 'DESC']
-        ]
-    });
-
-    var non = await models.Group.findAll({ 
-        where: { 
-            userId: user_id,
-            name: '[Uncategorized]',
-        },
-    });
-
-    grps.push(non[0]);
+    // grps.push(non[0]);
 
     console.log('====================================');
     console.log(JSON.stringify(grps));
@@ -73,22 +62,19 @@ exports.newContact = (req, res) => {
     // ContactGroup.findAll({ where: { userId: { [Op.eq]: req.query.uid} }})
 
     Promise.all([
-        models.Group.findAll({ 
-            where: { 
-                userId: user_id,
-                name: {
-                    [Sequelize.Op.ne]: '[Uncategorized]',
-                }
-            },
-            order: [ 
-                ['createdAt', 'DESC']
-            ]
+        mongmodels.Group.find({
+            userId: user_id,
+            name: {
+                $ne: '[Uncategorized]',
+            }
+        }, (err, res) => {
+            return res;
         }), 
-        models.Group.findAll({ 
-            where: { 
-                userId: user_id,
-                name: '[Uncategorized]',
-            },
+        mongmodels.Group.find({
+            userId: user_id,
+            name: '[Uncategorized]'
+        }, (err, res) => {
+            return res;
         }), 
         models.Country.findAll({ 
             order: [ 
@@ -138,34 +124,25 @@ exports.download = async (req, res) => {
     })
     var user_id = req.user.id;
     var gid = req.params.gid;
+    var gname = req.params.gname;
 
     console.log('form details are now: ' + JSON.stringify(req.body)); 
+    console.log('userid: ' + JSON.stringify(user_id) + '; gid: ' + JSON.stringify(gid) + '; gname: ' + gname); 
 
-    let q = await models.Contact.findAll({
-        // raw: true,
-        where: { 
-            userId: user_id, 
-            groupId: gid, 
-        },
-        include: [{
-            model: models.Country, 
-            attributes: ['name'], 
-        },{
-            model: models.Group, 
-            attributes: ['name'], 
-        }],
-        attributes: [
-            'firstname',
-            'lastname',
-            'phone',
-            'email',
-            'do_sms',
-            'do_whatsapp',
-            'status',
-        ],
-        order: ['firstname', 'lastname', 'phone']
-    });
-
+    let q = await mongmodels.Contact.find({
+        userId:  user_id,
+        groupId: mongoose.Types.ObjectId(gid), 
+    }).select([
+        'firstname', 
+        'lastname',
+        'phone',
+        'email',
+        'do_sms',
+        'do_whatsapp',
+        'status',
+        'country.name', 
+        '_id'
+    ]);
     console.log('____________q=' + JSON.stringify(q));
     
     worksheet.cell(1,1).string('First Name').style(style);
@@ -248,9 +225,10 @@ exports.download = async (req, res) => {
          worksheet.cell(itr,8).string(i.status).style(style);
          
      });
+
      let timestamp_ = new Date();
      let timestamp = timestamp_.getTime();
-     let newfile = 'tmp/downloads/' + q[0].group.name + '_' + timestamp + '.xlsx';
+     let newfile = 'tmp/downloads/' + gname + '_' + timestamp + '.xlsx';
 
      await workbook.write(newfile, (err, status) => {
          if(err) console.log('_______________ERROR: ' + err);
@@ -290,13 +268,30 @@ exports.addContact = async (req, res) => {
         if(!req.body) throw 'error';
 
         if(req.body.group == -1) {
-            console.log('creating new contact and group');
-            var group = await user.createGroup(req.body);
+            console.log('creating new contact and group' + JSON.stringify(req.body));
+            // var group = await user.createGroup(req.body);
+
+            var group = await mongmodels.Group.create({
+                // id: 123,
+                name: req.body.name,
+                userId,
+                description: req.body.description,
+                count: 0,
+            }/* , (err, res) => {
+                console.log('________created group ERROR: ' + JSON.stringify(err));
+                console.log('________created group details: ' + JSON.stringify(res));
+            } */);
         } else {
-            var group = await models.Group.findByPk(req.body.group);
+            // var group = await models.Group.findByPk(req.body.group);
+            var group = await mongmodels.Group.findOne({
+                _id: mongoose.Types.ObjectId(req.body.group) 
+            }, (err, res) => {
+                console.log('mongodb found group details: ' + JSON.stringify(res));
+                return res;
+            });
         }
 
-        groupId = group.id;
+        groupId = group._id;
 
         if(!req.body.contacts) {
             contacts = [{
@@ -314,24 +309,35 @@ exports.addContact = async (req, res) => {
 
         for(let p = 0; p < contacts.length; p++) {
             try {
+                console.log('________creating contacts');
                 let country   = (req.body.countryall) ? req.body.countryall : contacts[p].country;  //  .countryall is for externalapi API
                 console.log('COUNTRY = ' + country);
                 
                 if(!(contacts[p].phone = phoneval(contacts[p].phone, country))) throw { name: "Invalid" };
 
-                let contact = await group.createContact({
+                let ctry_ = await models.Country.findByPk(country,
+                    {
+                        attributes: ['id', 'name', 'abbreviation'],
+                        raw: true,
+                    })
+                // console.log(JSON.stringify(ctry_));
+
+                var contact = await mongmodels.Contact.create({
                     firstname: contacts[p].firstname,
                     lastname:  contacts[p].lastname,
                     phone:     contacts[p].phone,
                     email:     contacts[p].email,
-                    countryId: country,
+                    groupId:   mongoose.Types.ObjectId(group._id),
+                    country:   ctry_,
                     userId:    userId,
                     status:    status,
-                })
+                }/* , (err, res) => {
+                    console.log('_______created contact with details: ' + JSON.stringify(res));
+                    console.log('_______created contact with ERROR: ' + JSON.stringify(err));
+                } */);
 
-
-                console.log('new contact id = ' + contact.id);
-                last_contactid = contact.id;
+                console.log('new contact id = ' + contact._id);
+                last_contactid = contact._id;
                 /* await group.update({
                     count: Sequelize.literal('count + 1'),
                 }); */
@@ -449,17 +455,24 @@ exports.saveContact = async (req, res) => {
         
         let id_, i_d;
         if(!req.body.id && req.zapier) {  //  IF THROUGH ZAPIER
-            id_ = await models.Contact.findOne({
+            /* id_ = await models.Contact.findOne({
                 where: {
                     phone:     req.body.phone,
                     countryId: req.body.country,
                     userId:    user_id,
                 },
                 attributes: ['id'],
-            })
+            }); */
+            console.log('-----------------0000000000');
+            id_ = await mongmodels.Contact.findOne({
+                phone:     req.body.phone,
+                'country.id': req.body.country,
+                userId:    user_id,
+            }, "id -_id");
         } else id_ = req.body.id;
+            console.log('-----------------1111111111');
 
-        let con = await models.Contact.findByPk(id_)
+        /* let con = await models.Contact.findByPk(id_)
         if(con.userId == user_id) {
             await con.update({
                 ...(req.body.firstname ? {
@@ -496,7 +509,49 @@ exports.saveContact = async (req, res) => {
             });
         } else {
             throw "Error: Invalid permission";
+        } */
+
+        let con = await mongmodels.Contact.findOneAndUpdate(
+            { 
+                _id: mongoose.Types.ObjectId(id_),
+                userId: user_id,        //  for authentication
+            },
+            {
+                ...(req.body.firstname ? {
+                    firstname: req.body.firstname,
+                } : {}),
+                ...(req.body.lastname ? {
+                    lastname: req.body.lastname,
+                } : {}),
+                ...(req.body.email ? {
+                    email: req.body.email,
+                } : {}),
+            }
+        )
+
+        //  ZAPIER
+        if(zap) {
+            let i_d = parseInt(user_id + "" + id_ + "" + new Date().getTime());
+            let ret = await axios({
+                method: 'POST',
+                url: zap.hookUrl,
+                data: [{
+                    id: i_d,
+                    contact_id: id_,
+                    action_type: "modify",
+                }],
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
         }
+
+        res.send({
+            response: "success",
+        });
+        
+        //  check for error and throw perhaps invalid permission
     } catch(err) {
         console.log('ERROR: ' + JSON.stringify(err));
         
@@ -524,38 +579,35 @@ exports.delContact = async (req, res) => {
         })
         
         //  get groups with the contact
-        var con = await models.Contact.findByPk(req.query.id)
-        if(con.userId == user_id) {
-            await con.destroy();
-            // var grp = await models.Group.findByPk(con.groupId);
-            /* await grp.update({
-                count: Sequelize.literal('count - 1'),
-            }) */
+        await mongmodels.Contact.findOneAndDelete({
+            _id: mongoose.Types.ObjectId(req.query.id),
+            userId: user_id
+        });
 
-            //  ZAPIER
-            if(zap) {
-                let i_d = parseInt(user_id + "" + req.query.id + "" + new Date().getTime());
-                let ret = await axios({
-                    method: 'POST',
-                    url: zap.hookUrl,
-                    data: [{
-                        id: req.query.id,
-                        contact_id: req.query.id,
-                        action_type: "delete",
-                    }],
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                })
-            }
-            
-            res.send({
-                response: "success",
-            });
-        } else {
-            throw "Error: Invalid permission";
+        //  ZAPIER
+        if(zap) {
+            let i_d = parseInt(user_id + "" + req.query.id + "" + new Date().getTime());
+            let ret = await axios({
+                method: 'POST',
+                url: zap.hookUrl,
+                data: [{
+                    id: req.query.id,
+                    contact_id: req.query.id,
+                    action_type: "delete",
+                }],
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
         }
+
+        res.send({
+            response: "success",
+        });
+        /* } else {
+            throw "Error: Invalid permission";
+        } */
     } catch (err) {
         console.log('ERROR: ' + JSON.stringify(err));
         
@@ -581,116 +633,366 @@ exports.getContacts = async (req, res) => {
         return;
     }
 
-    var q;
-    if(req.query.grp != -1) {
+    var q, q_;
         
-        if(req.query.txt) {
-            console.log('yes ttt');
-            
-            q = await sequelize.query(
-                "SELECT * FROM contacts " +
-                "WHERE (" + 
-                    " firstname LIKE :tt OR " +
-                    " lastname LIKE :tt OR " + 
-                    " phone LIKE :tt OR " +
-                    " email LIKE :tt " +
-                ") AND groupId = (:grp) " +
-                "AND userId = (:usr) " +
-                "LIMIT 100 ",
-                {
-                    replacements: {
-                        tt: '%' + req.query.txt + '%',
-                        grp: req.query.grp,
-                        usr: user_id,
-                    },
-                    type: sequelize.QueryTypes.SELECT,
-                },
-            );
-        } else {
-            console.log('no tt');
-            
-            q = await Promise.all([
-                    models.Group.findByPk(req.query.grp, {
-                    include: [{
-                        model: models.Contact, 
-                        where: { userId: user_id },
-                        limit: 100,
-                        // attributes: ['id', 'name', 'nameKh'], 
-                        // through: { }
-                    }],
-                    where: { userId: user_id } 
-                }),
-                sequelize.query(
-                    "SELECT * FROM ( SELECT COUNT(status) AS unverified FROM contacts WHERE status = 0 AND groupId = :gid AND userId = :uid) t1, " +
-                    "              ( SELECT COUNT(status) AS ndnd       FROM contacts WHERE status = 1 AND groupId = :gid AND userId = :uid) t2, " +
-                    "              ( SELECT COUNT(status) AS dnd        FROM contacts WHERE status = 2 AND groupId = :gid AND userId = :uid) t3, " +
-                    "              ( SELECT COUNT(do_sms) AS awoptin    FROM contacts WHERE do_sms = 0 AND groupId = :gid AND userId = :uid) t4, " +
-                    "              ( SELECT COUNT(do_sms) AS optin      FROM contacts WHERE do_sms = 1 AND groupId = :gid AND userId = :uid) t5, " +
-                    "              ( SELECT COUNT(do_sms) AS optout     FROM contacts WHERE do_sms = 2 AND groupId = :gid AND userId = :uid) t6 " , {
-                        replacements: {
-                            gid: req.query.grp,
-                            uid: user_id,
-                        },
-                        type: sequelize.QueryTypes.SELECT,
-                    }
-                ),
-                models.Group.findByPk(req.query.grp, {
-                    include: [{
-                        model: models.Contact,
-                        where: {
-                            userId: user_id,
-                        },
-                        attributes: [[sequelize.fn('count', sequelize.col('groupId')), 'ccount']],
-                    }],
-                    attributes: ['contacts.groupId'],
-                    group: ['contacts.groupId'],
-                    // raw: true,
-                })
-            ]);
-        }
+    if(req.query.txt) {
+        console.log('yes ttt');
+        
+        let tt = new RegExp(req.query.txt, 'gi');
 
-        res.send(q); 
-        /* q.then((cg, conts) => {
-            console.log(JSON.stringify(cg));
-            
-            res.send([cg, conts]); 
-        }); */
+        q_ = await mongmodels.Contact.find({
+            $or: [
+                { firstname: tt },
+                { lastname: tt },
+                { phone: tt },
+                { email: tt },
+            ],
+            userId: user_id,
+            ...(
+                (req.query.grp != -1) ? {
+                    groupId: mongoose.Types.ObjectId(req.query.grp),
+                } : {}
+            )
+        }).select(['_id', 'firstname', 'lastname', 'phone', 'email', 'status']).limit(100);
     } else {
-
-        if(req.query.txt) {
-            console.log('yes ttt');
-            
-            q = await sequelize.query(
-                "SELECT * FROM contacts " +
-                "WHERE (" + 
-                    " firstname LIKE :tt OR " +
-                    " lastname LIKE :tt OR " + 
-                    " phone LIKE :tt OR " +
-                    " email LIKE :tt " +
-                ") AND userId = :usr " +
-                "LIMIT 100 ",
-                {
-                    replacements: {
-                        tt: '%' + req.query.txt + '%',
-                        usr: user_id,
+        console.log('no tt');
+        if(req.query.grp != -1) {
+            // const ObjectId = mongoose.Types.ObjectId;
+            q = await Promise.all([
+                mongmodels.Group.aggregate([
+                    {
+                        $match: {
+                            _id:  mongoose.Types.ObjectId(req.query.grp), 
+                            userId:  user_id, 
+                        }
                     },
-                    type: sequelize.QueryTypes.SELECT,
-                },
-            );
+                    { 
+                        $lookup: {
+                            from: "contacts",
+                            // localField: '_id', 
+                            // foreignField: 'groupId',
+                            as: 'contacts',
+                            let: {
+                                "group_id": "$_id"
+                            },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        userId:  user_id, 
+                                        $expr: {
+                                            $eq: [
+                                                "$groupId", "$$group_id"
+                                            ],
+                                        }
+                                    }
+                                },
+                                {
+                                    $limit: 100
+                                },
+                            ]
+                        },
+                    },
+                    // {   $unwind:"$group" },
+                    {
+                        $project: {
+                            "name": 1,
+                            "description": 1,
+                            "createdAt": 1,
+                            "updatedAt": 1,
+                            "contacts._id": 1,
+                            "contacts.firstname": 1,
+                            "contacts.lastname": 1,
+                            "contacts.phone": 1,
+                            "contacts.email": 1,
+                            "contacts.status": 1,
+                            "contacts.groupId": 1,
+                            // "_id": 0
+                        }
+                    },
+                ], (err, res) => {
+                    console.log('_____________2dowloading data : ' + JSON.stringify(res));
+                    return res;
+                }),
+                
+/*                 mongmodels.Contact.aggregate([
+                    {
+                        $match: {
+                            status:  0, 
+                            groupId:  mongoose.Types.ObjectId(req.query.grp), 
+                            userId:  user_id, 
+                        }
+                    },
+                    { 
+                        $count: "unverified",
+                    },
+                    // {   $unwind:"$group" },
+                    {
+                        $unionWith: {
+                            coll: 'groups',
+                            $pipeline: [
+                                {
+                                    $match: {
+                                        status:  1, 
+                                        groupId:  mongoose.Types.ObjectId(req.query.grp), 
+                                        userId:  user_id, 
+                                    }
+                                },
+                                { 
+                                    $count: "ndnd",
+                                },
+                            ]
+                        }
+                    },
+                    {
+                        $unionWith: {
+                            coll: 'groups',
+                            $pipeline: [
+                                {
+                                    $match: {
+                                        status:  2, 
+                                        groupId:  mongoose.Types.ObjectId(req.query.grp), 
+                                        userId:  user_id, 
+                                    }
+                                },
+                                { 
+                                    $count: "dnd",
+                                },
+                            ]
+                        }
+                    },
+                    {
+                        $unionWith: {
+                            coll: 'groups',
+                            $pipeline: [
+                                {
+                                    $match: {
+                                        do_sms: 0, 
+                                        groupId:  mongoose.Types.ObjectId(req.query.grp), 
+                                        userId:  user_id, 
+                                    }
+                                },
+                                { 
+                                    $count: "awoptin",
+                                },
+                            ]
+                        }
+                    },
+                    {
+                        $unionWith: {
+                            coll: 'groups',
+                            $pipeline: [
+                                {
+                                    $match: {
+                                        do_sms: 1, 
+                                        groupId:  mongoose.Types.ObjectId(req.query.grp), 
+                                        userId:  user_id, 
+                                    }
+                                },
+                                { 
+                                    $count: "optin",
+                                },
+                            ]
+                        }
+                    },
+                    {
+                        $unionWith: {
+                            coll: 'groups',
+                            $pipeline: [
+                                {
+                                    $match: {
+                                        do_sms:  2, 
+                                        groupId:  mongoose.Types.ObjectId(req.query.grp), 
+                                        userId:  user_id, 
+                                    }
+                                },
+                                { 
+                                    $count: "optout",
+                                },
+                            ]
+                        }
+                    },
+                ], (err, res) => {
+                    console.log('___________found contacts count is : ' + JSON.stringify(res));
+                    return res;
+                }),
+*/
+                mongmodels.Contact.aggregate([
+                    {
+                        $match: {
+                            status:  0, 
+                            groupId: mongoose.Types.ObjectId(req.query.grp), 
+                            userId:  user_id, 
+                        }
+                    },
+                    { 
+                        $count: "unverified",
+                    },
+                ], (err, res) => {
+                    return res;
+                }),
+                mongmodels.Contact.aggregate([
+                    {
+                        $match: {
+                            status:  1, 
+                            groupId:  mongoose.Types.ObjectId(req.query.grp), 
+                            userId:  user_id, 
+                        }
+                    },
+                    { 
+                        $count: "ndnd",
+                    },
+                ], (err, res) => {
+                    return res;
+                }),
+                mongmodels.Contact.aggregate([
+                    {
+                        $match: {
+                            status:  2, 
+                            groupId:  mongoose.Types.ObjectId(req.query.grp), 
+                            userId:  user_id, 
+                        }
+                    },
+                    { 
+                        $count: "dnd",
+                    },
+                ], (err, res) => {
+                    return res;
+                }),
+                mongmodels.Contact.aggregate([
+                    {
+                        $match: {
+                            do_sms: 0, 
+                            groupId:  mongoose.Types.ObjectId(req.query.grp), 
+                            userId:  user_id, 
+                        }
+                    },
+                    { 
+                        $count: "awoptin",
+                    },
+                ], (err, res) => {
+                    return res;
+                }),
+                mongmodels.Contact.aggregate([
+                    {
+                        $match: {
+                            do_sms: 1, 
+                            groupId:  mongoose.Types.ObjectId(req.query.grp), 
+                            userId:  user_id, 
+                        }
+                    },
+                    { 
+                        $count: "optin",
+                    },
+                ], (err, res) => {
+                    return res;
+                }),
+                mongmodels.Contact.aggregate([
+                    {
+                        $match: {
+                            do_sms:  2, 
+                            groupId:  mongoose.Types.ObjectId(req.query.grp), 
+                            userId:  user_id, 
+                        }
+                    },
+                    { 
+                        $count: "optout",
+                    },
+                ], (err, res) => {
+                    return res;
+                }),
+
+                mongmodels.Group.aggregate([
+                    {
+                        $match: {
+                            _id:  mongoose.Types.ObjectId(req.query.grp), 
+                            userId:  user_id, 
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "contacts",
+                            // localField: '_id', 
+                            // foreignField: 'groupId',
+                            as: 'contacts',
+                            let: {
+                                "group_id": "$_id"
+                            },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        userId:  user_id, 
+                                        $expr: {
+                                            $eq: [
+                                                "$groupId", "$$group_id"
+                                            ]
+                                        }
+                                    },
+                                },
+                                {
+                                    $count: 'ccount',
+                                },
+                                // {   $unwind:"$contacts" },
+                            ]
+                        }
+                    },
+                    {
+                        $project: {
+                            "contacts.ccount": 1,
+                            "_id": 0,
+                        }
+                    },
+                    // group: ['contacts.groupId'],
+                    // raw: true,
+                ]),
+
+                /* mongmodels.Group.aggregate([
+                    {
+                        $lookup: {
+                            from: "contacts",
+                            localField: '_id', 
+                            foreignField: 'groupId',
+                            as: 'contacts',
+                        },
+                        $pipeline: [
+                            {
+                                $match: {
+                                    userId: user_id,
+                                }
+                            },
+                            {
+                                $count: 
+                            }
+                        ]
+                    }
+                ]) */
+
+            ]);
+
+            let conts = q[0][0]
+            let summs = [{
+                unverified: q[1][0] ? q[1][0].unverified : null,
+                ndnd:       q[2][0] ? q[2][0].ndnd : null,
+                dnd:        q[3][0] ? q[3][0].dnd : null,
+                awoptin:    q[4][0] ? q[4][0].awoptin : null,
+                optin:      q[5][0] ? q[5][0].optin : null,
+                optout:     q[6][0] ? q[6][0].optout : null,
+            }]
+            let ccount = q[7][0];
+            q_ = [
+                conts,
+                summs,
+                ccount,
+            ]
         } else {
             console.log('no tt');
         
-            q = await models.Contact.findAll({
-                // raw: true,
-                where: { 
+            q_ = await mongmodels.Contact.find({
                     userId: user_id, 
-                },
-                limit: 100,
-            });
+            }).limit(100);
         }
-
-        res.send(q); 
     }
+
+    res.send(q_); 
 
 }
 

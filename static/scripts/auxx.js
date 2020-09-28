@@ -1124,14 +1124,11 @@ $(document).ready(function() {
 	});
 
 	$('#sel_contact_group').on('change', function(e) {
-console.log('====================================');
-console.log('changed');
-console.log('====================================');
-		$we = $(this);
+		let $we = $(this);
 		if($we.hasClass('_plain')) return;
 
 		var opt = $we.val();
-		console.log('efasd sfdasdfasdf sfdasd...'+opt);
+		console.log('0 -- efasd sfdasdfasdf sfdasd...'+opt);
 
 		if(opt == '0') {
 			$('#show_contacts_pane').hide();			
@@ -1139,7 +1136,7 @@ console.log('====================================');
 			return;
 		}
 
-		_getContacts(opt, '');
+		_getContacts(opt, $('#sel_contact_group option:selected').text(), '');
 	
 	})
 
@@ -1150,7 +1147,7 @@ console.log('====================================');
 		var opt = $we.val();
 		var txt = '';//$('#sel_contact_grouptype:selected').text();
 
-		console.log('efasd sfdasdfasdf sfdasd...'+txt);
+		console.log('1 -- efasd sfdasdfasdf sfdasd...'+txt);
 
 		$('#show_contacts_pane').hide();			
 		$('.lists #contact_list').html('');			
@@ -1174,7 +1171,7 @@ console.log('====================================');
 		// if(tt.length == 0) return;
 
 		var opt = $('#sel_contact_group').val();
-		console.log('efasd sfdasdfasdf sfdasd...'+opt);
+		console.log('2 -- efasd sfdasdfasdf sfdasd...'+$('#sel_contact_group option:selected').text());
 
 		/* if(opt == '0') {
 			$('#show_contacts_pane').hide();			
@@ -1182,11 +1179,11 @@ console.log('====================================');
 			return;
 		} */
 
-		_getContacts(opt, tt);
+		_getContacts(opt, $('#sel_contact_group option:selected').text(), tt);
 	
 	})
 
-	function _getContacts(opt, txt) {
+	function _getContacts(opt, gname, txt) {
 
 		var arg;
 
@@ -1254,7 +1251,7 @@ console.log('====================================');
 						$('#_group_info #_udate').text('');
 						
 					} else {
-						console.log('ount: ' + JSON.stringify(data[2].contacts[0].ccount));
+						// console.log('ount: ' + JSON.stringify(data[2].contacts[0].ccount));
 						
 						if(switchgrp) {
 							$('#search_conts_box #search_conts').val('');
@@ -1274,11 +1271,11 @@ console.log('====================================');
 							$('#_group_info #_udate').text(moment.utc(data[0].updatedAt, 'YYYY-MM-DD HH:mm:ss Z').format('h:mm a, DD-MMM, YYYY'));
 							$('#_group_info').show();
 							
-							$('#contact_download_link').attr('href', '/dashboard/contacts/download/' + opt);
+							$('#contact_download_link').attr('href', '/dashboard/contacts/download/' + opt + '/' + data[0].name);
 							dat = data[0].contacts;
 						} else {
 							$('#group_contact_count').text(data.length);
-							$('#group_name').text(data.name);
+							$('#group_name').text(gname + ' (Search Results for \'' + txt + '\')');
 							$('#group_contact_count').text(data.count);
 
 							dat = data;
@@ -1313,7 +1310,7 @@ console.log('====================================');
 							let repltxt = new RegExp('(' + txt + ')', 'gi');
 							var html = '<li class="list_item" data-wh="contact">' +
 													'	<ul class="saved_item">' +
-													'		<input type="hidden" class="cid" value="'+i.id+'" />' +
+													'		<input type="hidden" class="cid" value="'+i._id+'" />' +
 													'		<li style="flex: 3" class="dv_firstname">'+(!i.firstname ? '--' : ((txt == '') ? i.firstname : i.firstname.replace(repltxt, '<span style="text-decoration: underline">$1</span>')))+'</li>' +
 													'		<li style="flex: 3" class="dv_lastname">'+(!i.lastname ? '--' : ((txt == '') ? i.lastname : i.lastname.replace(repltxt, '<span style="text-decoration: underline">'+txt+'</span>')))+'</li>' +
 													'		<li style="flex: 2">'+((txt == '') ? i.phone : i.phone.replace(repltxt, '<span style="text-decoration: underline">'+txt+'</span>'))+'</li>' +
@@ -1330,7 +1327,7 @@ console.log('====================================');
 														'		<div class="col-md-5">' +
 														'			<h5>First Name </h5>' +
 														'			<input type="text" name="firstname" class="ed_firstname" value="'+i.firstname+'">' +
-														'			<input type="hidden" name="id" class="id" value="'+i.id+'">' +
+														'			<input type="hidden" name="id" class="id" value="'+i._id+'">' +
 														'		</div>' +
 														'		<div class="col-md-6">' +
 														'			<h5>Last Name </h5>' +
@@ -1424,7 +1421,7 @@ console.log('====================================');
 					}
 					if(g.name == '[Uncategorized]')
 					$('#sel_contact_group').append('<option disabled>--------------------------</option>');
-					$('#sel_contact_group').append('<option value="'+ g.id +'">'+ g.name +'</option>');
+					$('#sel_contact_group').append('<option value="'+ g._id +'">'+ g.name +'</option>');
 				});
 				if($('#sel_contact_group').find('option').length === 0) {
 						$('#sel_contact_group').append('<option disabled selected>No groups created.</option>');	

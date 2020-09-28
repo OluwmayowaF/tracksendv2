@@ -43,7 +43,7 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
     async function checkAndAggregate(kont) {
         k++;
         console.log('*******   Aggregating Contact #' + k + ':...    ********');
-        let formatted_phone = phoneformat(kont.phone, kont.countryId);
+        let formatted_phone = phoneformat(kont.phone, kont.country.id);
         if(!formatted_phone) return;
           
         // return new Promise(resolve => {
@@ -55,7 +55,13 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
                 var uid = makeId(3);
                 var exists = await models.Message.findAll({
                     where: { 
-                        campaignId: cpn.id,
+                        ...(
+                            (req.txnmessaging) ? {
+                                shortlinkId: info.shortlinkId,
+                            } : {
+                                campaignId: cpn.id,
+                            }
+                        ),
                         contactlink: uid,
                     },
                 })
@@ -78,13 +84,22 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
         }
         
         async function saveMsg(args) {
+            let shrt;
             console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
             try {
-                let shrt = await cpn.createMessage({
-                    shortlinkId: args.sid,
-                    contactlink: args.cid,
-                    contactId: kont.id,
-                });
+                if(req.txnmessaging) {
+                    shrt = await models.Message.create({
+                        shortlinkId: args.sid,
+                        contactlink: args.cid,
+                        contactId: kont._id,
+                    });
+                } else {
+                    shrt = await cpn.createMessage({
+                        shortlinkId: args.sid,
+                        contactlink: args.cid,
+                        contactId: kont._id,
+                    });
+                }
 
                 console.log('MESSAGE ENTRY CREATE STARTED.');
                                                 
@@ -102,8 +117,8 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
                 // .replace(/\\t/g, '')
                 .replace(/&nbsp;/g, ' ');
 
-                updatedmessage += (UNSUBMSG) ? _message('msg', 1091, kont.countryId, kont.id) : '';     //  add unsubscribe text
-                updatedmessage += (DOSUBMSG) ? _message('msg', 1092, kont.countryId, kont.id) : '';     //  add subscribe text
+                updatedmessage += (UNSUBMSG) ? _message('msg', 1091, kont.country.id, kont._id) : '';     //  add unsubscribe text
+                updatedmessage += (DOSUBMSG) ? _message('msg', 1092, kont.country.id, kont._id) : '';     //  add subscribe text
 
                 if(SINGLE_MSG) {
                     var msgto = {    //  STEP 0 OF MESSAGE CONSTRUCTION
@@ -134,7 +149,7 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
                     }; 
                     
                     console.log('UNSINGLE MESSAGE ENTRY CREATE DONE.');
-                    if(file_not_logged) {
+                    if(file_not_logged && !req.txnmessaging) {
                         filelogger('sms', 'Send Campaign (Infobip)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
                         file_not_logged = false;
                     }    
@@ -199,7 +214,7 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
                     "validityPeriod" : m_validityPeriod,
                 };
                 console.log('SINGLE COMPILED!');
-                if(file_not_logged) {
+                if(file_not_logged && !req.txnmessaging) {
                     filelogger('sms', 'Send Campaign (Infobip)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
                     file_not_logged = false;
                 }    
@@ -221,7 +236,7 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
             console.log('MSGS ARE: ' + JSON.stringify(data));
             
             var tosend = {
-                "bulkId": 'CMPGN-' + cpn.id + '-' + counter,
+                "bulkId": (req.txnmessaging) ? 'TXNMSG-' + new Date().getTime().toString() : 'CMPGN-' + cpn.id + '-' + counter,
                 "messages": data,
                 "tracking": {
                     "track" : q_tracking_track,
