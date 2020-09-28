@@ -664,7 +664,7 @@ exports.manualpost = async (req, res) => {
 
 exports.testerly = async (req, res) => {
 
-    return;
+    // return;
     const groups = await models.Group.findAll();
     await mongmodels.Group.deleteMany({});
     var grplist = [];
