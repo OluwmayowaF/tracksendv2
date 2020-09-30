@@ -213,10 +213,22 @@ exports.do = async (req, res) => {
 
         console.log('COUNTRY = ' + req.body.country);
 
-        if(groupId === -1) {
+        if(groupId == -1) {
             let user = await models.User.findByPk(userId)
-            let grp = await user.createGroup(req.body)
-            groupId = grp.id;
+            console.log('creating new contact and group' + JSON.stringify(req.body));
+            // var group = await user.createGroup(req.body);
+
+            var grp = await mongmodels.Group.create({
+                // id: 123,
+                name: req.body.name,
+                userId,
+                description: req.body.description,
+                count: 0,
+            }/* , (err, res) => {
+                console.log('________created group ERROR: ' + JSON.stringify(err));
+                console.log('________created group details: ' + JSON.stringify(res));
+            } */);
+            groupId = grp._id;
             console.log('new group ID is: ' + groupId);
         }
         
