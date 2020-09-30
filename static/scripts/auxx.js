@@ -1933,6 +1933,56 @@ $(document).ready(function() {
 		
 	})
 
+	$('._for_new_field select').on('change', function(e) {
+	  console.log($(this).val());
+		if($(this).val() == "n_f") {
+			$(this).closest('._for_new_field').find('input').show();
+		} else {			
+			$(this).closest('._for_new_field').find('input').hide();
+		}
+	})
+
+	$('#upload_fields_form').submit(function (e) {
+		// e.preventDefault();
+
+		console.log('validting...');
+		$('._form_errors._e_upload_field').text('');
+		$('._form_errors._e_upload_field').hide();
+		let list = [];
+		let has_phone = false;
+		let is_repeated = false;
+		let is_new_empty = false;
+		let is_empty = true;
+		let msg = '';
+
+		$('._for_new_field').each((i, el) => {
+			console.log('...........' + i);
+			let selet = $(el).find('select').val();
+			if(selet == "phone") has_phone = true;
+			if((selet == "n_f") && !($(el).find('input._new_field').val().trim().length)) is_new_empty = true;
+			if((selet != "n_0") && (selet != "n_f")) is_empty	= false;
+			if((selet != "n_0") && (selet != "n_f") && (list.indexOf(selet) != -1)) is_repeated	= true;
+			list.push(selet);
+		})
+
+		if(!has_phone) msg += "'Phone' field is compulsory | ";
+		if(is_empty) msg += "Choose Columns | ";
+		if(is_repeated) msg += "Columns should be unique | ";
+		if(is_new_empty) msg += "Specify name for 'new field' or select 'Ignore' | ";
+
+		if(msg != '') {
+			msg += "Kindly check. ";
+			$(e.target).find('span.loading_icon').hide();
+			$('._form_errors._e_upload_field').text(msg);
+			$('._form_errors._e_upload_field').show();
+
+			return false;
+		} else {
+			return true;
+		}
+	})
+
+
 })
 
 function halidate(we) {

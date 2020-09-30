@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const sequelize = require('../config/cfg/db');
 const dbauth = require('../config/cfg/dbauth')();
 var uploadMyFile = require('../my_modules/uploadHandlers');
 var phoneval = require('../my_modules/phonevalidate');
@@ -9,6 +10,7 @@ const fs        = require('fs');
 const csv       = require('fast-csv');
 var moment      = require('moment');
 var mysql       = require('mysql');
+const _ = require('lodash');
  
 var connection  = mysql.createPool({
     connectionLimit : 10,
@@ -23,7 +25,7 @@ const MAX_UPLOAD_RECORDS = 1000000;
 
 // Display detail page for a specific contact.
 // Display contact create form on GET.
-exports.index = (req, res) => {
+exports.index = async (req, res) => {
     var holdn = req.flash('result');    
     var user_id = req.user.id;
     console.log('user is: ' + user_id);
@@ -65,6 +67,22 @@ exports.index = (req, res) => {
             { name: 'Nationality',    value: 'nationality' },
         ];
 
+        // let list = null;
+        let list = await sequelize.query(
+            "SELECT * FROM standardcontactfields"
+        ).then(([results, metadata]) => {
+            console.log(JSON.stringify(results));
+            return results;
+        });
+
+        // console.log('listing = ' + list.lemgth);
+        let std_list_grp1 = list.filter(i => {
+            return (i.grouping === 1);
+        })
+        let std_list_grp2 = list.filter(i => {
+            return (i.grouping === 2);
+        })
+
         /* let str = '';
         standard_fields.forEach(f => {
             str += '<option>' + f + '</option>';
@@ -83,7 +101,8 @@ exports.index = (req, res) => {
                 fid,
                 grp,
                 ctry,
-                standard_fields,
+                std_list_grp1,
+                std_list_grp2,
                 // standard_fields: str,
             }
 
@@ -111,7 +130,7 @@ exports.index = (req, res) => {
         ])
         .then(([grps, ctry]) => {
             console.log('flash error = ' + req.flash('error') + '; flash suss = ' + req.flash('success'));
-            console.log('________________grps=', JSON.stringify(grps));
+            // console.log('________________grps=', JSON.stringify(grps));
             
             var flashtype, flash = req.flash('error');
             if(flash.length > 0) {
@@ -174,7 +193,7 @@ exports.do = async (req, res) => {
 
         //  this is just to get the titles of the file... if user indicates titled file
         if(rowcount >= 1) {
-            console.log('raw rows: ' + JSON.stringify(data) + '...' + rowcount);
+            // console.log('raw rows: ' + JSON.stringify(data) + '...' + rowcount);
         } else {
             headers = data; // push each row
         }
@@ -256,7 +275,7 @@ exports.validate = async (req, res) => {
     
     console.log('path na: ' + fpath);
 
-    var fields = getDataRows(req.body);
+    var fields = getDataColumns(req.body), otherfields
     var countryinfo = await models.Country.findByPk(countryId, {
         attributes: ['name', 'abbreviation']
     })
@@ -283,22 +302,23 @@ exports.validate = async (req, res) => {
 
         fs.unlinkSync(fpath);   // remove temp file
 
-        // console.log('_________mypushing: ' + JSON.stringify(fileRows));
+        // console.log('________fileRows: ' + JSON.stringify(fileRows));
         
         rows_matched = fileRows.slice(1, fileRows.length).map(mapfn);   //  the slice removes the header
-        // console.log('______allobject = ' + JSON.stringify(rows_matched));
+        // console.log('______rows_matched = ' + JSON.stringify(rows_matched));
 
         //  filter out corrupt entries
         var rows_trimmed = rows_matched.slice(0, MAX_UPLOAD_RECORDS);   //  rows limit is 50,000
+        // console.log('______rows_trimmed = ' + JSON.stringify(rows_trimmed));
         var rows_finetuned = rows_trimmed.filter(validateCsvRow);
 
-        console.log('________FINAL DATA: ' + rows_finetuned);
+        // console.log('________FINAL DATA: ' + JSON.stringify(rows_finetuned));
         console.log('t_error: ' + total_errors + '; e_errors: ' + email_errors + '; p_errors: ' + phone_errors);
         // return;
 
         let finished = await mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(rows_finetuned))) //   for massive amount of bulk insert
 
-        console.log('________FINISHED = ' + JSON.stringify(finished));
+        // console.log('________FINISHED = ' + JSON.stringify(finished));
         let inserted = 0;
         if(finished) {
             inserted = finished.length;
@@ -308,7 +328,8 @@ exports.validate = async (req, res) => {
         }
         
         // req.flash('success', 'Upload complete successfully: <b>' + inserted + '</b> duplicate contacts added; <b>' + duplicates + '</b> contacts ignored.');
-        if(inserted) req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added; ' + duplicates + ' duplicate contacts ignored' + (phone_errors > 0 ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '') );
+        // if(inserted) req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added; ' + duplicates + ' duplicate contacts ignored' + (phone_errors > 0 ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '') );
+        if(inserted) req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added' + ((phone_errors) ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '.'));
         else req.flash('error', 'Upload failure. Please try again later or contact Admin');
         res.redirect('/dashboard/upload');
         
@@ -320,29 +341,47 @@ exports.validate = async (req, res) => {
     })
 
     //  This function extracts the required field names from the inputs
-    function getDataRows(data) {
+    function getDataColumns(data) {
         let len = data.fieldscount;
-        let fields = [], val;
+        let fields_ = [], val;
+        let otherfields_ = [];
 
         for(let i = 0; i < len; i++) {
             if(data['row_' + i] == "n_0") {
                 val = null;
             } else if(data['row_' + i] == "n_f") {
-                val = data['newfield_' + i];
+                // val = data['newfield_' + i];
+                otherfields_.push({name: data['newfield_' + i], num: i});
+                // otherfields[data['newfield_' + i]] = '';
             } else {
                 val = data['row_' + i]
             }
-            fields.push(val);
+            fields_.push(val);
         }
 
-        return fields;
+        if(Object.keys(otherfields_).length) {
+            otherfields = otherfields_;
+            fields_.push({otherfields});
+        }
+        console.log('FILS ARE = ' + JSON.stringify(fields_));
+        return fields_;
     }
 
     //  This function adds some relevant data to each row ['userId, groupId, countryId, status]
     function mapfn(row) {
         let obj = {};
+        let chk;
+        obj['otherfields'] = {};
+
         row.forEach((val, i) => {
-            if(fields[i]) obj[fields[i]] = row[i];
+            if(chk = _.find(otherfields, function(o) { return i == o.num; })) {
+                // console.log('OTHER FOUND @ i = ' + i);
+                obj['otherfields'][textToSluggish(chk.name)] = val;
+            } else {
+                // console.log('OTHER NOOOOT FOUND @ i = ' + i);
+                if(fields[i]) obj[fields[i]] = val;
+            }
+
         })
         obj['userId'] = userId;
         obj['groupId'] = groupId;
@@ -360,9 +399,11 @@ exports.validate = async (req, res) => {
         var email = row.email;
 
         if(phone) {
-            row[2] = phone;
+            // console.log('.................true');
+            row.phone = phone;
             return true;
         } else {
+            // console.log('.................false');
             total_errors++;
             phone_errors++;
             return false;
@@ -378,6 +419,16 @@ exports.validate = async (req, res) => {
             email_errors++;
             return false;
         }
+    }
+
+    //  This function converts texts to slug forms
+    function textToSluggish(text) {
+        return text.toString().toLowerCase()
+            .replace(/\s+/g, '_')
+            .replace(/[^\w\-]+/g, '')
+            .replace(/\-\-+/g, '_')
+            .replace(/^-+/g, '')
+            .replace(/-+$/g, '');
     }
 
 }; 

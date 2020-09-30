@@ -72,6 +72,23 @@ const ContactSchema = new mongoose.Schema({
     type:         Date,
     default:      Date.now
   }, */
+
+  fullname:     String,
+  company:      String,
+  city:         String,
+  state:        String,
+  zip_code:     String,
+  count:        Number,
+  trip:         String,
+  rank:         String,
+  loyalty:      String,
+  category:     String,
+  create_date:  Date,
+  signup_ip:    String,
+  signup_timestamp:           Date,
+  confirmation_ip:            String,
+  confirmation_timestamp:     Date,
+  
   otherfields:    mongoose.Schema.Types.Mixed     //  remember to add this line: amodel.markModified('otherfield'); after updating this field in code
 }, {
   timestamps:     true,

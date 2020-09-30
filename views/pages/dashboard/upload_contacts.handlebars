@@ -29,7 +29,7 @@
 			<div class="col-lg-12">	
 
 				<div id="add-listing">
-					<form action="/dashboard/upload/validate" method="POST">
+					<form action="/dashboard/upload/validate" method="POST" id="upload_fields_form">
 
 					<!-- Section -->
 					<div class="add-listing-section">
@@ -53,11 +53,15 @@
 										<option value="n_0">[ignore]</option>
 										<option value="n_f">[ New field ]</option>
 										<option disabled>---------------------------------------</option>
-										{{#../args.standard_fields }}	
-										<option value="{{ this.value }}">{{ this.name }}</option>
-										{{/../args.standard_fields }}	
+										{{#../args.std_list_grp1 }}	
+										<option value="{{ this.value_string }}">{{ this.name }}</option>
+										{{/../args.std_list_grp1 }}	
+										<option disabled>---------------------------------------</option>
+										{{#../args.std_list_grp2 }}	
+										<option value="{{ this.value_string }}">{{ this.name }}</option>
+										{{/../args.std_list_grp2 }}	
 									</select>
-									<input type="text" style="display: none" placeholder="Specify text field name" name="newfield_{{ @index }}"/>
+									<input type="text" class="_new_field" style="display: none; background-color: rgb(255 252 241);" placeholder="Specify text field name" name="newfield_{{ @index }}"/>
 								</div>
 							</div>
 										{{!-- {{ ../args.standard_fields }} --}}
@@ -70,6 +74,7 @@
 						</div>
 						<!-- Row / End -->
 
+						<div class="_form_errors _e_upload_field" style="display: none; margin-top: 10px"></div>
 					</div>
 					<!-- Section / End -->
 

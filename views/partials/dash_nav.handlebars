@@ -8,7 +8,12 @@
 			</ul>
 			
 			<ul data-submenu-title="Campaigns">
-				<li {{#if campaigns}} class="active" {{/if}}><a href="/dashboard/campaigns"><i class="sl sl-icon-layers"></i> Campaigns</a></li>
+				<li {{#if campaigns}} class="active" {{/if}}><a><i class="sl sl-icon-layers"></i> Campaigns</a>
+					<ul>
+						<li {{#if campaigns}} class="active" {{/if}}><a href="/dashboard/campaigns"><i class="sl sl-icon-layers"></i> Normal Campaigns</a></li>
+						<li {{#if campaigns}} class="active" {{/if}}><a href="/dashboard/campaigns"><i class="sl sl-icon-layers"></i> Performance Campaigns</a></li>
+					</ul>	
+				</li>
 				{{!-- <li {{#if campaigns}} class="active" {{/if}}><a><i class="sl sl-icon-layers"></i> Campaigns</a>
 					<ul>
 						<li {{#if smscampaigns}} class="active" {{/if}}><a href="/dashboard/campaigns/sms"><i class="fa fa-commenting-o"></i> SMS</a></li>
