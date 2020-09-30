@@ -129,8 +129,9 @@ exports.index = async (req, res) => {
             })
         ])
         .then(([grps, ctry]) => {
-            console.log('flash error = ' + req.flash('error') + '; flash suss = ' + req.flash('success'));
+            // console.log('.....................flash error = ' + req.flash('error') + '; flash suss = ' + req.flash('success'));
             // console.log('________________grps=', JSON.stringify(grps));
+            // req.flash('success', 'Upload completed successfully: contacts with invalid numbers ignored');
             
             var flashtype, flash = req.flash('error');
             if(flash.length > 0) {
@@ -139,7 +140,8 @@ exports.index = async (req, res) => {
                 flashtype = "success";
                 flash = req.flash('success');
             }
-    
+            // else req.flash('error', 'Upload failure. Please try again later or contact Admin');
+        
             res.render('pages/dashboard/upload_contacts', {
                 page: 'CONTACTS',
                 uploads: true,
