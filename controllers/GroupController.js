@@ -64,7 +64,7 @@ exports.listGroup = async (req, res) => {
         // raw: true,
     ])
 
-    console.log('_____________________1groups are: ' + JSON.stringify(grps));
+    // console.log('_____________________1groups are: ' + JSON.stringify(grps));
     grps = grps.map(grp => {
         // let ww1 = JSON.stringify(grp.contacts);
         let ww2 = JSON.parse(JSON.stringify(grp));
@@ -78,7 +78,7 @@ exports.listGroup = async (req, res) => {
         
         return Object.assign(ww2, { contacts: cc[0] || 0 });
     })
-    console.log('2groups are: ' + JSON.stringify(grps));
+    // console.log('2groups are: ' + JSON.stringify(grps));
 
     var flashtype, flash = req.flash('error');
     if(flash.length > 0) {
@@ -327,7 +327,7 @@ exports.getGroups = async (req, res) => {
         },
         platformtypeId: gtype
     }, (err, res) => {
-        console.log('EXTRACTED 1: ' + JSON.stringify(res));
+        // console.log('EXTRACTED 1: ' + JSON.stringify(res));
         grpsarr.push(...res);
     })
     .sort({
@@ -340,7 +340,7 @@ exports.getGroups = async (req, res) => {
             userId: user_id,
             name: '[Uncategorized]'
         }, (err, res) => {
-            console.log('EXTRACTED 2: ' + JSON.stringify(res));
+            // console.log('EXTRACTED 2: ' + JSON.stringify(res));
             grpsarr.push(...res);
         })
     

@@ -44,7 +44,7 @@ exports.listGroup = (req, res) => {
     })
     .then(grps => {
 
-        console.log('1groups are: ' + JSON.stringify(grps));
+        // console.log('1groups are: ' + JSON.stringify(grps));
         grps = grps.map(grp => {
             // let ww1 = JSON.stringify(grp.contacts);
             let ww2 = JSON.parse(JSON.stringify(grp));
@@ -58,7 +58,7 @@ exports.listGroup = (req, res) => {
             
             return Object.assign(ww2, { contacts: cc[0] || 0 });
         })
-        console.log('2groups are: ' + JSON.stringify(grps));
+        // console.log('2groups are: ' + JSON.stringify(grps));
 
         var flashtype, flash = req.flash('error');
         if(flash.length > 0) {

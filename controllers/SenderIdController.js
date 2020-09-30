@@ -17,7 +17,7 @@ exports.index = (req, res) => {
         ]
     })
     .then((sids) => {
-        console.log('groups are: ' + JSON.stringify(sids));
+        // console.log('groups are: ' + JSON.stringify(sids));
         var flashtype, flash = req.flash('error');
         if(flash.length > 0) {
             flashtype = "error";           

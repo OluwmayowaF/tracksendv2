@@ -21,7 +21,7 @@ exports.contactList = async (req, res) => {
             $ne: '[Uncategorized]',
         }
     }, (err, res) => {
-        console.log('EXTRACTED 1: ' + JSON.stringify(res));
+        // console.log('EXTRACTED 1: ' + JSON.stringify(res));
         grps.push(...res);
     })
     .sort({
@@ -33,7 +33,7 @@ exports.contactList = async (req, res) => {
         userId: user_id,
         name: '[Uncategorized]'
     }, (err, res) => {
-        console.log('EXTRACTED 2: ' + JSON.stringify(res));
+        // console.log('EXTRACTED 2: ' + JSON.stringify(res));
         grps.push(...res);
     })
 
