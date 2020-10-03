@@ -63,10 +63,10 @@ module.exports = function(sequelize, DataTypes) {
 
   User.associate = function (models) {
     // User.belongsTo(models.Contact);
-    User.hasMany(models.Contact, { 
+    /* User.hasMany(models.Contact, { 
       // as: "contacts", 
       foreignKey: 'userId'
-    });
+    }); */
     User.hasMany(models.Group, { 
       // as: "groups", 
       foreignKey: 'userId' 

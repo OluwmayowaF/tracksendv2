@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    contactId: DataTypes.INTEGER,
+    contactId: DataTypes.STRING,
     userId: DataTypes.INTEGER,
     platform: DataTypes.STRING,
   }, {});
@@ -16,9 +16,9 @@ module.exports = (sequelize, DataTypes) => {
     Optout.belongsTo(models.User, {
       foreignKey: 'userId',
     });
-    Optout.belongsTo(models.Contact, {
+    /* Optout.belongsTo(models.Contact, {
       foreignKey: 'contactId',
-    });
+    }); */
   }
 
   return Optout; 

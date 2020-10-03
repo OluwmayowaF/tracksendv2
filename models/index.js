@@ -8,9 +8,9 @@ const sequelize = require('../config/cfg/db');
 
 const models = {
   User:         sequelize.import('./User'),
-  Contact:      sequelize.import('./Contact'),
+  // Contact:      sequelize.import('./Contact'),
   Group:        sequelize.import('./Group'),
-  ContactGroup: sequelize.import('./ContactGroup'),
+  // ContactGroup: sequelize.import('./ContactGroup'),
   Sender:       sequelize.import('./SenderID'),
   Tmpcampaign:  sequelize.import('./Tmpcampaign'), 
   Campaign:     sequelize.import('./Campaign'),

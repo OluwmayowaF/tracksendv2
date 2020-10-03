@@ -464,11 +464,11 @@ exports.saveContact = async (req, res) => {
                 attributes: ['id'],
             }); */
             console.log('-----------------0000000000');
-            id_ = await mongmodels.Contact.findOne({
+            id_ = await mongmodels.Contact.findOne({    
                 phone:     req.body.phone,
                 'country.id': req.body.country,
                 userId:    user_id,
-            }, "id -_id");
+            }, "firstname lastname phone");
         } else id_ = req.body.id;
             console.log('-----------------1111111111');
 

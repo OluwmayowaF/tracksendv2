@@ -664,7 +664,77 @@ exports.manualpost = async (req, res) => {
 
 exports.testerly = async (req, res) => {
 
+    //  UPDATE messages DATA WITH NEW CONTACTS _ID
+    console.log('====== UPDATE messages DATA WITH NEW CONTACTS _ID ======');
+    //  first, grab all contacts from mongodb
+    console.log('retrieving contacts from mongodb...');
+    let mc = await mongmodels.Contact.find({id: {$gt: 0}}, "_id id");
+    console.log('retrieving contacts done.');
+    //  then, iterate through and updatein messages table
+    console.log('iterating through and updating messages, optouts, and customcontactresponses tables...');
+    for(let i = 0; i < mc.length; i++) {
+        await sequelize.query("UPDATE messages SET contactId = :_id WHERE contactId = :id", {
+                replacements: {id: mc[i].id.toString(), _id: mc[i]._id.toString()},
+            }
+        );
+
+        await sequelize.query("UPDATE optouts SET contactId = :_id WHERE contactId = :id", {
+            replacements: {id: mc[i].id.toString(), _id: mc[i]._id.toString()},
+        });
+
+        await sequelize.query("UPDATE customcontactresponses SET contactId = :_id WHERE contactId = :id", {
+            replacements: {id: mc[i].id.toString(), _id: mc[i]._id.toString()},
+        });
+        /* models.Campaign.findAll({ 
+
+
+        await models.Message.update({
+            contactId: mc[i]._id.toString()
+        }, {
+            where: {
+                contactId: mc[i].id
+            }
+        }) */
+    }
+    console.log('iterating through and updating tables done.');
+    console.log('..........A L L   D O N E........');
+
+    
+    /* //  UPDATE optouts DATA WITH NEW CONTACTS _ID
+    console.log('====== UPDATE optouts DATA WITH NEW CONTACTS _ID ======');
+    //  then, iterate through contacts and updatein optouts table
+    console.log('iterating through and updating optouts table...');
+    for(let i = 0; i < mc.length; i++) {
+
+
+        await models.Optout.update({
+            contactId: mc[i]._id
+        }, {
+            where: {
+                contactId: mc[i].id
+            }
+        })
+    }
+    console.log('iterating through and updating optouts table done.');
+
+    //  UPDATE customcontactresponses DATA WITH NEW CONTACTS _ID
+    console.log('====== UPDATE optouts DATA WITH NEW CONTACTS _ID ======');
+    //  then, iterate through contacts and updatein customcontactresponses table
+    console.log('iterating through and updating customcontactresponses table...');
+    for(let i = 0; i < mc.length; i++) {
+        await models.Optout.update({
+            contactId: mc[i]._id
+        }, {
+            where: {
+                contactId: mc[i].id
+            }
+        })
+    }
+    console.log('iterating through and updating customcontactresponses table done.');
+    console.log('.......ALL DONE.........'); */
     return;
+
+    //  refactor groups into  mongodb
     const groups = await models.Group.findAll();
     await mongmodels.Group.deleteMany({});
     var grplist = [];
@@ -688,6 +758,7 @@ exports.testerly = async (req, res) => {
         console.log('Groups migration ERROR' + err);
     })
     
+    //  refactor contacts into mongodb
     const contacts = await models.Contact.findAll({
         /* where: {
             groupId: 1

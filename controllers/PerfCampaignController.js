@@ -169,10 +169,10 @@ exports.index = async (req, res) => {
         )
 
         // res.render('pages/dashboard/whatsappcompleteoptin', { 
-        res.render('pages/dashboard/campaigns', { 
-            page: 'Campaigns',
+        res.render('pages/dashboard/perfcampaigns', { 
+            page: 'Performance Campaigns',
             campaigns: true,
-            ncampaigns: true,
+            pcampaigns: true,
             campaign_type: '',
             has_whatsapp: status.active,
             flashtype, flash,
@@ -975,11 +975,11 @@ exports.view = (req, res) => {
                 order: [ 
                     ['createdAt', 'DESC']
                 ],
-                /* include: [{
+                include: [{
                     model: models.Contact, 
                     attributes: ['id', 'firstname', 'lastname', 'phone'],
                     // through: { }
-                }], */ 
+                }], 
                 attributes: ['status', 'deliverytime', 'readtime', 'firstclicktime', 'clickcount', 'destination', 'contactId'],
                 // through: { }
             }], 
@@ -988,12 +988,10 @@ exports.view = (req, res) => {
             ],
         }), 
 
-    ]).then(async ([summary, cpgnrecp, mcount, refcpgns]) => {
+    ]).then(([summary, cpgnrecp, mcount, refcpgns]) => {
         // console.log('qqq= '+cpgnrecp.length);
         var recipients = cpgnrecp[0].messages;
         console.log('REFERENCES: ' + JSON.stringify(refcpgns));
-
-
         // console.log('CONTA: ' + JSON.stringify(recipients));
         
         recipients = recipients.map(ii => {
@@ -1044,34 +1042,15 @@ exports.view = (req, res) => {
         // console.log('====================================');
         // console.log('SUMM: ' + JSON.stringify(summary) + '; MESS: ' + JSON.stringify(cpgnrecp) + '; CMSG: ' + JSON.stringify(recipients.length));
         // console.log('====================================');
-        var mname = [];
-        var mmsg = [];
+        var mname = cpgnrecp.map((r) => r.name);
+        var mmsg = cpgnrecp.map((r) => r.message);
 
-        for(let r = 0; r < cpgnrecp.length; r++) {
-            mname.push(cpgnrecp[r].name);
-            mmsg.push(cpgnrecp[r].message);
-            for(let m = 0; m < cpgnrecp[r].messages.length; m++) {
-                let c = cpgnrecp[r].messages[m].contactId;
-                let cd = await mongmodels.Contact.findOne({
-                    _id: c
-                }, "firstname lastname phone");
-                cpgnrecp[r].messages[m]['contacts'] = cd;
-            }
-        }
-
-        let cpgntype, show_viewed;
-        if(cpgnrecp[0].platformtypeId == 1) {
-            cpgntype = "SMS";
-            show_viewed = false;
-        } else {
-            cpgntype = "WhatsApp";
-            show_viewed = true;
-        }
+        let cpgntype = cpgnrecp[0].platformtypeId == 1 ? "SMS" : "WhatsApp";
+        let show_viewed = cpgnrecp[0].platformtypeId == 1 ? false : true;
         
         // REFERENCE STUFFS (IF ANY)
-        // let refmsgstat = [];
-        // refcpgns = refcpgns.map(ref => {
-        for(let r = 0; r < refcpgns.length; r++) {
+        let refmsgstat = [];
+        refcpgns = refcpgns.map(ref => {
             let stats = {
                 pending: 0,      
                 delivered: 0,    
@@ -1079,17 +1058,10 @@ exports.view = (req, res) => {
                 undeliverable: 0,
                 viewed: 0,       
                 clickc: 0,       
-                mcount: refcpgns[r].messages.length,       
+                mcount: ref.messages.length,       
             };
-            // ref.messages.forEach(msg => {
-            for(let m = 0; m < refcpgns[r].messages.length; m++) {
-                let c = refcpgns[r].messages[m].contactId;
-                let cd = await mongmodels.Contact.findOne({
-                    _id: c
-                }, "firstname lastname phone");
-                refcpgns[r].messages[m]['contacts'] = cd;
-
-                switch (parseInt(refcpgns[r].messages[m].status)) {
+            ref.messages.forEach(msg => {
+                switch (parseInt(msg.status)) {
                     case 0:
                         stats.pending += 1
                         break;
@@ -1109,18 +1081,18 @@ exports.view = (req, res) => {
                     default:
                         break;
                 }
-                stats.clickc += refcpgns[r].messages[m].clickcount;
-            }
+                stats.clickc += msg.clickcount;
+            });
             // refmsgstat.push(stats) 
             // ref.refmsgstat = stats; 
             // const ref_ = Object.assign(ref, {stats});
-            let _ref = JSON.parse(JSON.stringify(refcpgns[r]));
+            let _ref = JSON.parse(JSON.stringify(ref));
             const ref_ = Object.assign(_ref, {stats});
             // let ref_ = {...ref, stats};
             return ref_;
-        }
+        });
 
-        // console.log('__________refcpgns=', JSON.stringify(refcpgns));
+        console.log('__________refcpgns=', JSON.stringify(refcpgns));
         /* let seen = [];
         console.log(JSON.stringify(refcpgns_, function (key, val) {
             if (val != null && typeof val == "object") {
@@ -1132,10 +1104,10 @@ exports.view = (req, res) => {
             return val;
         }) ) */
         
-        res.render('pages/dashboard/campaign', { 
+        res.render('pages/dashboard/perfcampaign', { 
             page: '(' + cpgntype + ') Campaign: "' + mname + '"', //'Campaigns',
             campaigns: true,
-            ncampaigns: true,
+            pcampaigns: true,
 
             args: {
                 cmgnid,
@@ -1361,10 +1333,10 @@ exports.copy = (req, res) => {
             flash = req.flash('success');
         }
 
-        res.render('pages/dashboard/campaigns', { 
+        res.render('pages/dashboard/perfcampaigns', { 
             page: 'Campaigns',
             campaigns: true,
-            ncampaigns: true,
+            pcampaigns: true,
             flashtype, flash,
 
             args: {

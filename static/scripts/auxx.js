@@ -17,6 +17,8 @@ var _getGlobals = {
 	editable_start: null,
 	// editable_position: 0,
 	// editable_offset: null,
+
+	performanceCampaignSelectedCriteria: [],
 };
 
 /* $.validator.setDefaults({
@@ -1982,8 +1984,268 @@ $(document).ready(function() {
 		}
 	})
 
-
+	_initPerformanceCampaignInPageActions();
 })
+
+function _initPerformanceCampaignInPageActions() {
+	$('._sel_pc_criteria').off('change');
+	$('._pc_add_criteria').off('click');
+	$('._pc_del_criteria').off('click');
+
+	$('._sel_pc_criteria').on('change', function(e) {
+
+		let is_only = $('._sel_pc_criteria').length === 1;
+		let _target_area = '<h5 class="_title_target">Target(s) </h5>' +
+											'<select class="chosen-select-no-single _plain _sel_pc_target" name="pc_target_' + $(this).val() + '" id="" multiple required>' +
+												'<option label="blank"></option>' +
+												getCriteriaTargetOptions($(this).val());
+											'</select>';
+
+		let _butts_area = '<h5 class="_title_butts" style="overflow: hidden; white-space: nowrap; text-align: center">[ . . . ] </h5>' +
+											'<div style="justify-content: space-between; display: flex; padding-top: 11px;">' +
+												'<i class="fa fa-times-circle _pc_del_criteria" style="font-size: 1.6em; color: red; cursor: pointer"></i>' +
+												'<i class="fa fa-plus-circle _pc_add_criteria" style="font-size: 1.6em; color: green; cursor: pointer"></i>' +
+											'</div>';
+
+		let full = '	<div class="row with-forms _pc_region">' +
+										'<div class="col-md-6">' +
+											'<h5 class="_title_criteria">Select Criteria </h5>' +
+											'<select class="chosen-select-no-single _sel_pc_criteria" name="pc_criteria" id="">' +
+												'<option label="blank"></option>' +
+												'<option value="loc">Location</option>' +
+												'<option value="age">Age</option>' +
+												'<option value="gdr">Gender</option>' +
+												'<option value="sts">Status</option>' +
+												'<option value="inc">Income Class</option>' +
+												'<option value="int">Interest</option>' +
+											'</select>' +
+										'</div>' +
+										'<div class="col-md-5 _pc_target_region" style="display: none;"></div>' +
+										'<div class="col-md-1 _pc_butts_region" style="display: none;"></div>' +
+									'</div>';
+
+		$(this).closest('._pc_region').find('._pc_target_region').html(_target_area);
+		$(this).closest('._pc_region').find('._pc_target_region').show();
+		$(this).closest('._pc_region').find('._pc_target_region ._sel_pc_target').chosen({
+				disable_search_threshold: 4,
+		});
+
+		$(this).closest('._pc_region').find('._pc_butts_region').html(_butts_area).show();
+		$('._pc_region').find('._title_target, ._title_butts').hide();
+		$('._pc_region').first().find('._title_target, ._title_butts').show();
+		/* if(is_only) {
+			$(this).closest('._pc_region').find('._title_target, ._title_butts').show();
+		} else {
+			$(this).closest('._pc_region').find('._title_target, ._title_butts').hide();
+		} */
+
+		getUpdatedCriteria();
+		_initPerformanceCampaignInPageActions();
+	})
+
+	$('._pc_add_criteria').on('click', function(e) {
+
+		// console.log($(this).val());
+		// let is_only = false;
+		// _getGlobals.performanceCampaignSelectedCriteria.push($(this).closest('._pc_region').find('._sel_pc_criteria').val());
+
+
+		let _target_area = '<select class="chosen-select-no-single _plain _sel_pc_target" name="pc_target" id="" multiple required>' +
+												'<option label="blank"></option>' +
+												'<option value="per_imp">Per Impression</option>' +
+												'<option value="per_clk">Per Click</option>' +
+											'</select>';
+
+		let _butts_area = '<div style="justify-content: space-between; display: flex; padding-top: 11px;">' +
+												'<i class="fa fa-times-circle _pc_del_criteria" style="font-size: 1.6em; color: red; cursor: pointer"></i>' +
+												'<i class="fa fa-plus-circle _pc_add_criteria" style="font-size: 1.6em; color: green; cursor: pointer"></i>' +
+											'</div>';
+
+		let full = '	<div class="row with-forms _pc_region">' +
+										'<div class="col-md-6">' +
+										'<h5 class="_title_criteria">Select Criteria </h5>' +
+										'<select class="chosen-select-no-single _sel_pc_criteria" name="pc_criteria" id="">' +
+												'<option label="blank"></option>' +
+												'<option value="loc">Location</option>' +
+												'<option value="age">Age</option>' +
+												'<option value="gdr">Gender</option>' +
+												'<option value="sts">Status</option>' +
+												'<option value="inc">Income Class</option>' +
+												'<option value="int">Interest</option>' +
+									'</select>' +
+										'</div>' +
+										'<div class="col-md-5 _pc_target_region" style="display: none;"></div>' +
+										'<div class="col-md-1 _pc_butts_region" style="display: none;"></div>' +
+									'</div>';
+
+			let $new_region = $(full).insertAfter($(this).closest('._pc_region'));
+			$new_region.find('._title_criteria').hide();
+			// $(this).closest('._pc_region').find('._pc_target_region').html(_target_area);
+			$new_region.find('._sel_pc_criteria').chosen({
+					disable_search_threshold: 4,
+			});
+
+			$new_region.find('._title_target, ._title_butts').hide();
+
+			/* $new_region.find('._pc_target_region').show();
+			$new_region.find('._pc_target_region ._sel_pc_target').chosen({
+					disable_search_threshold: 4,
+			});
+			$new_region.find('._pc_butts_region').html(_butts_area).show();
+ */
+			// $(this).closest('._pc_region').find('._pc_target_region ._sel_pc_target').trigger('chosen:updated');
+			// $(this).closest('._pc_region').find('._pc_target_region ._sel_pc_target').trigger('chosen:updated');
+			getUpdatedCriteria();
+			_initPerformanceCampaignInPageActions();
+
+	})
+
+	$('._pc_del_criteria').on('click', function(e) {
+
+		let is_only = $('._pc_region').length === 1;
+
+		if(is_only) {
+			$('._pc_region').find('._pc_target_region').html('').hide();
+			$('._pc_region').find('._pc_butts_region').html('').hide();
+			// $('._pc_region').find('._title_criteria').show();
+			$('._pc_region').find('._sel_pc_criteria').val('').trigger('chosen:updated');
+		} else {
+			$(this).closest('._pc_region').remove();
+			// if($('._pc_region').length === 1) $('._pc_region').find('._title_criteria, ._title_target, ._title_butts').show();
+		}
+		$('._pc_region').find('._title_criteria, ._title_target, ._title_butts').hide();
+		$('._pc_region').first().find('._title_criteria, ._title_target, ._title_butts').show();
+
+		getUpdatedCriteria();
+		_initPerformanceCampaignInPageActions();
+
+	})
+
+}
+
+function getCriteriaOptions() {
+
+	const all_criteria = [
+		{ value: 'age', option: 'Age' },
+		{ value: 'gdr', option: 'Gender' },
+		{ value: 'int', option: 'Interests' },
+		{ value: 'inc', option: 'Income Class' },
+		{ value: 'sts', option: 'Status' }
+	]
+
+
+	// let sel_criteria = _getGlobals.performanceCampaignSelectedCriteria;
+	let sel_criteria = [];
+
+	$('._pc_region').each((i, el) => {
+		sel_criteria.push($(el).find('._sel_pc_criteria').val());
+	})
+
+	console.log('selected are ' + JSON.stringify(sel_criteria));
+	
+	let rem_criteria = all_criteria.filter(c => {
+		return (sel_criteria.indexOf(c.value) === -1);
+	});
+	console.log('remaining are ' + JSON.stringify(rem_criteria));
+
+	let ret_str = '';
+	rem_criteria.forEach(t => {
+		ret_str += '<option value="' + t.value + '">' + t.option + '</option>';
+	})
+
+	return ret_str;
+}
+
+function getUpdatedCriteria() {
+
+	/* const all_criteria = [
+		{ value: 'age', option: 'Age' },
+		{ value: 'gdr', option: 'Gender' },
+		{ value: 'int', option: 'Interests' },
+		{ value: 'inc', option: 'Income Class' },
+		{ value: 'sts', option: 'Status' }
+	] */
+
+
+	// let sel_criteria = _getGlobals.performanceCampaignSelectedCriteria;
+	let sel_criteria = [];
+
+	$('._pc_region').each((i, el) => {
+		sel_criteria.push($(el).find('._sel_pc_criteria').val());
+	})
+
+	console.log('selected are ' + JSON.stringify(sel_criteria));
+	
+	/* let rem_criteria = all_criteria.filter(c => {
+		return (sel_criteria.indexOf(c.value) === -1);
+	});
+
+	let ret_str = '';
+	rem_criteria.forEach(t => {
+		ret_str += '<option value="' + t.value + '">' + t.option + '</option>';
+	})
+ */
+	$('._pc_region ._sel_pc_criteria').each(function(i, el) {
+		$(el).find('option').each(function(i, eel) {
+			if((sel_criteria.indexOf($(eel).attr('value')) !== -1) && ($(el).val() !== $(eel).attr('value'))) {
+				$(eel).attr('disabled', 'disabled');
+				console.log('disbaling...');
+			} else {
+				$(eel).removeAttr('disabled');
+			}
+		});
+		$(el).trigger('chosen:updated');
+	});
+
+	// return ret_str;
+}
+
+function getCriteriaTargetOptions(crit) {
+
+	const criteriatargets = {
+		 criteria_age: [
+			'18 - 24',
+			'25 - 34',
+			'35 - 44',
+			'45 - 54',
+			'55 - 65',
+			'Above 65'
+		],
+
+		criteria_gdr: [	//	gender
+			'Female',
+			'Male'
+		],
+
+		criteria_int: [	//	interest
+			'Shopping',
+			'Jobs/Career',
+			'Education',
+			'Travel',
+			'Entertainment',
+			'Entrepreneurship'
+		],
+
+		criteria_inc		: [	//	incomeclass
+			'Class B',
+			'Class C',
+			'Class D	'
+		],
+
+		criteria_sts: [			//	status
+			'Professional',
+			'Business'
+		],
+	};
+
+	let targets = criteriatargets['criteria_' + crit];
+	let ret_str = '';
+	targets.forEach(t => {
+		ret_str += '<option>' + t + '</option>';
+	})
+
+	return ret_str;
+}
 
 function halidate(we) {
 	console.log('halidated');
@@ -2667,6 +2929,14 @@ function setGetSelectionThings(parent_node_class) {
 	// console.log('====================================');
 	// console.log('positionn = ' + _getGlobals.editable_start);
 	// console.log('====================================');
+}
+
+function budgetFocus() {
+	$('#budget_').val($('#budget').val());
+}
+function budgetBlur() {
+	$('#budget').val($('#budget_').val());
+	$('#budget_').val(parseFloat($('#budget').val()).toLocaleString());
 }
 
 

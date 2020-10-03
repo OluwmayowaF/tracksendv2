@@ -32,9 +32,9 @@ module.exports = (sequelize, DataTypes) => {
     Group.belongsTo(models.Platformtype, {
       foreignKey: 'platformtypeId'
     });
-    Group.hasMany(models.Contact, { 
+    /* Group.hasMany(models.Contact, { 
       foreignKey: 'groupId' 
-    });
+    }); */
     /* Group.belongsToMany(models.Contact, { 
       through: models.ContactGroup, 
       foreignKey: 'groupId' 

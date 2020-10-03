@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey:   true,
       autoIncrement: true,
     },
-    contactId:      DataTypes.INTEGER,
+    contactId:      DataTypes.STRING,
     contactlink:    DataTypes.STRING,
     shortlinkId: {
       type:         DataTypes.INTEGER,
@@ -34,9 +34,9 @@ module.exports = (sequelize, DataTypes) => {
     Message.belongsTo(models.Campaign, {
       foreignKey: 'campaignId',
     });
-    Message.belongsTo(models.Contact, {
+    /* Message.belongsTo(models.Contact, {
       foreignKey: 'contactId',
-    });
+    }); */
   }
 
   return Message;

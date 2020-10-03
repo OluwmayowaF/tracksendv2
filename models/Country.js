@@ -11,9 +11,9 @@ module.exports = (sequelize, DataTypes) => {
   })
 
   Country.associate = function (models) {
-    Country.hasMany(models.Contact, {
+    /* Country.hasMany(models.Contact, {
       foreignKey: 'countryId'
-    });
+    }); */
     Country.hasMany(models.Tmpoptin, {
       foreignKey: 'countryId'
     });

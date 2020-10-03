@@ -7,16 +7,16 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true
     },
-    contactId: DataTypes.INTEGER,
+    contactId: DataTypes.STRING,
     customoptinquestionId: DataTypes.INTEGER,
     response: DataTypes.STRING,
   }, {});
 
   Customcontactresponse.associate = function (models) {
     // models.Group.belongsToMany(models.Contact, { through: models.ContactGroup, foreignKey: 'groupId' });
-    Customcontactresponse.belongsTo(models.Contact, {
+    /* Customcontactresponse.belongsTo(models.Contact, {
       foreignKey: 'contactId',
-    });
+    }); */
     Customcontactresponse.belongsTo(models.Customoptinquestion, {
       foreignKey: 'customoptinquestionId',
     });

@@ -7,6 +7,7 @@ var dashboardController = require('../controllers/DashboardController');
 // const dashboardRouter = require('./contacts');
 const contactRouter = require('./contacts');
 const campaignRouter = require('./campaigns');
+const perfcampaignRouter = require('./perfcampaigns');
 const senderIdRouter = require('./senderids');
 const topupRouter = require('./topups');
 const shortLinkRouter = require('./shortlinks');
@@ -39,6 +40,7 @@ module.exports = function(app) {
   app.get('/dashboard/',                isAuthenticated, dashboardController.index);
   app.use('/dashboard/contacts',        isAuthenticated, contactRouter);
   app.use('/dashboard/campaigns',       isAuthenticated, campaignRouter);
+  app.use('/dashboard/perfcampaigns',   isAuthenticated, perfcampaignRouter);
   // app.use('/dashboard/campaigns', campaignRouter);
   app.use('/dashboard/senderids',       isAuthenticated, senderIdRouter);
   app.use('/dashboard/shortlinks',      isAuthenticated, shortLinkRouter);
