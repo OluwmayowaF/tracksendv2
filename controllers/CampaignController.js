@@ -929,11 +929,11 @@ exports.view = (req, res) => {
                 order: [ 
                     ['createdAt', 'DESC']
                 ],
-                include: [{
+                /* include: [{
                     model: models.Contact, 
                     attributes: ['id', 'firstname', 'lastname', 'phone'],
                     // through: { }
-                }], 
+                }],  */
                 attributes: ['status', 'deliverytime', 'readtime', 'firstclicktime', 'clickcount', 'destination', 'contactId'],
                 // through: { }
             }], 
