@@ -664,6 +664,8 @@ exports.manualpost = async (req, res) => {
 
 exports.testerly = async (req, res) => {
 
+    return;
+    
     //  UPDATE messages DATA WITH NEW CONTACTS _ID
     console.log('====== UPDATE messages DATA WITH NEW CONTACTS _ID ======');
     //  first, grab all contacts from mongodb
