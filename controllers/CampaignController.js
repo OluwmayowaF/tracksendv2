@@ -1059,6 +1059,7 @@ exports.view = (req, res) => {
             }
         }
 
+        console.log('_________________NEW CAMPGN = ' + JSON.stringify(cpgnrecp));
         let cpgntype, show_viewed;
         if(cpgnrecp[0].platformtypeId == 1) {
             cpgntype = "SMS";
@@ -1119,6 +1120,7 @@ exports.view = (req, res) => {
             // let ref_ = {...ref, stats};
             return ref_;
         }
+        console.log('_________________NEW REFCAMPGN = ' + JSON.stringify(refcpgns));
 
         // console.log('__________refcpgns=', JSON.stringify(refcpgns));
         /* let seen = [];
