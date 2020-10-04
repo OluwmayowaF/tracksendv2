@@ -1071,7 +1071,7 @@ exports.view = (req, res) => {
         // REFERENCE STUFFS (IF ANY)
         // let refmsgstat = [];
         // refcpgns = refcpgns.map(ref => {
-        for(let r = 0; r < refcpgns.length; r++) {
+        if(refcpgns) for(let r = 0; r < refcpgns.length; r++) {
             let stats = {
                 pending: 0,      
                 delivered: 0,    
