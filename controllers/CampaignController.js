@@ -918,11 +918,7 @@ exports.view = (req, res) => {
             console.log(results);
             return results;
         }),
-        models.Campaign.findAll({ 
-            where: { 
-                id: cmgnid,
-                userId: user_id,
-            },
+        models.Campaign.findByPk(cmgnid, {
             include: [{
                 model: models.Message, 
                 limit: 100,
@@ -990,7 +986,8 @@ exports.view = (req, res) => {
 
     ]).then(async ([summary, cpgnrecp, mcount, refcpgns]) => {
         // console.log('qqq= '+cpgnrecp.length);
-        var recipients = cpgnrecp[0].messages;
+        var recipients = [];
+        // var recipients = cpgnrecp[0].messages;
         console.log('REFERENCES: ' + JSON.stringify(refcpgns));
 
 
@@ -1047,21 +1044,59 @@ exports.view = (req, res) => {
         var mname = [];
         var mmsg = [];
 
-        for(let r = 0; r < cpgnrecp.length; r++) {
-            mname.push(cpgnrecp[r].name);
-            mmsg.push(cpgnrecp[r].message);
-            for(let m = 0; m < cpgnrecp[r].messages.length; m++) {
-                let c = cpgnrecp[r].messages[m].contactId;
+        mname.push(cpgnrecp.name);
+        mmsg.push(cpgnrecp.message);
+        for(var m = 0; m < cpgnrecp.messages.length; m++) {
+            var st = parseInt(cpgnrecp.messages[m].status);
+            let c = cpgnrecp.messages[m].contactId;
+            if(c && c != 0) {
+                console.log('_______c = ' + c);
                 let cd = await mongmodels.Contact.findOne({
-                    _id: c
+                    _id: mongoose.Types.ObjectId(c)
                 }, "firstname lastname phone");
-                cpgnrecp[r].messages[m]['contacts'] = cd;
+                cpgnrecp.messages[m]['contact'] = cd;
+            } else if (cpgnrecp.messages[m].destination && cpgnrecp.messages[m].destination.length > 0) {
+                // var i = cpgnrecp.message;
+
+                var ds = cpgnrecp.messages[m].destination;
+                let pp = '0' + ds.substr(-10);      //  this is only suitable for Nigeria contacts. REFACTOR!
+
+                cpgnrecp.messages[m]['contact'] = {
+                    firstname: '--',
+                    lastname: '--',
+                    phone: pp,
+                }
+            }
+
+            switch (st) {
+                case 0:
+                    cpgnrecp.messages[m].status = "Pending"
+                    break;
+                case 1:
+                    cpgnrecp.messages[m].status = "Delivered"
+                    break;
+                case 2:
+                    cpgnrecp.messages[m].status = "Failed"
+                    break;
+                case 3:
+                    cpgnrecp.messages[m].status = "DND"
+                    break;
+                case 4:
+                    cpgnrecp.messages[m].status = "Invalid"
+                    break;
+                case 5:
+                    cpgnrecp.messages[m].status = "Viewed"
+                    break;
+            
+                default:
+                    break;
             }
         }
+        recipients.push(...cpgnrecp.messages);
 
         console.log('_________________NEW CAMPGN = ' + JSON.stringify(cpgnrecp));
         let cpgntype, show_viewed;
-        if(cpgnrecp[0].platformtypeId == 1) {
+        if(cpgnrecp.platformtypeId == 1) {
             cpgntype = "SMS";
             show_viewed = false;
         } else {
@@ -1085,10 +1120,23 @@ exports.view = (req, res) => {
             // ref.messages.forEach(msg => {
             for(let m = 0; m < refcpgns[r].messages.length; m++) {
                 let c = refcpgns[r].messages[m].contactId;
-                let cd = await mongmodels.Contact.findOne({
-                    _id: c
-                }, "firstname lastname phone");
-                refcpgns[r].messages[m]['contacts'] = cd;
+
+                if(c && c != 0) {
+                    let cd = await mongmodels.Contact.findOne({
+                        _id: mongoose.Types.ObjectId(c)
+                    }, "firstname lastname phone");
+                    refcpgns[r].messages[m]['contact'] = cd;
+                } else if (refcpgns[r].messages[m].destination && refcpgns[r].messages[m].destination.length > 0) {
+
+                    var ds = refcpgns[r].messages[m].destination;
+                    let pp = '0' + ds.substr(-10);      //  this is only suitable for Nigeria contacts. REFACTOR!
+
+                    refcpgns[r].messages[m]['contact'] = {
+                        firstname: '--',
+                        lastname: '--',
+                        phone: pp,
+                    }
+                }
 
                 switch (parseInt(refcpgns[r].messages[m].status)) {
                     case 0:
@@ -1115,11 +1163,12 @@ exports.view = (req, res) => {
             // refmsgstat.push(stats) 
             // ref.refmsgstat = stats; 
             // const ref_ = Object.assign(ref, {stats});
-            let _ref = JSON.parse(JSON.stringify(refcpgns[r]));
-            const ref_ = Object.assign(_ref, {stats});
+            // let _ref = JSON.parse(JSON.stringify(refcpgns[r]));
+            refcpgns[r]['stats'] = stats;
             // let ref_ = {...ref, stats};
-            return ref_;
+            // return ref_;
         }
+
         console.log('_________________NEW REFCAMPGN = ' + JSON.stringify(refcpgns));
 
         // console.log('__________refcpgns=', JSON.stringify(refcpgns));
