@@ -1001,7 +1001,7 @@ exports.view = (req, res) => {
             var i = JSON.parse(JSON.stringify(ii));
             var st = parseInt(i.status);
 
-            if(i.contact == null && i.destination.length > 0) {
+            if(i.contact == null && i.destination && i.destination.length > 0) {
                 var ds = i.destination;
                 let pp = '0' + ds.substr(-10);
 
