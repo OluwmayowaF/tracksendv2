@@ -6,6 +6,7 @@ var perfcampaignController = require('../controllers/PerfCampaignController');
 router.get('/', perfcampaignController.index);
 // router.get('/sms', campaignController.smsindex);  //  inactive for now
 // router.get('/whatsapp', campaignController.waindex);  //  inactive for now
+// router.post('/analyze', perfcampaignController.analyse);
 router.post('/add', perfcampaignController.add);
 router.get('/campaign/:id', perfcampaignController.view);
 router.get('/campaign/download/:id', perfcampaignController.download);

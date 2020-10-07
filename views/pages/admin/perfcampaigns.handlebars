@@ -1,0 +1,146 @@
+	<div class="dashboard-content">
+
+		<!-- Titlebar -->
+		<div id="titlebar">
+			<div class="row">
+				<div class="col-md-12">
+					<!-- Breadcrumbs -->
+					<nav id="breadcrumbs">
+						<ul>
+							<li><a href="/dashboard">Dashboard</a></li>
+							<li>Sender IDs</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+
+		{{#if flash}}
+			<div class="notification {{ flashtype }} closeable no-shadow">
+				<p><span style="text-transform: capitalize">{{ flashtype }}!</span> {{ flash }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
+
+			<div class="notification other3 closeable">
+				<p></p>
+				<a class="close"></a>
+			</div>
+
+		<div class="row">
+
+			<div class="col-lg-12">
+				<div class="col-lg-12 page_box_header">Pending <span>[{{ args.pcpns.length }}]</span>
+				</div>
+			</div>
+			<div class="col-lg-12">
+
+				<div id="add-listing">
+					<!-- Section -->
+					<div class="add-listing-section" style="padding: 5px;">
+
+						<!-- Row -->
+						<div class="row with-forms">
+							<!-- Status -->
+							<div class="col-md-12 lists">
+								<ul>
+									<li class="list_item _hd" style="font-weight: bolder">
+										<ul class="saved_item">
+											<input type="hidden" class="cid" value="'+i.id+'" />
+											<li style="flex: 2; text-align: left;">User ID</li>
+											<li style="flex: 6">Name</li>
+											<li style="flex: 2">Measure</li>
+											<li style="flex: 2">Status</li>
+											<li style="flex: 2; text-align: right;">Budget</li>
+											<li style="flex: 3">Start Date</li>
+											<li style="flex: 3">Last Updated</li>
+											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; text-align: center; font-size: 2em; line-height: 0.3;">
+												...
+											</li>
+										</ul>
+									</li>
+									{{#each args.pcpns}}
+									<li class="list_item _toggle_crit" data-wh="updperfcpgn">
+										<ul class="saved_item">
+											<input type="hidden" class="cid" value="{{ _id }}" />
+											<li style="flex: 2; text-align: left;" class="dv_desc">{{ userId }}</li>
+											<li style="flex: 6" class="dv_name">{{ name }}</li>
+											<li style="flex: 2" class="dv_measure">{{ measure }}</li>
+											<li style="flex: 2" class="dv_status">{{ status.stage }}</li>
+											<li style="flex: 2; text-align: right;" class="dv_status">{{formatNumber budget }}</li>
+											<li style="flex: 3">{{formatDate startdate "short"}}</li>
+											<li style="flex: 3">{{formatDate updatedAt "short"}}</li>
+											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
+												<span style="flex: 1; text-align:center" class="edit_item_btn"><a class="tooltip top" title="Edit" style="cursor: pointer"><i class="fa fa-edit"></i></a></span> | 
+												<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
+											</li>
+										</ul>
+										<div class="_toggled_crit" style="display: none;">
+											<div style="padding-right: 10px;"><em>Audience</em></div>
+											<div style="border-left: solid 1px #999; padding-left: 10px ">
+												<ul>
+												{{#conditionset }}
+													<li style="display: flex"><div>{{ criteria }} : </div> <div> {{ target }}</div></li>
+												{{/conditionset }}
+												</ul>
+											</div>
+										</div>
+										<div class="inline_edit">
+											<div class="row with-forms">
+												<!-- Status -->
+												<form action="">
+												<input type="hidden" class="cid" value="{{ _id }}" name="id" />
+												<div class="col-md-5">
+													<h5>New Status </h5>
+													<select class="chosen-select-no-single _plain _sel_status" name="status" id="sel_status" required>
+														<option label="blank"></option>
+														<option>Approved/Ready</option>
+														<option>Denied/Invalid</option>
+														<option>Pending/Processing</option>
+													</select>
+												</div>
+
+												<div class="col-md-6">
+													<h5>Comment </h5>
+													<input type="text" name="admincomment" class="ed_comm" maxlength="200" value="{{ admincomment }}">
+												</div>
+												</form>
+
+												<div class="col-md-1">
+													<h5 style="text-align: center"><i class="fa fa-ellipsis-h"></i></h5>
+													<div style="display: flex; padding-top: 10px;">
+														<span style="flex: 1; text-align:center;" class="save_edit_btn"><a class="tooltip top" title="Save" style="color: green; cursor: pointer"><i class="fa fa-check"></i></a></span> | 
+														<span style="flex: 1; text-align:center" class="cancel_edit_btn"><a class="tooltip top" title="Cancel" style="color: red; cursor: pointer"><i class="fa fa-times"></i></a></span>
+													</div>
+												</div>
+											</div>
+										</div>
+									</li>
+									{{else}}
+										<em>No pending performance campaigns yet.</em> 
+									{{/each}}
+								</ul>
+							</div>
+
+						</div>
+						<!-- Row / End -->
+
+					</div>
+					<!-- Section / End -->
+				</div>
+			</div>
+
+			<div class="col-lg-12" style="margin-top: 30px;">
+
+				<div id="add-listing">
+				</div>
+			</div>
+
+			<!-- Copyrights -->
+			<div class="col-md-12">
+				<div class="copyrights">© 2019 Tracksend. All Rights Reserved.</div>
+			</div>
+
+		</div>
+
+	</div>

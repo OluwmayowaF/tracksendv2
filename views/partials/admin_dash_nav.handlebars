@@ -1,0 +1,37 @@
+<div class="dashboard-nav" style="background-color: #22002f;">
+	{{#if page.length }}
+
+		<div class="dashboard-nav-inner">
+
+			<ul>
+				<li {{#if dashboard}} class="active" {{/if}}><a href="/admin"><i class="fa fa-calendar-check-o"></i> DASHBOARD</a></li>
+			</ul>
+			
+			<ul data-submenu-title="Campaigns">
+				<li {{#if perfcmpgns}} class="active" {{/if}}><a href="/admin/perfcampaigns"><i class="fa fa-tags"></i> Performance Campaigns</a></li>
+				{{!-- <li {{#if shortlinks}} class="active" {{/if}}><a href="/admin/shorturls"><i class="sl sl-icon-link"></i> Short URL</a></li> --}}
+			</ul>
+			
+			<ul data-submenu-title="Contacts">
+				<li {{#if perfconts}} class="active" {{/if}}><a href="/admin/perfcontacts"><i class="im im-icon-Folder-Archive"></i> Performance Contacts</a></li>
+				{{!-- <li {{#if groups}} class="active" {{/if}}><a href="/admin/contacts/groups"><i class="fa fa-users"></i> Groups</a></li> --}}
+			</ul>	
+
+			<ul data-submenu-title="TopUps">
+				<li {{#if topup}} class="active" {{/if}}><a href="/admin/m_a_n_u_a_l"><i class="im im-icon-Folder-Archive"></i> TopUp</a></li>
+				{{!-- <li {{#if groups}} class="active" {{/if}}><a href="/admin/contacts/groups"><i class="fa fa-users"></i> Groups</a></li> --}}
+			</ul>	
+
+			<ul data-submenu-title="Migrations">
+				<li {{#if migrate}} class="active" {{/if}}><a href="/admin/contacts/list"><i class="im im-icon-Folder-Archive"></i> Mysql-To-MongoDB</a></li>
+				{{!-- <li {{#if groups}} class="active" {{/if}}><a href="/admin/contacts/groups"><i class="fa fa-users"></i> Groups</a></li> --}}
+			</ul>	
+
+			<ul data-submenu-title="Account">
+				<li><a href="/logout"><i class="sl sl-icon-power"></i> Logout</a></li>
+			</ul>
+			
+		</div>
+
+	{{/if}}
+	</div>

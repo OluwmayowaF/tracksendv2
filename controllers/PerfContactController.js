@@ -25,154 +25,71 @@ exports.index = async (req, res) => {
     console.log('....................showing page......................'); 
 
     Promise.all([
-        sequelize.query( 
-            "SELECT " +
-            "   C1.id, " +        //      kenni 
-            "   C1.name, " +
-            "   C1.units_used, " +
-            "   GROUP_CONCAT(CG1.groupname SEPARATOR ', ') AS grpname, " +
-            "   IF(C1.status = 1, 'Active', 'Error') AS status, " +
-            "   IF(C1.platformtypeId = 1, 'SMS', 'WhatsApp') AS platform, " +
-            "   GROUP_CONCAT(T1.id SEPARATOR ',') AS tid, " +
-            "   GROUP_CONCAT(T1.grp SEPARATOR ',') AS tgp, " +
-            "   GROUP_CONCAT(T1.within_days SEPARATOR ',') AS wtd, " +
-            "   GROUP_CONCAT(C2.id SEPARATOR ',') AS fid, " +
-            "   GROUP_CONCAT(C2.condition SEPARATOR ',') AS fgp, " +
-            "   GROUP_CONCAT(C2.within_days SEPARATOR ',') AS fwtd, " +
-            "   C1.createdAt " +
-            "FROM campaigns C1 " +
-            "LEFT OUTER JOIN campaign_groups CG1 ON CG1.campaignId = C1.id " +
-            "LEFT OUTER JOIN campaigns C2 ON C2.ref_campaign = C1.id " +       //  kenni
-            "LEFT OUTER JOIN tmpcampaigns T1 ON T1.ref_campaign = C1.id " +       //  kenni
-            "WHERE C1.userId = :uid AND (C1.ref_campaign = '' OR ISNULL(C1.ref_campaign)) " +
-            "GROUP BY C1.id, T1.ref_campaign, C1.ref_campaign " +
-            "ORDER BY C1.createdAt DESC ", {    
-                replacements: {
-                    uid: user_id,
-                },
-                type: sequelize.QueryTypes.SELECT,
-            },
-        ), 
-        models.Sender.findAll({     //  get all sender ids for display in form
-            where: { 
-                userId: user_id,
-                status: 1
-            },
-            order: [ 
-                ['createdAt', 'DESC']
-            ]
-        }), 
-        mongmodels.Group.find({     //  get all groups for display in form, except uncategorized group
+        mongmodels.PerfCampaign.find({     //  get all pending perf campaigns
             userId: user_id,
-            name: {
-                $ne: '[Uncategorized]',
-            },
+            "status.stage": {
+                $and: [ {$ne: "running"}, {$ne: "expired"} ]
+            }
         })
         .sort({
             "createdAt": -1
         }),
-        mongmodels.Group.find({      //  get only the uncategorized group
-            userId: user_id,
-            name: '[Uncategorized]',
-        }),
-        models.Sender.count({        //  get count of sender ids
-            where: { 
-                userId: user_id,
-                // status: 1
-            }
-        }), 
-        models.Sender.count({        //  get count of "active" sender ids
-            where: { 
-                userId: user_id,
-                status: 1
-            }
-        }), 
-        mongmodels.Contact.count({   //  get count of contacts
-            userId: user_id,
-        }),                          //  consider adding the .exec() to make it full-fledged promise
-        models.Shortlink.findAll({ 
-            where: { 
-                userId: user_id,
-                status: 1
-            },
-            order: [    
-                // ['status', 'DESC'],
-                ['createdAt', 'DESC']
-            ]
-        }),    
-    ]).then(async ([cpns, sids, grps, non, csender, casender, ccontact, shorturl]) => {
-        var ngrp = non[0].id;
+        mongmodels.PerfContact.find({}),      //  get all perf contacts
+    ]).then(async ([pcpns, pconts, ]) => {
 
-        // var tmps = models
-        cpns.forEach(ea => {
-            // console.log(ea.tid? JSON.stringify(ea.tid.split(',')) : null);
-            // ea.tid = ea.tid? JSON.stringify(ea.tid.split(',').map(e => { e.replace('"', '')})) : null;
-            ea.tid = ea.tid ? _.uniq(ea.tid.split(',')).map(e => { return parseInt(e) }) : null;
-            ea.wtd = ea.wtd ? _.uniq(ea.wtd.split(',')).map(e => { return parseInt(e) }) : null;
-            if(ea.wtd && (ea.wtd.length < 2)) ea.wtd.push(ea.wtd[0]); 
-            ea.tgp = ea.tgp? _.uniq(ea.tgp.split(',')) : null;
-            ea.tmp = [];
-            for(var t = 0; ea.tid && t < ea.tid.length; t++) {
-                ea.tmp.push({
-                    id: ea.tid[t],
-                    grp: ea.tgp[t],
-                    grp_desc: (ea.tgp[t] == "clicked" || ea.tgp[t] == "unclicked") ? "To recipients whose links are \"" + ea.tgp[t] + "\"" : "To all recipients",
-                    wtd: ea.wtd[t],
-                    wtd_desc: (ea.tgp[t] == "clicked" || ea.tgp[t] == "unclicked") ? "Within " + ea.wtd[t] + " day(s)" : "After " + ea.wtd[t] + " day(s)",
-                    status: "pending",
+        //  return to this when automating calculations for contacts requirement
+        /* pcpns.forEach(pc => {
+            let cond = pc.conditionset;
+            let _or = []
+            if(cond.age) {
+                let _and = [];
+                cond.age.forEach(age => {
+                    let from, to;
+                    if(age == "Above 65") {
+                        from = 65; to = 0;
+                    } else {
+                        from = age.split(' - ')[0];
+                        to = age.split(' - ')[1];
+                    }
+
+                    _and.push({ $ge: from }, { $le: to });
                 })
             }
-            // ea.tid = ea.tid? ea.tid.map(e => { return parseInt(e) }) : null;
-            
-            ea.fid = ea.fid ? _.uniq(ea.fid.split(',')).map(e => { return parseInt(e) }) : null;
-            ea.fwtd = ea.fwtd ? _.uniq(ea.fwtd.split(',')).map(e => { return parseInt(e) }) : null;
-            if(ea.fwtd && (ea.fwtd.length < 2)) ea.fwtd.push(ea.fwtd[0]); 
-            ea.fgp = ea.fgp? _.uniq(ea.fgp.split(',')) : null;
-            ea.flwup = [];
-            for(var f = 0; ea.fid && f < ea.fid.length; f++) {
-                ea.flwup.push({
-                    id: ea.fid[f],
-                    grp: ea.fgp[f],
-                    grp_desc: (ea.fgp[f] == "clicked" || ea.fgp[f] == "unclicked") ? "To recipients whose links are \"" + ea.fgp[f] + "\"" : "To all recipients",
-                    wtd: ea.fwtd[f],
-                    wtd_desc: (ea.fgp[f] == "clicked" || ea.fgp[f] == "unclicked") ? "Within " + ea.fwtd[f] + " day(s)" : "After " + ea.fwtd[f] + " day(s)",
-                    status: "active",
-                })
-            }
-            // ea.fid = ea.fid? ea.fid.map(e => { return parseInt(e) }) : null;
+        })
+        */
 
-            
-        });
-
-        if(!csender) var nosenderids = true; else var nosenderids = false;
-        if(!casender) var noasenderids = true; else var noasenderids = false;
-        if(!ccontact) var nocontacts = true; else var nocontacts = false;
-
-        var flashtype, flash = req.flash('error');
-        if(flash.length > 0) {
-            flashtype = "error";           
-        } else {
-            flashtype = "success";
-            flash = req.flash('success');
-        }
-
-        let status = await getWhatsAppStatus(user_id);
-        await models.User.update(
-            {
-                wa_active: status.active ? 1 : 0,
+        //  return to this when automating calculations for contacts requirement
+        /* mongmodels.PerfContact.find({
+            ...(
+                (cc.age) ? {
+                    "fields.age": {
+                        $or: [
+                            { $and: [{ $ge: 18 }, { $le: 24 }] },
+                            { $and: [{ $ge: 34 }, { $le: 44 }] },
+                        ]
+                    },
+                } : {}
+            ),
+            "fields.age": {
+                $or: [
+                    { $and: [{ $ge: 18 }, { $le: 24 }] },
+                    { $and: [{ $ge: 34 }, { $le: 44 }] },
+                ]
             },
-            {
-                where: {
-                    id: user_id,
-                }
+            "fields.gdr": {
+                $or: [
+                    { $and: [{ $ge: 18 }, { $le: 24 }] },
+                    { $and: [{ $ge: 34 }, { $le: 44 }] },
+                ]
             }
-        )
+        }) */
+
 
         // res.render('pages/dashboard/whatsappcompleteoptin', { 
-        res.render('pages/dashboard/campaigns', { 
-            page: 'Campaigns',
+        res.render('pages/dashboard/perfcampaigns', { 
+            page: 'Performance Campaigns',
             campaigns: true,
-            ncampaigns: true,
+            pcampaigns: true,
             campaign_type: '',
             has_whatsapp: status.active,
             flashtype, flash,
@@ -192,583 +109,90 @@ exports.index = async (req, res) => {
 };
 
 exports.analyse = async (req, res) => {
-
-    var _status = {};
-    var file_not_logged = true;
-    var is_api_access = req.externalapi;
-    var HAS_FOLLOWUP = false;
-    var user_id, msgcount, units, name, groups, groups_, message, sender, sender_, shorturl, schedule, datepicker, tid, condition, within_days;
-    var skip, utm, isfollowup, cond_1, cond_2, unsub, dosub, tooptin, toawoptin, toall, tonone; //  has_clicked = false, has_unclicked = false, has_elapsed = false;
+    // var user_id = req.user.id;
+    var user_id = 10;
+    let form = req.body;
+    var _status;
 
     try {
-        try {
-            
-            user_id = req.user.id;
-            // user_id = 10;
-            msgcount = 0;
-            units = 0;
-            name = req.body.name;
-            groups = req.body.group;
-            message = req.body.message;
-            sender = req.body.sender;
-            shorturl = req.body.shorturl;
-            schedule = req.body.schedule;
-            datepicker = req.body.datepicker;
-            tid = req.body.analysis_id;
-            condition = req.body.condition; 
-            within_days = req.body.within_days;
+        let reqs = form.pc_criteria;
+        reqs = Array.isArray(reqs) ? reqs : [ reqs ];
+        let reqlist = [];
+        reqs.forEach(r => {
+            reqlist.push({ [r]: Array.isArray(form['pc_target_' + r]) ? form['pc_target_' + r] : [form['pc_target_' + r]] })
+        })
 
-            skip = (req.body.skip_dnd && req.body.skip_dnd == "on");
-            utm = (req.body.add_utm && req.body.add_utm == "on");
+        if(form.name.length == 0) throw 'name';
+        if(form.measure.length == 0) throw 'measure';
+        if(form.sender.length == 0) throw 'sender';
+        if(form.message.length == 0) throw 'message';
+        if(reqlist.length == 0) throw 'criteria';
+        if((form.budget == 0) || isNaN(parseFloat(form.budget))) throw 'budget';
 
-            // cond_1    = (req.body.chk_followup_1 && req.body.chk_followup_1 == "on");
-            // cond_2    = (req.body.chk_followup_2 && req.body.chk_followup_2 == "on");
+        let newcampaign = await mongmodels.PerfCampaign.create({
+            userId: user_id,
+            name: form.name,
+            type: form.type,
+            measure: form.measure,
+            senderId: form.sender,
+            message: form.message,
+            conditionset: reqlist,
+            budget: form.budget,
+            shorturl: form.myshorturl,
+            startdate: form.datepicker,
+            status: { stage: 'pre-analyze', active: true },
+            addoptin: form.add_optin
+        });
 
-            isfollowup= req.body.chk_followup;
-
-            unsub     = (req.body.add_optout && req.body.add_optout == "on");
-            dosub     = (req.body.add_optin && req.body.add_optin == "on");
-            tooptin   = (req.body.to_optin && req.body.to_optin == "on");
-            toawoptin = (req.body.to_awoptin && req.body.to_awoptin == "on");
-            toall     = (tooptin && toawoptin);
-            tonone    = (!tooptin && !toawoptin);
-
-            /* if(condition) {
-                has_clicked = (condition.indexOf('clicked') === 0 && cond_1) || (condition.indexOf('clicked') === 1 && cond_2);
-                has_unclicked = (condition.indexOf('unclicked') === 0 && cond_1) || (condition.indexOf('unclicked') === 1 && cond_2);
-                has_elapsed = (condition.indexOf('elapsed') === 0 && cond_1) || (condition.indexOf('elapsed') === 1 && cond_2);
-            } */
-
-            //  API ACCESS
-            if(is_api_access) {
-                console.log('___**********____*******________**********_________');
-                
-                // user_id = req.body.id;
-                
-                msgcount = 0;
-                units = 0;
-                name = req.body.name;
-                message = req.body.message;
-                groups_ = req.body.group;
-                sender_ = req.body.sender;
-                shorturl = req.body.shorturl;
-                schedule = req.body.schedule;
-                datepicker = req.body.datepicker;
-                tid = [0];
-                // condition = [0, 0];
-                // within_days = [5, 5];
-
-                skip = true;
-                utm = true;
-
-                // cond_1    = false;
-                // cond_2    = false;
-
-                unsub     = false;
-                dosub     = false;
-                tooptin   = true;
-                toawoptin = true;
-                toall     = (tooptin && toawoptin);
-                tonone    = (!tooptin && !toawoptin);
-                
-                // has_clicked = false;
-                // has_unclicked = false;
-                // has_elapsed = false;
-
-                /* 
-                * these extract actual ids of sender and group nd url stuff...particularly for externalapi
-                */
-                if(sender_) {
-                    let sender__ = await models.Sender.findOne({
-                        where: {
-                            userId: user_id,
-                            name: sender_,
-                        },
-                        attributes: ['id'],
-                    })
-
-                    if(!sender__) throw 'sender';
-                    sender = sender__.id;
-                    console.log('................sender='+sender);
-                    
-                }
-                if(groups_) {
-                    let groups__ = await mongmodels.Group.findOne({
-                            userId: user_id,
-                            name: groups_,
-                    }).select([ '_id' ]);
-
-                    if(!groups__) throw 'group';
-                    groups = groups__._id
-                    // console.log('................group='+groups.id);
-                }
-                if(req.body.url) {  //  if actual url is sent instead of shorturl id
-                    req.query.url = req.body.url;
-                    let resp = await this.generateUrl(req, res);
-                    console.log('^^^^^^^^^^^^^^^^^^ ' + JSON.stringify(resp));
-                    
-                    if(!resp.error) {
-                        shorturl = resp.id;
-                    } else throw 'shorturl'
-                }
-
-            } 
-            
-        } catch(err) {
-            console.log(err);
-            if(err == 'sender' || err == 'group') throw err;
-            throw 'auth';
-        }
-        console.log('form details are now: ' + JSON.stringify(req.body)); 
-
-        console.log('tonone='+tonone+'; tooptin='+tooptin+'; toawoptin='+toawoptin+'; toall='+toall);
-
-        if(Array.isArray(sender)) {
-            console.log('====================================');
-            console.log('isaaray');
-            console.log('====================================');
-            HAS_FOLLOWUP = true;
-            if(!Array.isArray(groups)) groups = [groups];
-            condition = req.body.condition ? (Array.isArray(req.body.condition) ? req.body.condition : [req.body.condition]) : nulll;
-            groups  = [groups].concat(req.body.condition);
-            within_days = within_days ? (Array.isArray(within_days) ? within_days : [within_days]) : within_days;
-        } else {
-            tid = [tid];
-            message = [message];
-            sender = [sender];
-            shorturl = [shorturl];
-            groups = (Array.isArray(groups) || is_api_access) ? [groups] : [[groups]];
-            console.log('====================================');
-            console.log('noarray'+JSON.stringify(sender));
-            console.log('====================================');
-        }
-
-        // console.log('----' + name.length + '----' + message[0].length + '----' + groups[0].toString().length + '----' + sender[0].toString().length);
-        if(!name || !message || !groups || !sender) throw 'fields';
-        if(!(name.length > 1) || !(message[0].length > 1) || !(groups[0].toString().length > 0) || !(sender[0].toString().length > 0)) throw 'fields';
         
-        var uid = 'xxx';
-        var allresults = [];
-        var contactslength = 0;
-        var tids = [];
-        var msgcount_ = {}, contactcount_ = {}, units_ = {};
-        var invalidphones = 0;
-        var all, bal, fin;
-        var int = 0;
-
-        console.log('_______________11group= ' + JSON.stringify(groups));
-
-        while(int < sender.length) {
-            if((message[int].length > 1) && (groups[int].toString().length > 0) && (sender[int].toString().length > 0)) {
-                /* if((!cond_1 && int == 1) || (!cond_2 && int == 2)) {
-                    int++;
-                    continue;
-                } */
-                if(tonone) throw {error: "nocontacts"};
-
-                console.log('THE END!!! balance ' + JSON.stringify(schedule));
-                console.log('THE END!!!' +  moment.utc(moment(schedule, 'YYYY-MM-DD HH:mm:ss')).format('YYYY-MM-DD HH:mm:ss'));
-
-                console.log('====================================');
-                console.log('iiiiiiiiiiiiiiiiiiii = ' + int);
-                console.log('====================================');
-
-                if(int === 0) {  //  done only for the main campaign...followups would get only contact length from here
-                    console.log('-------------22a--------------', JSON.stringify(groups));
-                    let group_ = groups[0].map(g => {
-                        return mongoose.Types.ObjectId(g);
-                    })
-                //  extract groups contacts
-
-                    var dd = await mongmodels.Group.aggregate([
-                        {
-                            $match: {
-                                _id: {
-                                    $in: group_
-                                },
-                                userId: user_id,
-                            }
-                        }, {
-                            $lookup: {
-                                from: "contacts",
-                                // localField: '_id', 
-                                // foreignField: 'groupId',
-                                as: 'contacts',
-                                let: {
-                                    "group_id": "$_id"
-                                },
-                                pipeline: [
-                                    {
-                                        $match: {
-                                            userId:  user_id, 
-                                            $expr: {
-                                                $eq: [
-                                                    "$groupId", "$$group_id"
-                                                ],
-                                            },
-                                            ...(
-                                                skip ? {
-                                                    $and: [
-                                                        {status: { $ne: 2 }},
-                                                        {status: { $ne: 3 }}
-                                                    ],
-                                                    ...(
-                                                        toall ? {
-                                                            $or: [
-                                                                { do_sms: 0 },
-                                                                { do_sms: 1 }
-                                                            ],
-                                                        } : {
-                                                            do_sms: tooptin ? 1 : 0         //  opted-ins = 1; awaiting = 0
-                                                        }
-                                                    )
-                                                } : {
-                                                    ...(
-                                                        toall ? {
-                                                            $or: [
-                                                                { do_sms: 0 },
-                                                                { do_sms: 1 }
-                                                            ],
-                                                        } : {
-                                                            do_sms: tooptin ? 1 : 0         //  opted-ins = 1; awaiting = 0
-                                                        }
-                                                    )
-                                                }
-                                            )
-                                        }
-                                    },
-                                ]
-                            }
-                        }, {
-                            $project: {
-                                "contacts.firstname": 1,
-                                "contacts.lastname": 1,
-                                "contacts.phone": 1,
-                                "contacts.email": 1,
-                                "contacts.country.id": 1,
-                                "contacts._id": 1,
-                                // "_id": 0
-                            }
-                        }
-                    ])      //  consider adding .exec() for proper promise handling
-
-                    console.log('-------------22b--------------' + JSON.stringify(dd));
-                    
-                    //  merge contacts from all groups
-                    var contacts_arr = [];
-                    dd.forEach(el => {
-                        contacts_arr = contacts_arr.concat(el.contacts);
-                    }); 
-
-                    //  remove duplicates
-                    contacts_arr = _.uniqBy(contacts_arr, 'phone');
-
-                    contactslength =  contacts_arr.length;
-                    for (let i = 0; i < contacts_arr.length; i++) {
-                        allresults.push(await checkAndAggregate(contacts_arr[i]));
-                    }
-
-                    [all, bal] = await Promise.all([
-                        allresults,
-                        models.User.findByPk((user_id), {
-                            attributes: ['balance'],
-                            raw: true
-                        })
-                    ]);
-
-                    name = [name];
-                    contactcount_ = { counts: [contactslength] };
-                    msgcount_ = { counts: [msgcount], acc: msgcount };
-                    units_ = { counts: [units], acc: units };       //  units accumulated from checkAndAggregate call above
-                } else {
-                    let contactcount_1;
-                    let units_1;
-
-                    let message_tmp  = message[int]     //  just for temporary estimation
-                    .replace(/\[firstname\]/g,  'kont.firstname')
-                    .replace(/\[first name\]/g, 'kont.firstname')
-                    .replace(/\[lastname\]/g,   'kont.lastname')
-                    .replace(/\[last name\]/g,  'kont.lastname')
-                    .replace(/\[email\]/g,      'kont.emailkont.email')
-                    .replace(/\[e-mail\]/g,     'kont.emailkont.email')
-                    .replace(/\[url\]/g,        'https://tsn.go/xxx/xxx')
-                    .replace(/&nbsp;/g,         ' ');
-
-                    let msgcnt = getSMSCount(message_tmp);
-
-                    //  LET'S GET THE PROPORTION OF MAIN MSG TO THIS FLWP MSG AND ESTIMATE UNITS
-                    console.log('...........||..........', JSON.stringify(msgcount_), msgcnt, JSON.stringify(contactcount_), JSON.stringify(units_), JSON.stringify(condition));
-                    
-                    let avgunt = units_.counts[0] / msgcount_.counts[0];        //  OR = 1
-
-                    if(condition[int-1] == "clicked") {
-                        contactcount_1 = Math.round(ESTIMATED_CLICK_PERCENTAGE * contactcount_.counts[0]);
-                    } else if(condition[int-1] == "unclicked") {
-                        contactcount_1 = Math.round(ESTIMATED_UNCLICK_PERCENTAGE * contactcount_.counts[0]);
-                    } else if(condition[int-1] == "elapsed") {
-                        contactcount_1 = contactcount_.counts[0];
-                    }
-
-                    let msgcount_1 = Math.round(msgcnt * contactcount_1); 
-                    units_1 = Math.round(msgcount_1 * avgunt);
-
-                    name.push(name[0] + "_(followup: " + condition[int - 1] + ")")
-                    contactcount_.counts.push(contactcount_1);
-                    msgcount_.counts.push(msgcount_1);
-                    msgcount_.acc += msgcount_1;
-                    units_.counts.push(units_1);
-                    units_.acc += units_1;
-                    console.log('...........|||.........', JSON.stringify(name), msgcount_1, JSON.stringify(contactcount_), JSON.stringify(units_), JSON.stringify(units_));
-                }
-
-                console.log('====================================');
-                console.log('iiiiiiiiiiiiiiiiiiii = ' + JSON.stringify(name));
-                console.log('====================================');
-
-                async function checkAndAggregate(kont) { 
-
-                    if(shorturl[0] ) {
-                        var shorturl_ = await models.Shortlink.findByPk(shorturl[int]);
-                    }
-                    console.log('====================================');
-                    console.log('cmpan is: ' + message[int]) ;
-                    console.log('====================================');
-                    var message_  = message[int]
-                        .replace(/\[firstname\]/g, kont.firstname)
-                        .replace(/\[first name\]/g, kont.firstname)
-                        .replace(/\[lastname\]/g, kont.lastname)
-                        .replace(/\[last name\]/g, kont.lastname)
-                        .replace(/\[email\]/g, kont.email)
-                        .replace(/\[e-mail\]/g, kont.email)
-                        .replace(/\[url\]/g, 'https://tsn.go/' + (shorturl_ ? shorturl_.shorturl : '') + '/' + uid)
-                        // .replace(/\[url\]/g, 'https://tsn.go/' + shorturl.shorturl + '/' + uid)
-                        .replace(/&nbsp;/g, ' ');
-
-                    let cc = getSMSCount(message_);
-                    msgcount += cc;
-
-                    if(file_not_logged) {
-                        filelogger('sms', 'API Controller', 'analysing campaign', message_);
-                        file_not_logged = false;
-                    }
-
-                    let unit_ = await getRateCharge(kont.phone, kont.country.id, user_id);
-                    if(!unit_) {
-                        invalidphones++;
-                        unit_ = 0;
-                    }
-                    console.log('+++++++0000+++++++', kont.phone, units, unit_, cc);
-
-                    units += unit_ * cc;
-                    
-                    return unit_;
-
-                }
-
-                console.log('______00______');
-                if(!is_api_access) {
-                    // let nint = (int == 2 && condition[0] == 0) ? int - 1 : int;
-                    console.log('______11______');
-                    
-                    if(tid[int] == 0) {
-                    console.log(int, '______22aa______', JSON.stringify(name), JSON.stringify(sender), JSON.stringify(shorturl), JSON.stringify(groups), JSON.stringify(message), JSON.stringify(units_), JSON.stringify(within_days), JSON.stringify(tids));
-                        var tt = await models.Tmpcampaign.create({
-                            name:       name[int],
-                            userId:     user_id,
-                            senderId:   sender[int],
-                            shortlinkId: (shorturl[int].length > 0) ? shorturl[int] : null,
-                            // myshorturl: req.body.myshorturl,
-                            grp:        (int === 0) ? JSON.stringify(groups[int]) : groups[int],
-                            message:    message[int],
-                            // schedule: (req.body.schedule) ? moment(req.body.schedule, 'DD/MM/YYYY h:mm:ss A').format('YYYY-MM-DD HH:mm:ss') : null, //req.body.schedule,
-                            schedule:   (datepicker) ? schedule : null, //req.body.schedule,
-                            skip_dnd:   (skip) ? skip : null,
-                            has_utm:    (utm) ? 1 : 0,
-                            to_optin:   (tooptin) ? 1 : 0,
-                            to_awoptin: (toawoptin) ? 1 : 0,
-                            add_optout: (unsub) ? 1 : 0,
-                            add_optin:  (dosub) ? 1 : 0,
-                            units_used: units_.counts[int], //(int===0 ? units : 0) + (condition[int]=="clicked" ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (condition[int]=="unclicked" ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0),
-                            total_units: units_.acc, // + (condition[int] ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0) + (has_elapsed ? units : 0),
-                            within_days: (int === 0) ? null : within_days[int-1],
-                            ref_campaign: (int === 0) ? null : "tmpref_" + tids[0],
-                        });
-                    console.log('______33______');
-
-                        tt = tt.id;
-                    } else {
-                        console.log(int, '______22bb______', JSON.stringify(name), JSON.stringify(sender), JSON.stringify(shorturl), JSON.stringify(groups), JSON.stringify(message), JSON.stringify(units_), JSON.stringify(within_days), JSON.stringify(tids));
-                        await models.Tmpcampaign.update({
-                            name:       name[int],
-                            userId:     user_id,
-                            senderId:   sender[int],
-                            shortlinkId: (shorturl[int].length > 0) ? shorturl[int] : null,
-                            // myshorturl: req.body.myshorturl, 
-                            grp:        (int === 0) ? JSON.stringify(groups[int]) : groups[int],
-                            message:    message[int], 
-                            schedule:   (datepicker) ? schedule : null, //req.body.schedule,
-                            skip_dnd:   (skip) ? skip : null,
-                            has_utm:    (utm ? 1 : 0),
-                            to_optin:   (tooptin ? 1 : 0),
-                            to_awoptin: (toawoptin ? 1 : 0),
-                            add_optout: (unsub ? 1 : 0),
-                            add_optin:  (dosub ? 1 : 0),
-                            units_used: units_.counts[int], //(int===0 ? units : 0) + (condition[int]=="clicked" ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (condition[int]=="unclicked" ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0),
-                            total_units: units_.acc, // + (condition[int] ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0) + (has_elapsed ? units : 0),
-                            within_days: (int == 0) ? null : within_days[int-1],
-                            ref_campaign: (int === 0) ? null : "tmpref_" + tids[0],
-                        }, {
-                            where: {
-                                id: tid[int],
-                            }
-                        });
-
-                        tt = tid[int];
-                    }
-                    
-                    tids.push(parseInt(tt)); 
-
-                    fin = [bal.balance, tids];
-
-                    console.log('post2... ' + JSON.stringify(fin));
-                }
-            } else throw 'fields';
-            int++;
-        }
-        
-        console.log('====================================');
-        console.log('END OF ANALYSIS!');
-        console.log('====================================');
-        if(is_api_access) {
-            if(units > bal.balance) throw 'balance'
-            let req_ = {
-                body: {
-                    // id: req.body.id,  
-                    token: req.body.token,
-                    analysis_id: ['api'],
-                    type: ['sms'],
-                    info: {
-                        name:       name[0],
-                        userId:     user_id,
-                        senderId:   sender[0],
-                        shortlinkId: shorturl[0],
-                        // myshorturl: req.body.myshorturl,
-                        grp:        JSON.stringify(groups),
-                        message:    message[0],
-                        // schedule: (req.body.schedule) ? moment(req.body.schedule, 'DD/MM/YYYY h:mm:ss A').format('YYYY-MM-DD HH:mm:ss') : null, //req.body.schedule,
-                        schedule:   (datepicker) ? schedule : null, //req.body.schedule,
-                        skip_dnd:   (skip) ? 'on' : null,
-                        has_utm:    (utm) ? 1 : 0,
-                        to_optin:   (tooptin) ? 1 : 0,
-                        to_awoptin: (toawoptin) ? 1 : 0,
-                        add_optout: (unsub) ? 1 : 0,
-                        add_optin:  (dosub) ? 1 : 0,
-                        units_used: units,
-                        total_units: units,
-                        within_days: null,    
-                        ref_campaign: null,
-                    }
-                },
-                externalapi: true,
-            }
-            // console.log(JSON.stringify(req_));
-            
-            let resp = await campaignController.add(req_, res);
-            console.log('3+++++++++++++'+JSON.stringify(resp));
-            if(resp.status == "error") throw resp.msg;
-            _status = resp;
-        } else {
-            _status = {
-                response: {
-                    tmpid: fin[1],
-                    contactcount: contactcount_,
-                    msgcount: msgcount_,
-                    invalidphones,      //  optional
-                    units: units_,
-                    balance: fin[0],
-                }, 
-                responseType: "SUCCESS", 
-                responseCode: "OK", 
-                responseText: "Success", 
-
-                /* code: "SUCCESS",
-                tmpid: fin[1],
-                contactcount: contactcount_,
-                msgcount: msgcount_,
-                invalidphones,      //  optional
-                units: units_,
-                balance: fin[0], */
-                // followups: [cond_1 ? 1 : 0, cond_2 ? 1 : 0],
-            };
-            // return;
+        _status = {
+            response: {
+            }, 
+            responseType: "SUCCESS", 
+            responseCode: "OK", 
+            responseText: "Success", 
         }
 
     } catch(err) {
-        
-        switch(err) {
-            case 'auth':
-                _status = {
-                    response: "Error: You're not logged in.", 
-                    responseType: "ERROR", 
-                    responseCode: "E001", 
-                    responseText: "Invalid Token", 
-                };
-                break;
-            case 'balance':
-                _status = {
-                    response: "Error: Inadequate balance.", 
-                    responseType: "ERROR", 
-                    responseCode: "E002", 
-                    responseText: "Inadequate balance", 
-                };
-                break;
-            case 'fields':
-                _status = {
-                    response: "Error: Incomplete fields.", 
-                    responseType: "ERROR", 
-                    responseCode: "E003", 
-                    responseText: "Check the fields for valid entries: 'name'; 'message'; 'sender'; 'group'.", 
-                };
-                break;
-            case 'group':
-                _status = {
-                    response: "Error: Invalid Group Name.", 
-                    responseType: "ERROR", 
-                    responseCode: "E053", 
-                    responseText: "Invalid Group Name.", 
-                };
-                break;
+        console.log(err);
+        let errmsg = 'Please specify ';
+
+        switch (err) {
+            case 'name':
+                errmsg += "'Campaign Name', ";
+                // break;
+            case 'measure':
+                errmsg += "'Measure', ";
+                // break;
             case 'sender':
-                _status = {
-                    response: "Error: Invalid Sender ID Name.", 
-                    responseType: "ERROR", 
-                    responseCode: "E043", 
-                    responseText: "Invalid Sender ID Name.", 
-                };
+                errmsg += "'Sender ID', ";
+                // break;
+            case 'message':
+                errmsg += "'Message', ";
+                // break;
+            case 'reqlist':
+                errmsg += "'Criteria', ";
+                // break;
+            case 'budget':
+                errmsg += "'Budget', ";
                 break;
-            case 'shorturl':
-                _status = {
-                    response: "Error: Can't create shorturl.", 
-                    responseType: "ERROR", 
-                    responseCode: "E033", 
-                    responseText: "There was an error creating the shorturl.", 
-                };
-                break;
+        
             default:
-                _status = {
-                    response: "Error: General Error!" + err, 
-                    responseType: "ERROR", 
-                    responseCode: "E000", 
-                    responseText: "General error. Please contact Tracksend admin.", 
-                };
+                break;
         }
-        // return;
+        if( errmsg == 'Please specify ') {
+        }
+
+        _status = {
+            response: "Input error", 
+            responseType: "ERROR", 
+            responseCode: "E000", 
+            responseText: errmsg, 
+        }
     }
 
     res.send(_status);
     return;
-
-
 }
 
 exports.add = async (req, res) => {
@@ -1498,18 +922,22 @@ exports.view = (req, res) => {
             console.log(results);
             return results;
         }),
-        models.Campaign.findByPk(cmgnid, {
+        models.Campaign.findAll({ 
+            where: { 
+                id: cmgnid,
+                userId: user_id,
+            },
             include: [{
                 model: models.Message, 
                 limit: 100,
                 order: [ 
                     ['createdAt', 'DESC']
                 ],
-                /* include: [{
+                include: [{
                     model: models.Contact, 
                     attributes: ['id', 'firstname', 'lastname', 'phone'],
                     // through: { }
-                }],  */
+                }], 
                 attributes: ['status', 'deliverytime', 'readtime', 'firstclicktime', 'clickcount', 'destination', 'contactId'],
                 // through: { }
             }], 
@@ -1551,11 +979,11 @@ exports.view = (req, res) => {
                 order: [ 
                     ['createdAt', 'DESC']
                 ],
-                /* include: [{
+                include: [{
                     model: models.Contact, 
                     attributes: ['id', 'firstname', 'lastname', 'phone'],
                     // through: { }
-                }], */ 
+                }], 
                 attributes: ['status', 'deliverytime', 'readtime', 'firstclicktime', 'clickcount', 'destination', 'contactId'],
                 // through: { }
             }], 
@@ -1564,13 +992,10 @@ exports.view = (req, res) => {
             ],
         }), 
 
-    ]).then(async ([summary, cpgnrecp, mcount, refcpgns]) => {
+    ]).then(([summary, cpgnrecp, mcount, refcpgns]) => {
         // console.log('qqq= '+cpgnrecp.length);
-        var recipients = [];
-        // var recipients = cpgnrecp[0].messages;
+        var recipients = cpgnrecp[0].messages;
         console.log('REFERENCES: ' + JSON.stringify(refcpgns));
-
-
         // console.log('CONTA: ' + JSON.stringify(recipients));
         
         recipients = recipients.map(ii => {
@@ -1578,7 +1003,7 @@ exports.view = (req, res) => {
             var i = JSON.parse(JSON.stringify(ii));
             var st = parseInt(i.status);
 
-            if(i.contact == null && i.destination && i.destination.length > 0) {
+            if(i.contact == null && i.destination.length > 0) {
                 var ds = i.destination;
                 let pp = '0' + ds.substr(-10);
 
@@ -1621,73 +1046,15 @@ exports.view = (req, res) => {
         // console.log('====================================');
         // console.log('SUMM: ' + JSON.stringify(summary) + '; MESS: ' + JSON.stringify(cpgnrecp) + '; CMSG: ' + JSON.stringify(recipients.length));
         // console.log('====================================');
-        var mname = [];
-        var mmsg = [];
+        var mname = cpgnrecp.map((r) => r.name);
+        var mmsg = cpgnrecp.map((r) => r.message);
 
-        mname.push(cpgnrecp.name); 
-        mmsg.push(cpgnrecp.message);
-        for(var m = 0; m < cpgnrecp.messages.length; m++) {
-            var st = parseInt(cpgnrecp.messages[m].status);
-            let c = cpgnrecp.messages[m].contactId;
-            if(c && c != 0) {
-                console.log('_______c = ' + c);
-                let cd = await mongmodels.Contact.findOne({
-                    _id: mongoose.Types.ObjectId(c)
-                }, "firstname lastname phone");
-                cpgnrecp.messages[m]['contact'] = cd;
-            } else if (cpgnrecp.messages[m].destination && cpgnrecp.messages[m].destination.length > 0) {
-                // var i = cpgnrecp.message;
-
-                var ds = cpgnrecp.messages[m].destination;
-                let pp = '0' + ds.substr(-10);      //  this is only suitable for Nigeria contacts. REFACTOR!
-
-                cpgnrecp.messages[m]['contact'] = {
-                    firstname: '--',
-                    lastname: '--',
-                    phone: pp,
-                }
-            }
-
-            switch (st) {
-                case 0:
-                    cpgnrecp.messages[m].status = "Pending"
-                    break;
-                case 1:
-                    cpgnrecp.messages[m].status = "Delivered"
-                    break;
-                case 2:
-                    cpgnrecp.messages[m].status = "Failed"
-                    break;
-                case 3:
-                    cpgnrecp.messages[m].status = "DND"
-                    break;
-                case 4:
-                    cpgnrecp.messages[m].status = "Invalid"
-                    break;
-                case 5:
-                    cpgnrecp.messages[m].status = "Viewed"
-                    break;
-            
-                default:
-                    break;
-            }
-        }
-        recipients.push(...cpgnrecp.messages);
-
-        console.log('_________________NEW CAMPGN = ' + JSON.stringify(cpgnrecp));
-        let cpgntype, show_viewed;
-        if(cpgnrecp.platformtypeId == 1) {
-            cpgntype = "SMS";
-            show_viewed = false;
-        } else {
-            cpgntype = "WhatsApp";
-            show_viewed = true;
-        }
+        let cpgntype = cpgnrecp[0].platformtypeId == 1 ? "SMS" : "WhatsApp";
+        let show_viewed = cpgnrecp[0].platformtypeId == 1 ? false : true;
         
         // REFERENCE STUFFS (IF ANY)
-        // let refmsgstat = [];
-        // refcpgns = refcpgns.map(ref => {
-        if(refcpgns) for(let r = 0; r < refcpgns.length; r++) {
+        let refmsgstat = [];
+        refcpgns = refcpgns.map(ref => {
             let stats = {
                 pending: 0,      
                 delivered: 0,    
@@ -1695,72 +1062,41 @@ exports.view = (req, res) => {
                 undeliverable: 0,
                 viewed: 0,       
                 clickc: 0,       
-                mcount: refcpgns[r].messages.length,       
+                mcount: ref.messages.length,       
             };
-            // ref.messages.forEach(msg => {
-            for(let m = 0; m < refcpgns[r].messages.length; m++) {
-                let c = refcpgns[r].messages[m].contactId;
-
-                if(c && c != 0) {
-                    let cd = await mongmodels.Contact.findOne({
-                        _id: mongoose.Types.ObjectId(c)
-                    }, "firstname lastname phone");
-                    refcpgns[r].messages[m]['contact'] = cd;
-                } else if (refcpgns[r].messages[m].destination && refcpgns[r].messages[m].destination.length > 0) {
-
-                    var ds = refcpgns[r].messages[m].destination;
-                    let pp = '0' + ds.substr(-10);      //  this is only suitable for Nigeria contacts. REFACTOR!
-
-                    refcpgns[r].messages[m]['contact'] = {
-                        firstname: '--',
-                        lastname: '--',
-                        phone: pp,
-                    }
-                }
-
-                switch (parseInt(refcpgns[r].messages[m].status)) {
+            ref.messages.forEach(msg => {
+                switch (parseInt(msg.status)) {
                     case 0:
-                        refcpgns.messages[m].status = "Pending"
                         stats.pending += 1
                         break;
                     case 1:
-                        refcpgns.messages[m].status = "Delivered"
                         stats.delivered += 1
                         break;
                     case 2:
-                        refcpgns.messages[m].status = "Failed"
                         stats.failed += 1
                         break;
-                    case 3:
-                        refcpgns.messages[m].status = "DND"
-                        stats.undeliverable += 1
-                        break;
-                    case 4:
-                        refcpgns.messages[m].status = "Invalid"
+                    case (3 || 4):
                         stats.undeliverable += 1
                         break;
                     case 5:
-                        refcpgns.messages[m].status = "Viewed"
                         stats.viewed += 1
                         break;
                 
                     default:
                         break;
                 }
-                stats.clickc += refcpgns[r].messages[m].clickcount;
-            }
+                stats.clickc += msg.clickcount;
+            });
             // refmsgstat.push(stats) 
             // ref.refmsgstat = stats; 
             // const ref_ = Object.assign(ref, {stats});
-            // let _ref = JSON.parse(JSON.stringify(refcpgns[r]));
-            refcpgns[r]['stats'] = stats;
+            let _ref = JSON.parse(JSON.stringify(ref));
+            const ref_ = Object.assign(_ref, {stats});
             // let ref_ = {...ref, stats};
-            // return ref_;
-        }
+            return ref_;
+        });
 
-        console.log('_________________NEW REFCAMPGN = ' + JSON.stringify(refcpgns));
-
-        // console.log('__________refcpgns=', JSON.stringify(refcpgns));
+        console.log('__________refcpgns=', JSON.stringify(refcpgns));
         /* let seen = [];
         console.log(JSON.stringify(refcpgns_, function (key, val) {
             if (val != null && typeof val == "object") {
@@ -1772,10 +1108,10 @@ exports.view = (req, res) => {
             return val;
         }) ) */
         
-        res.render('pages/dashboard/campaign', { 
+        res.render('pages/dashboard/perfcampaign', { 
             page: '(' + cpgntype + ') Campaign: "' + mname + '"', //'Campaigns',
             campaigns: true,
-            ncampaigns: true,
+            pcampaigns: true,
 
             args: {
                 cmgnid,
@@ -2001,10 +1337,10 @@ exports.copy = (req, res) => {
             flash = req.flash('success');
         }
 
-        res.render('pages/dashboard/campaigns', { 
+        res.render('pages/dashboard/perfcampaigns', { 
             page: 'Campaigns',
             campaigns: true,
-            ncampaigns: true,
+            pcampaigns: true,
             flashtype, flash,
 
             args: {

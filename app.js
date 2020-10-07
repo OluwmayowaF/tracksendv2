@@ -113,6 +113,7 @@ MongoClient.connect(mongoconnectionurl, { useUnifiedTopology: true, useNewUrlPar
 
 }) */
 
+require("./routes/admin")(app);
 require("./routes/dashboard")(app);
 require("./routes/api.js")(app);
 require("./routes/pages")(app);

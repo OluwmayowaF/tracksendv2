@@ -64,15 +64,6 @@ const ContactSchema = new mongoose.Schema({
     default:      0,
   },
   misc:           String,
-  /* createdAt:      {
-    type:         Date,
-    default:      Date.now
-  },
-  updatedAt:      {
-    type:         Date,
-    default:      Date.now
-  }, */
-
   fullname:     String,
   company:      String,
   city:         String,
@@ -126,12 +117,55 @@ const GroupSchema = new mongoose.Schema({
   timestamps:     true,
   versionKey:     false,
 });
-// GroupSchema.plugin(AutoIncrement, {inc_field: 'id'});
 const Group = mongoose.model('groups', GroupSchema);
+
+const PerfCampaignSchema = new mongoose.Schema({
+  name:           String,
+  userId:         {
+    type: Number,
+    index: true,
+  },
+  description:    String,
+  budget:         Number,
+  minbudget:      Number,
+  // conditionset:   Array,
+  conditionset:   mongoose.Schema.Types.Mixed,
+  type:           String,   //  sms | whatsapp
+  measure:        String,   //  click | impression
+  senderId:       Number,
+  shorturl:       String,
+  startdate:      Date,
+  message:        String,
+  status:         mongoose.Schema.Types.Mixed,  //  an object for different types of statuses
+  addoptin:       Boolean,
+  admincomment:   String,
+}, {
+  timestamps:     true,
+  versionKey:     false,
+});
+const PerfCampaign = mongoose.model('perfcampaigns', PerfCampaignSchema);
+
+const PerfContactSchema = new mongoose.Schema({
+  phone:          Number,
+  fields:         mongoose.Schema.Types.Mixed,
+  usecount:       Number,
+  status:         mongoose.Schema.Types.Mixed,  //  an object for different types of statuses
+  batch:          Number,  
+  cost:           Number,  
+  price:          Number,  
+}, {
+  timestamps:     true,
+  versionKey:     false,
+});
+const PerfContact = mongoose.model('perfcontacts', PerfContactSchema);
+
+
 
 const mongmodels = {
   Contact,
-  Group
+  Group,
+  PerfCampaign,
+  PerfContact,
 }
 
 module.exports = mongmodels;

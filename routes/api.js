@@ -34,6 +34,7 @@ module.exports = function(app) {
   app.get ('/api/generateurl',      apiController.generateUrl);
   app.post('/api/analysecampaign',  apiController.analyseCampaign);
   app.get ('/api/loadcampaign',     apiController.loadCampaign);
+  app.post('/api/saveupdperfcpgn',  apiController.updatePerfCampaign);
   app.get ('/api/savecustomoptinlink', apiController.saveOptinLink);
   app.get ('/api/getwhatsappqrode', apiController.getWhatsAppQRCode);
   app.options ('/api/whatsappoptin', cors()); // deprecated

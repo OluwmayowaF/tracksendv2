@@ -27,6 +27,7 @@ var _getGlobals = {
  
 $(document).ready(function() {
 	var campaign_confirmed = false;
+	var sms_campaign = false;
 	var whatsapp_campaign = false;
 	var _campaign_options_checked_count = 0;
 
@@ -847,20 +848,33 @@ $(document).ready(function() {
 
 	})
 
-	$('.campaign_send_btn').on('click', function(e) {
+	//	re-examine usefulness for whatsapp campagns if necessary
+	/* $('.campaign_send_btn').on('click', function(e) {
 
 		campaign_confirmed = true;
-		whatsapp_campaign = true;
+		if($('#analyseperf_btn').length) { whatsapp_campaign = false; sms_campaign = true; }
+
 		$(this).closest('form').submit();
 		$(this).closest('form').find('.activity_status').text('Sending...').show();
 		$(this).closest('div').find('.loading_icon').show();
 
-	})
+	}) */
 
-	$('.campaigntypes form').submit(function (e) {
+	$('.campaigntypes form').submit(function (e) {		//	 FOR NOW, THIS WORKS FOR BOTH NORMAL AND PERFORMANCE CAMPAIGNS
+		// e.preventDefault();
 
 		var $me = $(this);
-		var $butt = $me.find('#analyse_btn');
+		if($('#analyseperf_btn').length) {
+			var N_CMPGN = false, P_CMPGN = true;
+			console.log('true p_cmpgn');
+			var $butt = $me.find('#analyseperf_btn');
+			var apiadd = 'analyseperfcampaign';
+			campaign_confirmed = true;
+		} else {
+			var N_CMPGN = true, P_CMPGN = false;
+			var $butt = $me.find('#analyse_btn');
+			var apiadd = 'analysecampaign';
+		}
 		
 		$butt.closest('div').find('.loading_icon').show();
 
@@ -872,11 +886,13 @@ $(document).ready(function() {
 		// if(!validateAndSendCampaign()) return false;
 
 		//	check if it's not a whatsapp campaign
-		if (campaign_confirmed && !whatsapp_campaign) return true;
+		console.log('1...campaign_confirmed: ', campaign_confirmed, '; whatsapp_campaign: ', whatsapp_campaign, '; N_CMPGN: ', N_CMPGN, '; P_CMPGN: ', P_CMPGN);
+		if (campaign_confirmed && !whatsapp_campaign && N_CMPGN) return true;
 		console.log('1sending...');
 		
 		$('#analysis-box .followup_su').hide();
 		$butt.closest('div').find('.activity_status').text('Analyzing...');
+		console.log('2...campaign_confirmed: ', campaign_confirmed, '; whatsapp_campaign: ', whatsapp_campaign, '; N_CMPGN: ', N_CMPGN, '; P_CMPGN: ', P_CMPGN);
 
 		let w = moment($me.find('#datepicker').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
 		let wwa = moment($me.find('#datepickerwa').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
@@ -888,22 +904,26 @@ $(document).ready(function() {
 		console.log('====================================');
 		console.log('ALL FORM: ' + json_campaign_add);
 		console.log('====================================');
+		console.log('3...campaign_confirmed: ', campaign_confirmed, '; whatsapp_campaign: ', whatsapp_campaign, '; N_CMPGN: ', N_CMPGN, '; P_CMPGN: ', P_CMPGN);
 		//	check if it's a whatsapp campaign
-		if (campaign_confirmed && whatsapp_campaign) return true;
+		if (campaign_confirmed && (whatsapp_campaign || P_CMPGN)) return true;
+		console.log('2sending...');
+		console.log('4...campaign_confirmed: ', campaign_confirmed, '; whatsapp_campaign: ', whatsapp_campaign, '; N_CMPGN: ', N_CMPGN, '; P_CMPGN: ', P_CMPGN);
 
 		// $me = $('#campaign_form');
 		
 
 		$.ajax({
 			type: 'POST',
-			url: _getGlobals.SERVICE_HOST+'analysecampaign',
+			url: _getGlobals.SERVICE_HOST + apiadd,
 			contentType: 'application/json',
 			data: json_campaign_add,
 				// data: json_form_reg,
 			success: function( data ) {
 
 				console.log(data);
-				if(data.code == "SUCCESS") {
+				if(data.responseType == "SUCCESS") {
+					let data_ = data.response;
 
 					/* data.tmpid.forEach(id => {
 						
@@ -911,24 +931,24 @@ $(document).ready(function() {
 
 
 
-					$('._main_campaign #analysis_id').val(data.tmpid[0]);
+					$('._main_campaign #analysis_id').val(data_.tmpid[0]);
 
 					$('._followup_campaign .chk_followup:checked').each(function(i, el) {
-						$(el).closest('._followup_campaign').find('#analysis_id').val(data.tmpid[i + 1])
+						$(el).closest('._followup_campaign').find('#analysis_id').val(data_.tmpid[i + 1])
 					})
 					/* $('._followup_campaign._1 #analysis_id').val(
-						data.followups[0] ? 
-							data.tmpid[1] : 
+						data_.followups[0] ? 
+							data_.tmpid[1] : 
 							($('._followup_campaign._1 #analysis_id').val() ? 
 								$('._followup_campaign._1 #analysis_id').val() : 
 								0
 							)
 					);
 					$('._followup_campaign._2 #analysis_id').val(
-						data.followups[1] ? 
-							(data.followups[0] ? 
-								data.tmpid[2] : 
-								data.tmpid[1]
+						data_.followups[1] ? 
+							(data_.followups[0] ? 
+								data_.tmpid[2] : 
+								data_.tmpid[1]
 							) : 
 							($('._followup_campaign._2 #analysis_id').val() ? 
 								$('._followup_campaign._2 #analysis_id').val() : 
@@ -937,7 +957,7 @@ $(document).ready(function() {
 					); */
 
 					var tot = 0;
-					var len = data.tmpid.length;
+					var len = data_.tmpid.length;
 					let $bo = $('#analysis-box .sign-in-form');
 					$bo.html('');
 
@@ -950,34 +970,34 @@ $(document).ready(function() {
 						let cpm_summary_sender 	= $(el).find('._sel_sender_id option:selected').text();
 						let cpm_summary_msg 		=	sanitizeMsg($(el), true);
 						let cpm_summary_to 			=	$(el).find('._sel_contact_group option:selected').text();
-						let cpm_summary_recp 		=	data.contactcount.counts[i] + (i > 0 ? ' (est.)' : '');
-						let cpm_summary_count 	= data.msgcount.counts[i] + (i > 0 ? ' (est.)' : '');
-						let cpm_summary_avg 		=	(parseInt(data.contactcount.counts[i]) > 0) ? (parseInt(data.msgcount.counts[i])/parseInt(data.contactcount.counts[i])) + (i > 0 ? ' (est.)' : '') : '--';
-						let cpm_units_chrg 			=	data.units.counts[i] + (i > 0 ? ' (est.)' : '');
+						let cpm_summary_recp 		=	data_.contactcount.counts[i] + (i > 0 ? ' (est.)' : '');
+						let cpm_summary_count 	= data_.msgcount.counts[i] + (i > 0 ? ' (est.)' : '');
+						let cpm_summary_avg 		=	(parseInt(data_.contactcount.counts[i]) > 0) ? (parseInt(data_.msgcount.counts[i])/parseInt(data_.contactcount.counts[i])) + (i > 0 ? ' (est.)' : '') : '--';
+						let cpm_units_chrg 			=	data_.units.counts[i] + (i > 0 ? ' (est.)' : '');
 
 						let $su = $('<div class="_su"><div class="trigger"><div class="col-lg-12 toggle active _hdr">' + cpm_summary_title + '</div></div><div class="col-lg-12 toggle-container" style="display: none"><div class="row with-forms">' + ((i === 0) ? '<div class="col-md-12"><h5>Campaign Name: </h5><span id="cpm_summary_name">' + cpm_summary_name + '</span></div>' : '') + '<div class="col-md-12"><h5>Sender ID: </h5><span id="cpm_summary_sender">' + cpm_summary_sender + '</span></div><div class="col-md-12"><h5>Message: </h5><span id="cpm_summary_msg">' + cpm_summary_msg + '</span></div><div class="col-md-12"><h5>To: </h5><span id="cpm_summary_to">' + cpm_summary_to + '</span></div><div class="col-md-12"><h5>Send Time: </h5><span id="cpm_summary_time">Immediately</span></div><div class="col-md-12 sepr"></div><div class="col-md-12"><h5>Number of Recipients: </h5><span id="cpm_summary_recp">' + cpm_summary_recp + '</span></div><div class="col-md-12"><h5>Total Messages: </h5><span id="cpm_summary_count">' + cpm_summary_count + '</span></div><div class="col-md-12"><h5>Average Message(s) per Recipient: </h5><span id="cpm_summary_avg">' + cpm_summary_avg + '</span></div><div class="col-md-12"><h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">' + cpm_units_chrg + '</span></div><div class="col-md-12 sepr"></div></div></div><div class="clearfix"></div></div>')
 						
 						$bo.append($su);
-						tot += data.contactcount.counts[i];
+						tot += data_.contactcount.counts[i];
 						
 					})
 					
-					let cpm_summary_recp 	= tot + (len > 1 ? ' (est.)' : '') + (data.invalidphones > 0 ? ' <span style="display: inline;font-size: 0.85em;color: #ff4a21;"> * invalid: ' + data.invalidphones + ' *</spa>' : '');
-					let cpm_summary_count = data.msgcount.acc + (len > 1 ? ' (est.)' : '');
-					let cpm_units_chrg 		= data.units.acc + (len > 1 ? ' (est.)' : '');
+					let cpm_summary_recp 	= tot + (len > 1 ? ' (est.)' : '') + (data_.invalidphones > 0 ? ' <span style="display: inline;font-size: 0.85em;color: #ff4a21;"> * invalid: ' + data_.invalidphones + ' *</spa>' : '');
+					let cpm_summary_count = data_.msgcount.acc + (len > 1 ? ' (est.)' : '');
+					let cpm_units_chrg 		= data_.units.acc + (len > 1 ? ' (est.)' : '');
 
 					let $sutt = '<div class="su_totals" style="background-color: #bae7ec;margin-top: 5px;"><div class="row with-forms"><div style="text-align: center;padding: 5px;font-weight: bold;background-color: #85ccd2;color: #444;border-bottom: solid white 1px;">Totals</div><div class="col-md-12"><h5>Number of Recipients: </h5><span id="cpm_summary_recp">' + cpm_summary_recp + '</span></div><div class="col-md-12"><h5>Total Messages: </h5><span id="cpm_summary_count">' + cpm_summary_count + '</span></div><div class="col-md-12"><h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">' + cpm_units_chrg + '</span></div><div class="col-md-12 sepr"></div><div class="col-md-12"><h5>Available Balance: </h5><span id="cpm_units_balance" style="font-weight: bold">--</span></div></div></div>';
 
 					$bo.append($sutt);
 					
 					var bal, noc;
-					if(data.units.acc > data.balance) {
-						bal = '<span style="color: red">' + data.balance + ' (INSUFFICIENT) </span>';
+					if(data_.units.acc > data_.balance) {
+						bal = '<span style="color: red">' + data_.balance + ' (INSUFFICIENT) </span>';
 						
 						$('.campaign_summary_btn.send').hide();
 					} else if(tot == 0) {
-						bal = data.balance;
-						// noc = '<span style="color: red">' + data.contactcount + ' (NO CONTACTS ADDED) </span>';
+						bal = data_.balance;
+						// noc = '<span style="color: red">' + data_.contactcount + ' (NO CONTACTS ADDED) </span>';
 						noc = '<span style="color: red"> (NO CONTACTS ADDED) </span>';
 						$('#analysis-box #cpm_summary_recp').html(noc);
 						$('#analysis-box #cpm_summary_avg').text('--');
@@ -985,7 +1005,7 @@ $(document).ready(function() {
 						$('#analysis-box .su_totals #cpm_summary_avg').text('--');
 						$('.campaign_summary_btn.send').hide();
 					} else {
-						bal = data.balance;
+						bal = data_.balance;
 						$('.campaign_summary_btn.send').show(); 
 					}
 
@@ -1004,7 +1024,8 @@ $(document).ready(function() {
 				} else {
 					$butt.closest('div').find('.loading_icon').hide();
 					$butt.closest('div').find('.activity_status').text('');
-					$me.find('._form_errors._e_analyse').text('Check that all inputs are valid, and that you\'re properly logged in.');
+					if(N_CMPGN) $me.find('._form_errors._e_analyse').text('Check that all inputs are valid, and that you\'re properly logged in.');
+					if(P_CMPGN) $me.find('._form_errors._e_analyse').text(data.responseText);
 					$me.find('._form_errors._e_analyse').show();
 					
 				}
@@ -1611,6 +1632,7 @@ $(document).ready(function() {
 
 						$item.find('.dv_name').text($item.find('.ed_name').val());
 						$item.find('.dv_desc').text($item.find('.ed_desc').val());
+						$item.find('.dv_status').text($item.find('._sel_status').val());		//	for updating performance campaigns
 						$item.find('.dv_optin').text($item.find('.can_optin_chk').is(':checked') ? 'Yes' : 'No');
 						if(wh == 'senderid') $item.find('.dv_status').text('Pending...');
 						if(wh == 'group') {}
@@ -1625,10 +1647,12 @@ $(document).ready(function() {
 						$('.notification.other3').show();
 
 					} else {
+
 						$('.notification.other3').removeClass('success error').addClass('error');
 						$('.notification.other3 p').text(data.response);
 						$('.notification.other3').css('opacity',100);
 						$('.notification.other3').show();
+
 					} 
 					
 				},
@@ -1944,6 +1968,10 @@ $(document).ready(function() {
 		}
 	})
 
+	$('._toggle_crit').click(function(e) {
+		// console.log('clicked');
+		$(this).children('div').first().slideToggle();
+	})
 	$('#upload_fields_form').submit(function (e) {
 		// e.preventDefault();
 

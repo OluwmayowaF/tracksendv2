@@ -33,7 +33,7 @@ const CustomOptinRouter = require('./customoptins');
 
 // Requiring our custom middleware for checking if a user is logged in
 var isAuthenticated = require("../config/middleware/isAuthenticated");
-var isAdministrator = require("../config/middleware/isAdministrator");
+// var isAdministrator = require("../config/middleware/isAdministrator");
 //
 module.exports = function(app) {
   
@@ -41,7 +41,7 @@ module.exports = function(app) {
   app.use('/dashboard/contacts',        isAuthenticated, contactRouter);
   app.use('/dashboard/campaigns',       isAuthenticated, campaignRouter);
   app.use('/dashboard/perfcampaigns',   isAuthenticated, perfcampaignRouter);
-  // app.use('/dashboard/campaigns', campaignRouter);
+  // app.use('/dashboard/perfcampaigns', perfcampaignRouter);
   app.use('/dashboard/senderids',       isAuthenticated, senderIdRouter);
   app.use('/dashboard/shortlinks',      isAuthenticated, shortLinkRouter);
   app.use('/dashboard/shorturls',       isAuthenticated, shortLinkRouter);
@@ -50,15 +50,15 @@ module.exports = function(app) {
   app.use('/dashboard/profile',         isAuthenticated, profileRouter);
   app.use('/dashboard/integrations',    isAuthenticated, integrationRouter);
   app.use('/dashboard/customoptin',     isAuthenticated, CustomOptinRouter);
-  app.get('/dashboard/m_a_n_u_a_l',     isAdministrator, dashboardController.manualget);
+  // app.get('/dashboard/m_a_n_u_a_l',     isAdministrator, dashboardController.manualget);
 
   
   // app.get('/dashboard/m_a_n_u_a_l', isAdministrator, (req, res) => {
   //   res.send('yeaaah');
   // });
-  app.post('/dashboard/m_a_n_u_a_l', isAdministrator, dashboardController.manualpost);
+  // app.post('/dashboard/m_a_n_u_a_l', isAdministrator, dashboardController.manualpost);
 
-  app.get('/dashboard/testerly', isAdministrator, dashboardController.testerly);
+  // app.get('/dashboard/testerly', isAdministrator, dashboardController.testerly);
 
 /*   app.get("/", function(req, res) {
     // If the user already has an account send them to the members page

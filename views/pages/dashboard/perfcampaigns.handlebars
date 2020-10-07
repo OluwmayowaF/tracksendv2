@@ -103,7 +103,7 @@
 						<div class="tabs-container campaigntypes">
 							{{!-- <div class="tab-content" id="tab1a" style="display: inline-block;"> --}}
 							<div class="tab-content sms_{{ campaign_type }}" id="tab1a" >
-								<form action="/dashboard/campaigns/add" method="POST" id="campaign_form_sms">
+								<form action="/dashboard/perfcampaigns/add" method="POST" id="campaign_form_sms">
 									<input type="hidden" name="type" value="sms">
 
 									<!-- Section -->
@@ -130,7 +130,7 @@
 
 												<div class="col-md-6">
 													<h5>Measure </h5>
-													<select class="chosen-select-no-single _plain _sel_contact_group" name="cmpgn_type" id="sel_cmpgn_type" required>
+													<select class="chosen-select-no-single _plain _sel_measure" name="measure" id="sel_measure" required>
 														<option label="blank"></option>
 														<option value="per_imp">Per Impression</option>
 														<option value="per_clk">Per Click</option>
@@ -224,8 +224,8 @@
 											<div class="row with-forms _pc_region">
 
 												<div class="col-md-6">
-													<h5>Select Criteria </h5>
-													<select class="chosen-select-no-single _sel_pc_criteria" name="pc_criteria" id="">
+													<h5>Select Audience Criteria </h5>
+													<select class="chosen-select-no-single _sel_pc_criteria" name="pc_criteria" id="" required>
 														<option label="blank"></option>
 														<option value="loc">Location</option>
 														<option value="age">Age</option>
@@ -259,8 +259,8 @@
 
 												<div class="col-md-6">
 													<h5 style="color: #ff4a21;">BUDGET: </h5>
-													<input type="text" id="budget_" maxlength="50" required onfocus="budgetFocus()" onblur="budgetBlur()">
-													<input type="hidden" name="budget" id="budget" required>
+													<input type="text" id="budget_" maxlength="50" required onfocus="budgetFocus()" onblur="budgetBlur()" required>
+													<input type="hidden" name="budget" id="budget">
 												</div>
 
 											</div>
@@ -340,215 +340,16 @@
 										<div class="_form_errors _e_analyse" style="display:none; margin-top: 10px"></div>
 										
 										<div>
-											<button type="button" class="button preview" id="analyse_btn" onclick="validateAndSendCampaign(this)">Analyse <i class="im im-icon-Gears-2"></i></button> <span class="loading_icon fa fa-hourglass-2"></span><span style="margin-left: 5px" class="activity_status"></span>
+											<button type="button" class="button preview campaign_send_btn" id="analyseperf_btn" onclick="validateAndSendCampaign(this)">Send <i class="fa fa-send"></i></button> <span class="loading_icon fa fa-hourglass-2"></span><span style="margin-left: 5px" class="activity_status"></span>
 										</div>
-										<a href="#analysis-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1; visibility: hidden;" id="click_analysis_box"><i class="im im-icon-Two-Windows"></i> Show Analysis</a>
-										<div id="analysis-box" class="zoom-anim-dialog mfp-hide">
-
-											<div class="small-dialog-header" style="margin-bottom: 15px">
-												<h3>Campaign  <b>Summary</b></h3>
-											</div>
-
-											<!--Tabs -->
-											<div class="sign-in-form style-1" style="overflow-y: auto; overflow-x: hidden; max-height: 440px; margin-bottom: 10px">
-
-												{{!-- <div class="main_su _0" >
-													<div class="trigger">
-														<div class="col-lg-12 toggle active _hdr">
-															Main Cammpaign
-														</div>
-													</div>
-
-													<div class="col-lg-12 toggle-container" style="display: none">
-														<div class="row with-forms">
-
-															<!-- Status -->
-															<div class="col-md-12">
-																<h5>Campaign Name: </h5><span id="cpm_summary_name">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>Sender ID: </h5><span id="cpm_summary_sender">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>Message: </h5><span id="cpm_summary_msg">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>To: </h5><span id="cpm_summary_to">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>Send Time: </h5><span id="cpm_summary_time">Immediately</span>
-															</div>
-
-															<div class="col-md-12 sepr"></div>
-															
-															<div class="col-md-12">
-																<h5>Number of Recipients: </h5><span id="cpm_summary_recp">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>Total Messages: </h5><span id="cpm_summary_count">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>Average Message(s) per Recipient: </h5><span id="cpm_summary_avg">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">--</span>
-															</div>
-
-															<div class="col-md-12 sepr"></div>
-															
-														</div>
-													</div>
-													<div class="clearfix"></div>
-												</div> --}}
-												{{!-- <div class="followup_su _1" >
-													<div class="trigger">
-														<div class="col-lg-12 toggle active _hdr">
-															Follow-Up Cammpaign 1
-														</div>
-													</div>
-
-													<div class="col-lg-12 toggle-container" style="display: none">
-														<div class="row with-forms">
-
-															<div class="col-md-12">
-																<h5>Sender ID: </h5><span id="cpm_summary_sender">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>Message: </h5><span id="cpm_summary_msg">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>To: </h5><span id="cpm_summary_to">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>Send Time: </h5><span id="cpm_summary_time">Immediately</span>
-															</div>
-
-															<div class="col-md-12 sepr"></div>
-															
-															<div class="col-md-12">
-																<h5>Number of Recipients: </h5><span id="cpm_summary_recp">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>Total Messages: </h5><span id="cpm_summary_count">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>Average Message(s) per Recipient: </h5><span id="cpm_summary_avg">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">--</span>
-															</div>
-
-															<div class="col-md-12 sepr"></div>
-															
-														</div>
-													</div>
-													<div class="clearfix"></div>
-												</div>
-												<div class="followup_su _2" >
-													<div class="trigger">
-														<div class="col-lg-12 toggle active _hdr">
-															Follow-Up Cammpaign 2
-														</div>
-													</div>
-
-													<div class="col-lg-12 toggle-container" style="display: none">
-														<div class="row with-forms">
-
-															<div class="col-md-12">
-																<h5>Sender ID: </h5><span id="cpm_summary_sender">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>Message: </h5><span id="cpm_summary_msg">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>To: </h5><span id="cpm_summary_to">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>Send Time: </h5><span id="cpm_summary_time">Immediately</span>
-															</div>
-
-															<div class="col-md-12 sepr"></div>
-															
-															<div class="col-md-12">
-																<h5>Number of Recipients: </h5><span id="cpm_summary_recp">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>Total Messages: </h5><span id="cpm_summary_count">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>Average Message(s) per Recipient: </h5><span id="cpm_summary_avg">--</span>
-															</div>
-
-															<div class="col-md-12">
-																<h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">--</span>
-															</div>
-
-															<div class="col-md-12 sepr"></div>
-															
-															<div class="col-md-12">
-																<h5>Available Balance: </h5><span id="cpm_units_balance" style="font-weight: bold">--</span>
-															</div>
-
-															<div class="col-md-12 sepr"></div>
-															
-														</div>
-													</div>
-													<div class="clearfix"></div>
-												</div> --}}
-												{{!-- <div class="su_totals" style="background-color: #bae7ec;margin-top: 5px;">
-													<div class="row with-forms">
-														<div style="text-align: center;padding: 5px;font-weight: bold;background-color: #85ccd2;color: #444;border-bottom: solid white 1px;">Totals</div>
-														<div class="col-md-12">
-															<h5>Number of Recipients: </h5><span id="cpm_summary_recp">--</span>
-														</div>
-
-														<div class="col-md-12">
-															<h5>Total Messages: </h5><span id="cpm_summary_count">--</span>
-														</div>
-
-														<div class="col-md-12">
-															<h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">--</span>
-														</div>
-
-														<div class="col-md-12 sepr"></div>
-														
-														<div class="col-md-12">
-															<h5>Available Balance: </h5><span id="cpm_units_balance" style="font-weight: bold">--</span>
-														</div>
-														
-													</div>
-												</div> --}}
-											</div>
-
-											<button type="button" class="button preview campaign_summary_btn cancel" style="margin-top: 0">Cancel <i class="fa fa-close"></i></button>
-											<button type="button" class="button preview campaign_summary_btn send" style="margin-top: 0">Send <i class="fa fa-send"></i></button>
-
-										</div>
+											{{!-- <button type="button" class="button preview" id="analyseperf_btn" onclick="validateAndSendCampaign(this)">Analyse <i class="im im-icon-Gears-2"></i></button> <span class="loading_icon fa fa-hourglass-2"></span><span style="margin-left: 5px" class="activity_status"></span> --}}
 									</div>
 									<!-- Section / End -->
 
 								</form>
 							</div>
 
-							<div class="tab-content whatsapp_{{ campaign_type }}" id="tab2a">
+							<div class="tab-content whatsapp_{{ campaign_type }}" id="tab2a" style="display: none;">
 								<form action="/dashboard/campaigns/add" method="POST" id="campaign_form_wa" enctype="multipart/form-data">
 									<input type="hidden" name="type" value="whatsapp">
 									<!-- Section -->
@@ -745,7 +546,7 @@
 								</form>
 							</div>
 
-							<div class="tab-content" id="tab3a">
+							<div class="tab-content" id="tab3a" style="display: none;">
 								<form action="/dashboard/senderids/add" method="POST">
 
 									<!-- Section -->
@@ -786,73 +587,78 @@
 			</div>
 
 			<div class="col-lg-12" style="margin-top: 30px">
-				<div class="col-lg-12 page_box_header">All Campaigns [<span class="items_count">{{ args.cpns.length }}</span>]
+				<div class="col-lg-12 page_box_header">All Campaigns [<span class="items_count">{{ args.pcpns.length }}</span>]
 				</div>
 			</div>
 			<div class="col-md-12 lists">
 				<ul>
-					<li class="list_item _hd" style="font-weight: bolder">
-						<ul class="saved_item">
-							<li style="flex: 6">Name</li>
-							<li style="flex: 2">Platform</li>
-							<li style="flex: 2">Status</li>
-							<li style="flex: 6">Sent To</li>
-							<li style="flex: 3">Units</li>
-							<li style="flex: 3">Created</li>
-							<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; text-align: center; font-size: 2em; line-height: 0.3;">
-								...
-							</li>
-						</ul>
-					</li>
-					{{#each args.cpns}}
+									<li class="list_item _hd" style="font-weight: bolder">
+										<ul class="saved_item">
+											<input type="hidden" class="cid" value="'+i.id+'" />
+											<li style="flex: 6">Name</li>
+											<li style="flex: 2; text-align: right;">User ID</li>
+											<li style="flex: 2">Status</li>
+											<li style="flex: 2; text-align: right;">Budget</li>
+											<li style="flex: 3">Start Date</li>
+											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; text-align: center; font-size: 2em; line-height: 0.3;">
+												...
+											</li>
+										</ul>
+									</li>
+									{{#each args.pcpns}}
+									<li class="list_item _toggle_crit" data-wh="senderid">
+										<ul class="saved_item">
+											<input type="hidden" class="cid" value="'+i.id+'" />
+											<li style="flex: 6" class="dv_name">{{ name }}</li>
+											<li style="flex: 2; text-align: right;" class="dv_desc">{{ userId }}</li>
+											<li style="flex: 2" class="dv_status">{{ status.stage }}</li>
+											<li style="flex: 2; text-align: right;" class="dv_status">{{formatNumber budget }}</li>
+											<li style="flex: 3">{{formatDate startdate "short"}}</li>
+											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
+												<span style="flex: 1; text-align:center" class="edit_item_btn"><a class="tooltip top" title="Edit" style="cursor: pointer"><i class="fa fa-edit"></i></a></span> | 
+												<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
+											</li>
+										</ul>
+										<div class="_toggled_crit" style="display: none;">
+											<div style="padding-right: 10px;"><em>Audience</em></div>
+											<div style="border-left: solid 1px #999; padding-left: 10px ">
+												<ul>
+												{{#conditionset }}
+													<li style="display: flex"><div>{{ criteria }} : </div> <div> {{ target }}</div></li>
+												{{/conditionset }}
+												</ul>
+											</div>
+										</div>
+										<div class="inline_edit">
+											<div class="row with-forms">
+												<!-- Status -->
+												<form action="">
+												<div class="col-md-5">
+													<h5>ID Name </h5>
+													<input type="text" name="name" maxlength="50" class="ed_name" value="{{ name }}">
+													<input type="hidden" name="id" class="id" value="{{ _id }}">
+												</div>
 
-					<a href="/dashboard/campaigns/campaign/{{ id }}" class="_campaign-detail" id="_click_campaign_detail_box">
-					<li class="list_item campaign_list" data-wh="campaign">
-						<ul class="saved_item _clickable">
-							<form><input type="hidden" class="id" value="{{ id }}" /></form>
-							<li style="flex: 6">{{ name }}</li>
-							<li style="flex: 2">{{ platform }}</li>
-							<li style="flex: 2">{{ status }}</li>
-							<li style="flex: 6">{{ grpname }}</li>
-							<li style="flex: 3">{{ units_used }}</li>
-							<li style="flex: 3">{{formatDate createdAt "short"}}</li>
-							<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
-								<span style="flex: 1; text-align:center;align-items: center;display: flex;" class="del_item_btn"><span class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></span></span>
-							</li>							
-							{{!-- </li> --}}
-						</ul>
-					</li>
-					</a>
-					{{!-- ACTIVE FOLLOW-UPS --}}
-					{{#each flwup}}
-					<li class="list_item campaign_list followup_list_item _active" data-wh="campaign">
-						<ul class="saved_item">
-							<input type="hidden" class="id" value="{{ fid }}" />
-							<li style="flex: 1; text-align: right;"><i style="margin: 5px;" class="fa fa-forward"></i></li>
-							<li style="flex: 4">Follow-up Campaign:</li>
-							<li style="flex: 6">{{ grp_desc }}</li>
-							<li style="flex: 4">{{ wtd_desc }}</li>
-							<li style="flex: 2">[{{ status }}]</li>
-						</ul>
-					</li>
-					{{/each}}
-					{{!-- PENDING FOLLOW-UPS --}}
-					{{#each tmp}}
-					<li class="list_item campaign_list followup_list_item _pending" data-wh="campaign">
-						<ul class="saved_item">
-							<input type="hidden" class="id" value="{{ tid }}" />
-							<li style="flex: 1; text-align: right;"><i style="margin: 5px;" class="fa fa-hourglass-2"></i></li>
-							<li style="flex: 4">Follow-up Campaign:</li>
-							<li style="flex: 6">{{ grp_desc }}</li>
-							<li style="flex: 4">{{ wtd_desc }}</li>
-							<li style="flex: 2">[{{ status }}]</li>
-						</ul>
-					</li>
-					{{/each}}
+												<div class="col-md-6">
+													<h5>Description </h5>
+													<input type="text" name="description" class="ed_desc" maxlength="200" value="{{ description }}">
+												</div>
+												</form>
 
-					{{else}}
-						<em>No Campaigns created yet.</em> 
-					{{/each}}
+												<div class="col-md-1">
+													<h5 style="text-align: center"><i class="fa fa-ellipsis-h"></i></h5>
+													<div style="display: flex; padding-top: 10px;">
+														<span style="flex: 1; text-align:center;" class="save_edit_btn"><a class="tooltip top" title="Save" style="color: green; cursor: pointer"><i class="fa fa-check"></i></a></span> | 
+														<span style="flex: 1; text-align:center" class="cancel_edit_btn"><a class="tooltip top" title="Cancel" style="color: red; cursor: pointer"><i class="fa fa-times"></i></a></span>
+													</div>
+												</div>
+
+											</div>
+										</div>
+									</li>
+									{{else}}
+										<em>No pending performance campaigns yet.</em> 
+									{{/each}}
 				</ul>
 			</div>
 
