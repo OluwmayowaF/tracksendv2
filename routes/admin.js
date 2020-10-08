@@ -12,6 +12,7 @@ module.exports = function(app) {
   app.get('/admin/',                isAdministrator, adminController.index);
   app.get('/admin/perfcontacts',    isAdministrator, adminController.perfcontacts);
   app.get('/admin/perfcampaigns',   isAdministrator, adminController.perfcampaigns);
+  app.post('/admin/uploadperfcontacts',   isAdministrator, adminController.uploadPerfContacts);
   // app.use('/admin/perfcampaigns', perfcampaignRouter);
   app.get('/admin/m_a_n_u_a_l',     isAdministrator, adminController.manualget);
   app.post('/admin/m_a_n_u_a_l',    isAdministrator, adminController.manualpost);

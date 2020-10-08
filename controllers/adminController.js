@@ -33,6 +33,18 @@ exports.index = async(req, res) => {
 
 exports.perfcontacts = async(req, res) => {    
 
+    let ups = await mongmodels.PerfContact.aggregate([
+        {
+            $group: {
+                _id: "$batch",
+                count: { $sum : 1},
+                uploaded: { $first: "$createdAt" },
+                lastused: { $last: "$updatedAt" },
+            }
+        }
+    ])
+
+    console.log('istory = ' + JSON.stringify(ups));
     var flashtype, flash = req.flash('error');
     if(flash.length > 0) {
         flashtype = "error";           
@@ -41,14 +53,14 @@ exports.perfcontacts = async(req, res) => {
         flash = req.flash('success');
     }
 
-    res.render('pages/admin/perfcampaigns', { 
+    res.render('pages/admin/upload_contacts', { 
         layout: 'admin',
-        page: 'Admin',
+        page: 'Upload Performance Campaign Contacts',
         dashboard: true,
         flashtype, flash,
 
         args: {
-
+            ups,
         }
     }); 
     
@@ -164,6 +176,165 @@ exports.updatePerfCampaign = async(req, res) => {
         });
     }
 };
+
+exports.uploadPerfContacts = async (req, res) => {
+    const fs        = require('fs');
+    const csv    = require('fast-csv');
+    var uploadMyFile = require('../my_modules/uploadHandlers');
+    var phoneval = require('../my_modules/phonevalidate');
+    // return;
+    console.log('showing pageR...'); 
+    var user_id = req.user.id;
+
+    var fd;
+    const fileRows = [];
+    var headers = [], rows_formatted, rows_validated;
+    var has_headers = true;
+    var rowcount = 0;
+    var uploadbatchnumber = new Date().getTime();
+
+    var total_errors = 0;
+    var phone_errors = 0;
+    var email_errors = 0;
+    
+    if(!req.files || Object.keys(req.files).length === 0) {
+
+    }
+    let uploadedfile = await uploadMyFile(req.files.file, 'contacts');
+    console.log('file attribs : ' + JSON.stringify(req.files.file));
+    // await ofile.mv('tmp/whatsapp/'+tempfilename);  
+
+
+    console.log('Parsing uploaded file starting...');
+    // csv.parseFile(req.files.file.name)
+    csv.parseFile(uploadedfile.filepath)
+    .on("data", function (data) {
+
+        if(rowcount === 0) {
+            headers = data; // push each row
+            console.log('Batch header captured...');
+        } else {
+            fileRows.push(data); // push each row aside the header
+        }
+        rowcount++;
+
+    })
+    .on("end", async function () {
+
+        fs.unlinkSync(uploadedfile.filepath);   // remove temp file
+        console.log('File parse complete...');
+        
+        //  formatted data for db structure
+        rows_formatted = fileRows.map(mapfn); 
+        console.log('Uploaded data formatting complete...' + JSON.stringify(rows_formatted));
+
+        //  filter out corrupt entries
+        rows_validated = rows_formatted.filter(validateCsvRow);
+        console.log('Data validation complete...');
+
+        // console.log('________FINAL DATA: ' + JSON.stringify(rows_validated));
+        console.log('t_error: ' + total_errors + '; e_errors: ' + email_errors + '; p_errors: ' + phone_errors);
+        // return;
+
+        // let finished = await mongmodels.PerfContact.insertMany(JSON.parse(JSON.stringify(rows_validated))) //   for massive amount of bulk insert
+        let finished = await mongmodels.PerfContact.insertMany(rows_validated) //   for massive amount of bulk insert
+
+        // console.log('________FINISHED = ' + JSON.stringify(finished));
+        let inserted = 0;
+        if(finished) {
+            inserted = finished.length;
+            console.log('DATABASE INSERT COMPLETED!');
+            // duplicates = result.warningCount;
+        } else {
+            console.log('ERROR: IN INSERTING CONTACTS');
+        }
+        
+        // req.flash('success', 'Upload complete successfully: <b>' + inserted + '</b> duplicate contacts added; <b>' + duplicates + '</b> contacts ignored.');
+        // if(inserted) req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added; ' + duplicates + ' duplicate contacts ignored' + (phone_errors > 0 ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '') );
+        if(inserted) req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added' + ((phone_errors) ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '.'));
+        else req.flash('error', 'Upload failure. Please try again later or contact Admin');
+        res.redirect('/admin/perfcontacts');
+        
+    })
+    .on("error", function (error) {
+        req.flash('error', 'An error occurred accessing your upload, please re-upload your file.');
+        res.redirect('/admin/perfcontacts');
+        return;
+    })
+
+    //  This function formats the data for mongodb structure
+    function mapfn(row) {
+        let obj = {
+            usecount: 0,
+            batch: uploadbatchnumber,
+            status: {
+                dnd: 'maybe',
+                active: true
+            }
+        };
+        obj['fields'] = {};
+
+        row.forEach((val, i) => {
+            if(headers[i].search(/phone/gi) !== -1) {
+                // console.log('OTHER FOUND @ i = ' + i);
+                obj['phone'] = val;
+            } else if(headers[i].search(/cost/gi) !== -1) {
+                // console.log('OTHER FOUND @ i = ' + i);
+                obj['cost'] = val;
+            } else if(headers[i].search(/price/gi) !== -1) {
+                // console.log('OTHER FOUND @ i = ' + i);
+                obj['price'] = val;
+            } else {
+                // console.log('OTHER NOOOOT FOUND @ i = ' + i);
+                obj['fields'][textToSluggish(headers[i])] = val;
+            }
+
+        })
+
+        return obj;
+    }
+
+    //  This function validates the fields, especially phone number
+    function validateCsvRow(row) {
+        var phone = phoneval(row.phone, row.fields.countryid);
+        var email = row.fields.email;
+
+        if(phone) {
+            // console.log('.................true');
+            row.phone = phone;
+            return true;
+        } else {
+            // console.log('.................false');
+            total_errors++;
+            phone_errors++;
+            return false;
+        }
+        //let r_e = checkEmail(email);
+        // return (checkPhone(phone));
+
+        function checkEmail(email) {
+            if(email.length > 5) {
+                return true;
+            }
+            total_errors++;
+            email_errors++;
+            return false;
+        }
+    }
+
+    //  This function converts texts to slug forms
+    function textToSluggish(text) {
+        return text.toString().toLowerCase()
+            .replace(/\s+/g, '_')
+            .replace(/[^\w\-]+/g, '')
+            .replace(/\-\-+/g, '_')
+            .replace(/^-+/g, '')
+            .replace(/-+$/g, '');
+    }
+
+}; 
+    
+    
 
 exports.manualget = (req, res) => {
     var user_id = req.user.id;

@@ -149,7 +149,7 @@ const PerfContactSchema = new mongoose.Schema({
   phone:          Number,
   fields:         mongoose.Schema.Types.Mixed,
   usecount:       Number,
-  status:         mongoose.Schema.Types.Mixed,  //  an object for different types of statuses
+  status:         mongoose.Schema.Types.Mixed,  //  an object for different types of statuses ...dnd ['yes' | 'maybe' | 'no'], active [true | false]
   batch:          Number,  
   cost:           Number,  
   price:          Number,  

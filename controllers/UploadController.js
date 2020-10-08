@@ -194,9 +194,7 @@ exports.do = async (req, res) => {
     .on("data", function (data) {
 
         //  this is just to get the titles of the file... if user indicates titled file
-        if(rowcount >= 1) {
-            // console.log('raw rows: ' + JSON.stringify(data) + '...' + rowcount);
-        } else {
+        if(rowcount === 0) {
             headers = data; // push each row
         }
         

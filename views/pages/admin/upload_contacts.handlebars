@@ -1,0 +1,144 @@
+	<div class="dashboard-content">
+
+		<!-- Titlebar -->
+		<div id="titlebar">
+			<div class="row">
+				<div class="col-md-12">
+					<!-- Breadcrumbs -->
+					<nav id="breadcrumbs">
+						<ul>
+							<li><a href="/dashboard">Dashboard</a></li>
+							<li>Upload Contacts  </li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+
+		{{#if flash}}
+			<div class="notification {{ flashtype }} closeable no-shadow">
+				<p><span style="text-transform: capitalize">{{ flashtype }}!</span> {{ flash }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
+
+		<div class="row">
+
+			<div class="toggle-wrap no_borders">
+
+				<div class="col-lg-12 trigger"><div class="col-lg-12 page_box_header toggle active"><i class="im im-icon-Cursor-Click2"></i> <b>Upload</b> Contacts<i class="sl sl-icon-plus"></i></div></div>
+				<div class="col-lg-12 toggle-container" style="display: none">
+
+					<div id="add-listing">
+						<form action="/admin/uploadperfcontacts" enctype="multipart/form-data" method="POST" id="admin_upload_form">
+
+						<!-- Section -->
+						<div class="add-listing-section">
+
+							<!-- Headline -->
+							{{!-- <div class="add-listing-headline">
+								<h3><i class="sl sl-icon-doc"></i> Basic Information</h3>
+							</div> --}}
+
+							<!-- Row -->
+							<div class="row with-forms">
+								<br>
+								<div class="col-md-12">
+									<h5>Select File <span>(CSV and TXT only; each column must have a heading)</span> </h5>
+									<input type="file" name="file" style="line-height: 1; padding-top: 13px" accept=".csv, text/plain" required>
+								</div>
+
+							</div>
+							<!-- Row / End -->
+
+							<!-- Row -->
+							<div class="row with-forms">
+								<div class="col-md-12" id="_new_group_info" hidden>
+									<div class="col-md-12 inline_popup">
+
+										<!-- Status -->
+										<div class="col-md-6">
+											<h5>Group Name</h5>
+											<input type="text" name="name">
+										</div>
+
+										<!-- Type -->
+										<div class="col-md-6">
+											<h5>Description</h5>
+											<input type="text" name="description">
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="_form_errors _e_consent" style="display:none; margin-top: 10px"></div>
+
+						</div>
+						<!-- Section / End -->
+
+
+						<button type="submit" class="button preview">Upload <i class="sl sl-icon-cloud-upload"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
+						</form>
+					</div>
+				</div>
+
+			</div>
+			
+			<div class="col-lg-12" style="margin-top: 30px">
+				<div class="col-lg-12 page_box_header">Uploads History <span>[{{ args.ups.length }}]</span>
+				</div>
+			</div>
+			<div class="col-lg-12">
+
+				<div id="add-listing">
+					<!-- Section -->
+					<div class="add-listing-section">
+
+						<!-- Row -->
+						<div class="row with-forms">
+							<br>
+							<!-- Status -->
+							<div class="col-md-12 lists">
+								<ul>
+									<li class="list_item _hd" style="font-weight: bolder">
+										<ul class="saved_item">
+											<input type="hidden" class="cid" value="'+i.id+'" />
+											<li style="flex: 4">Batch Number</li>
+											<li style="flex: 2">Contacts</li>
+											<li style="flex: 3">Date Uploaded</li>
+											<li style="flex: 3">Last Used</li>
+										</ul>
+									</li>
+									{{#each args.ups}}
+									<li class="list_item" data-wh="senderid">
+										<ul class="saved_item">
+											<input type="hidden" class="cid" value="'+i.id+'" />
+											<li style="flex: 4" class="dv_name">{{ _id }}</li>
+											<li style="flex: 2" class="dv_desc">{{formatNumber count }}</li>
+											<li style="flex: 3" class="dv_status">{{formatDate uploaded "short"}}</li>
+											<li style="flex: 3" class="dv_updated">{{formatDate lastused "short"}}</li>
+										</ul>
+									</li>
+									{{else}}
+										<em>No contacts uploaded yet.</em> 
+									{{/each}}
+								</ul>
+							</div>
+
+						</div>
+						<!-- Row / End -->
+
+					</div>
+					<!-- Section / End -->
+				</div>
+			</div>
+
+
+			<!-- Copyrights -->
+			<div class="col-md-12">
+				<div class="copyrights">© 2019 Tracksend. All Rights Reserved.</div>
+			</div>
+
+		</div>
+
+	</div>
