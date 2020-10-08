@@ -10178,6 +10178,9 @@ header.fullwidth.dashboard .container { padding-left: 285px; }
 	top: 0;
 	margin: 0;
 }
+.dashboard.admin #logo {
+	background-color: #11001d;
+}
 
 .dashboard #logo a {
 	margin-left: 33px;
@@ -14780,7 +14783,10 @@ img.mfp-img {
 		max-width: auto;
 		min-width: auto;
 	}
-
+	.dashboard.admin #logo {
+		background-color: #fff;
+	}
+	
 	.dashboard #logo a {
 		margin-left: 0;
 		display: inline-block;

@@ -40,7 +40,8 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
   async function africastalking_checkAndAggregate(kont) {
       k++;
       console.log('*******   Aggregating Contact #' + k + ':...    ********');
-      let formatted_phone = phoneformat(kont.phone, kont.country.id);
+      let ctryid = kont.fields ? kont.fields.countryid : (kont.country ? kont.country.id : kont.countryId) ; // from perfcampaigns OR normal campaigns OR transactional msgs
+      let formatted_phone = phoneformat(kont.phone, ctryid);
       if(!formatted_phone) return;
       
       // return new Promise(resolve => {
@@ -85,13 +86,13 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
                 shrt = await models.Message.create({
                     shortlinkId: args.sid,
                     contactlink: args.cid,
-                    contactId: kont._id,
+                    contactId: '00000',
                 });
             } else {
                 shrt = await cpn.createMessage({
                     shortlinkId: args.sid,
                     contactlink: args.cid,
-                    contactId: kont._id,
+                    contactId: kont._id.toString(),
                 });
             }
 
@@ -111,11 +112,11 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
               // .replace(/\\t/g, '')
               .replace(/&nbsp;/g, ' ');
 
-              updatedmessage += (UNSUBMSG) ? _message('msg', 1091, kont.country.id, kont._id) : '';     //  add unsubscribe text
-              updatedmessage += (DOSUBMSG) ? _message('msg', 1092, kont.country.id, kont._id) : '';     //  add unsubscribe text
+              updatedmessage += (UNSUBMSG) ? _message('msg', 1091, ctryid, kont._id.toString()) : '';     //  add unsubscribe text
+              updatedmessage += (DOSUBMSG) ? _message('msg', 1092, ctryid, kont._id.toString()) : '';     //  add unsubscribe text
 
               console.log('====================================');
-              console.log('UNSUB MSG IS:::' + _message('msg', 1091, kont.country.id, kont._id));
+              console.log('UNSUB MSG IS:::' + _message('msg', 1091, ctryid, kont._id));
               console.log('====================================');
               
               if(SINGLE_MSG) {
@@ -220,7 +221,7 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
 
             //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
             let klist = sub_list.map(k => { return k._id })
-            await dbPostSMSSend.dbPostSMSSend(req, res, batches, null, null, info, user_balance, user_id, cpn, schedule_, klist, resp_);
+            let resp = await dbPostSMSSend.dbPostSMSSend(req, res, batches, null, null, info, user_balance, user_id, cpn, schedule_, klist, resp_);
 
             /* const options = {
                 url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',
@@ -252,6 +253,8 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
             console.log(JSON.stringify(params));
             counter++;
             if(end < len) await doLoop(end)
+            console.log('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO');
+            return resp;
 
         }
 

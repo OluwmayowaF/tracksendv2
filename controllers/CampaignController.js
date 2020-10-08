@@ -1,21 +1,25 @@
-var models = require('../models');
-var moment = require('moment');
-const _ = require('lodash');
-const Sequelize = require('sequelize');
-const sequelize = require('../config/cfg/db');
-const Op = Sequelize.Op;
-const mongoose = require('mongoose');
-var mongmodels = require('../models/_mongomodels');
-const fs = require('fs'); 
-var scheduler = require('node-schedule');
+const models     = require('../models');
+const moment     = require('moment');
+const _          = require('lodash');
+const Sequelize  = require('sequelize');
+const sequelize  = require('../config/cfg/db');
+const Op         = Sequelize.Op;
+const mongoose   = require('mongoose');
+const mongmodels = require('../models/_mongomodels');
+const fs         = require('fs'); 
+const scheduler  = require('node-schedule');
 
-var smsSendEngines = require('../my_modules/sms/smsSendEngines');
-var { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
-var uploadMyFile = require('../my_modules/uploadHandlers');
-var phoneformat = require('../my_modules/phoneformat');
-var apiAuthToken = require('../my_modules/apitokenauth');
-const randgen = require('../my_modules/randgen');
-var _message = require('../my_modules/output_messages');
+const apiController         = require('./ApiController');
+const smsSendEngines        = require('../my_modules/sms/smsSendEngines');
+const { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
+const uploadMyFile          = require('../my_modules/uploadHandlers');
+const phoneformat           = require('../my_modules/phoneformat');
+const apiAuthToken          = require('../my_modules/apitokenauth');
+const getSMSCount           = require('../my_modules/sms/getSMSCount');
+const getRateCharge         = require('../my_modules/sms/getRateCharge');
+const randgen               = require('../my_modules/randgen');
+const _message              = require('../my_modules/output_messages');
+const filelogger            = require('../my_modules/filelogger');
 
 
 exports.index = async (req, res) => {
@@ -193,6 +197,10 @@ exports.index = async (req, res) => {
 
 exports.analyse = async (req, res) => {
 
+    const CHARS_PER_SMS = 160;
+    const ESTIMATED_CLICK_PERCENTAGE = 0.8;
+    const ESTIMATED_UNCLICK_PERCENTAGE = 1 - ESTIMATED_CLICK_PERCENTAGE;
+
     var _status = {};
     var file_not_logged = true;
     var is_api_access = req.externalapi;
@@ -304,7 +312,7 @@ exports.analyse = async (req, res) => {
                 }
                 if(req.body.url) {  //  if actual url is sent instead of shorturl id
                     req.query.url = req.body.url;
-                    let resp = await this.generateUrl(req, res);
+                    let resp = await apiController.generateUrl(req, res);
                     console.log('^^^^^^^^^^^^^^^^^^ ' + JSON.stringify(resp));
                     
                     if(!resp.error) {
@@ -322,14 +330,15 @@ exports.analyse = async (req, res) => {
         console.log('form details are now: ' + JSON.stringify(req.body)); 
 
         console.log('tonone='+tonone+'; tooptin='+tooptin+'; toawoptin='+toawoptin+'; toall='+toall);
-
+        if(Array.isArray(sender)) sender = _.compact(sender);
+        if(Array.isArray(sender) && sender.length === 1) sender = sender[0];
         if(Array.isArray(sender)) {
             console.log('====================================');
             console.log('isaaray');
             console.log('====================================');
             HAS_FOLLOWUP = true;
             if(!Array.isArray(groups)) groups = [groups];
-            condition = req.body.condition ? (Array.isArray(req.body.condition) ? req.body.condition : [req.body.condition]) : nulll;
+            condition = req.body.condition ? (Array.isArray(req.body.condition) ? req.body.condition : [req.body.condition]) : null;
             groups  = [groups].concat(req.body.condition);
             within_days = within_days ? (Array.isArray(within_days) ? within_days : [within_days]) : within_days;
         } else {
@@ -344,6 +353,7 @@ exports.analyse = async (req, res) => {
         }
 
         // console.log('----' + name.length + '----' + message[0].length + '----' + groups[0].toString().length + '----' + sender[0].toString().length);
+        console.log('||||||||||||||||| ', name, ' - ', groups, ' - ', sender, ' - ', message );
         if(!name || !message || !groups || !sender) throw 'fields';
         if(!(name.length > 1) || !(message[0].length > 1) || !(groups[0].toString().length > 0) || !(sender[0].toString().length > 0)) throw 'fields';
         
@@ -673,7 +683,7 @@ exports.analyse = async (req, res) => {
             }
             // console.log(JSON.stringify(req_));
             
-            let resp = await campaignController.add(req_, res);
+            let resp = await this.add(req_, res);
             console.log('3+++++++++++++'+JSON.stringify(resp));
             if(resp.status == "error") throw resp.msg;
             _status = resp;
@@ -768,7 +778,6 @@ exports.analyse = async (req, res) => {
     res.send(_status);
     return;
 
-
 }
 
 exports.add = async (req, res) => {
@@ -824,7 +833,7 @@ exports.add = async (req, res) => {
         } else if(info) {
             console.log("______________________________________________info____________________________________________________") 
             if(info.ref_campaign) {
-            console.log("______________________________________________ref_campaign____________________________________________________") 
+                console.log("______________________________________________ref_campaign____________________________________________________") 
                 let ref = info.ref_campaign;
                 let schedule = info.schedule;
                 let within_days = info.within_days;
@@ -871,6 +880,16 @@ exports.add = async (req, res) => {
                 let resp = await doSMS(info, null);                                                                                                                                                           
                 console.log('2++++++++++'+resp);
                 if(is_api_access && tempid[0] == 'api') return resp;
+                else {
+                    if((resp.responseType && (resp.responseType == "ERROR")) || (resp.status && (resp.status == 'error'))) {
+                        req.flash('error', 'An error occured. Please try again later or contact site admin.');
+                    } else {
+                        let _msgmsg = (info.schedule == 'Invalid date') ? 'Messages sent out' : 'Messages would be sent out at ' + info.schedulewa;
+                        req.flash('success', 'Campaign created successfully. ' + _msgmsg);
+                    }
+                    var backURL = req.header('Referer') || '/';
+                    res.redirect(backURL);
+                }
             }
         } else {
             console.log('INVALID OPERATION!');
@@ -966,7 +985,7 @@ exports.add = async (req, res) => {
             console.log('tooptin='+tooptin+'; toawoptin='+toawoptin+'; toall='+toall);
             console.log('===========================');
             
-            var contacts;         
+            var contacts, arr;         
             if(groups !== 0) {
 
                 if(!ref) {
@@ -1043,7 +1062,7 @@ exports.add = async (req, res) => {
                     ])      //  consider adding .exec() for proper promise handling
                     
                     //  merge contacts from all groups
-                    var arr = [];
+                    arr = [];
                     dd.forEach(async (el) => {
                         arr = arr.concat(el.contacts);
 
@@ -1083,7 +1102,7 @@ exports.add = async (req, res) => {
                 
                     if(ref_campaign) {
                         var arr_ = ref_campaign.messages.map( k => { return mongoose.Types.ObjectId(k.contactId) });
-                        var arr = await mongmodels.Contact.find({
+                        arr = await mongmodels.Contact.find({
                             _id: {
                                 $in: arr_, 
                             }
@@ -1136,6 +1155,13 @@ exports.add = async (req, res) => {
                 console.log(resp);
                 return resp;
 
+            } else {
+                return {
+                    response: "Error", 
+                    responseType: "ERROR", 
+                    responseCode: "E000", 
+                    responseText: "An error occured.", 
+                }
             }
 
         })
@@ -1144,7 +1170,6 @@ exports.add = async (req, res) => {
         }) */
 
         return prom;
-
     }	
 
     async function doWhatsApp() {

@@ -565,7 +565,7 @@ $(document).ready(function() {
 	/* datepickerDefault = new MtrDatepicker({
 			target: "scheduler_div",
 	}); */
-	if($('#datepicker').length) $('#datepicker').datetimepicker({
+	/* if($('#datepicker').length) $('#datepicker').datetimepicker({
 		// inline: true,
 		// sideBySide: true
 		collapse: true
@@ -584,7 +584,7 @@ $(document).ready(function() {
 		console.log('TM: ' + JSON.stringify(e));
 		
 		// $('#schedule').val(e.timeStamp);
-	});
+	}); */
   
   $('#new_contact_group').on('change', function(e) {
     if($(this).val() == -1) {
@@ -893,8 +893,9 @@ $(document).ready(function() {
 		$('#analysis-box .followup_su').hide();
 		$butt.closest('div').find('.activity_status').text('Analyzing...');
 		console.log('2...campaign_confirmed: ', campaign_confirmed, '; whatsapp_campaign: ', whatsapp_campaign, '; N_CMPGN: ', N_CMPGN, '; P_CMPGN: ', P_CMPGN);
+		console.log('2a...datepicker: ', $me.find('#datepicker').val());
 
-		let w = moment($me.find('#datepicker').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
+		let w = moment($me.find('#datepicker').val(), 'YYYY-MM-DDTHH:mm').format('YYYY-MM-DD HH:mm:ss Z');
 		let wwa = moment($me.find('#datepickerwa').val(), 'MM/DD/YYYY h:mm A').format('YYYY-MM-DD HH:mm:ss Z');
 		$me.find('#schedule').val(moment.utc(w, 'YYYY-MM-DD HH:mm:ss Z').format('YYYY-MM-DD HH:mm:ss'));
 		$me.find('#schedulewa').val(moment.utc(wwa, 'YYYY-MM-DD HH:mm:ss Z').format('YYYY-MM-DD HH:mm:ss'));
@@ -1621,6 +1622,76 @@ $(document).ready(function() {
 				url: _getGlobals.SERVICE_HOST+'save'+wh,
 				contentType: 'application/json; charset=utf-8',
 				data: json_save_form,
+				success: function( data ) {
+					
+					if(data.response == 'success') {
+						console.log('ssssssssuuuuuuuuuuu');
+						
+						$item.find('.dv_firstname').text($item.find('.ed_firstname').val());
+						$item.find('.dv_lastname').text($item.find('.ed_lastname').val());
+						$item.find('.dv_email').text($item.find('.ed_email').val());
+
+						$item.find('.dv_name').text($item.find('.ed_name').val());
+						$item.find('.dv_desc').text($item.find('.ed_desc').val());
+						$item.find('.dv_status').text($item.find('._sel_status').val());		//	for updating performance campaigns
+						$item.find('.dv_optin').text($item.find('.can_optin_chk').is(':checked') ? 'Yes' : 'No');
+						if(wh == 'senderid') $item.find('.dv_status').text('Pending...');
+						if(wh == 'group') {}
+						else $item.find('.dv_updated').text('Pending...');
+						
+						$item.find('.inline_edit').hide();
+						$item.find('.saved_item').show();
+						
+						$('.notification.other3').removeClass('success error').addClass('success');
+						$('.notification.other3 p').text('Item successfully modified.');
+						$('.notification.other3').css('opacity',100);
+						$('.notification.other3').show();
+
+					} else {
+
+						$('.notification.other3').removeClass('success error').addClass('error');
+						$('.notification.other3 p').text(data.response);
+						$('.notification.other3').css('opacity',100);
+						$('.notification.other3').show();
+
+					} 
+					
+				},
+				error: function(resp, dd, ww) {
+					$('.notification.other3').removeClass('success error').addClass('error');
+					$('.notification.other3 p').text('An error occurred. Please check your connection and try again.');
+					$('.notification.other3').css('opacity',100);
+					$('.notification.other3').show();
+			}
+			}).done(function(){
+				
+				
+			});
+
+		})
+
+		$('.send_item_btn').off('click');
+		$('.send_item_btn').on('click', function(e) {
+			e.stopPropagation();
+			e.preventDefault();
+			
+			var $btn = $(this);
+			var $item = $btn.closest('.list_item');
+			var wh = $item.attr('data-wh');
+			var $me = $item.find('form');
+			var id = $item.find('.cid').val();
+
+			var json_save_form = JSON.stringify($me.serializeObject()); 
+			console.log('json', json_save_form);
+			
+			// var $butt = $me.find('input.button');
+			// $butt.attr('disabled','disabled');
+			// $me.find('.loading_icon').show();
+		
+			$.ajax({
+				type: 'GET',
+				url: _getGlobals.SERVICE_HOST + 'send' + wh + '?id=' + id,
+				contentType: 'application/json; charset=utf-8',
 				success: function( data ) {
 					
 					if(data.response == 'success') {

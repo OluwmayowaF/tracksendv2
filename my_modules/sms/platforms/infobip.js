@@ -43,7 +43,8 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
     async function checkAndAggregate(kont) {
         k++;
         console.log('*******   Aggregating Contact #' + k + ':...    ********');
-        let formatted_phone = phoneformat(kont.phone, kont.country.id);
+        let ctryid = kont.fields ? kont.fields.countryid : (kont.country ? kont.country.id : kont.countryId) ; // from perfcampaigns OR normal campaigns OR transactional msgs
+        let formatted_phone = phoneformat(kont.phone, ctryid);
         if(!formatted_phone) return;
           
         // return new Promise(resolve => {
@@ -91,13 +92,13 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
                     shrt = await models.Message.create({
                         shortlinkId: args.sid,
                         contactlink: args.cid,
-                        contactId: kont._id,
+                        contactId: '00000',
                     });
                 } else {
                     shrt = await cpn.createMessage({
                         shortlinkId: args.sid,
                         contactlink: args.cid,
-                        contactId: kont._id,
+                        contactId: kont._id.toString(),
                     });
                 }
 
@@ -117,8 +118,8 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
                 // .replace(/\\t/g, '')
                 .replace(/&nbsp;/g, ' ');
 
-                updatedmessage += (UNSUBMSG) ? _message('msg', 1091, kont.country.id, kont._id) : '';     //  add unsubscribe text
-                updatedmessage += (DOSUBMSG) ? _message('msg', 1092, kont.country.id, kont._id) : '';     //  add subscribe text
+                updatedmessage += (UNSUBMSG) ? _message('msg', 1091, ctryid, kont._id.toString()) : '';     //  add unsubscribe text
+                updatedmessage += (DOSUBMSG) ? _message('msg', 1092, ctryid, kont._id.toString()) : '';     //  add subscribe text
 
                 if(SINGLE_MSG) {
                     var msgto = {    //  STEP 0 OF MESSAGE CONSTRUCTION

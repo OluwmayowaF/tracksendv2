@@ -310,6 +310,11 @@ exports.analyseCampaign = async (req, res) => {
 
 }
 
+exports.sendePerfCampaign = async (req, res) => {
+    
+    return await perfcampaignController.send(req, res);
+
+}
 exports.updatePerfCampaign = async (req, res) => {
     
     return await adminController.updatePerfCampaign(req, res);

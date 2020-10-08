@@ -28,7 +28,8 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
   async function checkAndAggregate(kont) {
       k++;
       console.log('*******   Aggregating Contact #' + k + ':...    ******** kont = ' + JSON.stringify(kont) );
-      let formatted_phone = phoneformat(kont.phone, kont.country.id);
+      let ctryid = kont.fields ? kont.fields.countryid : (kont.country ? kont.country.id : kont.countryId) ; // from perfcampaigns OR normal campaigns OR transactional msgs
+      let formatted_phone = phoneformat(kont.phone, ctryid);
       if(!formatted_phone) {
           console.log('phone NOT formatted');
           return;
@@ -67,7 +68,7 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
               cid: uid, 
           };
       }
-      
+
       async function saveMsg(args) {
         let shrt;
         console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
@@ -80,10 +81,13 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
                 });
             } else {
                 console.log('__________________contactID = ' + kont._id);
-                shrt = await cpn.createMessage({
+                let cpnid = cpn.id || cpn._id.toString();
+                console.log('cccccccccccccccccccc ', cpnid );
+                shrt = await models.Message.create({
+                    campaignId: cpnid,
                     shortlinkId: args.sid,
                     contactlink: args.cid,
-                    contactId: kont._id,
+                    contactId: kont._id.toString(),
                 });
             }
 
@@ -103,11 +107,11 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
               // .replace(/\\t/g, '')
               .replace(/&nbsp;/g, ' ');
 
-              updatedmessage += (UNSUBMSG) ? _message('msg', 1091, kont.country.id, kont._id) : '';     //  add unsubscribe text
-              updatedmessage += (DOSUBMSG) ? _message('msg', 1092, kont.country.id, kont._id) : '';     //  add unsubscribe text
+              updatedmessage += (UNSUBMSG) ? _message('msg', 1091, ctryid, kont._id.toString()) : '';     //  add unsubscribe text
+              updatedmessage += (DOSUBMSG) ? _message('msg', 1092, ctryid, kont._id.toString()) : '';     //  add unsubscribe text
 
               console.log('====================================');
-              console.log('UNSUB MSG IS:::' + _message('msg', 1091, kont.country.id, kont._id));
+              console.log('UNSUB MSG IS:::' + _message('msg', 1091, ctryid, kont._id));
               console.log('====================================');
               
               if(SINGLE_MSG) {

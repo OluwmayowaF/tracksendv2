@@ -52,18 +52,21 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
         }
 
         if(sms_service == 'infobip') {
-            return await infobip.infobipPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
+            let resp = await infobip.infobipPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
                                     originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj);
+            return resp;
         }
 
         if(sms_service == 'messagebird') {
-            return await messagebird.messagebirdPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
+            let resp = await messagebird.messagebirdPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
                                             originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj);
+            return resp;
         }
 
         if(sms_service == 'africastalking') {
-            return await africastalking.africastalkingPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
+            let resp = await africastalking.africastalkingPlatform(req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
                                                   originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj);
+            return resp;
         }
 
     } catch(err) {

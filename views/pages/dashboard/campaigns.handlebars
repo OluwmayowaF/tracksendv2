@@ -131,7 +131,7 @@
 												<div class="col-md-6">
 													<h5>Select Group(s) </h5>
 													<select class="chosen-select-no-single _plain _sel_contact_group" name="group" id="sel_contact_group" required multiple>
-														<option label="blank" value="0" disabled>Select Group</option>
+														<option label="blank"></option>
 														<option value="{{ args.ngrp }}">[Uncategorized]</option>
 														<option disabled>--------------------------------------</option>
 														{{#each args.grps}}
@@ -143,28 +143,32 @@
 												</div>
 
 												<div class="col-md-6">
-													<h5>Schedule Delivery  <span>[ optional ]</span> </h5>
-													<input type='text' class="form-control" id="datepicker" name="datepicker" />
-													<input type="hidden" id="schedule" name="schedule" />
-												</div>
-											</div>
-											
-											<div class="row with-forms">
-												
-												<div class="col-md-6">
 													<h5>Sender ID </h5>
 													<select class="chosen-select-no-single _sel_sender_id" name="sender" id="sel_sender_id" required>
-														<option label="blank" value="0" disabled selected>Select ID</option>
+														<option label="blank"></option>
 														{{#each args.sids}}
 														<option value="{{ id }}">{{ name }}</option>
 														{{/each}}
 													</select>
 												</div>
 
+											</div>
+											
+											<div class="row with-forms">
+												
+
+												<div class="col-md-6">
+													<h5>Schedule Delivery </h5>
+													<input type="datetime-local" name="datepicker" id="datepicker" />
+													<input type="hidden" id="schedule" name="schedule" />
+													{{!-- <input type='text' class="form-control" id="datepicker" name="datepicker" />
+													<input type="hidden" id="schedule" name="schedule" /> --}}
+												</div>
+												
 												<div class="col-md-6">
 													<h5>Short URL <span>[ optional ]</span> </h5>
 													<select class="chosen-select-no-single" name="shorturl" id="sel_short_url">
-														<option label="blank" value="0">Select</option>
+														<option label="blank"></option>
 														{{#each args.shorturl}}
 														<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
 														{{/each}}
@@ -324,7 +328,7 @@
 																	<div class="col-md-6">
 																		<h5>Send if... </h5>
 																		<select class="chosen-select-no-single _plain _sel_contact_group" name="condition" id="sel_contact_group1" required>
-																			<option label="blank" value="0" disabled selected>Select Condition</option>
+																			<option label="blank"></option>
 																			<option value="clicked">Recipient clicks on URL</option>
 																			<option value="unclicked">Recipient does not click on URL</option>
 																			<option value="elapsed">Number of days elapses</option>
@@ -343,7 +347,7 @@
 																	<div class="col-md-6">
 																		<h5>Sender ID </h5>
 																		<select class="chosen-select-no-single _sel_sender_id" name="sender" id="sel_sender_id1" required>
-																			<option label="blank" value="0" disabled selected>Select ID</option>
+																			<option label="blank"></option>
 																			{{#each args.sids}}
 																			<option value="{{ id }}">{{ name }}</option>
 																			{{/each}}
@@ -353,7 +357,7 @@
 																	<div class="col-md-6">
 																		<h5>Short URL <span>[ optional ]</span> </h5>
 																		<select class="chosen-select-no-single _sel_short_url" data-name="shorturl" id="sel_short_url1">
-																			<option label="blank" value="0" selected>Select</option>
+																			<option label="blank"></option>
 																			{{#each args.shorturl}}
 																			<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
 																			{{/each}}
@@ -925,7 +929,7 @@
 												<div class="col-md-12">
 													<h5>Send Method </h5>
 													<select class="chosen-select-no-single" name="wa_send_method" id="wa_send_method" required>
-														<option label="blank" value="0">Select</option>
+														<option label="blank"></option>
 														<option value="1" selected>Send Message Directly to Individual Contacts</option>
 														<option value="2">Send To WhatsApp Groups</option>
 													</select>
@@ -938,7 +942,7 @@
 												<div class="col-md-6">
 													<h5>Select Group(s) </h5>
 													<select class="chosen-select-no-single _plainsel_contact_group" name="group" id="sel_contact_group1" required multiple>
-														<option label="blank" value="0">Select Group</option>
+														<option label="blank"></option>
 														<option value="{{ args.ngrp }}">[Uncategorized]</option>
 														<option disabled>--------------------------------------</option>
 														{{#each args.grps}}
@@ -963,7 +967,7 @@
 												<div class="col-md-12">
 													<h5>Short URL  <span>[ optional ]</span> </h5>
 													<select class="chosen-select-no-single" name="shorturl" id="sel_short_url">
-														<option label="blank" value="0">Select</option>
+														<option label="blank"></option>
 														{{#each args.shorturl}}
 														<option value="{{ id }}">http://tsn.pub/{{ shorturl }} ({{ url }})</option>
 														{{/each}}

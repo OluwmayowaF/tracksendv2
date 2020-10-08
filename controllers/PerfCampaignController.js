@@ -80,91 +80,7 @@ exports.index = async (req, res) => {
 };
 
 exports.analyse = async (req, res) => {
-    var user_id = req.user.id;
-    // var user_id = 10;
-    let form = req.body;
-    var _status;
 
-    try {
-        let reqs = form.pc_criteria;
-        reqs = Array.isArray(reqs) ? reqs : [ reqs ];
-        let reqlist = [];
-        reqs.forEach(r => {
-            // reqlist.push({ [r]: Array.isArray(form['pc_target_' + r]) ? form['pc_target_' + r] : [form['pc_target_' + r]] })
-            reqlist.push({ criteria: r, target: Array.isArray(form['pc_target_' + r]) ? form['pc_target_' + r] : [form['pc_target_' + r]] })
-        })
-
-        if(form.name.length == 0) throw 'name';
-        if(form.measure.length == 0) throw 'measure';
-        if(form.sender.length == 0) throw 'sender';
-        if(form.message.length == 0) throw 'message';
-        if(reqlist.length == 0) throw 'criteria';
-        if((form.budget == 0) || isNaN(parseFloat(form.budget))) throw 'budget';
-
-        let newcampaign = await mongmodels.PerfCampaign.create({
-            userId: user_id,
-            name: form.name,
-            type: form.type,
-            measure: form.measure,
-            senderId: form.sender,
-            message: form.message,
-            conditionset: reqlist,
-            budget: form.budget,
-            shorturl: form.myshorturl,
-            startdate: form.datepicker,
-            status: { stage: 'pre-analyze', active: true },
-            addoptin: form.add_optin
-        });
-
-        
-        _status = {
-            response: {
-            }, 
-            responseType: "SUCCESS", 
-            responseCode: "OK", 
-            responseText: "Success", 
-        }
-
-    } catch(err) {
-        console.log(err);
-        let errmsg = 'Please specify ';
-
-        switch (err) {
-            case 'name':
-                errmsg += "'Campaign Name', ";
-                // break;
-            case 'measure':
-                errmsg += "'Measure', ";
-                // break;
-            case 'sender':
-                errmsg += "'Sender ID', ";
-                // break;
-            case 'message':
-                errmsg += "'Message', ";
-                // break;
-            case 'reqlist':
-                errmsg += "'Criteria', ";
-                // break;
-            case 'budget':
-                errmsg += "'Budget', ";
-                break;
-        
-            default:
-                break;
-        }
-        if( errmsg == 'Please specify ') {
-        }
-
-        _status = {
-            response: "Input error", 
-            responseType: "ERROR", 
-            responseCode: "E000", 
-            responseText: errmsg, 
-        }
-    }
-
-    res.send(_status);
-    return;
 }
 
 exports.add = async (req, res) => {
@@ -243,6 +159,204 @@ exports.add = async (req, res) => {
                     break;
             }
             return fn;
+        }
+    } catch(err) {
+        console.log(err);
+        let errmsg = 'Please specify ';
+
+        switch (err) {
+            case 'name':
+                errmsg += "'Campaign Name', ";
+                // break;
+            case 'measure':
+                errmsg += "'Measure', ";
+                // break;
+            case 'sender':
+                errmsg += "'Sender ID', ";
+                // break;
+            case 'message':
+                errmsg += "'Message', ";
+                // break;
+            case 'reqlist':
+                errmsg += "'Criteria', ";
+                // break;
+            case 'budget':
+                errmsg += "'Budget', ";
+                break;
+        
+            default:
+                break;
+        }
+        if( errmsg == 'Please specify ') {
+        }
+    
+        _status = {
+            response: "Input error", 
+            responseType: "ERROR", 
+            responseCode: "E000", 
+            responseText: errmsg, 
+        }
+
+    }
+
+    req.flash(_status.responseType.toLowerCase(), _status.responseText);
+    var backURL = req.header('Referer') || '/';
+    res.redirect(backURL);
+
+}
+
+exports.send = async (req, res) => {
+
+    var user_id = req.user.id;
+    // var user_id = 10;
+    let cid = req.query.id;
+    let user_balance, sndr, info = null, schedule, schedule_, cpn, originalmessage;
+    let UNSUBMSG = false, DOSUBMSG, SINGLE_MSG, HAS_SURL, is_api_access = false, aux_obj;
+
+    var _status;
+    var crit_gdr, crit_inc, crit_int, crit_sts, crit_loc, crit_age;
+
+    try {
+        //  GET USER BALANCE
+        let user_balance_ = await models.User.findByPk(user_id, {
+            attributes: ['balance'], 
+            raw: true, 
+        })
+        user_balance = user_balance_.balance;
+
+        cpn = await mongmodels.PerfCampaign.findOne({
+            _id: mongoose.Types.ObjectId(cid),
+            userId: user_id,
+        });
+        sndr = cpn.senderId;
+        originalmessage = cpn.message;
+        schedule = cpn.startdate;
+        // utm = (req.body.add_utm && req.body.add_utm == "on");
+        DOSUBMSG = (req.body.add_optin && req.body.add_optin == "on");
+        HAS_SURL = (originalmessage.search(/\[url\]/g) !== -1) && cpn.shorturl;
+        SINGLE_MSG = !HAS_SURL;
+
+        info = {
+            shortlinkId: cpn.shorturl,
+            units_used: cpn.adminamount || 1000,
+        }
+
+        let crits = cpn.conditionset;
+        crits.forEach(c => {
+            // let crit = getApplicableName(c.criteria);
+            switch (c.criteria) {
+                case 'Age':
+                    crit_age = c.target;
+                    break;
+                case 'Gender':
+                    crit_gdr = c.target;
+                    break;
+                case 'Status':
+                    crit_sts = c.target;
+                    break;
+                case 'Location':
+                    crit_loc = c.target;
+                    break;
+                case 'Income Class':
+                    crit_inc = c.target;
+                    break;
+                case 'Interests':
+                    crit_int = c.target;
+                    break;
+            
+                default:
+                    break;
+            }
+        })
+
+        let contacts = await mongmodels.PerfContact.find({
+            ...(crit_sts? {
+                "fields.status": {
+                    $in: crit_sts
+                },
+            } : {}),
+            ...(crit_age? {
+                "fields.age": {
+                    $in: crit_age
+                },
+            } : {}),
+            ...(crit_gdr? {
+                "fields.gender": {
+                    $in: crit_gdr
+                },
+            } : {}),
+            ...(crit_inc? {
+                "fields.income": {
+                    $in: crit_inc
+                },
+            } : {}),
+            ...(crit_int? {
+                "fields.interests": {
+                    $in: crit_int
+                },
+            } : {}),
+            ...(crit_loc? {
+                "fields.location": {
+                    $in: crit_loc
+                },
+            } : {}),
+        },"phone fields.countryid");
+
+        console.log('contacts are: ' + JSON.stringify(contacts));
+
+        let resp = await smsSendEngines(
+            req, res,
+            user_id, user_balance, sndr, info, contacts, schedule, schedule_, 
+            cpn, originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, is_api_access? aux_obj : null
+        );
+        console.log('++++++++++++++++++++');
+        console.log(resp);
+        return resp;
+
+
+        _status = {
+            response: {
+            }, 
+            responseType: "SUCCESS", 
+            responseCode: "OK", 
+            responseText: "Campaign created successfully.", 
+        }
+    
+        function getRealName(abrv) {
+            let fn = abrv;
+            switch (abrv) {
+                case "loc":
+                    fn = "Location";
+                    break;
+                case "age":
+                    fn = "Age";
+                    break;
+                case "gdr":
+                    fn = "Gender";
+                    break;
+                case "sts":
+                    fn = "Status";
+                    break;
+                case "inc":
+                    fn = "Income Class";
+                    break;
+                case "int":
+                    fn = "Interests";
+                    break;
+                case "per_imp":
+                    fn = "Per Impression";
+                    break;
+                case "per_clk":
+                    fn = "Per Click";
+                    break;
+                default:
+                    break;
+            }
+            return fn;
+        }
+
+        function getApplicableName(name) {
+            return name;
         }
     } catch(err) {
         console.log(err);

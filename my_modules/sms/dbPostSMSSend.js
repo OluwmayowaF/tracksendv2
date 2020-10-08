@@ -119,7 +119,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                   response: "Error: Campaign sending error!", 
                   responseType: "ERROR", 
                   responseCode: "E006", 
-                  responseText: "An error occurred while sending out your Campaign. Check your network connection, and ensure you\'re logged in.", 
+                  responseText: "An error occurred while sending out your Campaign. Kindly contact site admin.", 
               }
           } else if(!req.txnmessaging) {
 
