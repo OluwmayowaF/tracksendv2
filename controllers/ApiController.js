@@ -443,11 +443,21 @@ exports.smsNotifyKirusa = (req, res) => {
     */
 
     console.log('[[====================================');
-    console.log('KIRUSA RESPONSE...');
+    let seen = [];
+    console.log('KIRUSA RESPONSE...');  
+    console.log(JSON.stringify(req.body, function (key, val) {
+        if (val != null && typeof val == "object") {
+            if (seen.indexOf(val) >= 0) {
+                return;
+            }
+            seen.push(val);
+        }
+        return val;
+    }) )
     console.log('KIRUSA RESPONSE0: ' + Object.keys(req.body).length);
     console.log('KIRUSA RESPONSE1: ' + Object.keys(req.body)[0]);
     // console.log('KIRUSA RESPONS22: ' + JSON.parse(Object.keys(req.body)[0]));
-    console.log('KIRUSA RESPONSE2: ' + JSON.stringify(JSON.parse(Object.keys(req.body)[0])));
+    // console.log('KIRUSA RESPONSE2: ' + JSON.stringify(JSON.parse(Object.keys(req.body)[0])));
     // console.log('KIRUSA RESPONSE3: ' + JSON.parse(JSON.stringify(req.body)));
     // console.log('KIRUSA RESPONSE4: ' + JSON.stringify(JSON.parse(JSON.stringify(req.body))));
     console.log('====================================]]');
@@ -554,7 +564,9 @@ exports.smsNotifyKirusa = (req, res) => {
         })
 
 
-    } 
+    } else {
+        console.log("NO BODY!");
+    }
 
 }
 
