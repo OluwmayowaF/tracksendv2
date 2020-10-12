@@ -456,6 +456,7 @@ exports.smsNotifyKirusa = (req, res) => {
     }) )
     console.log('KIRUSA RESPONSE0: ' + Object.keys(req.body).length);
     console.log('KIRUSA RESPONSE1: ' + Object.keys(req.body)[0]);
+    console.log('KIRUSA RESPONSE2: ' + JSON.stringify(req.body));
     // console.log('KIRUSA RESPONS22: ' + JSON.parse(Object.keys(req.body)[0]));
     // console.log('KIRUSA RESPONSE2: ' + JSON.stringify(JSON.parse(Object.keys(req.body)[0])));
     // console.log('KIRUSA RESPONSE3: ' + JSON.parse(JSON.stringify(req.body)));
