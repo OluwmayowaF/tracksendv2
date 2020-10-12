@@ -2095,10 +2095,12 @@ function _initPerformanceCampaignInPageActions() {
 
 		let is_only = $('._sel_pc_criteria').length === 1;
 		let _target_area = '<h5 class="_title_target">Target(s) </h5>' +
+											( ($(this).val() == 'loc') ?
+											'<input type="text" name="pc_target_loc" id="pc_target_loc" maxlength="100" required placeholder="Separate location(s) with commas, e.g. Abuja, Ogun, Ikeja">' :
 											'<select class="chosen-select-no-single _plain _sel_pc_target" name="pc_target_' + $(this).val() + '" id="" multiple required>' +
 												'<option label="blank"></option>' +
-												getCriteriaTargetOptions($(this).val());
-											'</select>';
+												getCriteriaTargetOptions($(this).val()) +
+											'</select>');
 
 		let _butts_area = '<h5 class="_title_butts" style="overflow: hidden; white-space: nowrap; text-align: center">[ . . . ] </h5>' +
 											'<div style="justify-content: space-between; display: flex; padding-top: 11px;">' +
@@ -3035,7 +3037,8 @@ function budgetFocus() {
 }
 function budgetBlur() {
 	$('#budget').val($('#budget_').val());
-	$('#budget_').val(parseFloat($('#budget').val()).toLocaleString());
+	let n = parseFloat($('#budget').val()).toLocaleString();
+	$('#budget_').val((isNaN(n) ? '' : n));
 }
 
 
