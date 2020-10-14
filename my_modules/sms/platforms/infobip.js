@@ -15,7 +15,7 @@ var base64encode = buff.toString('base64');
 exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
   originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj) => {
 
-    var q_tracking_type = info.name.replace(/ /g, '_');
+    var q_tracking_type = !req.txnmessaging ? info.name.replace(/ /g, '_') : 'txn_sms_msg';
     var q_bulkId = 'generateBulk';
     var q_tracking_track = 'SMS';
 
