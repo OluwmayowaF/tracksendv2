@@ -43,6 +43,10 @@ $(document).ready(function() {
 		console.log('====================================');
 	}
 
+	if($('#_date_picker').length) {
+		console.log('DATE PICKING...');
+		console.log('TYPE = ' + $('#_date_picker').attr('type'));
+	}
 	/* $.ajax({
 		type: 'GET',
 		url: 'https://ipinfo.io?token=d79a26c84fa03a',
@@ -3033,12 +3037,14 @@ function setGetSelectionThings(parent_node_class) {
 }
 
 function budgetFocus() {
+	$('#_warning_budget').hide();
 	$('#budget_').val($('#budget').val());
 }
 function budgetBlur() {
-	$('#budget').val($('#budget_').val());
-	let n = parseFloat($('#budget').val()).toLocaleString();
-	$('#budget_').val((isNaN(n) ? '' : n));
+	let n = parseFloat($('#budget_').val());
+	$('#budget').val(isNaN(n) ? '' : n);
+	$('#budget_').val(isNaN(n) ? '' : parseFloat(n).toLocaleString());
+	if(isNaN(n)) $('#_warning_budget').show();
 }
 
 

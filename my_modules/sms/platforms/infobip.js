@@ -160,7 +160,7 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
             } catch(err) {
                 console.log('________________________________');
                 
-               throw "111Error: Please try again later";
+                throw "111Error: Please try again later";
             }
                         
         }
@@ -184,7 +184,7 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
     //  loop through all the batches
     async function doLoop(start) { 
         let actions = [];
-        
+
         console.log('**************   ' + 'count of contacts = ' + len + '; start = ' + start + '   ****************');
         if(start <= len) { 
             var end = (start + grpn > len) ? len : start + grpn;
@@ -214,12 +214,14 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
                     "notifyContentType" : m_notifyContentType,
                     "validityPeriod" : m_validityPeriod,
                 };
+                console.log('=' + m_from + '..............MSGFULL...............: ' + JSON.stringify(sndr));
+
                 console.log('SINGLE COMPILED!');
                 if(file_not_logged && !req.txnmessaging) {
                     filelogger('sms', 'Send Campaign (Infobip)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
                     file_not_logged = false;
-                }    
-                
+                }
+
                 actions.push(await Promise.resolve(msgfull));
 
             } else {
@@ -232,9 +234,11 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
 
             }
 
+            console.log('1MSGS ARE: ' + JSON.stringify(actions));
+
             let data = await Promise.all(actions);
 
-            console.log('MSGS ARE: ' + JSON.stringify(data));
+            console.log('2MSGS ARE: ' + JSON.stringify(data));
             
             var tosend = {
                 "bulkId": (req.txnmessaging) ? 'TXNMSG-' + new Date().getTime().toString() : 'CMPGN-' + cpn.id + '-' + counter,
@@ -283,7 +287,6 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
             console.log('a||||||||||||||||||||||||---' + JSON.stringify(resp));
             
             // });
-    
             
             counter++;
             if(end < len) await doLoop(end)

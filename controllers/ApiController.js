@@ -1017,12 +1017,12 @@ exports.newTxnMessage = async (req, res) => {
                         userId: user_id,
                         name: sender,
                     },
-                    attributes: ['id'],
+                    attributes: ['id', 'name'],
                 })
 
                 if(!sender__) throw 'sender';
-                sender = sender__.id;
-                console.log('................sender='+sender);
+                sender = sender__;
+                console.log('................sender='+JSON.stringify(sender));
             }
 
             let shortlink;
@@ -1077,7 +1077,7 @@ exports.newTxnMessage = async (req, res) => {
      
             let info = {
                 userId:     user_id,
-                senderId:   sender,
+                senderId:   sender.id,
                 shortlinkId: shorturl,
                 // myshorturl: req.body.myshorturl,
                 message:    message[0],
