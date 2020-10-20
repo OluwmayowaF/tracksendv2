@@ -15,6 +15,7 @@ var base64encode = buff.toString('base64');
 exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
   originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj) => {
 
+    var return_collection = [];     //  for txnmessaging return of messageid and phone number
     var q_tracking_type = !req.txnmessaging ? info.name.replace(/ /g, '_') : 'txn_sms_msg';
     var q_bulkId = 'generateBulk';
     var q_tracking_track = 'SMS';
@@ -128,6 +129,7 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
                     }
                     
                     console.log('SINGLE MESSAGE ENTRY CREATE DONE.');
+                    if(req.txnmessaging) return_collection.push(msgto);
                     return msgto;
                 } else {
                     var msgfull = { //  STEP 1 OF MESSAGE CONSTRUCTION
@@ -150,6 +152,10 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
                     }; 
                     
                     console.log('UNSINGLE MESSAGE ENTRY CREATE DONE.');
+                    if(req.txnmessaging) return_collection.push({
+                        "to": formatted_phone,
+                        "messageId": shrt.id,
+                    });
                     if(file_not_logged && !req.txnmessaging) {
                         filelogger('sms', 'Send Campaign (Infobip)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
                         file_not_logged = false;
@@ -283,7 +289,7 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
             //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
             console.log('________________________INFO11='+ JSON.stringify(info));
             
-            let resp = await dbPostSMSSend.dbPostSMSSend(req, res, batches, successfuls, failures, info, user_balance, user_id, cpn, schedule_, null, null, networkerror);
+            let resp = await dbPostSMSSend.dbPostSMSSend(req, res, batches, successfuls, failures, info, user_balance, user_id, cpn, schedule_, return_collection, null, networkerror);
             console.log('a||||||||||||||||||||||||---' + JSON.stringify(resp));
             
             // });

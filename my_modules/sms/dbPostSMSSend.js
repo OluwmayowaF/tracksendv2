@@ -99,10 +99,10 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                 let mm = (schedule_) ? 'scheduled to be sent out at ' + moment(schedule_, 'YYYY-MM-DD HH:mm:ss').add(1, 'hour').format('h:mm A, DD-MMM-YYYY') + '.' : 'sent out.';
                 
                 _status = {
-                    response: "Success. Messages sent.", 
+                    response: req.txnmessaging ? klist : "Success. Messages sent.", 
                     responseType: "OK", 
                     responseCode: "P001", 
-                    responseText: "Campaign created successfully. Messages " + mm, 
+                    responseText: (req.txnmessaging ? "" : "Campaign created successfully. ") + "Message(s) " + mm, 
                 }
 
 
