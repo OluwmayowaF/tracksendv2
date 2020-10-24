@@ -70,6 +70,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                 });
                 //  UPDATE UNITS USED FOR CAMPAIGN OR UPDATE STATUS FOR PERFCAMPAIGN
                 if(req.perfcampaign) {
+                    console.log('.................................updating status for ' + cpn._id);
                     await mongmodels.PerfContact.findOneAndUpdate({
                         _id: mongoose.Types.ObjectId(cpn._id),
                     }, {

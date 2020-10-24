@@ -1712,8 +1712,8 @@ $(document).ready(function() {
 				contentType: 'application/json; charset=utf-8',
 				success: function( data ) {
 					
-					if(data.response == 'success') {
-						
+					if(data.response == 'success' || data.responseType == "OK") {
+
 						$('.notification.other3').removeClass('success error').addClass('success');
 						$('.notification.other3 p').text('Campaign successfully sent out.');
 						$('.notification.other3').css('opacity',100);
