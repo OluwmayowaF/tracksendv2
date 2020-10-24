@@ -71,7 +71,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                 //  UPDATE UNITS USED FOR CAMPAIGN OR UPDATE STATUS FOR PERFCAMPAIGN
                 if(req.perfcampaign) {
                     console.log('.................................updating status for ' + cpn._id);
-                    await mongmodels.PerfContact.findOneAndUpdate({
+                    await mongmodels.PerfCampaign.findOneAndUpdate({
                         _id: mongoose.Types.ObjectId(cpn._id),
                     }, {
                         "status.stage": "Sent"
@@ -131,7 +131,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                     responseCode: "E006", 
                     responseText: "An error occurred while sending out your Campaign. Kindly contact site admin.", 
                 }
-            } else if(!req.txnmessaging) {
+            } else if(!req.txnmessaging && !req.perfcampaign) {
 
                 await cpn.destroy();
 
