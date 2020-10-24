@@ -2,6 +2,8 @@ var moment = require('moment');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 var models = require('../../models');
+const mongoose = require('mongoose');
+var mongmodels = require('../../models/_mongomodels');
 
 exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, info, user_balance, user_id, cpn, schedule_, klist = null, response = null, networkerror = null) => {
     //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
@@ -66,8 +68,15 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                 await usr.update({
                     balance: new_bal,
                 });
-                //  UPDATE UNITS USED FOR CAMPAIGN
-                if(!req.txnmessaging) await cpn.update({
+                //  UPDATE UNITS USED FOR CAMPAIGN OR UPDATE STATUS FOR PERFCAMPAIGN
+                if(req.perfcampaign) {
+                    await mongmodels.PerfContact.findOneAndUpdate({
+                        _id: mongoose.Types.ObjectId(cpn._id),
+                    }, {
+                        "status.stage": "Sent"
+                    })
+                    
+                } else if(!req.txnmessaging)await cpn.update({
                     units_used: info.units_used,
                     status: 1
                 });
@@ -76,14 +85,14 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                 await models.Transaction.create({
                     description: 'DEBIT',
                     userId: user_id,
-                    type: (req.txnmessaging) ? 'TXN-MESSAGING' : 'CAMPAIGN',
+                    type: (req.txnmessaging) ? 'TXN-MESSAGING' : ((req.perfcampaign) ? 'PERFCAMPAIGN' : 'CAMPAIGN'),
                     ref_id: (req.txnmessaging) ? new Date().getTime() : cpn.id,
                     units: (-1) * info.units_used,
                     status: 1,
                 })
 
                 //  CONVERT REFS FROM TEMP REFS TO REAL REFS
-                if(!req.txnmessaging) await models.Tmpcampaign.update(
+                if(!req.txnmessaging && !req.perfcampaign) await models.Tmpcampaign.update(
                     {
                         ref_campaign: cpn.id,
                     }, {
@@ -94,7 +103,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                 )
 
                 //  REMOVE TEMPORARY DATA
-                if(!req.externalapi) await info.destroy();
+                if(!req.externalapi && !req.perfcampaign) await info.destroy();
 
                 let mm = (schedule_) ? 'scheduled to be sent out at ' + moment(schedule_, 'YYYY-MM-DD HH:mm:ss').add(1, 'hour').format('h:mm A, DD-MMM-YYYY') + '.' : 'sent out.';
                 
@@ -143,7 +152,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
             console.error('THIS ERROR: ' + err);
         }
 
-        if(req.externalapi) {
+        if(req.externalapi || req.perfcampaign) {
             return _status;
         } else {
             try {

@@ -207,6 +207,8 @@ exports.add = async (req, res) => {
 
 exports.send = async (req, res) => {
 
+    req.perfcampaign = true; 
+    
     try {
         var user_id = req.user.id;
         // var user_id = 10;
@@ -323,7 +325,9 @@ exports.send = async (req, res) => {
         );
         console.log('++++++++++++++++++++');
         console.log(resp);
-        return res.send(resp);
+
+        res.send(resp);
+        // return resp;
 
 
         _status = {
