@@ -31,6 +31,13 @@ const PORT = process.env.PORT || 3000;
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 
+// var hbs_ = hbs.create({});
+// var hbs_ = exphbs.create({});
+// hbs_.handlebars.registerHelper('increasePrice', function(price) {
+//   price += 10;
+//   return price;
+// })
+
 app.use(fileUpload());
 app.use(cookieParser('secret'));
 app.use(session({

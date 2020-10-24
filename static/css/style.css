@@ -10119,6 +10119,9 @@ span.like-icon {
 	height: 100%;
 	margin-left: 260px;
 }
+.dashboard-content._hidden {
+	margin-left: 0;
+}
 
 .dashboard-nav,
 .dashboard #logo {
@@ -10215,6 +10218,9 @@ header.fullwidth.dashboard .container { padding-left: 285px; }
 	display: block;
 	box-shadow: 0px 0px 12px 0px rgba(0,0,0,0.12);
 	z-index: 11;
+}
+.dashboard-nav._hidden {
+	margin-left: -260px;
 }
 
 a.dashboard-responsive-nav-trigger { display: none; }
@@ -16188,6 +16194,9 @@ img.mfp-img {
 		padding: 5px 10px; 
 		background-color: rgb(248, 255, 214); 
 		display: flex;
+	}
+	._toggled_crit._block {
+		display: block;
 	}
 
 	@media (max-width:803px) {

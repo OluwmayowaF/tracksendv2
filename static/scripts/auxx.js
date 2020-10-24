@@ -1492,6 +1492,12 @@ $(document).ready(function() {
 			e.preventDefault();
 			e.stopPropagation();
 
+			if($(this).closest('.edit_pcmpgn').length) {
+				let indx = $(this).attr('data-indx');
+				$('#click_edit_pcpgn_'+indx).click();
+				return;
+			}
+
 			var $btn = $(this);
 			var $item = $btn.closest('.list_item');
 			$item.find('.saved_item').hide();
@@ -1685,8 +1691,16 @@ $(document).ready(function() {
 			var $me = $item.find('form');
 			var id = $item.find('.cid').val();
 
-			var json_save_form = JSON.stringify($me.serializeObject()); 
-			console.log('json', json_save_form);
+			console.log('clicked send');
+			if($(this).closest('.edit_pcmpgn').length) {
+				let meas = $item.find('._pcp_measure').val();
+				let cost = $item.find('._pcp_cost').val();
+				let conf = confirm('This Campaign is charged at N' + cost + ' ' + meas + '. More details have been sent to your email. Proceed to confirm.');
+				if(!conf) return;
+			}
+			// console.log('here we go');
+			// var json_save_form = JSON.stringify($me.serializeObject()); 
+			// console.log('json', json_save_form);
 			
 			// var $butt = $me.find('input.button');
 			// $butt.attr('disabled','disabled');
@@ -1699,32 +1713,20 @@ $(document).ready(function() {
 				success: function( data ) {
 					
 					if(data.response == 'success') {
-						console.log('ssssssssuuuuuuuuuuu');
-						
-						$item.find('.dv_firstname').text($item.find('.ed_firstname').val());
-						$item.find('.dv_lastname').text($item.find('.ed_lastname').val());
-						$item.find('.dv_email').text($item.find('.ed_email').val());
-
-						$item.find('.dv_name').text($item.find('.ed_name').val());
-						$item.find('.dv_desc').text($item.find('.ed_desc').val());
-						$item.find('.dv_status').text($item.find('._sel_status').val());		//	for updating performance campaigns
-						$item.find('.dv_optin').text($item.find('.can_optin_chk').is(':checked') ? 'Yes' : 'No');
-						if(wh == 'senderid') $item.find('.dv_status').text('Pending...');
-						if(wh == 'group') {}
-						else $item.find('.dv_updated').text('Pending...');
-						
-						$item.find('.inline_edit').hide();
-						$item.find('.saved_item').show();
 						
 						$('.notification.other3').removeClass('success error').addClass('success');
-						$('.notification.other3 p').text('Item successfully modified.');
+						$('.notification.other3 p').text('Campaign successfully sent out.');
 						$('.notification.other3').css('opacity',100);
 						$('.notification.other3').show();
+
+						$item.find('.send_item_btn a').css({'cursor': 'default', 'color': '#aaa'});
+						$item.find('.send_item_btn').removeClass('send_item_btn').off('click');
+						$item.find('.dv_status').text("Sent").css({'font-weight': 'bold', 'color': '#444'});
 
 					} else {
 
 						$('.notification.other3').removeClass('success error').addClass('error');
-						$('.notification.other3 p').text(data.response);
+						$('.notification.other3 p').text(data.response ? data.response : "An error occured. Kindly try again or contact Admin");
 						$('.notification.other3').css('opacity',100);
 						$('.notification.other3').show();
 
@@ -2019,6 +2021,11 @@ $(document).ready(function() {
 		});  */
 		// console.log('json', json_form, 'hek', grps);
 
+	})
+
+	$('#toggle_my_dashnav').click(function (e) {
+		$('.dashboard-nav').toggleClass('_hidden');
+		$('.dashboard-content').toggleClass('_hidden');
 	})
 
 	/* $('.chk_customoptinoption').change(function (e) {

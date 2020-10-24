@@ -128,6 +128,7 @@ const PerfCampaignSchema = new mongoose.Schema({
   description:    String,
   budget:         Number,
   minbudget:      Number,
+  cost:           Number,
   // conditionset:   Array,
   conditionset:   mongoose.Schema.Types.Mixed,
   type:           String,   //  sms | whatsapp

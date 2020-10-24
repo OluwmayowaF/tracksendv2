@@ -89,21 +89,24 @@
 											<div class="row with-forms">
 												<!-- Status -->
 												<form action="">
-												<input type="hidden" class="cid" value="{{ _id }}" name="id" />
-												<div class="col-md-5">
-													<h5>New Status </h5>
-													<select class="chosen-select-no-single _plain _sel_status" name="status" id="sel_status" required>
-														<option label="blank"></option>
-														<option>Approved/Ready</option>
-														<option>Denied/Invalid</option>
-														<option>Pending/Processing</option>
-													</select>
-												</div>
+													<input type="hidden" class="cid" value="{{ _id }}" name="id" />
+													<div class="col-md-3">
+														<h5>Set Status </h5>
+														<select class="chosen-select-no-single _plain _sel_status" name="status" id="sel_status" required>
+															<option label="blank"></option>
+															<option>Approved</option>
+															<option>Denied</option>
+														</select>
+													</div>
 
-												<div class="col-md-6">
-													<h5>Comment </h5>
-													<input type="text" name="admincomment" class="ed_comm" maxlength="200" value="{{ admincomment }}">
-												</div>
+													<div class="col-md-5">
+														<h5>Comment </h5>
+														<input type="text" name="admincomment" class="ed_comm" maxlength="200" value="{{ admincomment }}" autocomplete="off">
+													</div>
+													<div class="col-md-3">
+														<h5>Cost ({{ measure }}) </h5>
+														<input type="text" name="cost" class="ed_cost" maxlength="200" value="{{ cost }}" autocomplete="off">
+													</div>
 												</form>
 
 												<div class="col-md-1">

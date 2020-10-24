@@ -161,8 +161,9 @@ exports.updatePerfCampaign = async(req, res) => {
             _id: mongoose.Types.ObjectId(id_),
         },
         {
-            "status.stage": req.body.status,
-            admincomment:   req.body.admincomment,
+            ...(req.body.status ? {"status.stage": req.body.status} : {}),
+            ...(req.body.admincomment ? {admincomment: req.body.admincomment} : {}),
+            ...(req.body.cost ? {cost: req.body.cost} : {}),
         }
     )
     console.log('update state = ' + JSON.stringify(upd));

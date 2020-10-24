@@ -152,7 +152,7 @@
 
 												<div class="col-md-6">
 													<h5>Start Date </h5>
-													<input type="datetime-local" name="datepicker" id="_date_picker" />
+													<input type="datetime-local" name="datepicker" id="_date_picker" placeholder="mm/dd/yyyy --:-- --" />
 													{{!-- <input type='text' class="form-control" id="datepicker" name="datepicker" />
 													<input type="hidden" id="schedule" name="schedule" /> --}}
 												</div>
@@ -257,7 +257,7 @@
 
 												<div class="col-md-6">
 													<h5 style="color: #ff4a21;">BUDGET: <i id="_warning_budget" class="fa fa-exclamation-circle" style="color: red; display: none"></i></h5> 
-													<input type="text" id="budget_" maxlength="50" required onfocus="budgetFocus()" onblur="budgetBlur()" autocomplete="off" required>
+													<input type="text" id="budget_" maxlength="50" required onfocus="budgetFocus()" onblur="budgetBlur()" autocomplete="off" placeholder="[Min.: N450,000]" required>
 													<input type="hidden" name="budget" id="budget">
 												</div>
 
@@ -322,7 +322,7 @@
 										<div class="_form_errors _e_analyse" style="display:none; margin-top: 10px"></div>
 										
 										<div>
-											<button type="button" class="button preview campaign_send_btn" id="analyseperf_btn" onclick="validateAndSendCampaign(this)">Send <i class="fa fa-send"></i></button> <span class="loading_icon fa fa-hourglass-2"></span><span style="margin-left: 5px" class="activity_status"></span>
+											<button type="button" class="button preview campaign_send_btn" id="analyseperf_btn" onclick="validateAndSendCampaign(this)">Submit <i class="fa fa-send"></i></button> <span class="loading_icon fa fa-hourglass-2"></span><span style="margin-left: 5px" class="activity_status"></span>
 										</div>
 											{{!-- <button type="button" class="button preview" id="analyseperf_btn" onclick="validateAndSendCampaign(this)">Analyse <i class="im im-icon-Gears-2"></i></button> <span class="loading_icon fa fa-hourglass-2"></span><span style="margin-left: 5px" class="activity_status"></span> --}}
 									</div>
@@ -574,67 +574,99 @@
 			</div>
 			<div class="col-md-12 lists">
 				<ul>
-									<li class="list_item _hd" style="font-weight: bolder">
-										<ul class="saved_item">
-											<input type="hidden" class="cid" value="'+i.id+'" />
-											<li style="flex: 6">Name</li>
-											<li style="flex: 2; text-align: right;">User ID</li>
-											<li style="flex: 2">Status</li>
-											<li style="flex: 2; text-align: right;">Budget</li>
-											<li style="flex: 3">Start Date</li>
-											<li style="margin: 3px; margin-right:0; height: 33px; flex: 2; text-align: center; font-size: 2em; line-height: 0.3; border-left: solid 1px #ddd;">
-												...
-											</li>
-										</ul>
-									</li>
-									{{#each args.pcpns}}
-									<li class="list_item _toggle_crit" data-wh="perfcampaign">
-										<ul class="saved_item">
-											<input type="hidden" class="cid" value="{{ _id }}" />
-											<li style="flex: 6" class="dv_name">{{ name }}</li>
-											<li style="flex: 2; text-align: right;" class="dv_desc">{{ userId }}</li>
-											<li style="flex: 2" class="dv_status">{{ status.stage }}</li>
-											<li style="flex: 2; text-align: right;" class="dv_status">{{formatNumber budget }}</li>
-											<li style="flex: 3">{{formatDate startdate "short"}}</li>
-											<li style="margin: 3px; margin-right:0; height: 33px; flex: 2; display: flex; background-color: #eee;">
-												<span style="flex: 1; text-align:center" class="edit_item_btn"><a class="tooltip top" title="Edit" style="cursor: pointer"><i class="fa fa-edit"></i></a></span> | 
-												<span style="flex: 1; text-align:center" class="send_item_btn"><a class="tooltip top" title="Send" style="cursor: pointer"><i class="fa fa-send-o"></i></a></span> |
-												<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
-											</li>
-										</ul>
-										<div class="_toggled_crit" style="display: none;">
-											<div style="padding-right: 10px;">ADMIN: "{{ admincomment }}"</div>
-										</div>
-										<div class="inline_edit">
-											<div class="row with-forms">
-												<!-- Status -->
-												<form action="">
-												<div class="col-md-5">
-													<h5>ID Name </h5>
-													<input type="text" name="name" maxlength="50" class="ed_name" value="{{ name }}">
-													<input type="hidden" name="id" class="id" value="{{ _id }}">
-												</div>
+					<li class="list_item _hd" style="font-weight: bolder">
+						<ul class="saved_item">
+							<input type="hidden" class="cid" value="'+i.id+'" />
+							<li style="flex: 6">Name</li>
+							<li style="flex: 2; text-align: right;">User ID</li>
+							<li style="flex: 2">Status</li>
+							<li style="flex: 2; text-align: right;">Budget</li>
+							<li style="flex: 3">Start Date</li>
+							<li style="margin: 3px; margin-right:0; height: 33px; flex: 2; text-align: center; font-size: 2em; line-height: 0.3; border-left: solid 1px #ddd;">
+								...
+							</li>
+						</ul>
+					</li>
+					{{#each args.pcpns}}
+					<li class="list_item _toggle_crit" data-wh="perfcampaign">
+						<ul class="saved_item">
+							<input type="hidden" class="cid" value="{{ _id }}" />
+							<li style="flex: 6" class="dv_name">{{ name }}</li>
+							<li style="flex: 2; text-align: right;" class="dv_desc">{{ userId }}</li>
+							<li class="dv_status" style="flex: 2; color:{{#ifCond status.stage "==" "Denied"}}red{{/ifCond}}{{#ifCond status.stage "==" "Approved"}}green{{/ifCond}}{{#ifCond status.stage "==" "Sent"}}#444{{/ifCond}}; {{#ifCond status.stage "==" "Sent"}}font-weight: bold{{/ifCond}}">{{ status.stage }}</li>
+							<li style="flex: 2; text-align: right;" class="dv_budget">{{formatNumber budget }}</li>
+							<li style="flex: 3">{{formatDate startdate "short"}}</li>
+							<li class="edit_pcmpgn" style="margin: 3px; margin-right:0; height: 33px; flex: 2; display: flex; background-color: #eee;">
+								{{#ifCond status.stage "==" "Pre-analyze"}}
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Edit" style="color: #aaa"><i class="fa fa-edit"></i></a></span> | 
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Send" style="color: #aaa"><i class="fa fa-send-o"></i></a></span> |
+								<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
+								{{/ifCond}}
+								{{#ifCond status.stage "==" "Approved"}}
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Edit" style="color: #aaa"><i class="fa fa-edit"></i></a></span> | 
+								<span style="flex: 1; text-align:center" class="send_item_btn"><a class="tooltip top" title="Send" style="cursor: pointer"><i class="fa fa-send-o"></i></a></span> |
+								<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
+								{{/ifCond}}
+								{{#ifCond status.stage "==" "Denied"}}
+								<span style="flex: 1; text-align:center" data-indx="{{@index}}" class="edit_item_btn"><a class="tooltip top" title="Edit" style="cursor: pointer"><i class="fa fa-edit"></i></a></span> | 
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Send" style="color: #aaa"><i class="fa fa-send-o"></i></a></span> |
+								<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
+								{{/ifCond}}
+								{{#ifCond status.stage "==" "Sent"}}
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Edit" style="color: #aaa"><i class="fa fa-edit"></i></a></span> | 
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Send" style="color: #aaa"><i class="fa fa-send-o"></i></a></span> |
+								<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
+								{{/ifCond}}
+							</li>
+						</ul>
+						<div class="_toggled_crit _block" style="display: none; ">
+							{{#if admincomment}}
+							<div style="padding-right: 10px; color: #09b1d1; font-size: 0.9em;">ADMIN: "{{ admincomment }}"</div>
+							{{/if}}
+							<div class="" style="display: flex; font-size: 0.9em;">
+								<div style="padding-right: 10px;">Audience</div>
+								<div style="border-left: solid 1px #999; padding-left: 10px ">
+									<ul>
+									{{#conditionset }}
+										<li style="display: flex"><div>{{ criteria }} : </div> <div> {{ target }}</div></li>
+									{{/conditionset }}
+									</ul>
+								</div>
+							</div>
+							{{#if cost}}
+							<div style="padding-right: 10px; font-weight: bold; font-size: 0.85em; color: #444;">
+								Cost {{ measure }}: N{{ cost }}
+								<input type="hidden" class="_pcp_measure" value="{{ measure }}" >
+								<input type="hidden" class="_pcp_cost" value="{{ cost }}" >
+							</div>
+							{{/if}}
+							<div style="font-size: 0.85em; color: #444;">Details have been sent to your mail. Kindly check.</div>
+						</div>
 
-												<div class="col-md-6">
-													<h5>Description </h5>
-													<input type="text" name="description" class="ed_desc" maxlength="200" value="{{ description }}">
-												</div>
-												</form>
+						<a href="#pcampaign_edit_box_{{@index}}" class="sign-in popup-with-zoom-anim" style="color: #09b1d1; visibility: hidden; width: 1px; height: 1px; display:inline-block; float: left" id="click_edit_pcpgn_{{@index}}">.</a>
+						<div id="pcampaign_edit_box_{{@index}}" class="zoom-anim-dialog mfp-hide">
 
-												<div class="col-md-1">
-													<h5 style="text-align: center"><i class="fa fa-ellipsis-h"></i></h5>
-													<div style="display: flex; padding-top: 10px;">
-														<span style="flex: 1; text-align:center;" class="save_edit_btn"><a class="tooltip top" title="Save" style="color: green; cursor: pointer"><i class="fa fa-check"></i></a></span> | 
-														<span style="flex: 1; text-align:center" class="cancel_edit_btn"><a class="tooltip top" title="Cancel" style="color: red; cursor: pointer"><i class="fa fa-times"></i></a></span>
-													</div>
-												</div>
+							<div class="small-dialog-header" style="margin-bottom: 15px">
+								<h3>Campaign  <b>Summary</b></h3>
+							</div>
 
-											</div>
-										</div>
-									</li>
-									{{else}}
-										<em>No pending performance campaigns yet.</em> 
-									{{/each}}
+							<!--Tabs -->
+							<div class="sign-in-form style-1" style="overflow-y: auto; overflow-x: hidden; max-height: 440px; margin-bottom: 10px">
+
+
+							</div>
+
+							<button type="button" class="button preview campaign_summary_btn cancel" style="margin-top: 0">Cancel <i class="fa fa-close"></i></button>
+							<button type="button" class="button preview campaign_summary_btn send" style="margin-top: 0">Send <i class="fa fa-send"></i></button>
+
+						</div>
+
+
+
+					</li>
+					{{else}}
+						<em>No pending performance campaigns yet.</em> 
+					{{/each}}
 				</ul>
 			</div>
 

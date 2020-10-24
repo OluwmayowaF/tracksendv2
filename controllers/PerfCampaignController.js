@@ -207,6 +207,259 @@ exports.add = async (req, res) => {
 
 exports.send = async (req, res) => {
 
+    try {
+        var user_id = req.user.id;
+        // var user_id = 10;
+        let cid = req.query.id;
+        let user_balance, sndr, info = null, schedule, schedule_, cpn, originalmessage;
+        let UNSUBMSG = false, DOSUBMSG, SINGLE_MSG, HAS_SURL, is_api_access = false, aux_obj;
+
+        var _status;
+        var crit_gdr, crit_inc, crit_int, crit_sts, crit_loc, crit_age;
+
+        //  GET USER BALANCE
+        let user_balance_ = await models.User.findByPk(user_id, {
+            attributes: ['balance'], 
+            raw: true, 
+        })
+        user_balance = user_balance_.balance;
+
+        cpn = await mongmodels.PerfCampaign.findOne({
+            _id: mongoose.Types.ObjectId(cid),
+            userId: user_id,
+        });
+
+        console.log('cpcnsdc = ' + JSON.stringify(cpn));
+        if(cpn.status.stage != "Approved") throw 'not_approved';
+
+        let budget = cpn.budget;
+        let cost = cpn.cost;
+
+        sndr = cpn.senderId;
+        originalmessage = cpn.message;
+        schedule = cpn.startdate;
+        // utm = (req.body.add_utm && req.body.add_utm == "on");
+        DOSUBMSG = (req.body.add_optin && req.body.add_optin == "on");
+        HAS_SURL = (originalmessage.search(/\[url\]/g) !== -1) && cpn.shorturl;
+        SINGLE_MSG = !HAS_SURL;
+
+        info = {
+            name: cpn.name,
+            shortlinkId: cpn.shorturl,
+            units_used: cpn.adminamount || 1000,
+        }
+
+        let crits = cpn.conditionset;
+        crits.forEach(c => {
+            // let crit = getApplicableName(c.criteria);
+            switch (c.criteria) {
+                case 'Age':
+                    crit_age = c.target;
+                    break;
+                case 'Gender':
+                    crit_gdr = c.target;
+                    break;
+                case 'Status':
+                    crit_sts = c.target;
+                    break;
+                case 'Location':
+                    crit_loc = c.target;
+                    break;
+                case 'Income Class':
+                    crit_inc = c.target;
+                    break;
+                case 'Interests':
+                    crit_int = c.target;
+                    break;
+            
+                default:
+                    break;
+            }
+        })
+
+        let crit = {
+            ...(crit_sts? {
+                "fields.status": {
+                    $in: crit_sts.map(i => { return i.toLowerCase() })
+                },
+            } : {}),
+            ...(crit_age? {
+                "fields.age": {
+                    $in: listAges(crit_age)
+                },
+            } : {}),
+            ...(crit_gdr? {
+                "fields.gender": {
+                    $in: crit_gdr.map(i => { return i.substr(0, 1).toUpperCase() })
+                },
+            } : {}),
+            ...(crit_inc? {
+                "fields.income": {
+                    $in: crit_inc
+                },
+            } : {}),
+            ...(crit_int? {
+                "fields.interests": {
+                    $in: crit_int.map(i => { return i.toLowerCase() })
+                },
+            } : {}),
+            ...(crit_loc? {
+                "fields.location": {
+                    $in: crit_loc
+                },
+            } : {}),
+        }
+
+        console.log('crit = ', JSON.stringify(crit));
+        let contacts = await mongmodels.PerfContact.find(crit, "phone fields.countryid");
+
+        console.log('contacts are: ' + JSON.stringify(contacts));
+        if(!contacts.length) throw "no_contacts";
+
+        let resp = await smsSendEngines(
+            req, res,
+            user_id, user_balance, sndr, info, contacts, schedule, schedule_, 
+            cpn, originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, is_api_access? aux_obj : null
+        );
+        console.log('++++++++++++++++++++');
+        console.log(resp);
+        return res.send(resp);
+
+
+        _status = {
+            response: {
+            }, 
+            responseType: "SUCCESS", 
+            responseCode: "OK", 
+            responseText: "Campaign created successfully.", 
+        }
+    
+        function getRealName(abrv) {
+            let fn = abrv;
+            switch (abrv) {
+                case "loc":
+                    fn = "Location";
+                    break;
+                case "age":
+                    fn = "Age";
+                    break;
+                case "gdr":
+                    fn = "Gender";
+                    break;
+                case "sts":
+                    fn = "Status";
+                    break;
+                case "inc":
+                    fn = "Income Class";
+                    break;
+                case "int":
+                    fn = "Interests";
+                    break;
+                case "per_imp":
+                    fn = "Per Impression";
+                    break;
+                case "per_clk":
+                    fn = "Per Click";
+                    break;
+                default:
+                    break;
+            }
+            return fn;
+        }
+
+        function getApplicableName(name) {
+            return name;
+        }
+
+        function listAges(str) {
+            let all = [];
+            let min = 8;
+            let max = 120;
+
+            str.forEach(s => {
+                let arr = s.split(' - ');
+                if(arr.length > 1) {
+                    let from = parseInt(arr[0]);
+                    let to = parseInt(arr[1]);
+
+                    for(let n = from; n <= to; n++) {
+                        all.push(n);
+                    }
+                } else if(s == 'Above 65') {
+                    for(let n = 66; n <= max; n++) {
+                        all.push(n);
+                    }                    
+                // } else if(s == 'Below 24') {
+                //     for(let n = min; n < 24; n++) {
+                //         all.push(n);
+                //     }                    
+                }
+            })
+
+            return all;
+        }
+    } catch(err) {
+        console.log(err);
+        let errmsg, errresp;
+
+        if(err == "no_contacts") {
+            errmsg = "No matching contacts found. Kindly contact Admin."
+            errresp = "Error. ";
+        } else if(err == "not_approved") {
+            errmsg = "Campaign not yet Approved. Kindly contact Admin."
+            errresp = "Error. ";
+        } else {
+            errmsg = 'Please specify ';
+            errresp = "Input error. ";
+
+            switch (err) {
+                case 'name':
+                    errmsg += "'Campaign Name', ";
+                    // break;
+                case 'measure':
+                    errmsg += "'Measure', ";
+                    // break;
+                case 'sender':
+                    errmsg += "'Sender ID', ";
+                    // break;
+                case 'message':
+                    errmsg += "'Message', ";
+                    // break;
+                case 'reqlist':
+                    errmsg += "'Criteria', ";
+                    // break;
+                case 'budget':
+                    errmsg += "'Budget', ";
+                    break;
+            
+                default:
+                    break;
+            }
+            if( errmsg == 'Please specify ') {
+            }
+        }
+    
+        _status = {
+            response: errresp + errmsg, 
+            responseType: "ERROR", 
+            responseCode: "E000", 
+            responseText: errmsg, 
+        }
+
+        res.send(_status);
+
+    }
+
+
+
+    // req.flash(_status.responseType.toLowerCase(), _status.responseText);
+    // var backURL = req.header('Referer') || '/';
+    // res.redirect(backURL);
+
+}
+
+exports.send_ = async (req, res) => {
+
     var user_id = req.user.id;
     // var user_id = 10;
     let cid = req.query.id;
