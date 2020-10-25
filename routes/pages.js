@@ -359,8 +359,9 @@ module.exports = function(app) {
 
 
           var data = {
-            from: 'Tracksend <info@tracksend.com>',
-            to: usr.name + ' <' + usr.email + '>',
+            from: 'Tracksend <info@tracksend.co>',
+            // to: usr.name + ' <' + usr.email + '>',
+            to: usr.email,
             subject: 'Password Reset Link',
             text: 'Hello ' + usr.name + ', <br><br>You have indicated that you\'ve forgotten your Tracksend password,    ' +
             'and therefore requested a password reset. If you wish to carry on with this, kindly follow the link:  ' + 

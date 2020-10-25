@@ -8,6 +8,8 @@ const mongoose = require('mongoose');
 var mongmodels = require('../models/_mongomodels');
 const fs = require('fs'); 
 var scheduler = require('node-schedule');
+var mgauth = require('../config/cfg/mailgun')();
+const mailgun = require('mailgun-js')({apiKey: mgauth.APIKEY, domain: mgauth.DOMAIN});
 
 var smsSendEngines = require('../my_modules/sms/smsSendEngines');
 var { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
@@ -118,6 +120,18 @@ exports.add = async (req, res) => {
             startdate: form.datepicker,
             status: { stage: 'Pre-analyze', active: true },
             addoptin: form.add_optin
+        });
+
+        var data = {
+            from: 'Tracksend <info@tracksend.co>',
+            to: 'admin@tracksend.co',
+            subject: 'Tracksend: New Performance Campaign.',
+            text: 'A new Performance Campaign called ' + form.name + ' has just been created by ' + req.user.name + ' (' + req.user.business + ').',
+        };
+        
+        mailgun.messages().send(data, function (error, body) {
+            console.log('mail error: ' + JSON.stringify(error));
+            console.log('mail body: ' + JSON.stringify(body));
         });
 
         _status = {

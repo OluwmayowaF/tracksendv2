@@ -103,7 +103,8 @@ module.exports = function(app) {
       //  send mail to notify someone
       var data = {
         from: 'Tracksend <info@tracksend.co>',
-        to: 'New User <newuser@tracksend.co>',
+        // to: 'New User <newuser@tracksend.co>',
+        to: 'newuser@tracksend.co',
         subject: 'Tracksend: New User Registered.',
         text: 'A new user called ' + req.body.name + ' (' + req.body.business + ') has just been registered.',
       };

@@ -156,7 +156,7 @@ exports.updatePerfCampaign = async(req, res) => {
     var user_id = req.user.id;
     let id_ = req.body.id
 
-    let upd = await mongmodels.PerfCampaign.findOneAndUpdate(
+    var upd = await mongmodels.PerfCampaign.findOneAndUpdate(
         { 
             _id: mongoose.Types.ObjectId(id_),
         },
@@ -166,8 +166,28 @@ exports.updatePerfCampaign = async(req, res) => {
             ...(req.body.cost ? {cost: req.body.cost} : {}),
         }
     )
-    console.log('update state = ' + JSON.stringify(upd));
     if(upd) {
+        console.log('update state = ' + JSON.stringify(upd));
+
+        let usr = await models.User.findByPk(upd.userId, {
+            attributes: ['name', 'email']
+        });
+
+        var mgauth = require('../config/cfg/mailgun')();
+        const mailgun = require('mailgun-js')({apiKey: mgauth.APIKEY, domain: mgauth.DOMAIN});
+
+        var data = {
+            from: 'Tracksend <info@tracksend.co>',
+            to: usr.email,
+            subject: 'Tracksend: Performance Campaign ' + req.body.status,
+            text: 'Hello. We will like to inform you that your Performance Campaign with name, ' + upd.name + ' has just been ' + req.body.status + ' by Admin. The cost ' + upd.measure + ' is ' + req.body.cost + '.',
+        };
+        
+        mailgun.messages().send(data, function (error, body) {
+            console.log('mail error: ' + JSON.stringify(error));
+            console.log('mail body: ' + JSON.stringify(body));
+        });
+
         res.send({
             response: "success",
         });
