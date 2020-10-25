@@ -508,7 +508,7 @@ exports.manualpost = async (req, res) => {
         });
 
         req.flash('success', "Manual TopUp Successful");
-        res.redirect('/dashboard/m_a_n_u_a_l');
+        res.redirect('/admin/m_a_n_u_a_l');
         
 
     } catch(err) {
