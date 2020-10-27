@@ -119,12 +119,12 @@ exports.add = async (req, res) => {
             shorturl: form.myshorturl,
             startdate: form.datepicker,
             status: { stage: 'Pre-analyze', active: true },
-            addoptin: form.add_optin
+            addoptin: (form.add_optin == "on") ? true : false,
         });
 
         var data = {
             from: 'Tracksend <info@tracksend.co>',
-            to: 'admin@tracksend.co',
+            to: 'admin@tracksend.co, ' + req.user.mail,
             subject: 'Tracksend: New Performance Campaign.',
             text: 'A new Performance Campaign called ' + form.name + ' has just been created by ' + req.user.name + ' (' + req.user.business + ').',
         };
@@ -139,7 +139,7 @@ exports.add = async (req, res) => {
             }, 
             responseType: "SUCCESS", 
             responseCode: "OK", 
-            responseText: "Campaign created successfully.", 
+            responseText: "Campaign submitted for approval.", 
         }
     
         function getRealName(abrv) {

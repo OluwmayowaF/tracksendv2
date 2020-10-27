@@ -578,7 +578,7 @@
 						<ul class="saved_item">
 							<input type="hidden" class="cid" value="'+i.id+'" />
 							<li style="flex: 6">Name</li>
-							<li style="flex: 2; text-align: right;">User ID</li>
+							<li style="flex: 2; text-align: right;">Type</li>
 							<li style="flex: 2">Status</li>
 							<li style="flex: 2; text-align: right;">Budget</li>
 							<li style="flex: 3">Start Date</li>
@@ -592,7 +592,7 @@
 						<ul class="saved_item">
 							<input type="hidden" class="cid" value="{{ _id }}" />
 							<li style="flex: 6" class="dv_name">{{ name }}</li>
-							<li style="flex: 2; text-align: right;" class="dv_desc">{{ userId }}</li>
+							<li style="flex: 2; text-align: right;" class="dv_desc">{{ measure }}</li>
 							<li class="dv_status" style="flex: 2; color:{{#ifCond status.stage "==" "Denied"}}red{{/ifCond}}{{#ifCond status.stage "==" "Approved"}}green{{/ifCond}}{{#ifCond status.stage "==" "Sent"}}#444{{/ifCond}}; {{#ifCond status.stage "==" "Sent"}}font-weight: bold{{/ifCond}}">{{ status.stage }}</li>
 							<li style="flex: 2; text-align: right;" class="dv_budget">{{formatNumber budget }}</li>
 							<li style="flex: 3">{{formatDate startdate "short"}}</li>
@@ -639,8 +639,16 @@
 								<input type="hidden" class="_pcp_measure" value="{{ measure }}" >
 								<input type="hidden" class="_pcp_cost" value="{{ cost }}" >
 							</div>
+							<div class="_performance_expectation" style="padding-right: 10px; font-weight: bold; font-size: 0.85em; color: #444;">
+								<input type="hidden" class="_pcp_budget" value="{{ budget }}" >
+							</div>
 							{{/if}}
-							<div style="font-size: 0.85em; color: #444;">Details have been sent to your mail. Kindly check.</div>
+							{{#ifCond status.stage "==" "Approved"}}
+								<div style="font-size: 0.85em; color: #444;">Details have been sent to your mail. Kindly check.</div>
+							{{/ifCond}}
+							{{#ifCond status.stage "==" "Denied"}}
+								<div style="font-size: 0.85em; color: #444;">Details have been sent to your mail. Kindly check.</div>
+							{{/ifCond}}
 						</div>
 
 						<a href="#pcampaign_edit_box_{{@index}}" class="sign-in popup-with-zoom-anim" style="color: #09b1d1; visibility: hidden; width: 1px; height: 1px; display:inline-block; float: left" id="click_edit_pcpgn_{{@index}}">.</a>

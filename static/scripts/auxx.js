@@ -2233,6 +2233,16 @@ function _initPerformanceCampaignInPageActions() {
 
 	})
 
+	$('._performance_expectation').each(function(i, el) {
+		let $me = $(this);
+
+		let $regn = $me.closest('.list_item');
+		let measure = $regn.find('._pcp_measure').val();
+		let budget = parseInt($regn.find('._pcp_budget').val());
+		let cost = parseInt($regn.find('._pcp_cost').val());
+		let vol = (Math.floor(budget/cost)).toLocaleString();
+		$regn.find('._performance_expectation').text('Number of ' + measure.substr(4) + 's: ' + vol);
+	})
 }
 
 function getCriteriaOptions() {
