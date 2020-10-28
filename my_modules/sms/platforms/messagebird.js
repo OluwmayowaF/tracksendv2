@@ -106,7 +106,7 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
         
         async function saveMsg(args) {
             let shrt;
-
+            console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
             try {
                 if(req.txnmessaging) {
                     shrt = await models.Message.create({
@@ -115,7 +115,11 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
                         contactId: '00000',
                     });
                 } else {
-                    shrt = await cpn.createMessage({
+                    console.log('__________________contactID = ' + kont._id);
+                    let cpnid = cpn.id || cpn._id.toString();
+                    console.log('cccccccccccccccccccc ', cpnid );
+                    shrt = await models.Message.create({
+                        campaignId: cpnid,
                         shortlinkId: args.sid,
                         contactlink: args.cid,
                         contactId: kont._id.toString(),
