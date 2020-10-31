@@ -533,7 +533,73 @@ exports.manualpost = async (req, res) => {
 
 exports.testerly = async (req, res) => {
 
-    return;
+    let err = false;
+
+    //  refactor groups into  mongodb
+    const groups = await models.Group.findAll();
+    await mongmodels.Group.deleteMany({});
+    var grplist = [];
+    await mongmodels.Group.insertMany(JSON.parse(JSON.stringify(groups))) //   for massive amount of bulk insert
+    // mongmodels.Group.insertMany(JSON.parse(JSON.stringify(groups)))
+    .then(() => {
+        console.log('Migration ' + groups.length + ' Groups...DONE');
+
+        mongmodels.Group.aggregate([
+            {
+                $project: {
+                    _id: 1,
+                    id: 1
+                }
+            }
+        ], (err, res) => {
+            grplist = res;
+        })
+    })
+    .catch((err) => {
+        console.log('Groups migration ERROR' + err);
+        err = true;
+    })
+
+    if(err) return;
+    
+    //  refactor contacts into mongodb
+    const contacts = await models.Contact.findAll({
+        /* where: {
+            groupId: 1
+        }, */
+        include: [{
+            model: models.Country, 
+            attributes: ['id','name','abbreviation'], 
+        }]
+    });
+    
+    console.log('FOUND ' + contacts.length + ' contacts.');
+    console.log('PROCESSING...');
+
+    for(let c = 0; c < contacts.length; c++) {
+        for(let g = 0; g < grplist.length; g++) {
+            if(contacts[c].groupId == grplist[g].id) {
+                // if(c < 10) console.log('found');
+                contacts[c].groupId = grplist[g]._id;
+            }
+        }
+        // if(c < 10) console.log('_______ ' + JSON.stringify(contacts[c]));
+    }
+    console.log('LOADING...');
+        // console.log('Migrating ' + JSON.stringify(contacts));
+    await mongmodels.Contact.deleteMany({});
+    mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(contacts))) //   for massive amount of bulk insert
+    // mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(contacts)))
+    .then(() => {
+        console.log('Migration of' + contacts.length + ' Contacts...DONE');
+    })
+    .catch((err) => {
+        console.log('Contacts migration ERROR' + err);
+        err = true;
+    })
+
+    if(err) return;
+    // return;
     
     //  UPDATE messages DATA WITH NEW CONTACTS _ID
     console.log('====== UPDATE messages DATA WITH NEW CONTACTS _ID ======');
@@ -570,99 +636,7 @@ exports.testerly = async (req, res) => {
     console.log('iterating through and updating tables done.');
     console.log('..........A L L   D O N E........');
 
-    
-    /* //  UPDATE optouts DATA WITH NEW CONTACTS _ID
-    console.log('====== UPDATE optouts DATA WITH NEW CONTACTS _ID ======');
-    //  then, iterate through contacts and updatein optouts table
-    console.log('iterating through and updating optouts table...');
-    for(let i = 0; i < mc.length; i++) {
-
-
-        await models.Optout.update({
-            contactId: mc[i]._id
-        }, {
-            where: {
-                contactId: mc[i].id
-            }
-        })
-    }
-    console.log('iterating through and updating optouts table done.');
-
-    //  UPDATE customcontactresponses DATA WITH NEW CONTACTS _ID
-    console.log('====== UPDATE optouts DATA WITH NEW CONTACTS _ID ======');
-    //  then, iterate through contacts and updatein customcontactresponses table
-    console.log('iterating through and updating customcontactresponses table...');
-    for(let i = 0; i < mc.length; i++) {
-        await models.Optout.update({
-            contactId: mc[i]._id
-        }, {
-            where: {
-                contactId: mc[i].id
-            }
-        })
-    }
-    console.log('iterating through and updating customcontactresponses table done.');
-    console.log('.......ALL DONE.........'); */
     return;
 
-    //  refactor groups into  mongodb
-    const groups = await models.Group.findAll();
-    await mongmodels.Group.deleteMany({});
-    var grplist = [];
-    await mongmodels.Group.insertMany(JSON.parse(JSON.stringify(groups))) //   for massive amount of bulk insert
-    // mongmodels.Group.insertMany(JSON.parse(JSON.stringify(groups)))
-    .then(() => {
-        console.log('Migration ' + groups.length + ' Groups...DONE');
-
-        mongmodels.Group.aggregate([
-            {
-                $project: {
-                    _id: 1,
-                    id: 1
-                }
-            }
-        ], (err, res) => {
-            grplist = res;
-        })
-    })
-    .catch((err) => {
-        console.log('Groups migration ERROR' + err);
-    })
-    
-    //  refactor contacts into mongodb
-    const contacts = await models.Contact.findAll({
-        /* where: {
-            groupId: 1
-        }, */
-        include: [{
-            model: models.Country, 
-            attributes: ['id','name','abbreviation'], 
-        }]
-    });
-    
-    console.log('FOUND ' + contacts.length + ' contacts.');
-    console.log('PROCESSING...');
-
-    for(let c = 0; c < contacts.length; c++) {
-        for(let g = 0; g < grplist.length; g++) {
-            if(contacts[c].groupId == grplist[g].id) {
-                // if(c < 10) console.log('found');
-                contacts[c].groupId = grplist[g]._id;
-            }
-        }
-        // if(c < 10) console.log('_______ ' + JSON.stringify(contacts[c]));
-    }
-    console.log('LOADING...');
-        // console.log('Migrating ' + JSON.stringify(contacts));
-    await mongmodels.Contact.deleteMany({});
-    mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(contacts))) //   for massive amount of bulk insert
-    // mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(contacts)))
-    .then(() => {
-        console.log('Migration of' + contacts.length + ' Contacts...DONE');
-    })
-    .catch((err) => {
-        console.log('Contacts migration ERROR' + err);
-    })
-    
 };
 
