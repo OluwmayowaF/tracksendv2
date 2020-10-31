@@ -3,8 +3,8 @@
 const { ObjectId } = require('mongoose');
 const mongoose = require('mongoose');
 // const AutoIncrement = require('mongoose-sequence')(mongoose);
-const mongo_username = 'tiwexmong';
-const mongo_password = 'Tracksend8319#';
+const mongo_username = '';// 'tiwexmong';
+const mongo_password = '';//'Tracksend8319#';
 const mongo_db = 'tracksend';
 
 const mongoconnectionurl = 'mongodb://' + 
