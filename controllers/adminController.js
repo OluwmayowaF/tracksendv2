@@ -533,6 +533,8 @@ exports.manualpost = async (req, res) => {
 
 exports.testerly = async (req, res) => {
 
+    return;
+    
     let err = false;
 
     //  refactor groups into  mongodb
