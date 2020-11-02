@@ -13,6 +13,7 @@ var Referer = require('referer-parser');
 const getUrlReferer =  async (req, urlid) => {
   let refer = req.headers.referer, medium, referer;// 'https://www.facebook.com';//req.headers.referer;
 
+  console.log('__________just got refered here_______:' + JSON.stringify(refer));
   /* let ref_ = (req.headers.referer == '') ? /direct/ : /other/;
         //  track referer
         const refererlist = [
@@ -35,29 +36,29 @@ const getUrlReferer =  async (req, urlid) => {
         console.log('normal ref: ' + ref); */
 
         if(!refer) {
-          medium = null;
-          referer = 'other';
-      } else {
-          var r = new Referer(req.headers.referer, req.protocol + '://' + req.get('host'));
-          console.log('====================================');
-          console.log('pluggedin url = ' + JSON.stringify(r.referer));
-          console.log('====================================');
+            medium = null;
+            referer = 'other';
+        } else {
+            var r = new Referer(req.headers.referer, req.protocol + '://' + req.get('host'));
+            console.log('====================================');
+            console.log('pluggedin url = ' + JSON.stringify(r.referer));
+            console.log('====================================');
 
-          if(r.referer && r.known) {
-              medium = r.medium;
-              referer = r.referer;
-          } else {
-              medium = null;
-              referer = 'unknown';
-          }
-      }
-      
-      //    and store in db
-      models.Linkreferer.create({
-          shortlinkId: urlid,
-          referer,
-          medium,
-      }) 
+            if(r.referer && r.known) {
+                medium = r.medium;
+                referer = r.referer;
+            } else {
+                medium = null;
+                referer = 'unknown';
+            }
+        }
+        
+        //    and store in db
+        await models.Linkreferer.create({
+            shortlinkId: urlid,
+            referer,
+            medium,
+        }) 
 
 }
 

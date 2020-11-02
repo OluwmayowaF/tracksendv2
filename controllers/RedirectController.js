@@ -143,7 +143,7 @@ exports.browser = async function(req, res) {
             clickcount: Sequelize.literal('clickcount + 1'),
         });
 
-        getUrlReferer(req, shurl.id);          
+        await getUrlReferer(req, shurl.id);          
 
         res.redirect(shurl.url);
     }
