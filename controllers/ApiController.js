@@ -673,7 +673,7 @@ exports.smsNotifyInfobip = (req, res) => {
 
 }
 
-exports.smsNotifyMessagebird = (req, res) => {
+exports.smsNotifyMessagebird = (req, res) => {``
     
     console.log('[[====================================');
     console.log('MESSAGEBIRD RESPONSE: ' + JSON.stringify(req.query));
@@ -944,14 +944,14 @@ exports.updateGroup = async (req, res) => {
         /* if(req.body.name && req.body.name.length > 0) {
             return await groupController.addGroup(req, res);
         } */
+    } else {
+        res.send({
+            response: "Error: Authentication error.", 
+            responseType: "ERROR", 
+            responseCode: "E001", 
+            responseText: "Invalid Token", 
+        });
     }
-
-    res.send({
-        response: "Error: Authentication error.", 
-        responseType: "ERROR", 
-        responseCode: "E001", 
-        responseText: "Invalid Token", 
-    });
 } 
 //  EXTERNAL API ACCESS
 exports.newCampaign = async (req, res) => {

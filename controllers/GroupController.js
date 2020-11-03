@@ -261,9 +261,7 @@ exports.saveGroup = async (req, res) => {
         if(user_id.length == 0)  throw "error";
 
         // console.log('optin='+(req.body.can_optin && (req.body.can_optin == "on") ? 'yes' : 'no'))
-        const grp = await mongmodels.Group.findOne({
-            _id: mongoose.Types.ObjectId(req.body.id) 
-        });
+        const grp = await mongmodels.Group.findById(req.body.id);
 
         if(grp.userId == user_id) {
             try {
