@@ -259,8 +259,10 @@ exports.saveGroup = async (req, res) => {
     try {
         var user_id = req.user.id;
         if(user_id.length == 0)  throw "error";
+        if(!req.body.id) throw { msg: "No 'id' specified" };
 
         // console.log('optin='+(req.body.can_optin && (req.body.can_optin == "on") ? 'yes' : 'no'))
+
         const grp = await mongmodels.Group.findById(req.body.id);
 
         if(grp.userId == user_id) {
@@ -292,7 +294,8 @@ exports.saveGroup = async (req, res) => {
             msg = "Error: Invalid permission";
         }
     } catch (e) {
-        msg =  "Authentication Error!!!";
+        console.log('____caught: ' + JSON.stringify(e));
+        msg =  "Access Error! " + (e.msg ? e.msg : '');
     }
         
     res.send({
