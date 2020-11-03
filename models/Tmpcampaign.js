@@ -46,10 +46,6 @@ module.exports = (sequelize, DataTypes) => {
     Tmpcampaign.belongsTo(models.Sender, {
       foreignKey: 'senderId'
     });
-    Tmpcampaign.belongsToMany(models.Group, { 
-      through: models.CampaignGroup, 
-      foreignKey: 'campaignId' 
-    });
     Tmpcampaign.hasMany(models.Message, { 
       foreignKey: 'campaignId' 
     });

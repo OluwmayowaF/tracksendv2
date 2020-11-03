@@ -63,7 +63,7 @@ const ContactSchema = new mongoose.Schema({
     type:         Number,
     default:      0,
   },
-  misc:           String,
+  misc:         String,
   fullname:     String,
   company:      String,
   city:         String,

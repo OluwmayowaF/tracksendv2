@@ -7,7 +7,7 @@
 
 */
 
-const randGen = (field, modl, len = 24, typ = 'num', separator = '') => {
+const randGen = (field, modl, modltype = 'mysql', len = 24, typ = 'num', separator = '') => {
 
   var randomid = function (n, typ) {
     // console.log('number is = ' + n + '; type is = ' + typ);
@@ -38,20 +38,27 @@ const randGen = (field, modl, len = 24, typ = 'num', separator = '') => {
 
   }
 
-  const doGenerate = () => {
+  const doGenerate = async () => {
 
-    var id = randomid(len, typ)
+    var id = randomid(len, typ), resp;
     if(!field && !modl) return id;
     
-    return modl.findAll({
-      where: {
+    if(modltype == "mysql") {
+      resp = await modl.findOne({
+        where: {
+          [field]: id,
+        }
+      });
+    }
+    else if(modltype == "mongo") {
+      resp = await modl.findOne({
         [field]: id,
-      }
-    })
-    .then((resp) => {
-      if(resp.length) doGenerate();
-      else return id;
-    })
+      });
+    }
+    else return id;
+
+    if(resp) doGenerate();
+    else return id;
 
   }
 

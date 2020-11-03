@@ -1,4 +1,6 @@
 var models = require('../models');
+const mongoose   = require('mongoose');
+const mongmodels = require('../models/_mongomodels');
 
 // const { default: axios } = require('axios');
 // const { INSTANCEID, TOKEN , BINURL } = require('../config/cfg/chatapi')();
@@ -14,18 +16,13 @@ exports.index = async (req, res) => {
     let optchs, msgchs;
 
     await Promise.all([
-        models.Group.findAll({      //  get all groups for display in form, except uncategorized group
-            where: { 
-                userId: user_id,
-                name: {
-                    [Sequelize.Op.ne]: '[Uncategorized]',
-                }
-            },
-            attributes: ['id', 'name'],
-            order: [ 
-                ['createdAt', 'DESC']
-            ],
-            raw: true,
+        mongmodels.Group.find({      //  get all groups for display in form, except uncategorized group
+            userId: user_id,
+            name: {
+                $ne: '[Uncategorized]',
+            }
+        }, '_id name').sort({
+            "createdAt": -1
         }),
         models.Customoptin.findByPk(user_id),
         models.Customoptinquestion.findAll({ 
@@ -48,7 +45,7 @@ exports.index = async (req, res) => {
         if(grps) {
             grps = grps.map(g => {
                 let arr = opt.optin_grps ? opt.optin_grps.split(',') : [];
-                g.selected = (arr.includes(g.id.toString())) ? true : false;
+                g.selected = (arr.includes(g._id.toString())) ? true : false;
                 
                 return g;
             });

@@ -12,9 +12,6 @@ module.exports = (sequelize, DataTypes) => {
 
   Platformtype.associate = function (models) {
     // models.Group.belongsToMany(models.Contact, { through: models.ContactGroup, foreignKey: 'groupId' });
-    Platformtype.hasMany(models.Group, {
-      foreignKey: 'platformtypeId',
-    });
     Platformtype.hasMany(models.Campaign, {
       foreignKey: 'platformtypeId',
     });

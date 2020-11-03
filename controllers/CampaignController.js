@@ -1855,7 +1855,7 @@ exports.download = (req, res) => {
                     ['createdAt', 'DESC']
                 ],
                 include: [{
-                    model: models.Contact, 
+                    model: models.Contact, //   error: moved to mongodb
                     attributes: ['id', 'firstname', 'lastname', 'phone'],
                     // through: { }
                 }], 
@@ -2003,7 +2003,7 @@ exports.copy = (req, res) => {
                 status: 1
             }
         }), 
-        models.Contact.count({      //  get count of contacts
+        models.Contact.count({      //  get count of contacts   //   error: moved to mongodb
             where: { 
                 userId: user_id,
             }

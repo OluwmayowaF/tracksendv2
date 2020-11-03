@@ -67,10 +67,6 @@ module.exports = function(sequelize, DataTypes) {
       // as: "contacts", 
       foreignKey: 'userId'
     }); */
-    User.hasMany(models.Group, { 
-      // as: "groups", 
-      foreignKey: 'userId' 
-    });
     User.hasMany(models.Sender, { 
       // as: "groups", 
       foreignKey: 'userId' 

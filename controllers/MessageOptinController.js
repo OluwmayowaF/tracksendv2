@@ -1,5 +1,7 @@
 var models = require('../models');
 const sequelize = require('../config/cfg/db');
+const mongoose   = require('mongoose');
+const mongmodels = require('../models/_mongomodels');
 var moment = require('moment');
 const CHARS_PER_SMS = 160;
 const _ = require('lodash');
@@ -13,6 +15,7 @@ var env = require('../config/env');
 var sendSMS = require('../my_modules/sms/sendSMS');
 var getSMSCount = require('../my_modules/sms/getSMSCount');
 var getRateCharge = require('../my_modules/sms/getRateCharge');
+const getCountry = require('../my_modules/getcountry');
 
 
 //  tsnwhatsappoptin api lands here
@@ -85,24 +88,22 @@ exports.preOptIn = async (req, res) => {
         console.log('3333333333333333')
 
         //  get user's default [uncategorized] group id
-        let grpid = await models.Group.findOne({
-            where: {
+        let grpid = await mongmodels.Group.findOne({
                 userId: user.id,
                 name: '[Uncategorized]',
-            },
-            attributes: ['id']
-        })
+        }, '_id')
         
-        let uniquecode = await randgen('misc', models.Contact, 5, 'fullalphnum');
+        let uniquecode = await randgen('misc', mongmodels.Contact, 'mongo', 5, 'fullalphnum');
         // let kont = await user.createTmpoptin({
-        let kont = await models.Contact.create({
+
+        let kont = await mongmodels.Contact.create({
             firstname: req.body.fullname.split(' ')[0],
-            lastname: req.body.fullname.split(' ')[1],
-            phone: req.body.phone,
-            userId: user.id,
-            groupId: grpid.id,
-            countryId: req.body.country,
-            misc: uniquecode,
+            lastname:  req.body.fullname.split(' ')[1],
+            phone:     req.body.phone,
+            userId:    user.id,
+            groupId:   mongoose.Types.ObjectId(grpid._id),
+            country:   await getCountry(req.body.country),
+            misc:      uniquecode,
         })
 
         let newurl = env.SERVER_BASE + '/messages/optin?tsncode='+uniquecode;
@@ -194,7 +195,7 @@ exports.preOptIn = async (req, res) => {
 
     } catch(e) {
         console.error('====================================');
-        console.error('erroooooooooooooer: ' + JSON.stringify(e.name));
+        console.error('erroooooooooooooer: ' + JSON.stringify(e));
         console.error('erroooooooooooooer: ' + e);
         console.error('====================================');
         if(e.name == 'SequelizeUniqueConstraintError') {
@@ -287,11 +288,11 @@ exports.postOptin = async function(req, res) {
             return;
         }
     } else {
-        kont = await models.Contact.findByPk(ucode, {
-            attributes: ['userId', 'countryId'],
-        });
+        kont = await mongmodels.Contact.findOne({
+            _id: mongoose.Types.ObjectId(ucode)
+        }, 'userId countryId');
 
-        if(kont == null) {
+        if(!kont) {
             console.log('ERROR IN CODE');
             
             res.render('pages/redirect-error', {
@@ -308,16 +309,13 @@ exports.postOptin = async function(req, res) {
         console.log('====================================');
     }
 
-    let getgroups = await models.Group.findAll({
-        where: {
-            userId: user_id,
-            can_optin: true,
-            name: {
-                [Sequelize.Op.ne] : "[Uncategorized]",
-            },
+    let getgroups = await mongmodels.Group.find({
+        userId: user_id,
+        can_optin: true,
+        name: {
+            $ne : "[Uncategorized]",
         },
-        attributes: ['id', 'name'],
-    })
+    }, '_id name')
 
     let ctry = await models.Country.findAll({ 
         order: [ 
@@ -367,6 +365,8 @@ exports.postOptin = async function(req, res) {
         flash = req.flash('success');
     }
 
+    console.log('==== ======= ========== exit message = ' + JSON.stringify(_message('msg', 1051, (general ? 234 : kont.country.id))));
+
     res.render('pages/dashboard/messagecompleteoptin', {
         layout: 'dashboard_blank',
         _page: 'Message Opt-In',
@@ -375,7 +375,7 @@ exports.postOptin = async function(req, res) {
 
         args: {
             grps: getgroups,
-            _msg: _message('msg', 1051, (general ? 234 : kont.countryId)),
+            _msg: _message('msg', 1051, (general ? 234 : kont.country.id)),
             ques,
             general,
             ctry,
@@ -390,7 +390,7 @@ exports.completeOptin = async function(req, res) {
     var phoneformat = require('../my_modules/phoneformat');
 
     let firstname, lastname, phone, userId, countryId, sms, whatsapp;
-    let custom = false, kont_, error;
+    let custom = false, kont, kont_, error;
 
     console.log('*********** completeOptin ****************', JSON.stringify(req.body));
 
@@ -421,15 +421,26 @@ exports.completeOptin = async function(req, res) {
             
             custom = true;
             let ucode = req.body.optinusercode;
-            let kont = await models.Contact.findByPk(ucode,{
-                include: [{
-                    model: models.Group, 
-                    attributes: ['name'],
-                }],
-            });
-            if(!kont) {
+            let kontt = await mongmodels.Contact.aggregate([
+                {
+                    $match: {
+                        _id: mongoose.Types.ObjectId(ucode),
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "groups", 
+                        as: "group",
+                        localField: "groupId",
+                        foreignField: "_id"
+                    },
+                }
+            ]);
+
+            if(!kontt || (kontt.length == 0)) {
                 error = "requesterror";
             } else {
+                kont = kontt[0];
                 console.log('___________kont=====', JSON.stringify(kont));
                 
                 kont_ = kont;
@@ -437,7 +448,7 @@ exports.completeOptin = async function(req, res) {
                 lastname = kont.lastname;
                 phone = kont.phone;
                 userId = kont.userId;
-                countryId = kont.countryId;
+                countryId = kont.country.id;
             }
         }
 
@@ -464,13 +475,13 @@ exports.completeOptin = async function(req, res) {
             console.log('________grp' + grps);
             
             try {
-                let newk = await models.Contact.create({
+                let newk = await mongmodels.Contact.create({
                     firstname,
                     lastname,
                     phone,
                     userId,
-                    groupId: grp,
-                    countryId,
+                    groupId: mongoose.Types.ObjectId(grp),
+                    country: await getCountry(countryId), 
                     do_whatsapp: whatsapp ? 1 : 0,
                     do_sms: sms,
                     ...(
@@ -495,8 +506,8 @@ exports.completeOptin = async function(req, res) {
                             method: 'POST',
                             url: zap.hookUrl,
                             data: [{
-                                id: newk.id,
-                                contact_id: newk.id,
+                                id: newk._id,
+                                contact_id: newk._id,
                                 action_type: "optin",
                             }],
                             headers: {
@@ -511,7 +522,7 @@ exports.completeOptin = async function(req, res) {
                     var qi = 0;
                     req.body.question.forEach(async q => {
                         await models.Customcontactresponse.create({
-                            contactId: newk.id,
+                            contactId: newk._id,
                             customoptinquestionId: q,
                             response: req.body['question_'+qi++],
                         })
@@ -526,17 +537,15 @@ exports.completeOptin = async function(req, res) {
                 if(e.name == 'SequelizeUniqueConstraintError') {
                     
                     try{
-                        await models.Contact.update(
+                        await mongmodels.Contact.findOneAndUpdate(
                             {
-                                do_whatsapp: 1
+                                userId: userId,
+                                groupId: grp,
+                                countryId: countryId,
+                                phone: phone,
                             },
                             {
-                                where: {
-                                    userId: userId,
-                                    groupId: grp,
-                                    countryId: countryId,
-                                    phone: phone,
-                                }
+                                do_whatsapp: 1
                             }
                         )
                     } catch(e) {
@@ -561,7 +570,9 @@ exports.completeOptin = async function(req, res) {
         // let killk = await models.Contact.findByPk(kont.id);
         console.log('pre kill');
         if(kont_ && kont_.group.name == "[Uncategorized]") {
-            await kont_.destroy();
+            await mongmodels.Contact.deleteOne({
+                _id: mongoose.Types.ObjectId(kont_._id),
+            });
             console.log('after destroy');
         }
 
@@ -645,6 +656,7 @@ exports.completeOptin = async function(req, res) {
                 throw err;
             }
 
+            console.log('==== ======= ========== exit message = ' + JSON.stringify(_message('msg', 1052, countryId)));
 
             res.render('pages/dashboard/messagecompleteoptin', {
                 layout: 'dashboard_blank',
@@ -657,7 +669,7 @@ exports.completeOptin = async function(req, res) {
             });
         }
     } catch(e) {
-        console.log('@_____________' + e);
+        console.log('@_____________' + JSON.stringify(e));
         
         if(e.name == 'SequelizeUniqueConstraintError') {
             req.flash('error', 'Contact already exists');
@@ -715,7 +727,22 @@ exports.preOptout = async (req, res) => {
 
     try {
         //  get user details
-        let kont = await models.Contact.findByPk(kid, {
+        let kontt = await mongmodels.Contact.aggregate([
+            {
+                $match: {
+                    _id: mongoose.Types.ObjectId(kid), 
+                }
+            }, {
+                $lookup: {
+                    from: "groups", 
+                    as: "group",
+                    localField: "groupId",
+                    foreignField: "_id"
+                },
+            }
+        ]);
+
+        /* let kont = await models.Contact.findByPk(kid, {
             include: [{
                 model: models.User, 
                 attributes: ['name', 'business']
@@ -723,11 +750,20 @@ exports.preOptout = async (req, res) => {
                 model: models.Group, 
                 attributes: ['name']
             }],
-        });
+        }); */
 
-        if(!kont) throw {
+        if(!kontt || (kontt.length == 0)) throw {
             name: 'requesterror',
         };
+
+        let kont = kontt[0];
+
+        let usr_ = await models.User.findByPk(kont.userId, {
+            attributes: ['name', 'business']
+        })
+
+        kont['user'] = usr_;
+
         console.log('====================================');
         console.log('KONT DATA: ' + JSON.stringify(kont));
         console.log('====================================');
@@ -745,6 +781,8 @@ exports.preOptout = async (req, res) => {
             flash = req.flash('success');
         }
 
+        console.log('==== ======= ========== exit message = ' + JSON.stringify(_message('msg', 1070, kont.country.id, kont.user.business, kont.group.name)));
+        
         res.render('pages/messagecompleteoptout', {
             layout: 'dashboard_blank',
             _page: 'Message Opt-Out',
@@ -756,7 +794,7 @@ exports.preOptout = async (req, res) => {
                 // groupname: kont.group.name,
                 // username: kont.user.name,
                 // business: kont.user.business,
-                _msg: _message('msg', 1070, kont.countryId, kont.user.business, kont.group.name),
+                _msg: _message('msg', 1070, kont.country.id, kont.user.business, kont.group.name),
             }
         });
 
@@ -796,7 +834,7 @@ exports.postOptout = async (req, res) => {
         console.log('KID: ...' + kid + '; PHONE = ' + phone + '; CTRY' + ctry);
         console.log('====================================]]');
 
-        let kont = await models.Contact.findByPk(kid);
+        let kont = await mongmodels.Contact.findOne({ _id: mongoose.Types.ObjectId(kid) });
 
         if(!kont || (kont.phone != phone)) throw {
             name: 'invalidoperation',
@@ -806,8 +844,9 @@ exports.postOptout = async (req, res) => {
             name: 'notsubscribed',
         } 
         
-
-        await kont.update({
+        await mongmodels.Contact.findOneAndUpdate({
+            _id: mongoose.Types.ObjectId(kid)
+        }, {
             do_whatsapp: 0
         });
 
@@ -821,6 +860,8 @@ exports.postOptout = async (req, res) => {
             userId: kont.userId,
             platform: 'WhatsApp',
         })
+
+        console.log('==== ======= ========== exit message = ' + JSON.stringify(_message('msg', 1080, req.body.country)));
 
         res.render('pages/messagecompleteoptout', {
             layout: 'dashboard_blank',
@@ -848,6 +889,7 @@ exports.postOptout = async (req, res) => {
         else if(e.name == 'notsubscribed') {
             errmsg = _message('error', 1090, req.body.country);
         }
+        console.log('==== ======= ========== exit message = ' + JSON.stringify(errmsg));
 
         req.flash('error', errmsg);
         var backURL = req.header('Referer') || '/';

@@ -26,7 +26,7 @@ exports.index = async(req, res) => {
 
     //  check if user has api_key and create
     if(!req.user.api_key || req.user.api_key.length == 0) {
-        let pk = await randgen('api_key', models.User, 50, 'fullalphnum', '_');
+        let pk = await randgen('api_key', models.User, 'mysql', 50, 'fullalphnum', '_');
 
         await models.User.update({
             api_key: pk
@@ -92,12 +92,10 @@ exports.index = async(req, res) => {
             ],
             limit: 1,
         }), 
-        models.Group.count({
-            where: { 
-                userId: user_id,
-                name: {
-                    [Sequelize.Op.ne]: '[Uncategorized]',
-                }
+        mongmodels.Group.count({
+            userId: user_id,
+            name: {
+                $ne: '[Uncategorized]',
             }
         }), 
         models.Sender.count({

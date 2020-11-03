@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var models = require('../models');
+const mongoose = require('mongoose');
+var mongmodels = require('../models/_mongomodels');
 var _message = require('../my_modules/output_messages');
 // var whatsappController = require('../controllers/WhatsAppController');
 var msgOptinController = require('../controllers/MessageOptinController');
@@ -23,20 +25,34 @@ router.get('/optout/:kid', async(req, res) => {
 
   try {
       //  get user details
-      let kont = await models.Contact.findByPk(kid, {
-          include: [{
-              model: models.User, 
-              attributes: ['name', 'business']
-          },{
-              model: models.Group, 
-              attributes: ['name']
-          }],
-      });
+      let kontt = await mongmodels.Contact.aggregate([
+        {
+            $match: {
+                _id: mongoose.Types.ObjectId(kid), 
+            }
+        }, {
+            $lookup: {
+                from: "groups", 
+                as: "group",
+                localField: "groupId",
+                foreignField: "_id"
+            },
+        }
+    ]);
 
-      if(!kont) throw {
-          name: 'requesterror',
-      };
-      console.log('====================================');
+    if(!kontt || (kontt.length == 0)) throw {
+        name: 'requesterror',
+    };
+
+    let kont = kontt[0];
+
+    let usr_ = await models.User.findByPk(kont.userId, {
+        attributes: ['name', 'business']
+    })
+
+    kont['user'] = usr_;
+
+    console.log('====================================');
       console.log('KONT DATA: ' + JSON.stringify(kont));
       console.log('====================================');
       let ctry = await models.Country.findAll({ 
@@ -108,7 +124,7 @@ router.post('/optout', async(req, res) => {
       console.log('KID: ...' + kid + '; PHONE = ' + phone + '; CTRY' + ctry);
       console.log('====================================]]');
 
-      let kont = await models.Contact.findByPk(kid);
+      let kont = await mongmodels.Contact.findById(kid);
 
       if(!kont || (kont.phone != phone)) throw {
           name: 'invalidoperation',
@@ -118,21 +134,22 @@ router.post('/optout', async(req, res) => {
           name: 'notsubscribed',
       } 
       
+        await mongmodels.Contact.findOneAndUpdate({
+            _id: mongoose.Types.ObjectId(kid)
+        }, {
+            do_sms: 2
+        });
 
-      await kont.update({
-          do_sms: 2
-      });
+        console.log('====================================');
+        console.log('whatsapp status changed: result = ' + JSON.stringify(kont));
+        console.log('====================================');
 
-      console.log('====================================');
-      console.log('whatsapp status changed: result = ' + JSON.stringify(kont));
-      console.log('====================================');
-
-      //  register opt-out
-      await models.Optout.create({
-          contactId: kid,
-          userId: kont.userId,
-          platform: 'SMS',
-      })
+        //  register opt-out
+        await models.Optout.create({
+            contactId: kid,
+            userId: kont.userId,
+            platform: 'SMS',
+        })
 
         res.render('pages/smscompleteoptout', {
             layout: 'dashboard_blank',
@@ -264,7 +281,7 @@ router.post('/optin', async(req, res) => {
       console.log('KID: ...' + kid + '; PHONE = ' + phone + '; CTRY' + ctry);
       console.log('====================================]]');
 
-      let kont = await models.Contact.findByPk(kid);
+      let kont = await mongmodels.Contact.findById(kid);
 
       if(!kont || (kont.phone != phone)) throw {
           name: 'invalidoperation',
@@ -274,9 +291,11 @@ router.post('/optin', async(req, res) => {
           name: 'notsubscribed',
       } 
 
-      await kont.update({
-          do_sms: 2
-      });
+    await mongmodels.Contact.findOneAndUpdate({
+        _id: mongoose.Types.ObjectId(kid)
+    }, {
+        do_sms: 2
+    });
 
       console.log('====================================');
       console.log('whatsapp status changed: result = ' + JSON.stringify(kont));

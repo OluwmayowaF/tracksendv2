@@ -176,7 +176,6 @@ module.exports = function(app) {
       } else return [phone, 5];
     
     }
-  
 
     let grps = await models.Group.findAll(
       /* {
@@ -314,7 +313,7 @@ module.exports = function(app) {
       if(usr) {
         //  return error
 
-        let token = await randgen('token', models.User, 64, 'fullalphnum');
+        let token = await randgen('token', models.User, 'mysql', 64, 'fullalphnum');
         usr.update({
           token
         })

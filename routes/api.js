@@ -81,7 +81,7 @@ module.exports = function(app) {
     var mgauth = require('../config/cfg/mailgun')();
     const mailgun = require('mailgun-js')({apiKey: mgauth.APIKEY, domain: mgauth.DOMAIN});
     const randgen = require('../my_modules/randgen');
-    let pk = await randgen('api_key', db.User, 50, 'fullalphnum', '_');
+    let pk = await randgen('api_key', db.User, 'mysql', 50, 'fullalphnum', '_');
 
     console.log(req.body); 
     req.body.api_key = pk;

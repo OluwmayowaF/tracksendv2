@@ -8,6 +8,8 @@
 */
 
 var models = require('../models');
+const mongoose = require('mongoose');
+var mongmodels = require('../models/_mongomodels');
 const { default: axios } = require('axios');
 var qs = require('qs');
 var moment = require('moment');
@@ -22,10 +24,10 @@ const whatsappSendMessage =  async (typ, phone, body, instanceid, token, contact
   console.log('3 kont id = ' + contactid);
   
   if(contactid) {
-    let kk = await models.Contact.findByPk(contactid);
+    let kk = await mongmodels.Contact.findById(contactid);
   console.log('4 kont = ' + JSON.stringify(kk));
     const unsubscribelink = env.SERVER_BASE + '/messages/optout/' + contactid;
-    body += _message('msg', 1071, kk.countryId, unsubscribelink);
+    body += _message('msg', 1071, kk.country.id, unsubscribelink);
   console.log('5 kont after ');
   }
   console.log('====================================');

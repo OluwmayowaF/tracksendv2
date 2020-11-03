@@ -3,10 +3,11 @@ const sequelize = require('../config/cfg/db');
 const mongoose = require('mongoose');
 const { default: axios } = require('axios');
 
-var phoneval = require('../my_modules/phonevalidate');
 var models = require('../models');
 var mongmodels = require('../models/_mongomodels');
-const { ObjectId } = require('mongoose');
+var phoneval = require('../my_modules/phonevalidate');
+const getCountry = require('../my_modules/getcountry');
+
 // const { Server } = require('mongodb');
 
 // Display list of all contacts
@@ -315,11 +316,6 @@ exports.addContact = async (req, res) => {
                 
                 if(!(contacts[p].phone = phoneval(contacts[p].phone, country))) throw { name: "Invalid" };
 
-                let ctry_ = await models.Country.findByPk(country,
-                    {
-                        attributes: ['id', 'name', 'abbreviation'],
-                        raw: true,
-                    })
                 // console.log(JSON.stringify(ctry_));
 
                 var contact = await mongmodels.Contact.create({
@@ -328,7 +324,7 @@ exports.addContact = async (req, res) => {
                     phone:     contacts[p].phone,
                     email:     contacts[p].email,
                     groupId:   mongoose.Types.ObjectId(group._id),
-                    country:   ctry_,
+                    country:   await getCountry(country),
                     userId:    userId,
                     status:    status,
                 }/* , (err, res) => {
@@ -343,10 +339,10 @@ exports.addContact = async (req, res) => {
                 }); */
 
                 if(zap) {
-                    let i_d = parseInt(user_id + "" + contact.id + "" + new Date().getTime());
+                    let i_d = parseInt(user_id + "" + contact._id + "" + new Date().getTime());
                     zap_list.push({
                         id: i_d,
-                        contact_id: contact.id,
+                        contact_id: contact._id,
                         action_type: "add",
                     })
                 }
