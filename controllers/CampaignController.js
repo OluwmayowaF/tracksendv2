@@ -385,7 +385,8 @@ exports.analyse = async (req, res) => {
 
                 if(int === 0) {  //  done only for the main campaign...followups would get only contact length from here
                     console.log('-------------22a--------------', JSON.stringify(groups));
-                    let group_ = groups[0].map(g => {
+                    let _grp_ = Array.isArray(groups[0]) ? groups[0] : groups;
+                    let group_ = _grp_.map(g => {
                         return mongoose.Types.ObjectId(g);
                     })
                 //  extract groups contacts
