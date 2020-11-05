@@ -295,7 +295,8 @@ exports.saveGroup = async (req, res) => {
                 return await contactController.addContact(req, res);
             } else msg = "success";
 
-        } catch(r) {
+        } catch(e) {
+            if(e.msg) throw { msg: "Invalid 'id' or 'name'" };
             msg = "Error: Please try again later"
         }
         
