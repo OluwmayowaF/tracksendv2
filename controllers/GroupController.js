@@ -286,8 +286,10 @@ exports.saveGroup = async (req, res) => {
                     can_optin: (req.body.can_optin && req.body.can_optin == "on") ? true : false,
                 }
             )
-            console.log('2222: ' + JSON.stringify(r));
-                    
+
+            console.log('2222: ' + JSON.stringify(r)); 
+            if(!r) throw { msg: "Invalid 'id' or 'name'" };
+
             if(req.externalapi && req.body.contacts && req.body.contacts.length) {
                 req.body.group = req.body.id;
                 return await contactController.addContact(req, res);
