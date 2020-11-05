@@ -937,9 +937,7 @@ exports.updateGroup = async (req, res) => {
         req.user = {id : _id};
         req.externalapi = true;
         //  update group
-        if(req.body.id) {
-            return await this.saveGroup(req, res);
-        }
+        return await this.saveGroup(req, res);
         //  new group
         /* if(req.body.name && req.body.name.length > 0) {
             return await groupController.addGroup(req, res);
