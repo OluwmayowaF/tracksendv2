@@ -260,7 +260,7 @@ exports.saveGroup = async (req, res) => {
         var user_id = req.user.id;
         console.log('request = ' + JSON.stringify(req.body))
         if(user_id.length == 0)  throw "error";        
-        if(!req.body.id || !req.body.name) throw { msg: "No 'id' or 'name' specified" };
+        if(!req.body.id && !req.body.name) throw { msg: "No 'id' or 'name' specified" };
 
         // console.log('optin='+(req.body.can_optin && (req.body.can_optin == "on") ? 'yes' : 'no'))
 
