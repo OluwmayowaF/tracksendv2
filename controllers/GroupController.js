@@ -258,12 +258,14 @@ exports.saveGroup = async (req, res) => {
 
     try {
         var user_id = req.user.id;
-        if(user_id.length == 0)  throw "error";
+        console.log('request = ' + JSON.stringify(req.body))
+        if(user_id.length == 0)  throw "error";        
         if(!req.body.id || !req.body.name) throw { msg: "No 'id' or 'name' specified" };
 
         // console.log('optin='+(req.body.can_optin && (req.body.can_optin == "on") ? 'yes' : 'no'))
 
         try {
+            console.log('1111')
             const r = await mongmodels.Group.findOneAndUpdate(
                 { 
                     ...( req.body.id ? {
@@ -284,12 +286,13 @@ exports.saveGroup = async (req, res) => {
                     can_optin: (req.body.can_optin && req.body.can_optin == "on") ? true : false,
                 }
             )
+            console.log('2222')
                     
             if(req.externalapi && req.body.contacts && req.body.contacts.length) {
                 req.body.group = req.body.id;
                 return await contactController.addContact(req, res);
             } else msg = "success";
-            
+
         } catch(r) {
             msg = "Error: Please try again later"
         }
@@ -299,6 +302,7 @@ exports.saveGroup = async (req, res) => {
         msg =  "Access Error! " + (e.msg ? e.msg : '');
     }
         
+    console.log('done')
     res.send({
         response: msg,
     });
