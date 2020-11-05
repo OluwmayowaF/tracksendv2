@@ -86,7 +86,13 @@ const ContactSchema = new mongoose.Schema({
   versionKey:     false,
 })
 // ContactSchema.plugin(AutoIncrement, {inc_field: 'id'});
+ContactSchema.index({ phone: 1, groupId: 1, userId: 1 }, { unique: 1});
+
 const Contact = mongoose.model('contacts', ContactSchema);
+Contact.on('index', function (err) {
+  console.log('___contact indexing error', err);
+})
+
 
 const GroupSchema = new mongoose.Schema({
   id:             Number,
@@ -117,7 +123,13 @@ const GroupSchema = new mongoose.Schema({
   timestamps:     true,
   versionKey:     false,
 });
+
+GroupSchema.index({ name: 1, userId: 1 }, { unique: 1});
+
 const Group = mongoose.model('groups', GroupSchema);
+Group.on('index', function (err) {
+  console.log('___group indexing error', err);
+})
 
 const PerfCampaignSchema = new mongoose.Schema({
   name:           String,

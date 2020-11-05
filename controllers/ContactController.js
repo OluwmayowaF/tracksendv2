@@ -349,7 +349,7 @@ exports.addContact = async (req, res) => {
 
             } catch(erro) {
                 console.error('erro' , erro);
-                if(erro.name == 'SequelizeUniqueConstraintError') {
+                if((erro.name == 'SequelizeUniqueConstraintError') || (erro.codeName == 'DuplicateKey')) {
                     if(req.zapier) {    //  IF ZAPIER THEN UPDATE CONTACT
                         req.body.id = null;
                         return await this.saveContact(req, res);
@@ -397,7 +397,7 @@ exports.addContact = async (req, res) => {
         
         fl.mtype = fl.mtype || 'ERROR';
         fl.code = "OK";
-        if(err.name == 'SequelizeUniqueConstraintError') {
+        if((err.name == 'SequelizeUniqueConstraintError') || (err.codeName == 'DuplicateKey')) {
             fl.msg = fl.msg + 'Group Name already exists on your account. ';
             fl.code = "E020";
     } 

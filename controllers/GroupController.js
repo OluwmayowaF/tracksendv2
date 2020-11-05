@@ -223,7 +223,7 @@ exports.addGroup = async (req, res) => {
             }
         } catch(err) {
             fl.mtype = "ERROR"
-            if(err.name == 'SequelizeUniqueConstraintError') {
+            if((err.name == 'SequelizeUniqueConstraintError')  || (err.codeName == 'DuplicateKey')) {
                 fl.msg = "Group Name already exists on your account.";
                 fl.code = "E020";
             } else {
@@ -259,40 +259,41 @@ exports.saveGroup = async (req, res) => {
     try {
         var user_id = req.user.id;
         if(user_id.length == 0)  throw "error";
-        if(!req.body.id) throw { msg: "No 'id' specified" };
+        if(!req.body.id || !req.body.name) throw { msg: "No 'id' or 'name' specified" };
 
         // console.log('optin='+(req.body.can_optin && (req.body.can_optin == "on") ? 'yes' : 'no'))
 
-        const grp = await mongmodels.Group.findById(req.body.id);
-
-        if(grp.userId == user_id) {
-            try {
-                const r = await mongmodels.Group.findOneAndUpdate(
-                    { 
-                        _id: mongoose.Types.ObjectId(req.body.id),
-                        userId: user_id,        //  for authentication
-                    },
-                    {
-                        ...( req.body.name ? {
-                            name: req.body.name,
-                        }: {}),
-                        ...( req.body.description ? {
-                            description: req.body.description,
-                        }: {}),
-                        can_optin: (req.body.can_optin && req.body.can_optin == "on") ? true : false,
-                    }
-                )
-                        
-                if(req.externalapi && req.body.contacts && req.body.contacts.length) {
-                    req.body.group = req.body.id;
-                    return await contactController.addContact(req, res);
-                } else msg = "success";
-            } catch(r) {
-                msg = "Error: Please try again later"
-            }
-        } else {
-            msg = "Error: Invalid permission";
+        try {
+            const r = await mongmodels.Group.findOneAndUpdate(
+                { 
+                    ...( req.body.id ? {
+                        _id: req.body.id,
+                        userId: user_id
+                    } : {
+                        name: req.body.name,
+                        userId: user_id
+                    } )
+                },
+                {
+                    ...( req.body.name ? {
+                        name: req.body.name,
+                    }: {}),
+                    ...( req.body.description ? {
+                        description: req.body.description,
+                    }: {}),
+                    can_optin: (req.body.can_optin && req.body.can_optin == "on") ? true : false,
+                }
+            )
+                    
+            if(req.externalapi && req.body.contacts && req.body.contacts.length) {
+                req.body.group = req.body.id;
+                return await contactController.addContact(req, res);
+            } else msg = "success";
+            
+        } catch(r) {
+            msg = "Error: Please try again later"
         }
+        
     } catch (e) {
         console.log('____caught: ' + JSON.stringify(e));
         msg =  "Access Error! " + (e.msg ? e.msg : '');

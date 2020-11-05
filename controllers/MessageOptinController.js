@@ -671,7 +671,7 @@ exports.completeOptin = async function(req, res) {
     } catch(e) {
         console.log('@_____________' + JSON.stringify(e));
         
-        if(e.name == 'SequelizeUniqueConstraintError') {
+        if((e.name == 'SequelizeUniqueConstraintError')  || (e.codeName == 'DuplicateKey')) {
             req.flash('error', 'Contact already exists');
             var backURL = req.header('Referer') || '/';
             res.redirect(backURL);
