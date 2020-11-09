@@ -1,5 +1,6 @@
 var models = require('../models');
 var mongmodels = require('../models/_mongomodels');
+const mongoose = require('mongoose');
 var moment = require('moment');
 const sequelize = require('../config/cfg/db');
 const Sequelize = require('sequelize');
@@ -24,6 +25,9 @@ exports.index = async(req, res) => {
     var acc_o = 0;    //  accumulating optouts
     var acc_i = 0;    //  accumulating optins
 
+    await mongmodels.Contact.deleteMany({
+        groupId: mongoose.Types.ObjectId('5f6c540e780c8e0870a2fc2d')
+    });
     //  check if user has api_key and create
     if(!req.user.api_key || req.user.api_key.length == 0) {
         let pk = await randgen('api_key', models.User, 'mysql', 50, 'fullalphnum', '_');

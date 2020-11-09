@@ -285,7 +285,13 @@ exports.addContact = async (req, res) => {
         } else {
             // var group = await models.Group.findByPk(req.body.group);
             var group = await mongmodels.Group.findOne({
-                _id: mongoose.Types.ObjectId(req.body.group) 
+                ...( req.body.group ? {
+                    _id: mongoose.Types.ObjectId(req.body.group),
+                    userId
+                } : {
+                    name: req.body.groupname,
+                    userId
+                } )
             }, (err, res) => {
                 console.log('mongodb found group details: ' + JSON.stringify(res));
                 return res;
@@ -349,7 +355,7 @@ exports.addContact = async (req, res) => {
 
             } catch(erro) {
                 console.error('erro' , erro);
-                if((erro.name == 'SequelizeUniqueConstraintError') || (erro.codeName == 'DuplicateKey')) {
+                if((erro.name == 'SequelizeUniqueConstraintError') || (erro.codeName == 'DuplicateKey') || (erro.code == 11000)) {
                     if(req.zapier) {    //  IF ZAPIER THEN UPDATE CONTACT
                         req.body.id = null;
                         return await this.saveContact(req, res);

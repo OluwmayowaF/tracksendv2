@@ -269,7 +269,7 @@ exports.saveGroup = async (req, res) => {
             const r = await mongmodels.Group.findOneAndUpdate(
                 { 
                     ...( req.body.id ? {
-                        _id: req.body.id,
+                        _id: mongoose.Types.ObjectId(req.body.id),
                         userId: user_id
                     } : {
                         name: req.body.name,
@@ -290,13 +290,18 @@ exports.saveGroup = async (req, res) => {
             console.log('2222: ' + JSON.stringify(r)); 
             if(!r) throw { msg: "Invalid 'id' or 'name'" };
 
-            if(req.externalapi && req.body.contacts && req.body.contacts.length) {
-                req.body.group = req.body.id;
-                return await contactController.addContact(req, res);
-            } else msg = "success";
+            if(req.externalapi) {
+                if(!Array.isArray(req.body.contacts)) throw { msg: "Contacts field should be an array" };
+
+                if(req.body.contacts && req.body.contacts.length) {
+                    req.body.group = req.body.id;
+                    req.body.groupname = req.body.name;
+                    return await contactController.addContact(req, res);
+                } else msg = "success";
+            } 
 
         } catch(e) {
-            if(e.msg) throw { msg: "Invalid 'id' or 'name'" };
+            if(e.msg) throw { msg: e.msg };
             msg = "Error: Please try again later"
         }
         
