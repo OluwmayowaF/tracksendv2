@@ -296,6 +296,7 @@ exports.saveGroup = async (req, res) => {
                 if(req.body.contacts && req.body.contacts.length) {
                     req.body.group = req.body.id;
                     req.body.groupname = req.body.name;
+                    req.body.country = req.body.countryId;
                     return await contactController.addContact(req, res);
                 } else msg = "success";
             } 
