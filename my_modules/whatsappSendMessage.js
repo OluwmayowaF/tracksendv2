@@ -30,7 +30,7 @@ const whatsappSendMessage =  async (typ, phone, body, instanceid, token, contact
     body += _message('msg', 1071, kk.country.id, unsubscribelink);
     console.log('5 kont after ');
   }
-  
+
   console.log('====================================');
   console.log('schedule.................... = ' + schedule);
   console.log('====================================');
@@ -79,6 +79,8 @@ const whatsappSendMessage =  async (typ, phone, body, instanceid, token, contact
             'Content-Type': 'application/json'
           //   'Content-Type': 'application/x-www-form-urlencoded'
           }
+        }).catch(err => {
+          console.log('======= sending error: ', JSON.stringify(err));
         })
       } else if(typ == 'file') {
         // let url = instanceurl + "sendFile?token=" + token;
