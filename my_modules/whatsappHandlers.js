@@ -63,6 +63,16 @@ const whatsappHandlers = () => {
             let body = resp.data;
 
             console.log('CODE RETRIEVED: ');// + JSON.stringify(resp))
+            /* let seen = [];   //  JSON circular reference workaround
+            console.log(JSON.stringify(resp, function (key, val) {
+                if (val != null && typeof val == "object") {
+                    if (seen.indexOf(val) >= 0) {
+                        return;
+                    }
+                    seen.push(val);
+                }
+                return val;
+            }) ) */
 
             if(body.accountStatus && body.accountStatus == "authenticated") {
                 active = true;

@@ -25,11 +25,12 @@ const whatsappSendMessage =  async (typ, phone, body, instanceid, token, contact
   
   if(contactid) {
     let kk = await mongmodels.Contact.findById(contactid);
-  console.log('4 kont = ' + JSON.stringify(kk));
+    console.log('4 kont = ' + JSON.stringify(kk));
     const unsubscribelink = env.SERVER_BASE + '/messages/optout/' + contactid;
     body += _message('msg', 1071, kk.country.id, unsubscribelink);
-  console.log('5 kont after ');
+    console.log('5 kont after ');
   }
+  
   console.log('====================================');
   console.log('schedule.................... = ' + schedule);
   console.log('====================================');

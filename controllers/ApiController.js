@@ -18,10 +18,12 @@ var msgOptinController    = require('./MessageOptinController');
 var adminController       = require('./adminController');
 var filelogger            = require('../my_modules/filelogger');
 var phoneval              = require('../my_modules/phonevalidate');
+var phoneformat           = require('../my_modules/phoneformat');
 var apiAuthToken          = require('../my_modules/apitokenauth');
 var getSMSCount           = require('../my_modules/sms/getSMSCount');
 var getRateCharge         = require('../my_modules/sms/getRateCharge');
 var smsSendEngines        = require('../my_modules/sms/smsSendEngines');
+var whatsappSendMessage   = require('../my_modules/whatsappSendMessage');
 
 const CHARS_PER_SMS = 160;
 const ESTIMATED_CLICK_PERCENTAGE = 0.8;
@@ -977,11 +979,18 @@ exports.newTxnMessage = async (req, res) => {
 
         let user_id; var _status;
         if(user_id = await apiAuthToken(req.body.token)) {
+
             let user_info = await models.User.findByPk(user_id, {
-                attributes: ['balance', 'sms_service'], 
+                attributes: ['balance', 'sms_service', 'wa_instanceid', 'wa_instancetoken'], 
                 raw: true, 
             })
-            req.user = {id : user_id, sms_service: user_info.sms_service};
+            req.user = { 
+                id : user_id, 
+                balance: user_info.balance, 
+                sms_service: user_info.sms_service, 
+                wa_instanceid: user_info.wa_instanceid, 
+                wa_instancetoken: user_info.wa_instancetoken, 
+            };
             let user_balance = user_info.balance;
             // let sms_service = user_info.sms_service;
             // req.user = { id: req.body.id };
@@ -1002,107 +1011,123 @@ exports.newTxnMessage = async (req, res) => {
             let schedule_ = schedule ? moment(schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss') : null;  //  for DB
             schedule = schedule ? moment(schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DDTHH:mm:ss.000Z') : null;   //  for infobip
     
-            if(!message || !sender) throw 'fields1';
-            if(!(message.length > 1) || !(sender.toString().length > 0)) throw 'fields2';
             if(!Array.isArray(contacts)) throw 'contacts';
+            if(!message || !(message.length > 1)) throw 'message';
 
-            /* 
-            * these extract actual ids of sender and group nd url stuff...particularly for externalapi
-            */
-            if(sender) {
-                let sender__ = await models.Sender.findOne({
-                    where: {
-                        userId: user_id,
-                        name: sender,
-                    },
-                    attributes: ['id', 'name'],
-                })
+            if(req.body.type == "whatsapp") {
 
-                if(!sender__) throw 'sender';
-                sender = sender__;
-                console.log('................sender='+JSON.stringify(sender));
-            }
+                for(let w = 0; w < contacts.length; w++) {
+                    let kont = contacts[w], tophone, err_phone = 0;
 
-            let shortlink;
-            if(shorturl) { 
-                let shorturl__ = await models.Shortlink.findByPk(shorturl);
-
-                if(!shorturl__) throw 'shorturl';
-                shortlink = shorturl__.shorturl;
-            }
-
-            if(url) {  //  if actual url is sent instead of shorturl id
-                req.query.url = url;
-                let resp = await this.generateUrl(req, res);
-                console.log('^^^^^^^^^^^^^^^^^^ ' + JSON.stringify(resp));
-                
-                if(!resp.error) {
-                    shorturl = resp.id;
-                } else throw 'shorturl'
-            }
-
-            let HAS_SURL = shorturl ? true : false;
-            
-            //  check for personalizations
-            let SINGLE_MSG = (message.search(/\[url\]/g) === -1) || !shorturl;
-
-            // let SINGLE_MSG = !((message.search(/\[firstname\]/g) >= 0) ||
-            //                  (message.search(/\[first name\]/g)  >= 0) || 
-            //                  (message.search(/\[lastname\]/g)    >= 0) || 
-            //                  (message.search(/\[last name\]/g)   >= 0) || 
-            //                  (message.search(/\[email\]/g)       >= 0) || 
-            //                  (message.search(/\[e-mail\]/g)      >= 0) || 
-            //                  (message.search(/\[url\]/g)         >= 0));
-
-            // if(!SINGLE_MSG && !shorturl) throw 'shorturl';
-
-            message = message.replace(/&nbsp;/g, ' ');
-            let message_  = message.replace(/\[url\]/g, 'https://tsn.go/' + shortlink + '/' + "XXX");
-
-            let cc = getSMSCount(message_);
-            msgcount += cc;
-
-            for(let i = 0; i < contacts.length; i++) {
-                if(!contacts[i].phone || !contacts[i].countryId) throw 'contacts';
-                let chg = await getRateCharge(contacts[i].phone, contacts[i].countryId, user_id);
-                units += cc * chg;
-            }
-
-            if(file_not_logged) {
-                filelogger('sms', 'Transaction Message', 'sending message', message);
-                file_not_logged = false;
-            }
-     
-            let info = {
-                userId:     user_id,
-                senderId:   sender.id,
-                shortlinkId: shorturl,
-                // myshorturl: req.body.myshorturl,
-                message:    message[0],
-                // schedule: (req.body.schedule) ? moment(req.body.schedule, 'DD/MM/YYYY h:mm:ss A').format('YYYY-MM-DD HH:mm:ss') : null, //req.body.schedule,
-                schedule:   schedule, //req.body.schedule,
-                skip_dnd:   null,
-                has_utm:    0,
-                to_optin:   0,
-                to_awoptin: 0,
-                add_optout: 0,
-                add_optin:  0,
-                units_used: units,
-                total_units: units,
-                within_days: null,    
-                ref_campaign: null,
-            }
+                    //  { SEND_SINGLE_MESSAGES_TO_CHAT-API }
+                    console.log('1 kont = ' + JSON.stringify(kont));
         
-            console.log('________________________SINGLE_MSG='+ JSON.stringify(SINGLE_MSG));
-            _status = await smsSendEngines(
-                req, res,
-                user_id, user_balance, sender, info, contacts, schedule, schedule_, 
-                null, message, false, false, SINGLE_MSG, HAS_SURL
-            );
-            console.log('++++++++++++++++++++');
-            console.log(JSON.stringify(_status));
-            // return resp;
+                    if(tophone = phoneformat(kont.phone, kont.countryId))
+                    await whatsappSendMessage('message', tophone, req.body.message, req.user.wa_instanceid, req.user.wa_instancetoken, '', '', schedule_);
+                    else err_phone++;
+                }
+                
+            } else {
 
+                if(!sender || !(sender.toString().length > 0)) throw 'sender';
+
+                /* 
+                * these extract actual ids of sender and group nd url stuff...particularly for externalapi
+                */
+                if(sender) {
+                    let sender__ = await models.Sender.findOne({
+                        where: {
+                            userId: user_id,
+                            name: sender,
+                        },
+                        attributes: ['id', 'name'],
+                    })
+
+                    if(!sender__) throw 'sender';
+                    sender = sender__;
+                    console.log('................sender='+JSON.stringify(sender));
+                }
+
+                let shortlink;
+                if(shorturl) { 
+                    let shorturl__ = await models.Shortlink.findByPk(shorturl);
+
+                    if(!shorturl__) throw 'shorturl';
+                    shortlink = shorturl__.shorturl;
+                }
+
+                if(url) {  //  if actual url is sent instead of shorturl id
+                    req.query.url = url;
+                    let resp = await this.generateUrl(req, res);
+                    console.log('^^^^^^^^^^^^^^^^^^ ' + JSON.stringify(resp));
+                    
+                    if(!resp.error) {
+                        shorturl = resp.id;
+                    } else throw 'shorturl'
+                }
+
+                let HAS_SURL = shorturl ? true : false;
+                
+                //  check for personalizations
+                let SINGLE_MSG = (message.search(/\[url\]/g) === -1) || !shorturl;
+
+                // let SINGLE_MSG = !((message.search(/\[firstname\]/g) >= 0) ||
+                //                  (message.search(/\[first name\]/g)  >= 0) || 
+                //                  (message.search(/\[lastname\]/g)    >= 0) || 
+                //                  (message.search(/\[last name\]/g)   >= 0) || 
+                //                  (message.search(/\[email\]/g)       >= 0) || 
+                //                  (message.search(/\[e-mail\]/g)      >= 0) || 
+                //                  (message.search(/\[url\]/g)         >= 0));
+
+                // if(!SINGLE_MSG && !shorturl) throw 'shorturl';
+
+                message = message.replace(/&nbsp;/g, ' ');
+                let message_  = message.replace(/\[url\]/g, 'https://tsn.go/' + shortlink + '/' + "XXX");
+
+                let cc = getSMSCount(message_);
+                msgcount += cc;
+
+                for(let i = 0; i < contacts.length; i++) {
+                    if(!contacts[i].phone || !contacts[i].countryId) throw 'contacts';
+                    let chg = await getRateCharge(contacts[i].phone, contacts[i].countryId, user_id);
+                    units += cc * chg;
+                }
+
+                if(file_not_logged) {
+                    filelogger('sms', 'Transaction Message', 'sending message', message);
+                    file_not_logged = false;
+                }
+        
+                let info = {
+                    userId:     user_id,
+                    senderId:   sender.id,
+                    shortlinkId: shorturl,
+                    // myshorturl: req.body.myshorturl,
+                    message:    message[0],
+                    // schedule: (req.body.schedule) ? moment(req.body.schedule, 'DD/MM/YYYY h:mm:ss A').format('YYYY-MM-DD HH:mm:ss') : null, //req.body.schedule,
+                    schedule:   schedule, //req.body.schedule,
+                    skip_dnd:   null,
+                    has_utm:    0,
+                    to_optin:   0,
+                    to_awoptin: 0,
+                    add_optout: 0,
+                    add_optin:  0,
+                    units_used: units,
+                    total_units: units,
+                    within_days: null,    
+                    ref_campaign: null,
+                }
+            
+                console.log('________________________SINGLE_MSG='+ JSON.stringify(SINGLE_MSG));
+                _status = await smsSendEngines(
+                    req, res,
+                    user_id, user_balance, sender, info, contacts, schedule, schedule_, 
+                    null, message, false, false, SINGLE_MSG, HAS_SURL
+                );
+                console.log('++++++++++++++++++++');
+                console.log(JSON.stringify(_status));
+                // return resp;
+            }
         } else {
             _status = {
                 response: "Error: Authentication error.", 
@@ -1150,10 +1175,18 @@ exports.newTxnMessage = async (req, res) => {
                 break;
             case 'contacts':
                 _status = {
-                    response: "Error: Invalid Contacts.", 
+                    response: "Error: Invalid Contacts (must be an array).", 
                     responseType: "ERROR", 
                     responseCode: "E052", 
                     responseText: "Invalid Contacts.", 
+                };
+                break;
+            case 'message':
+                _status = {
+                    response: "Error: Invalid Message text (must not be empty).", 
+                    responseType: "ERROR", 
+                    responseCode: "E054", 
+                    responseText: "Invalid Message.", 
                 };
                 break;
             case 'sender':

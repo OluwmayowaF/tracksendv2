@@ -90,9 +90,8 @@ ContactSchema.index({ phone: 1, groupId: 1, userId: 1 }, { unique: 1});
 
 const Contact = mongoose.model('contacts', ContactSchema);
 Contact.on('index', function (err) {
-  console.log('___contact indexing error', err);
+  console.log('___contact indexing: ' + (err ? 'error: ' + err : 'no errors'));
 })
-
 
 const GroupSchema = new mongoose.Schema({
   id:             Number,
@@ -128,7 +127,7 @@ GroupSchema.index({ name: 1, userId: 1 }, { unique: 1});
 
 const Group = mongoose.model('groups', GroupSchema);
 Group.on('index', function (err) {
-  console.log('___group indexing error', err);
+  console.log('___group indexing: ' + (err ? 'error: ' + err : 'no errors'));
 })
 
 const PerfCampaignSchema = new mongoose.Schema({

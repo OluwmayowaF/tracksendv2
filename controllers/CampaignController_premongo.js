@@ -1053,7 +1053,7 @@ exports.view = (req, res) => {
         });
 
         console.log('__________refcpgns=', JSON.stringify(refcpgns));
-        /* let seen = [];
+        /* let seen = [];   //  JSON circular reference workaround
         console.log(JSON.stringify(refcpgns_, function (key, val) {
             if (val != null && typeof val == "object") {
                 if (seen.indexOf(val) >= 0) {

@@ -941,25 +941,6 @@ $(document).ready(function() {
 					$('._followup_campaign .chk_followup:checked').each(function(i, el) {
 						$(el).closest('._followup_campaign').find('#analysis_id').val(data_.tmpid[i + 1])
 					})
-					/* $('._followup_campaign._1 #analysis_id').val(
-						data_.followups[0] ? 
-							data_.tmpid[1] : 
-							($('._followup_campaign._1 #analysis_id').val() ? 
-								$('._followup_campaign._1 #analysis_id').val() : 
-								0
-							)
-					);
-					$('._followup_campaign._2 #analysis_id').val(
-						data_.followups[1] ? 
-							(data_.followups[0] ? 
-								data_.tmpid[2] : 
-								data_.tmpid[1]
-							) : 
-							($('._followup_campaign._2 #analysis_id').val() ? 
-								$('._followup_campaign._2 #analysis_id').val() : 
-								0
-							)
-					); */
 
 					var tot = 0;
 					var len = data_.tmpid.length;

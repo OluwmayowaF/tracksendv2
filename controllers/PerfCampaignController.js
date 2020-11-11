@@ -326,21 +326,55 @@ exports.send = async (req, res) => {
             } : {}),
         }
 
-        console.log('crit = ', JSON.stringify(crit));
-        let contacts = await mongmodels.PerfContact.find(crit, "phone fields.countryid");
+        //  consider campaign type/measure!
+        let measure = cpn.measure;
 
-        console.log('contacts are: ' + JSON.stringify(contacts));
-        if(!contacts.length) throw "no_contacts";
+        perfEngine(0)
+        function perfEngine( iter, starttime = new Date().getTime() ) {
 
-        let resp = await smsSendEngines(
-            req, res,
-            user_id, user_balance, sndr, info, contacts, schedule, schedule_, 
-            cpn, originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, is_api_access? aux_obj : null
-        );
-        console.log('++++++++++++++++++++');
-        console.log(resp);
+            let contacts = _extractContacts();
+            if(iter === 0) {
+                console.log('_____starting');
+                _doSMS(info, starttime);
+            } else {
+                console.log('_____next');
+                let _now = new Date();
+                // let next = _now.setHours(_now.getHours() + 3) //   moment(now).add(3, 'hours').format('YYYY-MM-DD');
+                let next = _now.setMinutes(_now.getMinutes() + 2) //   moment(now).add(3, 'hours').format('YYYY-MM-DD');
+                console.log('_____nexttime: ' + JSON.stringify(next));
+                let dura = 24 * 60 * 60 * 1000;
 
-        res.send(resp);
+                if(next - starttime > dura) return;
+                scheduler.scheduleJob(next, _doSMS.bind(info, starttime));
+            }
+        }
+
+        async function _doSMS(params, _st) {
+            console.log('_____doSMS: ' + JSON.stringify(_st));
+            /* let resp = await smsSendEngines(
+                req, res,
+                user_id, user_balance, sndr, info, contacts, schedule, schedule_, 
+                cpn, originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, is_api_access? aux_obj : null
+            ); */
+            // console.log('++++++++++++++++++++');
+            // console.log(resp);
+
+            perfEngine( 1, _st);
+        }
+
+        async function _extractContacts(params) {
+
+            console.log('crit = ', JSON.stringify(crit));
+            let contacts = await mongmodels.PerfContact.find(crit, "phone fields.countryid");
+
+            console.log('contacts are: ' + JSON.stringify(contacts));
+            if(!contacts.length) throw "no_contacts";
+
+            
+        }
+
+        // res.send(resp);
+        res.send('resp');
         // return resp;
 
 
