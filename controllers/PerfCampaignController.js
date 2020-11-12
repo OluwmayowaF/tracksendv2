@@ -328,11 +328,12 @@ exports.send = async (req, res) => {
 
         //  consider campaign type/measure!
         let measure = cpn.measure;
+        let tgtcount = parseFloat(cpn.budget) / parseFloat(cpn.cost);
 
         perfEngine(0)
         function perfEngine( iter, starttime = new Date().getTime() ) {
 
-            let contacts = _extractContacts();
+            let contacts = _extractContacts(iter, measure, tgtcount);
             if(iter === 0) {
                 console.log('_____starting');
                 _doSMS(info, starttime);
@@ -362,14 +363,40 @@ exports.send = async (req, res) => {
             perfEngine( 1, _st);
         }
 
-        async function _extractContacts(params) {
+        async function _extractContacts(iter, meas, targetcount) {
+            let params = {};
 
+            if(iter > 0) {
+                if(meas == "per_imp") {
+                    //  check delivery of prior messages
+                    let delivered_ = models.Message.find({
+                        where: {
+                            perfcmpgnId: cid,
+                            status: 1
+                        },
+                        attributes:['destination']
+                    })
+
+                    let delivered = delivered_.map(d => { return d.destination });
+                    targetcount =- delivered.length;
+                    params = {
+                        phone: {
+                            $nin: delivered
+                        }
+                    }
+                } else if(meas == "per_click") {
+
+                }
+            }
             console.log('crit = ', JSON.stringify(crit));
-            let contacts = await mongmodels.PerfContact.find(crit, "phone fields.countryid");
+            let contacts = await mongmodels.PerfContact.findOneAndUpdate({ ...crit, ...params }, { $inc: { usecount: 1 }})
+                                    .select(['phone', 'fields.countryid'])
+                                    .sort({ updatedAt: 'asc', usecount: 'asc' })
+                                    .limit(targetcount);
 
             console.log('contacts are: ' + JSON.stringify(contacts));
             if(!contacts.length) throw "no_contacts";
-
+            else return contacts;
             
         }
 
@@ -450,6 +477,7 @@ exports.send = async (req, res) => {
 
             return all;
         }
+
     } catch(err) {
         console.log(err);
         let errmsg, errresp;

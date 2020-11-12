@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     deliverytime:   DataTypes.DATE,
     readtime:       DataTypes.DATE,
     firstclicktime: DataTypes.DATE,
-    message_id:     DataTypes.STRING,
+    message_id:     DataTypes.STRING,   //  0 = pending; 1 = delivered; 2 | 3 = failed; 4 = undeliverable; 5 = viewed
     status:         DataTypes.INTEGER,
   }, {});
 

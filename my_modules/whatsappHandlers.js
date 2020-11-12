@@ -106,21 +106,8 @@ const whatsappHandlers = () => {
         });
 
         var instance_id = wainstance.wa_instanceid;
-        var api_url = wainstance.wa_instanceurl;
-        if(api_url.substr(api_url.length - 1) == '/') {
-            console.log(api_url, ' has "/"');
-            api_url = api_url.substr(0, api_url.length - 1);
-        } else {
-            console.log(api_url, ' does not have "/"');
-        }
-        console.log('111 - so api_url is = ', api_url);
-        var api_token = wainstance.wa_instancetoken;
 
-        console.log('====================================');
-        console.log('1111111');
-        console.log('====================================');
-
-        if(instance_id == 0 || instance_id.length == 0) {
+        if(!instance_id || instance_id == 0 || instance_id.length == 0) {
             //  IF NO INSTANCE (ID) EXISTS, CREATE A NEW INSTANCE FOR USER
 
             console.log('====================================');
@@ -146,7 +133,7 @@ const whatsappHandlers = () => {
                         "type": 'whatsapp'
                     }),
                     headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 })
                 
@@ -221,6 +208,20 @@ const whatsappHandlers = () => {
                 });
             }
 
+        } else {
+            var api_url = wainstance.wa_instanceurl;
+            if(api_url.substr(api_url.length - 1) == '/') {
+                console.log(api_url, ' has "/"');
+                api_url = api_url.substr(0, api_url.length - 1);
+            } else {
+                console.log(api_url, ' does not have "/"');
+            }
+            console.log('111 - so api_url is = ', api_url);
+            var api_token = wainstance.wa_instancetoken;
+    
+            console.log('====================================');
+            console.log('1111111');
+            console.log('====================================');
         }
 
         //  NOW GET STATUS/QRCODE OF INSTANCE
@@ -267,7 +268,7 @@ const whatsappHandlers = () => {
             });
         } else if(body.qrCode) {  
             console.log('====================================');
-            console.log('44444444444');
+            console.log('44444444444'); 
             console.log('====================================');
             qrcode = body.qrCode;
             return ({
