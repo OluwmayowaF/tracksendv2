@@ -13,6 +13,7 @@ var zapierRouter = require('./zapier');
 
 // Requiring our models and passport as we've configured it
 var db = require("../models");
+const mongmodels = require('../models/_mongomodels');
 var passport = require("../config/passport");
 var cors = require("cors");
 //
@@ -94,10 +95,16 @@ module.exports = function(app) {
       // res.redirect(307, "/api/login");
       console.log('111111');
       //  then create the [Uncategorized] group for the new user
-      await db.Group.create({
+      /* await db.Group.create({
         name: '[Uncategorized]',
         description: 'For all contacts without distinct groups.',
         userId: user.id,
+      }) */
+      await mongmodels.Group.create({
+        name: '[Uncategorized]',
+        description: 'For all contacts without distinct groups.',
+        userId: user.id,
+        can_optin: false,
       })
 
       //  send mail to notify someone
