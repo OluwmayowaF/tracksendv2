@@ -188,7 +188,6 @@ const whatsappHandlers = () => {
                     console.log('====================================');
                     console.log('WEBHOOK: ' + JSON.stringify(set_wbhk.data));
                     console.log('====================================');
-    
                     
                 } else if(new_resp.data.error) {
                     console.log('====================================');

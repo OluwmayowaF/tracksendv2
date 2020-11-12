@@ -2495,7 +2495,7 @@ function activateWhatsApp(e) {
 			$('#pre_activate_whatsapp .loading_icon').hide();
 		}
 	} else {
-		//	after 'Proceed' is clicked
+		//	after 'Proceed' is clicked 
 		$('#pre_activate_whatsapp button').hide();
 		$('#pre_activate_whatsapp .loading_icon').css('display', 'inline-block');
 
@@ -2513,9 +2513,10 @@ function activateWhatsApp(e) {
 					// $('#img_whatsappqrcode').attr('src', data.code);
 					alert('Server error occurred. Please try again later or contact Admin.');
 					$('#whatsapp_qrcode').hide();
+					$('#pre_activate_whatsapp button').show();
+					$('#pre_activate_whatsapp .loading_icon').hide();
 					$('#pre_activate_whatsapp').show();
-				}
-				else {
+				} else {
 					$('#img_whatsappqrcode').attr('src', data.code);
 					$('#whatsapp_qrcode').show();
 					$('#pre_activate_whatsapp').hide();
