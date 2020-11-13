@@ -170,3 +170,22 @@ exports.testdata = (req, res) => {
 
 };
 
+exports.getTestData = (req, res) => {
+
+    console.log('GEEEEEETTTTTTT CCCCCOOOOOOONNNNNNNNNTTTTTTTAAAACCCTTTTTTTTTTTTSSSSSS');
+    console.log('AUTH = ' + req.header('X-API-KEY'));
+
+    res.status(200).json([
+        {
+            firstname: 'Adama',
+            phone: '08032525252'
+        },
+        {
+            firstname: 'Kole',
+            phone: '09087878787'
+        }
+    ]);
+    // res.status(200).send('some text');
+
+};
+
