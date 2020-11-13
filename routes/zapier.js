@@ -12,6 +12,7 @@ router.post  ('/action/contacts', zapierController.contactUpdate);
 router.post  ('/action/groups',   zapierController.groupUpdate);
 router.post  ('/action/optinout', zapierController.optinOptout);
 
+router.get   ('/triggerhook/testdata', zapierController.testdata);
 router.get   ('/triggerhook/contact/testdata', zapierController.testdata);
 
 
