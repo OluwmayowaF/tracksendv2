@@ -387,7 +387,7 @@ exports.send = async (req, res) => {
 
                     let delivered = delivered_.map(d => { return d.destination });
                     targetcount =- delivered.length;
-                    if(targetcount =< 0) return false;
+                    if(targetcount <= 0) return false;
 
                     params = {
                         phone: {
@@ -410,7 +410,7 @@ exports.send = async (req, res) => {
 
                     let clicked = clicked_.map(d => { return d.destination });
                     targetcount =- clicked.length;
-                    if(targetcount =< 0) return false;
+                    if(targetcount <= 0) return false;
                     
                     params = {
                         phone: {
