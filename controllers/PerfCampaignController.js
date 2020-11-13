@@ -100,6 +100,8 @@ exports.add = async (req, res) => {
             reqlist.push({ criteria: getRealName(r), target: Array.isArray(form['pc_target_' + r]) ? form['pc_target_' + r] : [form['pc_target_' + r]] })
         })
 
+
+        console.log('________pcpgn data: ', JSON.stringify(form));
         if(form.name.length == 0) throw 'name';
         if(form.measure.length == 0) throw 'measure';
         if(form.sender.length == 0) throw 'sender';
@@ -116,7 +118,7 @@ exports.add = async (req, res) => {
             message: form.message,
             conditionset: reqlist,
             budget: form.budget,
-            shorturl: form.myshorturl,
+            shortlinkId: form.shorturl,
             startdate: form.datepicker,
             status: { stage: 'Pre-analyze', active: true },
             addoptin: (form.add_optin == "on") ? true : false,
@@ -220,6 +222,9 @@ exports.add = async (req, res) => {
 }
 
 exports.send = async (req, res) => {
+    const PCMPGN_LIFESPAN_HOURS = 24;
+    const PCMPGN_INTR_INTVL_HOURS = 3;
+    const PCMPGN_AVG_COST_PER_UNIT = 2;
 
     req.perfcampaign = true; 
     
@@ -227,7 +232,7 @@ exports.send = async (req, res) => {
         var user_id = req.user.id;
         // var user_id = 10;
         let cid = req.query.id;
-        let user_balance, sndr, info = null, schedule, schedule_, cpn, originalmessage;
+        let user_balance, sndr, info = null, schedule, schedule_, cpn, originalmessage, contacts;
         let UNSUBMSG = false, DOSUBMSG, SINGLE_MSG, HAS_SURL, is_api_access = false, aux_obj;
 
         var _status;
@@ -262,8 +267,9 @@ exports.send = async (req, res) => {
         info = {
             name: cpn.name,
             shortlinkId: cpn.shorturl,
-            units_used: cpn.adminamount || 1000,
-        }
+            units_used: parseFloat(cpn.budget) / PCMPGN_AVG_COST_PER_UNIT,
+        } 
+    
 
         let crits = cpn.conditionset;
         crits.forEach(c => {
@@ -333,17 +339,19 @@ exports.send = async (req, res) => {
         perfEngine(0)
         function perfEngine( iter, starttime = new Date().getTime() ) {
 
-            let contacts = _extractContacts(iter, measure, tgtcount);
+            contacts = _extractContacts(iter, measure, tgtcount);
+            if(!contacts) return;
+
             if(iter === 0) {
                 console.log('_____starting');
                 _doSMS(info, starttime);
             } else {
                 console.log('_____next');
                 let _now = new Date();
-                // let next = _now.setHours(_now.getHours() + 3) //   moment(now).add(3, 'hours').format('YYYY-MM-DD');
+                // let next = _now.setHours(_now.getHours() + PCMPGN_INTR_INTVL_HOURS) //   moment(now).add(3, 'hours').format('YYYY-MM-DD');
                 let next = _now.setMinutes(_now.getMinutes() + 2) //   moment(now).add(3, 'hours').format('YYYY-MM-DD');
                 console.log('_____nexttime: ' + JSON.stringify(next));
-                let dura = 24 * 60 * 60 * 1000;
+                let dura = PCMPGN_LIFESPAN_HOURS * 60 * 60 * 1000;
 
                 if(next - starttime > dura) return;
                 scheduler.scheduleJob(next, _doSMS.bind(info, starttime));
@@ -352,11 +360,11 @@ exports.send = async (req, res) => {
 
         async function _doSMS(params, _st) {
             console.log('_____doSMS: ' + JSON.stringify(_st));
-            /* let resp = await smsSendEngines(
+            let resp = await smsSendEngines(
                 req, res,
                 user_id, user_balance, sndr, info, contacts, schedule, schedule_, 
                 cpn, originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, is_api_access? aux_obj : null
-            ); */
+            );
             // console.log('++++++++++++++++++++');
             // console.log(resp);
 
@@ -379,13 +387,36 @@ exports.send = async (req, res) => {
 
                     let delivered = delivered_.map(d => { return d.destination });
                     targetcount =- delivered.length;
+                    if(targetcount =< 0) return false;
+
                     params = {
                         phone: {
                             $nin: delivered
                         }
                     }
                 } else if(meas == "per_click") {
+                    return false;
+                    //  check click status of prior messages
+                    let clicked_ = models.Message.find({
+                        where: {
+                            perfcmpgnId: cid,
+                            status: 1,
+                            clickcount: {
+                                $gt: 0
+                            }
+                        },
+                        attributes:['destination']
+                    })
 
+                    let clicked = clicked_.map(d => { return d.destination });
+                    targetcount =- clicked.length;
+                    if(targetcount =< 0) return false;
+                    
+                    params = {
+                        phone: {
+                            $nin: clicked
+                        }
+                    }
                 }
             }
             console.log('crit = ', JSON.stringify(crit));
@@ -394,7 +425,7 @@ exports.send = async (req, res) => {
                                     .sort({ updatedAt: 'asc', usecount: 'asc' })
                                     .limit(targetcount);
 
-            console.log('contacts are: ' + JSON.stringify(contacts));
+            console.log('contacts count is: ' + contacts.length);
             if(!contacts.length) throw "no_contacts";
             else return contacts;
             
