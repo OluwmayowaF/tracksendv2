@@ -291,7 +291,7 @@ router.post('/optin', async(req, res) => {
           name: 'notsubscribed',
       } 
 
-    await mongmodels.Contact.findOneAndUpdate({
+    mongmodels.Contact.findOneAndUpdate({
         _id: mongoose.Types.ObjectId(kid)
     }, {
         do_sms: 2

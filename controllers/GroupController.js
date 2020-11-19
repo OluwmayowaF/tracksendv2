@@ -299,7 +299,7 @@ exports.saveGroup = async (req, res) => {
                     req.body.country = req.body.countryId;
                     return await contactController.addContact(req, res);
                 } else msg = "success";
-            } 
+            } else msg = "success";
 
         } catch(e) {
             if(e.msg) throw { msg: e.msg };
