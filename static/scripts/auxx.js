@@ -1986,7 +1986,7 @@ $(document).ready(function() {
 			return false;
 		}
 
-		console.log('$$$$$$$$=' + opt);
+		console.log('@@$$$$$$$$=' + opt + ';grps=' + grps);
 		let arr = [];
 		if($('#optin_sms').is(':checked')) arr.push('sms');
 		if($('#optin_whatsapp').is(':checked')) arr.push('whatsapp');
