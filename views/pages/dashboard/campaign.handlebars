@@ -159,7 +159,7 @@
 
 					<div class="row">
 
-						<!-- Item -->
+						{{#if args.show_viewed}}
 						<div class="col-lg-2 col-md-6">
 							<div class="dashboard-stat color-1">
 								{{!-- <div class="dashboard-stat-content" style="width: 38%; left: 25px; border-right: inset 1px;"><h4>{{ args.clickc }}</h4> <span>Total Clicks</span></div>
@@ -187,6 +187,29 @@
 								<i class="im im-icon-Mail-Send" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
 							</div>
 						</div>
+						{{else}}
+						<div class="col-lg-5 col-md-6">
+							<div class="dashboard-stat color-1">
+								{{!-- <div class="dashboard-stat-content" style="width: 38%; left: 25px; border-right: inset 1px;"><h4>{{ args.clickc }}</h4> <span>Total Clicks</span></div>
+								<div class="dashboard-stat-content" style="width: 33%; left: 170px;"><h4>{{ args.ctr }}</h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div>
+								<div class="dashboard-stat-icon"><i class="im im-icon-Mouse-2"></i></div> --}}
+
+								<div class="dashboard-stat-content" style="top: 33%; width: auto; margin-top: 0; position: relative; margin-right: 16px"><h4>{{formatNumber args.clicks }}</h4> <span>Total Clicks</span></div>
+								<hr style="margin: 18px 23% -15px 33px; display: block;">
+								<div class="dashboard-stat-content" style="top: 25%; width: auto; position: relative; "><h4 style="display: inline;">{{ args.ctr }}</h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div>
+								<i class="im im-icon-Mouse-2" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
+
+							</div>
+						</div>
+					
+						<div class="col-lg-3 col-md-6">
+							<div class="dashboard-stat color-2">
+								<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber args.mcount }}</h4> <span style="width: 45%">Messages Sent</span></div>
+								<i class="im im-icon-Mail-Send" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
+							</div>
+						</div>
+						{{/if}}
+
 
 						<div class="col-lg-4 col-md-6">
 							<canvas id="myChart{{@index}}" height="200"></canvas>
