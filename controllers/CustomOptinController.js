@@ -21,7 +21,7 @@ exports.index = async (req, res) => {
             name: {
                 $ne: '[Uncategorized]',
             }
-        }, '_id name').sort({
+        }, '_id name can_optin').sort({
             "createdAt": -1
         }),
         models.Customoptin.findByPk(user_id),
