@@ -311,10 +311,10 @@ console.log('****************************************' + JSON.stringify(req.body
         can_optin: false
     })
 
-    let gg = Array.isArray(req.body.grps) ? req.body.grps : [ req.body.grps ];
+    let gg = Array.isArray(req.body.grps) ? req.body.grps : req.body.grps.split(',');
     let gg_ = gg.map(g => {
-        console.log('g _id = ' + g);
-        return mongoose.Types.ObjectId(g)
+        console.log('g _id = ' + g.trim());
+        return mongoose.Types.ObjectId(g.trim())
     })
     await mongmodels.Group.updateMany({
         userId: user_id,
