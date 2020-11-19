@@ -420,10 +420,14 @@ exports.send = async (req, res) => {
                 }
             }
             console.log('crit = ', JSON.stringify(crit));
-            let contacts = await mongmodels.PerfContact.findOneAndUpdate({ ...crit, ...params }, { $inc: { usecount: 1 }})
+            let contacts = await mongmodels.PerfContact.find({ ...crit, ...params })
                                     .select(['phone', 'fields.countryid'])
                                     .sort({ updatedAt: 'asc', usecount: 'asc' })
                                     .limit(targetcount);
+
+            await mongmodels.PerfContact.updateMany({ ...crit, ...params }, { $inc: { usecount: 1 }})
+                    .sort({ updatedAt: 'asc', usecount: 'asc' })
+                    .limit(targetcount);
 
             console.log('contacts count is: ' + contacts.length);
             if(!contacts.length) throw "no_contacts";
