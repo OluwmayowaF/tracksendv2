@@ -313,6 +313,7 @@ console.log('****************************************' + JSON.stringify(req.body
 
     let gg = Array.isArray(req.body.grps) ? req.body.grps : [ req.body.grps ];
     let gg_ = gg.map(g => {
+        console.log('g _id = ' + g);
         return mongoose.Types.ObjectId(g)
     })
     await mongmodels.Group.updateMany({

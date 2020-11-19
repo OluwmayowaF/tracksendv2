@@ -882,7 +882,7 @@ exports.add = async (req, res) => {
                 console.log('2++++++++++'+resp);
                 if(is_api_access && tempid[0] == 'api') return resp;
                 else {
-                    if((resp.responseType && (resp.responseType == "ERROR")) || (resp.status && (resp.status == 'error'))) {
+                    if(( resp && resp.responseType && (resp.responseType == "ERROR")) || (resp && resp.status && (resp.status == 'error'))) {
                         req.flash('error', 'An error occured. Please try again later or contact site admin.');
                     } else {
                         let _msgmsg = (info.schedule == 'Invalid date') ? 'Messages sent out' : 'Messages would be sent out at ' + info.schedulewa;
