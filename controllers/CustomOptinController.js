@@ -304,6 +304,27 @@ console.log('****************************************' + JSON.stringify(req.body
             } : {}
         )
     })
+
+    await mongmodels.Group.updateMany({
+        userId: user_id
+    }, {
+        can_optin: false
+    })
+
+    let gg = Array.isArray(req.body.grps) ? req.body.grps : [ req.body.grps ];
+    let gg_ = gg.map(g => {
+        return mongoose.Types.ObjectId(g)
+    })
+    await mongmodels.Group.updateMany({
+        userId: user_id,
+        _id: {
+            $in: gg_
+        }
+    }, {
+        can_optin: true
+    })
+
+    
     //  check if user is in customoptin
     if(!optin) {
         optin = await models.Customoptin.create({
