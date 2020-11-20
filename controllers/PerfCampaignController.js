@@ -446,7 +446,7 @@ exports.send = async (req, res) => {
                         .sort({ updatedAt: 'asc', usecount: 'asc' })
                         .limit(targetcount);
 
-                console.log('contacts count is: ' + contacts.length);
+                console.log('contacts count is: ' + contacts.length + '; and they re: ' + JSON.stringify(contacts));
                 // if(!contacts.length) throw "no_contacts";
                 // console.log("no_contacts");
             }
