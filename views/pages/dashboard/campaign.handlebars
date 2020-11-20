@@ -170,16 +170,16 @@
 		{{#each args.refcpgns}}
 		<div class="row" style="margin-top: 30px;">
 			{{#if args.show_viewed}}
-			<input type="hidden" name="" id="values_viewed{{@index}}" value="{{ args.viewed }}">
+			<input type="hidden" name="" id="values_viewed{{@index}}" value="{{ stats.viewed }}">
 			{{/if}}
-			<input type="hidden" name="" id="values_delivered{{@index}}" value="{{ args.delivered }}">
-			<input type="hidden" name="" id="values_pending{{@index}}" value="{{ args.pending }}">
-			<input type="hidden" name="" id="values_failed{{@index}}" value="{{ args.failed }}">
-			<input type="hidden" name="" id="values_undeliverable{{@index}}" value="{{ args.undeliverable }}">
+			<input type="hidden" name="" id="values_delivered{{@index}}" value="{{ stats.delivered }}">
+			<input type="hidden" name="" id="values_pending{{@index}}" value="{{ stats.pending }}">
+			<input type="hidden" name="" id="values_failed{{@index}}" value="{{ stats.failed }}">
+			<input type="hidden" name="" id="values_undeliverable{{@index}}" value="{{ stats.undeliverable }}">
 
-			<input type="hidden" name="" id="values_messages{{@index}}" value="{{ args.recipients }}">
-			<input type="hidden" name="" id="values_ccount{{@index}}" value="{{ args.clickc }}">
-			<input type="hidden" name="" id="values_mcount{{@index}}" value="{{ args.mcount }}">
+			<input type="hidden" name="" id="values_messages{{@index}}" value="{{ stats.recipients }}">
+			<input type="hidden" name="" id="values_ccount{{@index}}" value="{{ stats.clickc }}">
+			<input type="hidden" name="" id="values_mcount{{@index}}" value="{{ stats.mcount }}">
 
 
 			<div class="toggle-wrap no_borders">
@@ -199,9 +199,9 @@
 								<div class="dashboard-stat-content" style="width: 33%; left: 170px;"><h4>{{ args.ctr }}</h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div>
 								<div class="dashboard-stat-icon"><i class="im im-icon-Mouse-2"></i></div> --}}
 
-								<div class="dashboard-stat-content" style="top: 33%; width: auto; margin-top: 0; position: relative; margin-right: 16px"><h4>{{formatNumber args.clicks }}</h4> <span>Total Clicks</span></div>
+								<div class="dashboard-stat-content" style="top: 33%; width: auto; margin-top: 0; position: relative; margin-right: 16px"><h4>{{formatNumber stats.clickc }}</h4> <span>Total Clicks</span></div>
 								<hr style="margin: 18px 23% -15px 33px; display: block;">
-								<div class="dashboard-stat-content" style="top: 25%; width: auto; position: relative; "><h4 style="display: inline;">{{ args.ctr }}</h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div>
+								<div class="dashboard-stat-content" style="top: 25%; width: auto; position: relative; "><h4 style="display: inline;">{{ stats.ctr }}</h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div>
 								<i class="im im-icon-Mouse-2" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
 
 							</div>
@@ -209,14 +209,14 @@
 					
 						<div class="col-lg-3 col-md-6">
 							<div class="dashboard-stat color-2">
-								<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber args.mcount }}</h4> <span style="width: 45%">Messages Sent</span></div>
+								<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber stats.mcount }}</h4> <span style="width: 45%">Messages Sent</span></div>
 								<i class="im im-icon-Mail-Send" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
 							</div>
 						</div>
 
 						<div class="col-lg-3 col-md-6">
 							<div class="dashboard-stat color-2">
-								<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber args.viewed }}</h4> <span style="width: 45%">Messages Opened</span></div>
+								<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber stats.viewed }}</h4> <span style="width: 45%">Messages Opened</span></div>
 								<i class="im im-icon-Mail-Send" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
 							</div>
 						</div>
@@ -227,9 +227,9 @@
 								<div class="dashboard-stat-content" style="width: 33%; left: 170px;"><h4>{{ args.ctr }}</h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div>
 								<div class="dashboard-stat-icon"><i class="im im-icon-Mouse-2"></i></div> --}}
 
-								<div class="dashboard-stat-content" style="top: 33%; width: auto; margin-top: 0; position: relative; margin-right: 16px"><h4>{{formatNumber args.clicks }}</h4> <span>Total Clicks</span></div>
+								<div class="dashboard-stat-content" style="top: 33%; width: auto; margin-top: 0; position: relative; margin-right: 16px"><h4>{{formatNumber stats.clickc }}</h4> <span>Total Clicks</span></div>
 								<hr style="margin: 18px 23% -15px 33px; display: block;">
-								<div class="dashboard-stat-content" style="top: 25%; width: auto; position: relative; "><h4 style="display: inline;">{{ args.ctr }}</h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div>
+								<div class="dashboard-stat-content" style="top: 25%; width: auto; position: relative; "><h4 style="display: inline;">{{ stats.ctr }}</h4>% <span>CTR <i class="tip" data-tip-content="Click-Through-Rate"></i></span></div>
 								<i class="im im-icon-Mouse-2" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
 
 							</div>
@@ -237,14 +237,14 @@
 					
 						<div class="col-lg-3 col-md-6">
 							<div class="dashboard-stat color-2">
-								<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber args.mcount }}</h4> <span style="width: 45%">Messages Sent</span></div>
+								<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber stats.mcount }}</h4> <span style="width: 45%">Messages Sent</span></div>
 								<i class="im im-icon-Mail-Send" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
 							</div>
 						</div>
 
 						<div class="col-lg-3 col-md-6">
 							<div class="dashboard-stat color-2">
-								<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber args.delivered }}</h4> <span style="width: 45%">Messages Delivered</span></div>
+								<div class="dashboard-stat-content" style="width: auto"><h4>{{formatNumber stats.delivered }}</h4> <span style="width: 45%">Messages Delivered</span></div>
 								<i class="im im-icon-Mail-Send" style=" position: absolute; right: 10%; top: 40%; font-size: 3em; opacity: 0.5;"></i>
 							</div>
 						</div>

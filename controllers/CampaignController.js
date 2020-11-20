@@ -1722,6 +1722,7 @@ exports.view = (req, res) => {
                 viewed: 0,       
                 clickc: 0,       
                 mcount: refcpgns[r].messages.length,       
+                ctr: 0,       
             };
             // ref.messages.forEach(msg => {
             for(let m = 0; m < refcpgns[r].messages.length; m++) {
@@ -1774,12 +1775,16 @@ exports.view = (req, res) => {
                         break;
                 }
                 stats.clickc += refcpgns[r].messages[m].clickcount;
+
             }
             // refmsgstat.push(stats) 
             // ref.refmsgstat = stats; 
             // const ref_ = Object.assign(ref, {stats});
             // let _ref = JSON.parse(JSON.stringify(refcpgns[r]));
+
+            stats.ctr = ((parseInt(stats.delivered) == 0) ? 0 : Math.round((parseInt(stats.clickc) * 10/parseInt(stats.delivered) * 100)) / 10);
             refcpgns[r]['stats'] = stats;
+
             // let ref_ = {...ref, stats};
             // return ref_;
         }
