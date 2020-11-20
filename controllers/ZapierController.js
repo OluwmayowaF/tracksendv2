@@ -170,19 +170,52 @@ exports.testdata = (req, res) => {
 
 };
 
-exports.getTestData = (req, res) => {
+exports.getTestDataContact = (req, res) => {
 
     console.log('GEEEEEETTTTTTT CCCCCOOOOOOONNNNNNNNNTTTTTTTAAAACCCTTTTTTTTTTTTSSSSSS');
     console.log('AUTH = ' + req.header('X-API-KEY'));
 
     res.status(200).json([
         {
-            firstname: 'Adama',
-            phone: '08032525252'
+            "action": "add",
+            "contact_id": "2e34tr56rhr5tred4",
+            "group_id": "323f234f3f3"
         },
         {
-            firstname: 'Kole',
-            phone: '09087878787'
+            "action": "add",
+            "contact_id": "12e34trfg56rhr5tred4",
+            "group_id": "54323f234f3f3"
+        },
+    ]);
+    // res.status(200).send('some text');
+
+};
+
+exports.getTestDataGroup = (req, res) => {
+
+    console.log('GEEEEEETTTTTTT CCCCCOOOOOOONNNNNNNNNTTTTTTTAAAACCCTTTTTTTTTTTTSSSSSS');
+    console.log('AUTH = ' + req.header('X-API-KEY'));
+
+    res.status(200).json([
+        {
+            action: "add",
+            group_id: "fh555y5trg5",
+            group_name: "gurupi"
+        }
+    ]);
+    // res.status(200).send('some text');
+
+};
+
+exports.getTestDataOpt = (req, res) => {
+
+    console.log('GEEEEEETTTTTTT CCCCCOOOOOOONNNNNNNNNTTTTTTTAAAACCCTTTTTTTTTTTTSSSSSS');
+    console.log('AUTH = ' + req.header('X-API-KEY'));
+
+    res.status(200).json([
+        {
+            action: "in",
+            contact_id: "53423443f32ffsdfefef",
         }
     ]);
     // res.status(200).send('some text');
