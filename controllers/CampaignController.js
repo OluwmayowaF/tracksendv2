@@ -1746,27 +1746,27 @@ exports.view = (req, res) => {
 
                 switch (parseInt(refcpgns[r].messages[m].status)) {
                     case 0:
-                        refcpgns.messages[m].status = "Pending"
+                        refcpgns[r].messages[m].status = "Pending"
                         stats.pending += 1
                         break;
                     case 1:
-                        refcpgns.messages[m].status = "Delivered"
+                        refcpgns[r].messages[m].status = "Delivered"
                         stats.delivered += 1
                         break;
                     case 2:
-                        refcpgns.messages[m].status = "Failed"
+                        refcpgns[r].messages[m].status = "Failed"
                         stats.failed += 1
                         break;
                     case 3:
-                        refcpgns.messages[m].status = "DND"
+                        refcpgns[r].messages[m].status = "DND"
                         stats.undeliverable += 1
                         break;
                     case 4:
-                        refcpgns.messages[m].status = "Invalid"
+                        refcpgns[r].messages[m].status = "Invalid"
                         stats.undeliverable += 1
                         break;
                     case 5:
-                        refcpgns.messages[m].status = "Viewed"
+                        refcpgns[r].messages[m].status = "Viewed"
                         stats.viewed += 1
                         break;
                 
