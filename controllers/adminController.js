@@ -307,7 +307,7 @@ exports.uploadPerfContacts = async (req, res) => {
                 obj['price'] = val;
             } else {
                 // console.log('OTHER NOOOOT FOUND @ i = ' + i);
-                obj['fields'][textToSluggish(headers[i])] = val;
+                obj['fields'][textToSluggish(headers[i])] = (typeof val == "string") ? (textToSluggish(headers[i]) == "location" ? val.split(',').map(v => {return v.trim().toLowerCase()}) : val.toLowerCase()) : val; 
             }
 
         })

@@ -97,7 +97,19 @@ exports.add = async (req, res) => {
         let reqlist = [];
         reqs.forEach(r => {
             // reqlist.push({ [r]: Array.isArray(form['pc_target_' + r]) ? form['pc_target_' + r] : [form['pc_target_' + r]] })
-            reqlist.push({ criteria: getRealName(r), target: Array.isArray(form['pc_target_' + r]) ? form['pc_target_' + r] : [form['pc_target_' + r]] })
+            let cc = getRealName(r);
+            let tt = form['pc_target_' + r];
+            let _target = Array.isArray(tt) ? 
+                            tt.map(t => { return (typeof t == "string") ? t.trim().toLowerCase() : t }) : 
+                            ( (typeof tt == "string") ?  
+                                tt.split(',').map(t => { return (typeof t == "string") ? t.trim().toLowerCase() : t }) : 
+                                [ tt ]
+                            );
+
+            reqlist.push({ 
+                criteria: cc, 
+                target: _target     // Array.isArray(form['pc_target_' + r]) ? form['pc_target_' + r] : [ form['pc_target_' + r ]] 
+            })
         })
 
 
@@ -325,7 +337,7 @@ exports.send = async (req, res) => {
                     $in: crit_int.map(i => { return i.toLowerCase() })
                 },
             } : {}),
-            ...(crit_loc? {
+            ...(crit_loc? { 
                 "fields.location": {
                     $in: crit_loc
                 },
@@ -337,11 +349,12 @@ exports.send = async (req, res) => {
         let tgtcount = parseFloat(cpn.budget) / parseFloat(cpn.cost);
 
         perfEngine(0)
-        function perfEngine( iter, starttime = new Date().getTime() ) {
+        async function perfEngine( iter, starttime = new Date().getTime() ) {
 
-            contacts = _extractContacts(iter, measure, tgtcount);
-            if(!contacts) return;
-
+            contacts = await _extractContacts(iter, measure, tgtcount);
+            if(!contacts || !contacts.length) return;
+            console.log('FOUND _' + contacts.length + '_ CONTACTS');
+            
             if(iter === 0) {
                 console.log('_____starting');
                 _doSMS(info, starttime);
@@ -372,7 +385,7 @@ exports.send = async (req, res) => {
         }
 
         async function _extractContacts(iter, meas, targetcount) {
-            let params = {};
+            let params = {}, contacts = [], ret = true;
 
             if(iter > 0) {
                 if(meas == "per_imp") {
@@ -387,16 +400,18 @@ exports.send = async (req, res) => {
 
                     let delivered = delivered_.map(d => { return d.destination });
                     targetcount =- delivered.length;
-                    if(targetcount <= 0) return false;
-
-                    params = {
-                        phone: {
-                            $nin: delivered
+                    if(targetcount <= 0) ret = false;
+                    else {
+                        params = {
+                            phone: {
+                                $nin: delivered
+                            }
                         }
                     }
                 } else if(meas == "per_click") {
-                    return false;
+                    ret = false;    //  temporary
                     //  check click status of prior messages
+
                     let clicked_ = models.Message.find({
                         where: {
                             perfcmpgnId: cid,
@@ -419,20 +434,23 @@ exports.send = async (req, res) => {
                     }
                 }
             }
-            console.log('crit = ', JSON.stringify(crit));
-            let contacts = await mongmodels.PerfContact.find({ ...crit, ...params })
+
+            if(ret) {
+                console.log('crit = ', JSON.stringify(crit));
+                contacts = await mongmodels.PerfContact.find({ ...crit, ...params })
                                     .select(['phone', 'fields.countryid'])
                                     .sort({ updatedAt: 'asc', usecount: 'asc' })
                                     .limit(targetcount);
 
-            await mongmodels.PerfContact.updateMany({ ...crit, ...params }, { $inc: { usecount: 1 }})
-                    .sort({ updatedAt: 'asc', usecount: 'asc' })
-                    .limit(targetcount);
+                await mongmodels.PerfContact.updateMany({ ...crit, ...params }, { $inc: { usecount: 1 }})
+                        .sort({ updatedAt: 'asc', usecount: 'asc' })
+                        .limit(targetcount);
 
-            console.log('contacts count is: ' + contacts.length);
-            if(!contacts.length) throw "no_contacts";
-            else return contacts;
-            
+                console.log('contacts count is: ' + contacts.length);
+                // if(!contacts.length) throw "no_contacts";
+                // console.log("no_contacts");
+            }
+            return contacts;
         }
 
         // res.send(resp);
