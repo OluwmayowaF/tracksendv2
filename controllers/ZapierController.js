@@ -10,7 +10,7 @@ var apiController     = require('./ApiController');
 exports.triggerHookAdd = async (req, res) => {
     
     let snd;
-    console.log('NEW -- AUTH = ' + req.header('X-API-KEY'));
+    console.log('ZZZZZZZZZZZZZZZAAAAPIERNEW -- AUTH = ' + req.header('X-API-KEY') + ', DATA: ' + JSON.stringify(req.body));
     /* let seen = [];
     console.log(JSON.stringify(req, function (key, val) {
         if (val != null && typeof val == "object") {

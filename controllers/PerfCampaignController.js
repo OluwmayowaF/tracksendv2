@@ -268,7 +268,7 @@ exports.send = async (req, res) => {
         let budget = cpn.budget;
         let cost = cpn.cost;
 
-        sndr = cpn.senderId;
+        sndr = await models.Sender.findByPk(cpn.senderId, { attributes: ['id', 'name']});
         originalmessage = cpn.message;
         schedule = cpn.startdate;
         // utm = (req.body.add_utm && req.body.add_utm == "on");
