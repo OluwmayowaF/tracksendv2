@@ -376,7 +376,7 @@ exports.addContact = async (req, res) => {
             let ret = await axios({
                 method: 'POST',
                 url: zap.hookUrl,
-                data: zap_list,
+                data: JSON.stringify(zap_list),
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
