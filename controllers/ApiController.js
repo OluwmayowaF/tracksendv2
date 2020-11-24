@@ -1011,7 +1011,7 @@ exports.newTxnMessage = async (req, res) => {
             let schedule_ = schedule ? moment(schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss') : null;  //  for DB
             schedule = schedule ? moment(schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DDTHH:mm:ss.000Z') : null;   //  for infobip
     
-            if(!Array.isArray(contacts)) throw 'contacts';
+            if(!Array.isArray(contacts)) contacts = [ contacts ];   // throw 'contacts';
             if(!message || !(message.length > 1)) throw 'message';
 
             if(req.body.type == "whatsapp") {

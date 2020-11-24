@@ -91,10 +91,9 @@ exports.triggerHookRemove = async (req, res) => {
         })
 
         if(usr) {
-            models.Zapiertrigger({
+            models.Zapiertrigger.destroy({
                 where: {
                     userId: usr.id,
-                    id: req.body.triggerid,
                     name: req.body.triggername,
                 }
             });
