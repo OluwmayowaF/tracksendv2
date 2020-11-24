@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   const Zapiertrigger = sequelize.define('zapiertrigger', {
     id: {
       type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
     userId: {
