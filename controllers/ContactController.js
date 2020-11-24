@@ -84,7 +84,7 @@ exports.newContact = (req, res) => {
         })
     ])
     .then(([grps, non, ctry]) => { 
-        var ngrp = non[0].id;
+        var ngrp = non[0]._id;
         
         var flashtype, flash = req.flash('error');
         console.log('flashy = ' + JSON.stringify(flash) + JSON.stringify(flashtype));
@@ -349,7 +349,7 @@ exports.addContact = async (req, res) => {
                     zap_list.push({
                         id: i_d,
                         contact_id: contact._id,
-                        action_type: "add",
+                        action: "add",
                     })
                 }
 
@@ -370,7 +370,7 @@ exports.addContact = async (req, res) => {
             };
         }
 
-        console.log('...............about checking sending "new contact zap trigger.');
+        console.log('...............about checking sending "new contact zap trigger. zap_list: ' + JSON.stringify(zap_list) + '; to url: ' + zap.hookUrl);
         if(zap) {
             console.log('...............about sending "new contact zap trigger.');
             let ret = await axios({
@@ -383,6 +383,16 @@ exports.addContact = async (req, res) => {
                 }
             })
             console.log('...............just sent "new contact zap trigger.');
+            let seen = [];   //  JSON circular reference workaround
+            console.log('...............just sent "new contact zap trigger. response: ' + JSON.stringify(ret, function (key, val) {
+                if (val != null && typeof val == "object") {
+                    if (seen.indexOf(val) >= 0) {
+                        return;
+                    }
+                    seen.push(val);
+                }
+                return val;
+            }) )
         }
         console.log('COUNTS = ' + contacts.length + '; ' + JSON.stringify(err));
         

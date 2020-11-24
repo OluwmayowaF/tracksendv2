@@ -2686,13 +2686,13 @@ function doLogin() {
 		success: function( data ) {
 
 			$butt.removeAttr('disabled');
-			$me.find('.loading_icon').hide();
 
 			if(data[0] && data[0] == 'autheticated') {
 				
 				location.href = '/dashboard';
 
 			} else if(data == 'unauthorized') {
+				$me.find('.loading_icon').hide();
 				$me.find('._form_errors._e_login').text('Invalid email/password');
 				$me.find('._form_errors._e_login').show();
 			}

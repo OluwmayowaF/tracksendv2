@@ -279,7 +279,7 @@ exports.addContact = async (req, res) => {
         let zap = await models.Zapiertrigger.findOne({
             where: {
                 userId: user_id,
-                name: 'newcontact',
+                name: 'contact',
             },
             attributes: ['hookUrl'],
         })
