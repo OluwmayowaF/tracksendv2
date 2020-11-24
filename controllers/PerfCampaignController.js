@@ -237,6 +237,7 @@ exports.send = async (req, res) => {
     const PCMPGN_LIFESPAN_HOURS = 24;
     const PCMPGN_INTR_INTVL_HOURS = 3;
     const PCMPGN_AVG_COST_PER_UNIT = 2;
+    let rmsg = "error"; //"Campaign successfully started.";
 
     req.perfcampaign = true; 
     
@@ -381,7 +382,11 @@ exports.send = async (req, res) => {
             // console.log('++++++++++++++++++++');
             // console.log(resp);
 
-            perfEngine( 1, _st);
+            if(response.statusCode == 200 || response.status == 200) {
+                rmsg = "success";
+                perfEngine( 1, _st);
+            } 
+
         }
 
         async function _extractContacts(iter, meas, targetcount) {
@@ -454,7 +459,7 @@ exports.send = async (req, res) => {
         }
 
         // res.send(resp);
-        res.send('resp');
+        res.send({ response: rmsg});
         // return resp;
 
 
@@ -532,7 +537,7 @@ exports.send = async (req, res) => {
         }
 
     } catch(err) {
-        console.log(err);
+        console.log('...............' + err);
         let errmsg, errresp;
 
         if(err == "no_contacts") {

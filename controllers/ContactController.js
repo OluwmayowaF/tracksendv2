@@ -370,7 +370,9 @@ exports.addContact = async (req, res) => {
             };
         }
 
+        console.log('...............about checking sending "new contact zap trigger.');
         if(zap) {
+            console.log('...............about sending "new contact zap trigger.');
             let ret = await axios({
                 method: 'POST',
                 url: zap.hookUrl,
@@ -380,6 +382,7 @@ exports.addContact = async (req, res) => {
                     'Accept': 'application/json'
                 }
             })
+            console.log('...............just sent "new contact zap trigger.');
         }
         console.log('COUNTS = ' + contacts.length + '; ' + JSON.stringify(err));
         
@@ -711,9 +714,9 @@ exports.getContacts = async (req, res) => {
                             // "_id": 0
                         }
                     },
-                ], (err, res) => {
-                    console.log('_____________2dowloading data : ' + JSON.stringify(res));
-                    return res;
+                ], (err, resl) => {
+                    console.log('_____________2dowloading data : ' + JSON.stringify(resl));
+                    return resl;
                 }),
                 
 /*                 mongmodels.Contact.aggregate([

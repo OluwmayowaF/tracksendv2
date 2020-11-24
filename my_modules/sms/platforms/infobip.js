@@ -169,7 +169,7 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
                 }
             } catch(err) {
                 console.log('________________________________');
-                
+
                 throw "111Error: Please try again later";
             }
                         
@@ -278,7 +278,7 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
             if (response) {
                 //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
                 // console.log('Status: ' + response);
-                console.log('jStatus: ' + JSON.stringify(response));
+                // console.log('jStatus: ' + JSON.stringify(response));
                 console.log('Status code: ' + JSON.stringify(response.code));
                 
                 if(response.code == "ENOTFOUND") networkerror = true;
