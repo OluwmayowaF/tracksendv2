@@ -345,7 +345,7 @@ exports.addContact = async (req, res) => {
                     zap_list.push({
                         id: i_d,
                         contact_id: contact.id,
-                        action_type: "add",
+                        action: "add",
                     })
                 }
 
@@ -486,7 +486,7 @@ exports.saveContact = async (req, res) => {
                     data: [{
                         id: i_d,
                         contact_id: id_,
-                        action_type: "modify",
+                        action: "modify",
                     }],
                     headers: {
                         'Content-Type': 'application/json',
@@ -545,7 +545,7 @@ exports.delContact = async (req, res) => {
                     data: [{
                         id: req.query.id,
                         contact_id: req.query.id,
-                        action_type: "delete",
+                        action: "delete",
                     }],
                     headers: {
                         'Content-Type': 'application/json',

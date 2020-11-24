@@ -508,7 +508,7 @@ exports.completeOptin = async function(req, res) {
                             data: [{
                                 id: newk._id,
                                 contact_id: newk._id,
-                                action_type: "optin",
+                                action: "optin",
                             }],
                             headers: {
                                 'Content-Type': 'application/json',

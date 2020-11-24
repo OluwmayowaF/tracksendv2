@@ -347,9 +347,9 @@ exports.addContact = async (req, res) => {
                 if(zap) {
                     let i_d = parseInt(user_id + "" + contact._id + "" + new Date().getTime());
                     zap_list.push({
-                        id: i_d,
-                        contact_id: contact._id,
                         action: "add",
+                        contact_id: contact._id,
+                        group_id: group._id,
                     })
                 }
 
@@ -510,7 +510,7 @@ exports.saveContact = async (req, res) => {
                     data: [{
                         id: i_d,
                         contact_id: id_,
-                        action_type: "modify",
+                        action: "modify",
                     }],
                     headers: {
                         'Content-Type': 'application/json',
@@ -551,9 +551,9 @@ exports.saveContact = async (req, res) => {
                 method: 'POST',
                 url: zap.hookUrl,
                 data: [{
-                    id: i_d,
+                    action: "modify",
                     contact_id: id_,
-                    action_type: "modify",
+                    group_id: con.groupId,
                 }],
                 headers: {
                     'Content-Type': 'application/json',
@@ -606,9 +606,9 @@ exports.delContact = async (req, res) => {
                 method: 'POST',
                 url: zap.hookUrl,
                 data: [{
-                    id: req.query.id,
+                    action: "delete",
                     contact_id: req.query.id,
-                    action_type: "delete",
+                    group_id: req.query.id,
                 }],
                 headers: {
                     'Content-Type': 'application/json',
