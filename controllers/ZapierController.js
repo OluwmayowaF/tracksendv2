@@ -9,7 +9,7 @@ var apiController     = require('./ApiController');
 
 exports.triggerHookAdd = async (req, res) => {
     
-    let snd;
+    let snd, zp;
     console.log('ZZZZZZZZZZZZZZZAAAAPIERNEW -- AUTH = ' + req.header('X-API-KEY') + ', DATA: ' + JSON.stringify(req.body));
     /* let seen = [];
     console.log(JSON.stringify(req, function (key, val) {
@@ -34,12 +34,21 @@ exports.triggerHookAdd = async (req, res) => {
         if(usr) {
 
             console.log('..........YES, found user');
-            
-            let zp = await models.Zapiertrigger.create({
-                name: req.body.triggername,
-                hookUrl: req.body.hookUrl,
-                userId: usr.id,
-            });
+            zp = await models.Zapiertrigger.findOne({
+                where: {
+                    userId: usr.id,
+                    name: req.body.triggername,                    
+                }
+            })
+
+            if(!zp) {
+                console.log('..........zaptrigger doesnt exist...creating new');
+                zp = await models.Zapiertrigger.create({
+                    name: req.body.triggername,
+                    hookUrl: req.body.hookUrl,
+                    userId: usr.id,
+                });
+            }
             console.log('..........created trigger is: ' + JSON.stringify(zp));
 
             if(zp) {
