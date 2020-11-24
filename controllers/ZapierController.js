@@ -35,9 +35,10 @@ exports.triggerHookAdd = async (req, res) => {
 
             console.log('..........YES, found user');
             
-            let zp = await usr.createZapiertrigger({
+            let zp = await models.Zapiertrigger.create({
                 name: req.body.triggername,
                 hookUrl: req.body.hookUrl,
+                userId: usr.id,
             });
             console.log('..........created trigger is: ' + JSON.stringify(zp));
 
