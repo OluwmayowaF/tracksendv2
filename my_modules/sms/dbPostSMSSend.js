@@ -18,7 +18,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
             let recps = response.SMSMessageData.Recipients;
             for(let mm = 0; mm < recps.length; mm++) {
                 let recp = recps[mm];
-                
+
                 if(recp.statusCode === 101 || recp.statusCode === 100) successfuls++;
                 else failures++;
 
@@ -34,7 +34,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                         }
                     }
                 )
-            });
+            };
             if(!recps.length) failures = batches;
         } else {
             await models.Message.update(
