@@ -28,8 +28,8 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                         message_id: recp.messageId
                     },
                     {
-                        where: {
-                            campaignId: cpn.id,
+                        where: { 
+                            campaignId: cpn.id.toString(),
                             destination: recp.number,
                         }
                     }
