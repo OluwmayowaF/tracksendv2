@@ -43,7 +43,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                 },
                 {
                     where: {
-                        campaignId: cpn.id,
+                        campaignId: cpn.id.toString(),
                         contactId: {
                             [Op.in]: klist,
                         },
@@ -90,7 +90,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                     description: 'DEBIT',
                     userId: user_id,
                     type: (req.txnmessaging) ? 'TXN-MESSAGING' : ((req.perfcampaign) ? 'PERFCAMPAIGN' : 'CAMPAIGN'),
-                    ref_id: (req.txnmessaging) ? new Date().getTime() : cpn.id,
+                    ref_id: (req.txnmessaging) ? new Date().getTime() : cpn.id.toString(),
                     units: (-1) * info.units_used,
                     status: 1,
                 })
@@ -98,7 +98,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                 //  CONVERT REFS FROM TEMP REFS TO REAL REFS
                 if(!req.txnmessaging && !req.perfcampaign) await models.Tmpcampaign.update(
                     {
-                        ref_campaign: cpn.id,
+                        ref_campaign: cpn.id.toString(),
                     }, {
                         where: {
                             ref_campaign: "tmpref_" + info.id
@@ -123,7 +123,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
 
                 await models.Message.destroy({
                     where: {
-                        campaignId: cpn.id,
+                        campaignId: cpn.id.toString(),
                     }
                 });
                 await cpn.destroy();

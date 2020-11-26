@@ -1068,7 +1068,7 @@ exports.add = async (req, res) => {
                         arr = arr.concat(el.contacts);
 
                         await models.CampaignGroup.create({
-                            campaignId: cpn.id,
+                            campaignId: cpn.id.toString(),
                             groupId: el._id,
                             groupName: el.name,
                         })
@@ -1270,7 +1270,7 @@ exports.add = async (req, res) => {
                     console.log('group kan...');
                     
                     await models.CampaignGroup.create({
-                        campaignId: cpn.id,
+                        campaignId: cpn.id.toString(),
                         groupId: el._id,
                     });
                 });
@@ -1373,7 +1373,7 @@ exports.add = async (req, res) => {
                 var uid = makeId(3);
                 var exists = await models.Message.findAll({
                     where: { 
-                        campaignId: cpn.id,
+                        campaignId: cpn.id.toString(),
                         contactlink: uid,
                     },
                 })

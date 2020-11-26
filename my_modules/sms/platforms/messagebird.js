@@ -83,7 +83,7 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
                             (req.txnmessaging) ? {
                                 shortlinkId: info.shortlinkId,
                             } : {
-                                campaignId: cpn.id,
+                                campaignId: cpn.id.toString(),
                             }
                         ),
                         contactlink: uid,
@@ -116,7 +116,7 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
                     });
                 } else {
                     console.log('__________________contactID = ' + kont._id);
-                    let cpnid = cpn.id || cpn._id.toString();
+                    let cpnid = cpn.id.toString() || cpn._id.toString();
                     console.log('cccccccccccccccccccc ', cpnid );
                     shrt = await models.Message.create({
                         campaignId: cpnid,
