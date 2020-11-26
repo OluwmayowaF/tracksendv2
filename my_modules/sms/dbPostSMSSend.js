@@ -20,6 +20,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                 if(recp.statusCode === 101 || recp.statusCode === 100) successfuls++;
                 else failures++;
 
+                console.log('...........cpn.id=' + cpn.id + '; recp.number=' + recp.number + '; recp.messageId=' + recp.messageId );
                 await models.Message.update(
                     {
                         message_id: recp.messageId
