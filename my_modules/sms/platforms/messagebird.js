@@ -256,7 +256,7 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
 
             }
 
-            let data = Promise.all(actions);
+            let data = await Promise.all(actions);
 
             console.log('MSGS ARE: ' + JSON.stringify(data[0]));
             

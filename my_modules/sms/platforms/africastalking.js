@@ -211,7 +211,7 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
 
           }
 
-          let data = Promise.all(actions);
+          let data = await Promise.all(actions);
 
             console.log('MSGS ARE: ' + JSON.stringify(data));
             
