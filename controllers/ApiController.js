@@ -468,6 +468,8 @@ exports.smsNotifyKirusa = (req, res) => {
 
         if(req.body) {          //  for KIRUSA
         
+            res.send({ response: "OK", data: req.body }); return;
+            
             // var resp = JSON.parse(Object.keys(req.body)[0]);
             var resp = req.body;
             if(resp.ref_ids) {};
