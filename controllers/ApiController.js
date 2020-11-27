@@ -467,7 +467,8 @@ exports.smsNotifyKirusa = (req, res) => {
 
     if(req.body) {          //  for KIRUSA
     
-        var resp = JSON.parse(Object.keys(req.body)[0]);
+        // var resp = JSON.parse(Object.keys(req.body)[0]);
+        var resp = req.body;
         if(resp.ref_ids) {};
 
         var cpgnid  = resp.id.split('-')[0];
