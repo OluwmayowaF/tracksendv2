@@ -435,143 +435,146 @@ exports.saveOptinLink = (req, res) => {
 
 exports.smsNotifyKirusa = (req, res) => {
     
-    /* {
-        “id”:” A10579090909090”,
-        "status":"accepted",
-        "ref_ids": [{“phone_number”:” 919886038842”,”ref_id”:"AC5ef8732a3c49700934481addd5ce1659”},{“phone_number”:” 919886038843”,”ref_id”:”BD6ef8732a3c49700934481addd5ce16560”}]
-    } 
-    
-    rejected, sent, failed, delivered and undelivered.
-    */
+    try {
+        /* {
+            “id”:” A10579090909090”,
+            "status":"accepted",
+            "ref_ids": [{“phone_number”:” 919886038842”,”ref_id”:"AC5ef8732a3c49700934481addd5ce1659”},{“phone_number”:” 919886038843”,”ref_id”:”BD6ef8732a3c49700934481addd5ce16560”}]
+        } 
+        
+        rejected, sent, failed, delivered and undelivered.
+        */
 
-    console.log('[[====================================');
-    let seen = [];
-    console.log('KIRUSA RESPONSE...');  
-    console.log(JSON.stringify(req, function (key, val) {
-        if (val != null && typeof val == "object") {
-            if (seen.indexOf(val) >= 0) {
-                return;
+        console.log('[[====================================');
+        let seen = [];
+        console.log('KIRUSA RESPONSE...');  
+        console.log(JSON.stringify(req, function (key, val) {
+            if (val != null && typeof val == "object") {
+                if (seen.indexOf(val) >= 0) {
+                    return;
+                }
+                seen.push(val);
             }
-            seen.push(val);
-        }
-        return val;
-    }) )
-    console.log('KIRUSA RESPONSE0: ' + Object.keys(req.body).length);
-    console.log('KIRUSA RESPONSE1: ' + Object.keys(req.body)[0]);
-    console.log('KIRUSA RESPONSE2: ' + JSON.stringify(req.body));
-    // console.log('KIRUSA RESPONS22: ' + JSON.parse(Object.keys(req.body)[0]));
-    // console.log('KIRUSA RESPONSE2: ' + JSON.stringify(JSON.parse(Object.keys(req.body)[0])));
-    // console.log('KIRUSA RESPONSE3: ' + JSON.parse(JSON.stringify(req.body)));
-    // console.log('KIRUSA RESPONSE4: ' + JSON.stringify(JSON.parse(JSON.stringify(req.body))));
-    console.log('====================================]]');
+            return val;
+        }) )
+        console.log('KIRUSA RESPONSE0: ' + Object.keys(req.body).length);
+        console.log('KIRUSA RESPONSE1: ' + Object.keys(req.body)[0]);
+        console.log('KIRUSA RESPONSE2: ' + JSON.stringify(req.body));
+        // console.log('KIRUSA RESPONS22: ' + JSON.parse(Object.keys(req.body)[0]));
+        // console.log('KIRUSA RESPONSE2: ' + JSON.stringify(JSON.parse(Object.keys(req.body)[0])));
+        // console.log('KIRUSA RESPONSE3: ' + JSON.parse(JSON.stringify(req.body)));
+        // console.log('KIRUSA RESPONSE4: ' + JSON.stringify(JSON.parse(JSON.stringify(req.body))));
+        console.log('====================================]]');
 
-    if(req.body) {          //  for KIRUSA
-    
-        // var resp = JSON.parse(Object.keys(req.body)[0]);
-        var resp = req.body;
-        if(resp.ref_ids) {};
-
-        var cpgnid  = resp.id.split('-')[0];
-        var phone   = resp.to;
-        var status  = resp.status; 
-        var dt_      = moment(resp.timestamp, "MMM DD, YYYY hh:mm:ss A Z");    //"Jul 20, 2020 9:49:44 AM WAT"
-        var dt      = moment.utc(dt_).format('YYYY-MM-DD HH:mm:ss');    //"Jul 20, 2020 9:49:44 AM WAT"
-        var dt__x   = moment.utc(new Date().getTime()).format('YYYY-MM-DD HH:mm:ss');    
-        console.log('MOMENTS TIME = ', dt);
+        if(req.body) {          //  for KIRUSA
         
-        var sid;
-        
-        let pref = phone.substr(0, 3);
-        // let phn = '0' + phone.substr(3);
-        let phn = phoneval(phone, pref);
+            // var resp = JSON.parse(Object.keys(req.body)[0]);
+            var resp = req.body;
+            if(resp.ref_ids) {};
 
-        console.log('====================================');
-        console.log('MSG STATUS = ' + status + "; phone = " + phone + "; pref = " + pref + "; phn = " + phn + "; cpgid = " + cpgnid);
-        console.log('====================================');
-
-        
-        if (status == 'delivered') {
-            sid = 1;
-
-            mongmodels.Contact.updateMany(
-                {
-                    'country.id': pref,
-                    phone: phn,
-                },
-                {
-                    status: 1
-                },
-            )
-
-        } else if (status == 'rejected') {
-            sid = 4;
-
-            mongmodels.Contact.updateMany(
-                {
-                    'country.id': pref,
-                    phone: phn,
-                },
-                {
-                    status: 3
-                },
-            )
+            var cpgnid  = resp.id.split('-')[0];
+            var phone   = resp.to;
+            var status  = resp.status; 
+            var dt_      = moment(resp.timestamp, "MMM DD, YYYY hh:mm:ss A Z");    //"Jul 20, 2020 9:49:44 AM WAT"
+            var dt      = moment.utc(dt_).format('YYYY-MM-DD HH:mm:ss');    //"Jul 20, 2020 9:49:44 AM WAT"
+            var dt__x   = moment.utc(new Date().getTime()).format('YYYY-MM-DD HH:mm:ss');    
+            console.log('MOMENTS TIME = ', dt);
             
-        } else if (status == 'failed' || status == 'undelivered') {
-            sid = 3;
+            var sid;
+            
+            let pref = phone.substr(0, 3);
+            // let phn = '0' + phone.substr(3);
+            let phn = phoneval(phone, pref);
 
-            mongmodels.Contact.updateMany(
-                {
-                    'country.id': pref,
-                    phone: phn,
-                },
-                {
-                    status: 2
-                },
-            )
+            console.log('====================================');
+            console.log('MSG STATUS = ' + status + "; phone = " + phone + "; pref = " + pref + "; phn = " + phn + "; cpgid = " + cpgnid);
+            console.log('====================================');
+
+            
+            if (status == 'delivered') {
+                sid = 1;
+
+                mongmodels.Contact.updateMany(
+                    {
+                        'country.id': pref,
+                        phone: phn,
+                    },
+                    {
+                        status: 1
+                    },
+                )
+
+            } else if (status == 'rejected') {
+                sid = 4;
+
+                mongmodels.Contact.updateMany(
+                    {
+                        'country.id': pref,
+                        phone: phn,
+                    },
+                    {
+                        status: 3
+                    },
+                )
+                
+            } else if (status == 'failed' || status == 'undelivered') {
+                sid = 3;
+
+                mongmodels.Contact.updateMany(
+                    {
+                        'country.id': pref,
+                        phone: phn,
+                    },
+                    {
+                        status: 2
+                    },
+                )
+
+            } else {
+                sid = 2;
+
+                mongmodels.Contact.updateMany(
+                    {
+                        'country.id': pref,
+                        phone: phn,
+                    },
+                    {
+                        status: 1
+                    },
+                )
+
+            }
+
+            if(!sid) return;
+            
+            models.Message.findOne({
+                where: {
+                    campaignId: cpgnid,
+                    destination: "+" + resp.to,
+                }
+            })
+            .then((mg) => {
+                console.log('POST DB CHECK...');
+                console.log('POST DB CHECK... = ' , JSON.stringify(mg));
+                
+                if(mg) mg.update({
+                    status: sid,
+                    ...( dt != "Invalid date" ? { deliverytime: dt, } : { deliverytime: dt__x, } ),
+                })
+                .then(() => {
+                    // console.log('====================================');
+                    // console.log('DOOOOOOOONNNNNNNNNNNNEEEEEEEEEEEEEE');
+                    // console.log('====================================');
+                })
+            })
+
 
         } else {
-            sid = 2;
-
-            mongmodels.Contact.updateMany(
-                {
-                    'country.id': pref,
-                    phone: phn,
-                },
-                {
-                    status: 1
-                },
-            )
-
+            console.log("NO BODY!");
         }
-
-        if(!sid) return;
-        
-        models.Message.findOne({
-            where: {
-                campaignId: cpgnid,
-                destination: "+" + resp.to,
-            }
-        })
-        .then((mg) => {
-            console.log('POST DB CHECK...');
-            console.log('POST DB CHECK... = ' , JSON.stringify(mg));
-            
-            if(mg) mg.update({
-                status: sid,
-                ...( dt != "Invalid date" ? { deliverytime: dt, } : { deliverytime: dt__x, } ),
-            })
-            .then(() => {
-                // console.log('====================================');
-                // console.log('DOOOOOOOONNNNNNNNNNNNEEEEEEEEEEEEEE');
-                // console.log('====================================');
-            })
-        })
-
-
-    } else {
-        console.log("NO BODY!");
+    } catch(err) {
+        console.log('CAUGHT ERROR: ' + JSON.stringify(err));
     }
-
 }
 
 exports.smsNotifyInfobip = (req, res) => {
