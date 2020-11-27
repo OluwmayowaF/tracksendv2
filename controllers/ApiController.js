@@ -574,6 +574,7 @@ exports.smsNotifyKirusa = (req, res) => {
         }
     } catch(err) {
         console.log('CAUGHT ERROR: ' + JSON.stringify(err));
+        res.send({ response: "OK...with errors", data: req.body })
     }
 }
 
