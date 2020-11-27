@@ -573,7 +573,7 @@ exports.smsNotifyKirusa = (req, res) => {
             console.log("NO BODY!");
         }
     } catch(err) {
-        console.log('CAUGHT ERROR: ' + JSON.stringify(err));
+        console.log('CAUGHT ERROR: ' + err);
         res.send({ response: "OK...with errors", data: req.body })
     }
 }
