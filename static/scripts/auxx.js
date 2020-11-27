@@ -2677,6 +2677,7 @@ function doLogin() {
 	var $butt = $('#login_btn');
 	$butt.attr('disabled','disabled');
 	$me.find('.loading_icon').show();
+	let hyd = true;
 
   $.ajax({
 		type: 'POST',
@@ -2688,7 +2689,7 @@ function doLogin() {
 			$butt.removeAttr('disabled');
 
 			if(data[0] && data[0] == 'autheticated') {
-				
+				hyd = false;
 				location.href = '/dashboard';
 
 			} else if(data == 'unauthorized') {
@@ -2717,8 +2718,7 @@ function doLogin() {
 		
 		}
 	}).done(function(){
-
-		$me.find('.loading_icon').hide();
+		if(hyd) $me.find('.loading_icon').hide();
     $butt.removeAttr('disabled');
 	});
 }
