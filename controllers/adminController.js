@@ -410,8 +410,6 @@ exports.uploadPerfContacts = async (req, res) => {
     }
 
 }; 
-    
-    
 
 exports.manualget = (req, res) => {
     var user_id = req.user.id;
