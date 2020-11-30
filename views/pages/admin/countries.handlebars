@@ -1,0 +1,172 @@
+	<div class="dashboard-content">
+
+		<!-- Titlebar -->
+		<div id="titlebar">
+			<div class="row">
+				<div class="col-md-12">
+					<!-- Breadcrumbs -->
+					<nav id="breadcrumbs">
+						<ul>
+							<li><a href="/dashboard">Dashboard</a></li>
+							<li>Countries</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+
+		{{#if flash}}
+			<div class="notification {{ flashtype }} closeable no-shadow">
+				<p><span style="text-transform: capitalize">{{ flashtype }}!</span> {{ flash }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
+
+			<div class="notification other3 closeable">
+				<p></p>
+				<a class="close"></a>
+			</div>
+
+		<div class="row">
+			<div class="toggle-wrap no_borders">
+
+			<div class="col-lg-12 trigger"><div class="col-lg-12 page_box_header toggle active"><i class="im im-icon-Cursor-Click2"></i> <b>Add</b> Country<i class="sl sl-icon-plus"></i></div></div>
+			<div class="col-lg-12 toggle-container" style="display: none">
+
+				<div id="add-listing">
+				<form action="/admin/countries" method="POST">
+
+					<!-- Section -->
+					<div class="add-listing-section">
+
+						<!-- Row -->
+						<div class="row with-forms">
+							<br>
+							<!-- Status -->
+							<div class="col-md-6">
+								<h5>Country Name <span> (Capitalize first letters)</span></h5>
+								<input type="text" name="name" maxlength="100" autocomplete="off" required>
+							</div>
+
+							<div class="col-md-3">	
+								<h5>Country Code </h5>
+								<input type="number" name="id" maxlength="3" required>
+							</div>
+
+							<div class="col-md-3">
+								<h5>3-Letter Code </h5>
+								<input type="text" name="abbreviation" maxlength="3" required>
+							</div>
+
+							<div class="col-md-12">
+								<div class="col-md-6 checkboxes _errorable">
+									<input id="notavailable" type="checkbox" name="notavailable" >
+									<label for="notavailable">This Country is NOT available to Users</label>
+								</div>
+							</div>
+
+						</div>
+						<!-- Row / End -->
+					<button type="submit" class="button preview">Create <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
+
+					</div>
+					<!-- Section / End -->
+
+
+
+				</form>
+				</div>
+			</div>
+
+			</div>
+
+			<div class="col-lg-12" style="margin-top: 30px">
+				<div class="col-lg-12 page_box_header">All Countries <span>[{{ args.ctrys.length }}]</span>
+				</div>
+			</div>
+			<div class="col-lg-12">
+
+				<div id="add-listing">
+					<!-- Section -->
+					<div class="add-listing-section">
+
+						<!-- Row -->
+						<div class="row with-forms">
+							<br>
+							<!-- Status -->
+							<div class="col-md-12 lists">
+								<ul>
+									<li class="list_item _hd" style="font-weight: bolder">
+										<ul class="saved_item">
+											<li style="flex: 6">Name</li>
+											<li style="flex: 2">Code</li>
+											<li style="flex: 2">Abbrev</li>
+											<li style="flex: 3">Created</li>
+											<li style="flex: 2; text-align: center">Availale</li>
+										</ul>
+									</li>
+									{{#each args.ctrys}}
+
+									<li class="list_item" data-wh="country">
+										<ul class="saved_item _clickable">
+											<input type="hidden" class="cid" value="{{ id }}" />
+											<li style="flex: 6" class="dv_name">{{ name }}</li>
+											<li style="flex: 2" class="dv_desc">{{ id }}</li>
+											<li style="flex: 2">{{ abbreviation }}</li>
+											<li style="flex: 3">{{formatDate createdAt "short"}}</li>
+											<li style="flex: 2; justify-content: center; align-items: center; display: flex;" class="dv_optin" >
+													<input class="available" id="" style="margin: 0; width: 18px; height: 18px;" type="checkbox" {{#if status}} checked {{/if}} onchange="updateCountry(this)">
+											</li>
+										</ul>
+									</li>
+									{{else}}
+										<em>No Country added yet.</em> 
+									{{/each}}
+								</ul>
+							</div>
+
+						</div>
+						<!-- Row / End -->
+
+					</div>
+					<!-- Section / End -->
+				</div>
+			</div>
+
+
+			<!-- Copyrights -->
+			<div class="col-md-12">
+				<div class="copyrights">© 2019 Tracksend. All Rights Reserved.</div>
+			</div>
+
+		</div>
+
+	</div>
+
+<script>
+function updateCountry(me) {
+
+	const id = $(me).closest('.saved_item').find('.cid').val();
+	const available = $(me).closest('.saved_item').find('.available').is(':checked') ? "on" : "";
+
+	$('.notification.other3 p').text('');
+	$('.notification.other3').hide();
+
+	$.ajax({
+		type: 'POST',
+		url: "/admin/updatecountry/",
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify({ id, available }),
+		success: function( data ) {
+			$('.notification.other3').removeClass('success error').addClass(data.response);
+			$('.notification.other3 p').text(data.response == "success" ? 'Country updated successfully.' : 'An error occurred.');
+			$('.notification.other3').show();
+		},
+		error: function(resp, dd, ww) {
+			$('.notification.other3').removeClass('success error').addClass('error');
+			$('.notification.other3 p').text('An error occurred.');
+			$('.notification.other3').show();
+		}
+	})
+}
+</script>

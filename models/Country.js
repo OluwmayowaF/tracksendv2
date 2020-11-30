@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     name: DataTypes.STRING,
     abbreviation: DataTypes.STRING,
+    status: DataTypes.INTEGER,
   })
 
   Country.associate = function (models) {

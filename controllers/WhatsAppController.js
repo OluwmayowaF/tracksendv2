@@ -674,6 +674,9 @@ exports.preOptout = async (req, res) => {
         console.log('KONT DATA: ' + JSON.stringify(kont));
         console.log('====================================');
         let ctry = await models.Country.findAll({ 
+            where: {
+                status: 1
+            },
             order: [ 
                 ['name', 'ASC']
             ]

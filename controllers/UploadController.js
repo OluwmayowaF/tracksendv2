@@ -123,6 +123,9 @@ exports.index = async (req, res) => {
                 "createdAt": -1
             }),                 
             models.Country.findAll({ 
+                where: {
+                    status: 1
+                },
                 order: [ 
                     ['name', 'ASC']
                 ]

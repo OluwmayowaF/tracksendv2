@@ -78,6 +78,9 @@ exports.newContact = (req, res) => {
             return res;
         }), 
         models.Country.findAll({ 
+            where: {
+                status: 1
+            },
             order: [ 
                 ['name', 'ASC']
             ]

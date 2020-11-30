@@ -2697,7 +2697,6 @@ function doLogin() {
 				$me.find('._form_errors._e_login').text('Invalid email/password');
 				$me.find('._form_errors._e_login').show();
 			}
-			
 		},
 		error: function(resp, dd, ww) {
 			if((ww == 'Unauthorized') || (resp.responseText == 'Unauthorized')) {
@@ -2708,7 +2707,6 @@ function doLogin() {
 			} else {
 				$me.find('._form_errors._e_login').text('Please check your connection, and try aggin.');
 				$me.find('._form_errors._e_login').show();
-				
 			}
 			console.log('error...' + JSON.stringify(resp) + '...' + dd + '...' + ww);
 			console.log('error2...' + resp.responseText);
@@ -3045,5 +3043,4 @@ function budgetBlur() {
 	$('#budget_').val(isNaN(n) ? '' : parseFloat(n).toLocaleString());
 	if(isNaN(n)) $('#_warning_budget').show();
 }
-
 

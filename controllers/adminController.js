@@ -152,6 +152,62 @@ exports.perfcampaigns = async(req, res) => {
     
 };
 
+exports.countries = async(req, res) => {    
+    var user_id = req.user.id;
+
+    const ctrys = await models.Country.findAll({
+        order: [ 
+            ['name', 'ASC']
+        ]
+    });
+
+    // console.log('pcpns = ' + JSON.stringify(pcpns));
+
+    res.render('pages/admin/countries', { 
+        layout: 'admin',
+        page: 'Countries',
+        countries: true,
+        // flashtype, flash,
+
+        args: {
+            ctrys,
+        }
+    });
+
+};
+
+exports.addCountry = async(req, res) => {    
+
+    const ctry = await models.Country.create({
+        id: req.body.id,
+        name: req.body.name,
+        abbreviation: req.body.abbreviation.toUpperCase(),
+        status: (req.body.notavailable && req.body.notavailable == "on") ? 0 : 1,
+    })
+
+    // console.log('pcpns = ' + JSON.stringify(pcpns));
+
+    if(ctry) req.flash('success', 'Country added successfully.');
+    else  req.flash('error', 'An error occurred.');
+    const backURL = req.header('Referer') || '/';
+    res.redirect(backURL);
+
+};
+
+exports.updateCountry = async(req, res) => {    
+    console.log(JSON.stringify(req.body));
+    const upd = await models.Country.update({
+        status: (req.body.available && req.body.available == "on") ? 1 : 0,
+    }, {
+        where: {
+            id: req.body.id
+        }
+    });
+
+    res.send({ response: upd ? "success" : "error" });
+
+};
+
 exports.updatePerfCampaign = async(req, res) => {    
     var user_id = req.user.id;
     let id_ = req.body.id
