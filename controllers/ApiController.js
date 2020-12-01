@@ -457,9 +457,9 @@ exports.smsNotifyKirusa = (req, res) => {
             }
             return val;
         }) )
+        console.log('KIRUSA RESPONSE2: ' + JSON.stringify(req.body));
         console.log('KIRUSA RESPONSE0: ' + Object.keys(req.body).length);
         console.log('KIRUSA RESPONSE1: ' + Object.keys(req.body)[0]);
-        console.log('KIRUSA RESPONSE2: ' + JSON.stringify(req.body));
         // console.log('KIRUSA RESPONS22: ' + JSON.parse(Object.keys(req.body)[0]));
         // console.log('KIRUSA RESPONSE2: ' + JSON.stringify(JSON.parse(Object.keys(req.body)[0])));
         // console.log('KIRUSA RESPONSE3: ' + JSON.parse(JSON.stringify(req.body)));
@@ -811,10 +811,20 @@ exports.smsNotifyMessagebird = (req, res) => {``
 
 exports.smsNotifyAfricastalking = (req, res) => {
     
+    let seen = [];
     console.log('[[=============https://build.at-labs.io/docs/sms%2Fnotifications=======================');
     console.log('AFRICASTALKING RESPONSE GET: '  + JSON.stringify(req.query));
     console.log('AFRICASTALKING RESPONSE POST: ' + JSON.stringify(req.body));
-    console.log('===============https://build.at-labs.io/docs/sms%2Fnotifications=====================]]');
+    console.log('AFRICASTALKING RESPONSE ALL: ' + JSON.stringify(req, function (key, val) {
+        if (val != null && typeof val == "object") {
+            if (seen.indexOf(val) >= 0) {
+                return;
+            }
+            seen.push(val);
+        }
+        return val;
+    }) )
+console.log('===============https://build.at-labs.io/docs/sms%2Fnotifications=====================]]');
 
     if(req.body) {          //  for AFRICASTALKING
     
