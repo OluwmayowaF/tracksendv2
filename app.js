@@ -51,6 +51,7 @@ app.use(flash());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.text({ type: 'text/*' })); //  to parse text/plain requests
 //  set static folder
 app.use(express.static(path.join(__dirname, '/static')));
 console.log('path is: ' + __dirname);

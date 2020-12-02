@@ -1,23 +1,14 @@
 var models = require('../models');
 var moment = require('moment');
-const _ = require('lodash');
 const Sequelize = require('sequelize');
 const sequelize = require('../config/cfg/db');
-const Op = Sequelize.Op;
 const mongoose = require('mongoose');
 var mongmodels = require('../models/_mongomodels');
-const fs = require('fs'); 
 var scheduler = require('node-schedule');
 var mgauth = require('../config/cfg/mailgun')();
 const mailgun = require('mailgun-js')({apiKey: mgauth.APIKEY, domain: mgauth.DOMAIN});
 
 var smsSendEngines = require('../my_modules/sms/smsSendEngines');
-var { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
-var uploadMyFile = require('../my_modules/uploadHandlers');
-var phoneformat = require('../my_modules/phoneformat');
-var apiAuthToken = require('../my_modules/apitokenauth');
-const randgen = require('../my_modules/randgen');
-var _message = require('../my_modules/output_messages');
 
 
 exports.index = async (req, res) => {
@@ -234,9 +225,18 @@ exports.add = async (req, res) => {
 }
 
 exports.send = async (req, res) => {
-    const PCMPGN_LIFESPAN_HOURS = 24;
-    const PCMPGN_INTR_INTVL_HOURS = 3;
+    const PCMPGN_IMPRN_LIFESPAN_HOURS = 24;
+    const PCMPGN_IMPRN_INTR_INTVL_HOURS = 3;
+
+    const PCMPGN_CLICK_LIFESPAN_HOURS = 72;
+    const PCMPGN_CLICK_INTR_INTVL_HOURS = 24;
+    const PCMPGN_CLICK_EXPECTED_CTR = 0.05;
+    const PCMPGN_CLICK_EXPECTED_DLVRY_RATE = 0.5;
+    const PCMPGN_CLICK_ITERATION_VOLUMES = [0.5, 0.25, 0.25];
+    const PCMPGN_CLICK_PRICE_PER_SMS = 2;
+
     const PCMPGN_AVG_COST_PER_UNIT = 2;
+
     let rmsg = "error"; //"Campaign successfully started.";
 
     req.perfcampaign = true; 
@@ -244,15 +244,15 @@ exports.send = async (req, res) => {
     try {
         var user_id = req.user.id;
         // var user_id = 10;
-        let cid = req.query.id;
-        let user_balance, sndr, info = null, schedule, schedule_, cpn, originalmessage, contacts;
-        let UNSUBMSG = false, DOSUBMSG, SINGLE_MSG, HAS_SURL, is_api_access = false, aux_obj;
+        var cid = req.query.id;
+        var user_balance, sndr, info = null, schedule, schedule_, cpn, originalmessage, contacts;
+        var UNSUBMSG = false, DOSUBMSG, SINGLE_MSG, HAS_SURL, is_api_access = false, aux_obj;
 
         var _status;
         var crit_gdr, crit_inc, crit_int, crit_sts, crit_loc, crit_age;
 
         //  GET USER BALANCE
-        let user_balance_ = await models.User.findByPk(user_id, {
+        var user_balance_ = await models.User.findByPk(user_id, {
             attributes: ['balance'], 
             raw: true, 
         })
@@ -266,12 +266,12 @@ exports.send = async (req, res) => {
         console.log('cpcnsdc = ' + JSON.stringify(cpn));
         if(cpn.status.stage != "Approved") throw 'not_approved';
 
-        let budget = cpn.budget;
-        let cost = cpn.cost;
+        var budget = cpn.budget;
+        var cost = cpn.cost;
 
         sndr = await models.Sender.findByPk(cpn.senderId, { attributes: ['id', 'name']});
         originalmessage = cpn.message;
-        schedule = cpn.startdate;
+        // schedule = cpn.startdate;
         // utm = (req.body.add_utm && req.body.add_utm == "on");
         DOSUBMSG = (req.body.add_optin && req.body.add_optin == "on");
         HAS_SURL = (originalmessage.search(/\[url\]/g) !== -1) && cpn.shorturl;
@@ -284,7 +284,7 @@ exports.send = async (req, res) => {
         } 
     
 
-        let crits = cpn.conditionset;
+        var crits = cpn.conditionset;
         crits.forEach(c => {
             // let crit = getApplicableName(c.criteria);
             switch (c.criteria) {
@@ -312,7 +312,7 @@ exports.send = async (req, res) => {
             }
         })
 
-        let crit = {
+        var crit = {
             ...(crit_sts? {
                 "fields.status": {
                     $in: crit_sts.map(i => { return i.toLowerCase() })
@@ -346,76 +346,100 @@ exports.send = async (req, res) => {
         }
 
         //  consider campaign type/measure!
-        let measure = cpn.measure;
-        let tgtcount = parseFloat(cpn.budget) / parseFloat(cpn.cost);
+        var measure = cpn.measure;
+        const PCMPGN_LIFESPAN_HOURS   = (measure == "per_imp") ? PCMPGN_IMPRN_LIFESPAN_HOURS   : PCMPGN_CLICK_LIFESPAN_HOURS;
+        const PCMPGN_INTR_INTVL_HOURS = (measure == "per_imp") ? PCMPGN_IMPRN_INTR_INTVL_HOURS : PCMPGN_CLICK_INTR_INTVL_HOURS;
 
-        perfEngine(0)
-        async function perfEngine( iter, starttime = new Date().getTime() ) {
+        // var tgtcount = parseFloat(cpn.budget) / parseFloat(cpn.cost);
+        // var dura = PCMPGN_LIFESPAN_HOURS * 60 * 60 * 1000, 
+        // var iter = 0;
+        var _end = moment().add(PCMPGN_LIFESPAN_HOURS, 'hours');
 
-            contacts = await _extractContacts(iter, measure, tgtcount);
+        // perfEngine(0)
+        (async function perfEngine( iter = 0, end = _end ) {
+
+            //  get status of performance campaign
+            let status_ = await mongmodels.PerfCampaign.findOne({
+                _id: mongoose.Types.ObjectId(cid),
+            }).select('status.stage')
+            if((status_.status.stage != "Approved") && (status_.status.stage != "In-Process")) return;
+
+            //  confirm/get valid timing and schedule
+            let timing = _acceptableTime(end)
+            if(timing == "end") return; //  update campaign to "finished"
+            else if(timing != "now") scheduler.scheduleJob(timing, perfEngine.bind(iter, end));
+            //  else, continue
+
+            console.log('***********  PERFORMANCE CAMPAIGN ITERATION #' + iter + "  ************");
+            //  update campaign status to "In-Process"
+            await mongmodels.PerfCampaign.updateOne({
+                _id: mongoose.Types.ObjectId(cid),
+            }, {
+                "status.stage": "In-Process"
+            });
+
+            contacts = await _extractContacts(iter, measure);
             if(!contacts || !contacts.length) return;
             console.log('FOUND _' + contacts.length + '_ CONTACTS');
             
-            if(iter === 0) {
-                console.log('_____starting');
-                _doSMS(info, starttime);
-            } else {
-                console.log('_____next');
-                let _now = new Date();
-                // let next = _now.setHours(_now.getHours() + PCMPGN_INTR_INTVL_HOURS) //   moment(now).add(3, 'hours').format('YYYY-MM-DD');
-                let next = _now.setMinutes(_now.getMinutes() + 2) //   moment(now).add(3, 'hours').format('YYYY-MM-DD');
-                console.log('_____nexttime: ' + JSON.stringify(next));
-                let dura = PCMPGN_LIFESPAN_HOURS * 60 * 60 * 1000;
+            let result = await _doSMS(contacts);
+            if(result == 'error') throw "error in result";
 
-                if(next - starttime > dura) return;
-                scheduler.scheduleJob(next, _doSMS.bind(info, starttime));
-            }
-        }
+            // let next = moment().add(PCMPGN_INTR_INTVL_HOURS, 'hours').toDate();
+            let next = moment().add(2, 'minutes').toDate();
+            scheduler.scheduleJob(next, perfEngine.bind(iter++, end));
+        })()
 
-        async function _doSMS(params, _st) {
-            console.log('_____doSMS: ' + JSON.stringify(_st));
+        async function _doSMS(_contacts) {
             let resp = await smsSendEngines(
                 req, res,
-                user_id, user_balance, sndr, info, contacts, schedule, schedule_, 
+                user_id, user_balance, sndr, info, _contacts, schedule, schedule_, 
                 cpn, originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, is_api_access? aux_obj : null
             );
-            // console.log('++++++++++++++++++++');
-            // console.log(resp);
 
-            if(response.statusCode == 200 || response.status == 200) {
-                rmsg = "success";
-                perfEngine( 1, _st);
-            } 
+            if(resp.statusCode == 200 || resp.status == 200) return "OK";
+            try {
+                console.log('1ERROR in resp' + JSON.stringify(resp));
+            } catch(err) {
+                console.log('2ERROR in resp');
+            }
+            return "error";
 
         }
 
-        async function _extractContacts(iter, meas, targetcount) {
-            let params = {}, contacts = [], ret = true;
+        async function _extractContacts(iter, meas) {
+            let params = {}, contacts = [], targetcount;
 
-            if(iter > 0) {
-                if(meas == "per_imp") {
+            if(meas == "per_imp") {
+                targetcount = parseFloat(cpn.budget) / parseFloat(cpn.cost);
+                if(iter > 0) {
                     //  check delivery of prior messages
                     let delivered_ = models.Message.find({
                         where: {
                             perfcmpgnId: cid,
                             status: 1
                         },
-                        attributes:['destination']
+                        attributes:['destination'],
                     })
 
                     let delivered = delivered_.map(d => { return d.destination });
                     targetcount =- delivered.length;
-                    if(targetcount <= 0) ret = false;
-                    else {
-                        params = {
-                            phone: {
-                                $nin: delivered
-                            }
+                    params = {
+                        phone: {
+                            $nin: delivered
                         }
                     }
-                } else if(meas == "per_click") {
-                    ret = false;    //  temporary
-                    //  check click status of prior messages
+                } 
+            } else if(meas == "per_click") {
+                //  check click status of prior messages
+
+                let tgt_clicks = parseFloat(cpn.budget) / parseFloat(cpn.cost);
+                let delvrd_contacts = tgt_clicks / PCMPGN_CLICK_EXPECTED_CTR;
+                let targetcount_ = delvrd_contacts / PCMPGN_CLICK_EXPECTED_DLVRY_RATE;
+                targetcount = targetcount_ * PCMPGN_CLICK_ITERATION_VOLUMES[ iter - 1 ];
+                // targetcount = Math.min(total_contacts, user_balance / PCMPGN_CLICK_PRICE_PER_SMS);
+
+                if(iter > 0) {
 
                     let clicked_ = models.Message.find({
                         where: {
@@ -429,9 +453,7 @@ exports.send = async (req, res) => {
                     })
 
                     let clicked = clicked_.map(d => { return d.destination });
-                    targetcount =- clicked.length;
-                    if(targetcount <= 0) return false;
-                    
+                    targetcount = (tgt_clicks < clicked.length) ? targetcount : 0;
                     params = {
                         phone: {
                             $nin: clicked
@@ -440,8 +462,10 @@ exports.send = async (req, res) => {
                 }
             }
 
-            if(ret) {
-                console.log('crit = ', JSON.stringify(crit));
+            console.log('***********  PCAMPAIGN TARGETS COUNT = ' + targetcount + "  ************");
+
+            if(targetcount > 0) {
+                console.log('..........  crit = ', JSON.stringify(crit) + "; params = " + JSON.stringify(params));
                 contacts = await mongmodels.PerfContact.find({ ...crit, ...params })
                                     .select(['phone', 'fields.countryid'])
                                     .sort({ updatedAt: 'asc', usecount: 'asc' })
@@ -451,11 +475,40 @@ exports.send = async (req, res) => {
                         .sort({ updatedAt: 'asc', usecount: 'asc' })
                         .limit(targetcount);
 
-                console.log('contacts count is: ' + contacts.length + '; and they re: ' + JSON.stringify(contacts));
+                console.log('.........  contacts count is: ' + contacts.length + '; and they re: ' + JSON.stringify(contacts));
                 // if(!contacts.length) throw "no_contacts";
                 // console.log("no_contacts");
+                return contacts;
+            } else return false;
+        }
+
+        function _acceptableTime(end) {
+            const valid = [
+                {
+                    from: moment('7:00am', 'h:mma'),
+                    to: moment('11:00am', 'h:mma'),
+                },
+                {
+                    from: moment('4:00pm', 'h:mma'),
+                    to: moment('8:30pm', 'h:mma'),
+                },
+            ]
+
+            const noww = moment(moment().format('h:mma'), 'h:mma');
+
+            for(let i = 0; i < valid.length; i++) {
+                if(noww.isBefore(valid[i]).from) { 
+                    if(valid[i].from.isAfter(end)) return "end";
+                    return valid[i].from.toDate();
+                }
+                else if(noww.isBefore(valid[i]).to) {
+                    if(valid[i].to.isAfter(end)) return "end";
+                    return "now";
+                }
             }
-            return contacts;
+
+            const nextday = valid[0].from.add(1, 'days');
+            return nextday.isAfter(end) ? "end" : nextday.toDate();
         }
 
         // res.send(resp);
@@ -594,6 +647,18 @@ exports.send = async (req, res) => {
     // var backURL = req.header('Referer') || '/';
     // res.redirect(backURL);
 
+}
+
+exports.finish = async (req, res) => {
+    try {
+        await mongmodels.PerfCampaign.updateOne({
+            _id: mongoose.Types.ObjectId(req.pcid),
+        },{
+            "status.stage": "Completed"
+        })
+    } catch(err) {
+        return "error";
+    }
 }
 
 exports.send_ = async (req, res) => {

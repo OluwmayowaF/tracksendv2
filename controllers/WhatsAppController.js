@@ -209,7 +209,18 @@ exports.preOptIn = async (req, res) => {
                 .replace(/\[fullname\]/g,   req.body.fullname)
                 .replace(/\[full name\]/g,  req.body.fullname)
                 .replace(/\[companyname\]/g, user.business)
-                .replace(/\[company name\]/g, user.business);
+                .replace(/\[company name\]/g, user.business)
+
+                .replace(/\[loyalty\]/g,    req.body.loyalty)
+                .replace(/\[rank\]/g,       req.body.rank)
+                .replace(/\[company\]/g,    req.body.company)
+                .replace(/\[city\]/g,       req.body.city)
+                .replace(/\[state\]/g,      req.body.state)
+                .replace(/\[count\]/g,      req.body.count)
+                .replace(/\[trip\]/g,       req.body.trip)
+                .replace(/\[category\]/g,   req.body.category)
+                .replace(/\[createdat\]/g,  req.body.createdAt);
+                
             body = body + ".\nClick " + newurl;
         } else {
         console.log('sgs2');

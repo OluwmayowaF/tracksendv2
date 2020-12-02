@@ -539,13 +539,23 @@ exports.add = async (req, res) => {
                 //  check for personalizations
                 var SINGLE_MSG = false;
                 var chk_message = originalmessage
-                .replace(/\[firstname\]/g, 'X')
-                .replace(/\[first name\]/g, 'X')
-                .replace(/\[lastname\]/g, 'X')
-                .replace(/\[last name\]/g, 'X')
-                .replace(/\[email\]/g, 'X')
-                .replace(/\[e-mail\]/g, 'X')
-                .replace(/\[url\]/g, 'X');
+                    .replace(/\[firstname\]/g,  'X')
+                    .replace(/\[first name\]/g, 'X')
+                    .replace(/\[lastname\]/g,   'X')
+                    .replace(/\[last name\]/g,  'X')
+                    .replace(/\[email\]/g,      'X')
+                    .replace(/\[e-mail\]/g,     'X')
+                    .replace(/\[url\]/g,        'X')
+
+                    .replace(/\[loyalty\]/g,    'X')
+                    .replace(/\[rank\]/g,       'X')
+                    .replace(/\[company\]/g,    'X')
+                    .replace(/\[city\]/g,       'X')
+                    .replace(/\[state\]/g,      'X')
+                    .replace(/\[count\]/g,      'X')
+                    .replace(/\[trip\]/g,       'X')
+                    .replace(/\[category\]/g,   'X')
+                    .replace(/\[createdat\]/g,  'X');
 
                 if(chk_message == originalmessage) {
                     SINGLE_MSG = true;
@@ -644,14 +654,14 @@ exports.add = async (req, res) => {
                                 },
                             ]
                         }
-                    }, {
+                    }/* , {
                         $project: {
                             "contacts.createdAt": 0,
                             "contacts.updatedAt": 0,
                             "createdAt": 0,
                             "updatedAt": 0,
                         }
-                    }                        
+                    } */                        
                 ])      //  consider adding .exec() for proper promise handling
 
                 //  merge contacts from all groups...
@@ -803,18 +813,29 @@ exports.add = async (req, res) => {
             console.log('MESSAGE ENTRY CREATE STARTED.');
                                                 
             let updatedmessage  = req.body.message
-            .replace(/\[firstname\]/g, kont.firstname)
-            .replace(/\[first name\]/g, kont.firstname)
-            .replace(/\[lastname\]/g, kont.lastname)
-            .replace(/\[last name\]/g, kont.lastname)
-            .replace(/\[email\]/g, kont.email)
-            .replace(/\[e-mail\]/g, kont.email)
-            .replace(/\[url\]/g, 'http://tsn.pub/' + args.slk + '/' + args.cid)
-            .replace(/\s{2,}/g, '')
-            // .replace(/\\r/g, '')
-            // .replace(/\\n/g, '')
-            // .replace(/\\t/g, '')
-            .replace(/&nbsp;/g, ' ');
+                .replace(/\[firstname\]/g,  kont.firstname)
+                .replace(/\[first name\]/g, kont.firstname)
+                .replace(/\[lastname\]/g,   kont.lastname)
+                .replace(/\[last name\]/g,  kont.lastname)
+                .replace(/\[email\]/g,      kont.email)
+                .replace(/\[e-mail\]/g,     kont.email)
+
+                .replace(/\[loyalty\]/g,    kont.loyalty)
+                .replace(/\[rank\]/g,       kont.rank)
+                .replace(/\[company\]/g,    kont.company)
+                .replace(/\[city\]/g,       kont.city)
+                .replace(/\[state\]/g,      kont.state)
+                .replace(/\[count\]/g,      kont.count)
+                .replace(/\[trip\]/g,       kont.trip)
+                .replace(/\[category\]/g,   kont.category)
+                .replace(/\[createdat\]/g,  kont.createdAt)
+                
+                .replace(/\[url\]/g, 'http://tsn.pub/' + args.slk + '/' + args.cid)
+                .replace(/\s{2,}/g, '')
+                // .replace(/\\r/g, '')
+                // .replace(/\\n/g, '')
+                // .replace(/\\t/g, '')
+                .replace(/&nbsp;/g, ' ');
 
             //  { SEND_SINGLE_MESSAGES_TO_CHAT-API }
                 console.log('1 kont = ' + JSON.stringify(kont));
