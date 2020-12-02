@@ -111,12 +111,23 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
                 console.log('MESSAGE ENTRY CREATE STARTED.');
                                                 
                 var updatedmessage  = originalmessage
-                .replace(/\[firstname\]/g, kont.firstname)
+                .replace(/\[firstname\]/g,  kont.firstname)
                 .replace(/\[first name\]/g, kont.firstname)
-                .replace(/\[lastname\]/g, kont.lastname)
-                .replace(/\[last name\]/g, kont.lastname)
-                .replace(/\[email\]/g, kont.email)
-                .replace(/\[e-mail\]/g, kont.email)
+                .replace(/\[lastname\]/g,   kont.lastname)
+                .replace(/\[last name\]/g,  kont.lastname)
+                .replace(/\[email\]/g,      kont.email)
+                .replace(/\[e-mail\]/g,     kont.email)
+  
+                .replace(/\[loyalty\]/g,    kont.loyalty)
+                .replace(/\[rank\]/g,       kont.rank)
+                .replace(/\[company\]/g,    kont.company)
+                .replace(/\[city\]/g,       kont.city)
+                .replace(/\[state\]/g,      kont.state)
+                .replace(/\[count\]/g,      kont.count)
+                .replace(/\[trip\]/g,       kont.trip)
+                .replace(/\[category\]/g,   kont.category)
+                .replace(/\[createdat\]/g,  kont.createdAt)
+                
                 .replace(/\[url\]/g, (args.slk && args.cid) ? 'http://tsn.pub/' + args.slk + '/' + args.cid : '')
                 .replace(/\s{2,}/g, '')
                 // .replace(/\\r/g, '')

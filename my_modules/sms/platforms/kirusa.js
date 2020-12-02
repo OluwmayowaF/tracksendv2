@@ -81,7 +81,7 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
                 });
             } else {
                 console.log('__________________contactID = ' + kont._id);
-                let cpnid = cpn.id.toString() || cpn._id.toString();
+                let cpnid = cpn.id.toString() || cpn._id.toString(); 
                 console.log('cccccccccccccccccccc ', cpnid );
                 shrt = await models.Message.create({
                     campaignId: cpnid,
@@ -95,12 +95,23 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
               console.log('MESSAGE ENTRY CREATE STARTED.:::' + JSON.stringify(shrt));
                                               
               var updatedmessage  = originalmessage
-              .replace(/\[firstname\]/g, kont.firstname)
+              .replace(/\[firstname\]/g,  kont.firstname)
               .replace(/\[first name\]/g, kont.firstname)
-              .replace(/\[lastname\]/g, kont.lastname)
-              .replace(/\[last name\]/g, kont.lastname)
-              .replace(/\[email\]/g, kont.email)
-              .replace(/\[e-mail\]/g, kont.email)
+              .replace(/\[lastname\]/g,   kont.lastname)
+              .replace(/\[last name\]/g,  kont.lastname)
+              .replace(/\[email\]/g,      kont.email)
+              .replace(/\[e-mail\]/g,     kont.email)
+
+              .replace(/\[loyalty\]/g,    kont.loyalty)
+              .replace(/\[rank\]/g,       kont.rank)
+              .replace(/\[company\]/g,    kont.company)
+              .replace(/\[city\]/g,       kont.city)
+              .replace(/\[state\]/g,      kont.state)
+              .replace(/\[count\]/g,      kont.count)
+              .replace(/\[trip\]/g,       kont.trip)
+              .replace(/\[category\]/g,   kont.category)
+              .replace(/\[createdat\]/g,  kont.createdAt)
+              
               .replace(/\[url\]/g, 'http://tsn.pub/' + args.slk + '/' + args.cid)
               .replace(/\s{2,}/g, '')
               // .replace(/\\r/g, '')
@@ -170,54 +181,54 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
   }
 
   //  loop through all the batches
-  async function doLoop(start) { 
-      let actions = [];
-      
-      console.log('**************   ' + 'count of contacts = ' + len + '; start = ' + start + '   ****************' + JSON.stringify(contacts));
-      if(start <= len) {
-          var end = (start + grpn > len) ? len : start + grpn;
+    async function doLoop(start) { 
+        let actions = [];
+        
+        console.log('**************   ' + 'count of contacts = ' + len + '; start = ' + start + '   ****************' + JSON.stringify(contacts));
+        if(start <= len) {
+            var end = (start + grpn > len) ? len : start + grpn;
 
-          let sub_list = contacts.slice(start, end);
-          var destinations = []; 
+            let sub_list = contacts.slice(start, end);
+            var destinations = []; 
 
-          if(SINGLE_MSG) {
-              console.log('SINGLE : ');
-              
-              for (let i = 0; i < sub_list.length; i++) {
+            if(SINGLE_MSG) {
+                console.log('SINGLE : ');
+                
+                for (let i = 0; i < sub_list.length; i++) {
 
-                  let checkAndAggregate_ = await checkAndAggregate(sub_list[i]);
-                  if(checkAndAggregate_) destinations.push(checkAndAggregate_);
-              }
+                    let checkAndAggregate_ = await checkAndAggregate(sub_list[i]);
+                    if(checkAndAggregate_) destinations.push(checkAndAggregate_);
+                }
 
-              var msgfull = { //  STEP 1 OF MESSAGE CONSTRUCTION
-                "id" : (req.txnmessaging ? 'TXNMSG' : cpn.id) + "-" + new Date().getTime().toString(),
-                // "from" : m_from,
-                  "sender_mask" : sndr.name,
-                  "to" : destinations,
-                  "body" : originalmessage,
-                  "callback_url" : env.SERVER_BASE + '/api/sms/kirusa/notify',
+                var msgfull = { //  STEP 1 OF MESSAGE CONSTRUCTION
+                    "id" : (req.txnmessaging ? 'TXNMSG' : cpn.id) + "-" + new Date().getTime().toString(),
+                    // "from" : m_from,
+                    "sender_mask" : sndr.name,
+                    "to" : destinations,
+                    "body" : originalmessage,
+                    "callback_url" : env.SERVER_BASE + '/api/sms/kirusa/notify',
 
-                  "url": 'https://konnect.kirusa.com/api/v1/Accounts/' + kirusa.accountid + '/Messages',
-                  "headers": {
-                      'Authorization': kirusa.apiKey,
-                      'Content-Type': 'application/json',
-                      'Accept': 'application/json'
-                  }
+                    "url": 'https://konnect.kirusa.com/api/v1/Accounts/' + kirusa.accountid + '/Messages',
+                    "headers": {
+                        'Authorization': kirusa.apiKey,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
                 }; 
 
-              console.log('SINGLE COMPILED!');
-              if(file_not_logged && !req.txnmessaging) {
+                console.log('SINGLE COMPILED!');
+                if(file_not_logged && !req.txnmessaging) {
                 filelogger('sms', 'Send Campaign (Kirusa)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
-                  file_not_logged = false;
-              }    
-              
-              actions.push(await Promise.resolve(msgfull));
+                    file_not_logged = false;
+                }    
 
-          } else {
-              console.log('NOT SINGLE OOOO');
-              
-              for (let i = 0; i < sub_list.length; i++) {
-                  console.log('----to aggr: ' +JSON.stringify(sub_list[i]));
+                actions.push(await Promise.resolve(msgfull));
+
+            } else {
+                console.log('NOT SINGLE OOOO');
+                
+                for (let i = 0; i < sub_list.length; i++) {
+                    console.log('----to aggr: ' +JSON.stringify(sub_list[i]));
                 let checkAndAggregate_ = await checkAndAggregate(sub_list[i]);
                 if(checkAndAggregate_) {
                     console.log('.........checkaggr.......');
@@ -225,20 +236,20 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
                 } else {
                     console.log('.........no-checkaggr.......');
                 }
-              }
-              console.log('UNSINGLE COMPILED!');
+                }
+                console.log('UNSINGLE COMPILED!');
 
-          }
+            }
 
-          let data = await Promise.all(actions);
-        //   .then(async (data) => {
-              console.log('MSGS ARE: ' + JSON.stringify(data));
-              
-              let params = data[0];
+            let data = await Promise.all(actions);
+            //   .then(async (data) => {
+            console.log('MSGS ARE: ' + JSON.stringify(data));
+            
+            let params = data[0];
 
-              let response = await sendSMS('kirusa', params);
-              // let resp_ = null;
-              if (response) {
+            let response = await sendSMS('kirusa', params);
+            // let resp_ = null;
+            if (response) {
                 //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
                 if(response.data) console.log('KIRUSA Status code: ' + JSON.stringify(response.data.status));
                 if(response.code) console.log('KIRUSA Status code: ' + JSON.stringify(response.code));
@@ -250,21 +261,21 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
                 } else {
                     failures++;
                 }
-              }
+            }
 
-              //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
-              let klist = sub_list.map(k => { return k._id })
-              let resp = await dbPostSMSSend.dbPostSMSSend(req, res, batches, successfuls, failures, info, user_balance, user_id, cpn, schedule_, null, null, networkerror);
-              console.log('a||||||||||||||||||||||||---' + JSON.stringify(resp));
-        
-              counter++;
-              if(end < len) await doLoop(end)
-              console.log('paramsparams=' + JSON.stringify(params));
-              return resp;
-          
-      }
+            //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
+            let klist = sub_list.map(k => { return k._id })
+            let resp = await dbPostSMSSend.dbPostSMSSend(req, res, batches, successfuls, failures, info, user_balance, user_id, cpn, schedule_, null, null, networkerror);
+            console.log('a||||||||||||||||||||||||---' + JSON.stringify(resp));
+    
+            counter++;
+            if(end < len) await doLoop(end)
+            console.log('paramsparams=' + JSON.stringify(params));
+            return resp;
+            
+        }
 
-  }
+    }
 
   const MAX_NO_IF_NOT_SINGLE_MSGS     = 1;        // NOT FIXED FOR KIRUSA
   const MAX_NO_IF_SINGLE_MSGS         = 1000;     // NOT FIXED FOR KIRUSA
