@@ -123,6 +123,7 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
                         shortlinkId: args.sid,
                         contactlink: args.cid,
                         contactId: kont._id.toString(),
+                        destination: '+' + formatted_phone,
                     });
                 }
 

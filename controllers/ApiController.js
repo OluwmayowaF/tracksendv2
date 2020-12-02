@@ -446,32 +446,15 @@ exports.smsNotifyKirusa = (req, res) => {
         */
 
         console.log('[[====================================');
-        let seen = [];
         console.log('KIRUSA RESPONSE...');  
-        console.log(JSON.stringify(req, function (key, val) {
-            if (val != null && typeof val == "object") {
-                if (seen.indexOf(val) >= 0) {
-                    return;
-                }
-                seen.push(val);
-            }
-            return val;
-        }) )
         console.log('KIRUSA RESPONSE2: ' + JSON.stringify(req.body));
-        console.log('KIRUSA RESPONSE0: ' + Object.keys(req.body).length);
-        console.log('KIRUSA RESPONSE1: ' + Object.keys(req.body)[0]);
-        // console.log('KIRUSA RESPONS22: ' + JSON.parse(Object.keys(req.body)[0]));
-        // console.log('KIRUSA RESPONSE2: ' + JSON.stringify(JSON.parse(Object.keys(req.body)[0])));
-        // console.log('KIRUSA RESPONSE3: ' + JSON.parse(JSON.stringify(req.body)));
-        // console.log('KIRUSA RESPONSE4: ' + JSON.stringify(JSON.parse(JSON.stringify(req.body))));
         console.log('====================================]]');
 
         if(req.body) {          //  for KIRUSA
-        
-            res.send({ response: "OK", data: req.body }); return;
             
-            // var resp = JSON.parse(Object.keys(req.body)[0]);
-            var resp = req.body;
+            res.send({ response: "OK", data: req.body }); 
+            
+            var resp = (typeof req.body == "object") ? req.body : JSON.parse(req.body);
             if(resp.ref_ids) {};
 
             var cpgnid  = resp.id.split('-')[0];

@@ -88,6 +88,7 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
                     shortlinkId: args.sid,
                     contactlink: args.cid,
                     contactId: kont._id.toString(),
+                    destination: '+' + formatted_phone,
                 });
             }
 
