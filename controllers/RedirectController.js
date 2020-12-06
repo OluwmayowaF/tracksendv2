@@ -88,7 +88,7 @@ exports.campaign = async function(req, res) {
                 req.pcid = cmpgn._id;
                 pcmpgnController.finish(req, res);
             }
-        }),
+        });
 
     }
 
