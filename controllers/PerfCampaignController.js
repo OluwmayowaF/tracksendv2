@@ -256,18 +256,50 @@ exports.send = async (req, res) => {
             attributes: ['balance'], 
             raw: true, 
         })
-        user_balance = user_balance_.balance;
+        user_balance = parseFloat(user_balance_.balance);
 
-        cpn = await mongmodels.PerfCampaign.findOne({
+        cpn = await mongmodels.PerfCampaign.findOneAndUpdate({
             _id: mongoose.Types.ObjectId(cid),
-            userId: user_id,
-        });
+        }, {
+            "status.stage": "In-Process"
+        })
 
         console.log('cpcnsdc = ' + JSON.stringify(cpn));
         if(cpn.status.stage != "Approved") throw 'not_approved';
 
         var budget = cpn.budget;
         var cost = cpn.cost;
+        var units_used = Math.floor(parseFloat(budget) / parseFloat(cost)) * parseFloat(cost) / PCMPGN_AVG_COST_PER_UNIT;   //  to get the relevant portion of the budget
+
+        /*  
+            REMOVE UNITS AND 
+            REGISTER/LOG TRANSACTION 
+        */
+        if(user_balance < units_used) throw 'insufficient_balance';
+
+        let new_bal = user_balance - units_used;
+        console.log('old bal = ' + user_balance + '; units used = ' + units_used + '; NEW BALANCE = ' + new_bal);
+
+        //  UPDATE UNITS USER BALANCE
+        await models.User.update({
+            balance: new_bal,
+        }, {
+            where: { id: user_id },
+        });
+
+        //  LOG TRANSACTIONS (performance campaigns transactions are logged separately)
+        await models.Transaction.create({
+            description: 'DEBIT',
+            userId: user_id,
+            type: (req.txnmessaging) ? 'TXN-MESSAGING' : ((req.perfcampaign) ? 'PERFCAMPAIGN' : 'CAMPAIGN'),
+            ref_id: (req.txnmessaging) ? new Date().getTime() : cpn.id.toString(),
+            units: (-1) * info.units_used,
+            status: 1,
+        })
+
+
+        /*  REMOVED UNITS AND REGISTERED/LOGGED TRANSACTION */
+
 
         sndr = await models.Sender.findByPk(cpn.senderId, { attributes: ['id', 'name']});
         originalmessage = cpn.message;
@@ -280,9 +312,8 @@ exports.send = async (req, res) => {
         info = {
             name: cpn.name,
             shortlinkId: cpn.shorturl,
-            units_used: parseFloat(cpn.budget) / PCMPGN_AVG_COST_PER_UNIT,
+            units_used,
         } 
-    
 
         var crits = cpn.conditionset;
         crits.forEach(c => {
@@ -411,7 +442,7 @@ exports.send = async (req, res) => {
             let params = {}, contacts = [], targetcount;
 
             if(meas == "per_imp") {
-                targetcount = parseFloat(cpn.budget) / parseFloat(cpn.cost);
+                targetcount = parseFloat(budget) / parseFloat(cost);
                 if(iter > 0) {
                     //  check delivery of prior messages
                     let delivered_ = models.Message.find({
@@ -430,10 +461,10 @@ exports.send = async (req, res) => {
                         }
                     }
                 } 
-            } else if(meas == "per_click") {
+            } else if(meas == "per_clk") {
                 //  check click status of prior messages
 
-                let tgt_clicks = parseFloat(cpn.budget) / parseFloat(cpn.cost);
+                let tgt_clicks = Math.floor(parseFloat(budget) / parseFloat(cost));
                 let delvrd_contacts = tgt_clicks / PCMPGN_CLICK_EXPECTED_CTR;
                 let targetcount_ = delvrd_contacts / PCMPGN_CLICK_EXPECTED_DLVRY_RATE;
                 targetcount = targetcount_ * PCMPGN_CLICK_ITERATION_VOLUMES[ iter - 1 ];
@@ -594,11 +625,22 @@ exports.send = async (req, res) => {
         let errmsg, errresp;
 
         if(err == "no_contacts") {
-            errmsg = "No matching contacts found. Kindly contact Admin."
+            errmsg = "No matching contacts found. Kindly contact Admin.";
             errresp = "Error. ";
         } else if(err == "not_approved") {
-            errmsg = "Campaign not yet Approved. Kindly contact Admin."
+            errmsg = "Campaign not yet Approved. Kindly contact Admin.";
             errresp = "Error. ";
+        } else if(err == "insufficient_balance") {
+            errmsg = "You have insufficent units balance.";
+            errresp = "Error. ";
+
+            cpn = await mongmodels.PerfCampaign.findOneAndUpdate({
+                _id: mongoose.Types.ObjectId(cid),
+            }, {
+                "status.stage": "Terminated"
+            })
+    
+    
         } else {
             errmsg = 'Please specify ';
             errresp = "Input error. ";

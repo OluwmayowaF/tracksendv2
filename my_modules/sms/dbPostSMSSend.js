@@ -62,38 +62,33 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
         
         try {
             if(!networkerror && successfuls > 0) {   
-            // if(true) {       //  kenni
-                let new_bal = parseFloat(user_balance) - parseFloat(info.units_used);
-                console.log('old bal = ' + user_balance + '; units used = ' + info.units_used + '; NEW BALANCE = ' + new_bal);
-
-                let usr = await models.User.findByPk(user_id)
-                //  UPDATE UNITS USER BALANCE
-                await usr.update({
-                    balance: new_bal,
-                });
-                //  UPDATE UNITS USED FOR CAMPAIGN OR UPDATE STATUS FOR PERFCAMPAIGN
-                if(req.perfcampaign) {
+                if(!req.perfcampaign) {
                     console.log('.................................updating status for ' + cpn._id);
-                    await mongmodels.PerfCampaign.findOneAndUpdate({
-                        _id: mongoose.Types.ObjectId(cpn._id),
-                    }, {
-                        "status.stage": "Sent"
-                    })
                     
-                } else if(!req.txnmessaging)await cpn.update({
-                    units_used: info.units_used,
-                    status: 1
-                });
+                    let new_bal = parseFloat(user_balance) - parseFloat(info.units_used);
+                    console.log('old bal = ' + user_balance + '; units used = ' + info.units_used + '; NEW BALANCE = ' + new_bal);
 
-                //  LOG TRANSACTIONS
-                await models.Transaction.create({
-                    description: 'DEBIT',
-                    userId: user_id,
-                    type: (req.txnmessaging) ? 'TXN-MESSAGING' : ((req.perfcampaign) ? 'PERFCAMPAIGN' : 'CAMPAIGN'),
-                    ref_id: (req.txnmessaging) ? new Date().getTime() : cpn.id.toString(),
-                    units: (-1) * info.units_used,
-                    status: 1,
-                })
+                    let usr = await models.User.findByPk(user_id)
+                    //  UPDATE UNITS USER BALANCE
+                    await usr.update({
+                        balance: new_bal,
+                    });
+
+                    if(!req.txnmessaging) await cpn.update({
+                        units_used: info.units_used,
+                        status: 1
+                    });
+    
+                    //  LOG TRANSACTIONS (performance campaigns transactions are logged separately)
+                    await models.Transaction.create({
+                        description: 'DEBIT',
+                        userId: user_id,
+                        type: (req.txnmessaging) ? 'TXN-MESSAGING' : ((req.perfcampaign) ? 'PERFCAMPAIGN' : 'CAMPAIGN'),
+                        ref_id: (req.txnmessaging) ? new Date().getTime() : cpn.id.toString(),
+                        units: (-1) * info.units_used,
+                        status: 1,
+                    })
+                }
 
                 //  CONVERT REFS FROM TEMP REFS TO REAL REFS
                 if(!req.txnmessaging && !req.perfcampaign) await models.Tmpcampaign.update(

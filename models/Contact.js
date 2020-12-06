@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
     smsoptintime: DataTypes.DATE,
     smsoptouttime:DataTypes.DATE,
     do_whatsapp:  DataTypes.INTEGER,
-    status:       DataTypes.INTEGER,
+    status:       DataTypes.INTEGER,    //  0 = 'unverified | 1 = 'Non-DND' | 2 = 'DND'
     misc:         DataTypes.STRING,
   })
 

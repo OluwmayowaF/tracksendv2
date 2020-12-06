@@ -143,7 +143,7 @@ const PerfCampaignSchema = new mongoose.Schema({
   // conditionset:   Array,
   conditionset:   mongoose.Schema.Types.Mixed,
   type:           String,   //  sms | whatsapp
-  measure:        String,   //  click | impression
+  measure:        String,   //  per_clk | per_imp
   senderId:       Number,
   shortlinkId:    Number,
   startdate:      Date,

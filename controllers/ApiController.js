@@ -490,20 +490,9 @@ exports.smsNotifyKirusa = (req, res) => {
                 )
 
             } else if (status == 'rejected') {
-                sid = 4;
-
-                mongmodels.Contact.updateMany(
-                    {
-                        'country.id': pref,
-                        phone: phn,
-                    },
-                    {
-                        status: 3
-                    },
-                )
-                
-            } else if (status == 'failed' || status == 'undelivered') {
-                sid = 3;
+                //  Kirusa rejects the SMS due to low balance, for instance
+            } else if (status == 'failed') {
+                sid = 3;    //  DND
 
                 mongmodels.Contact.updateMany(
                     {
@@ -515,7 +504,10 @@ exports.smsNotifyKirusa = (req, res) => {
                     },
                 )
 
-            } else {
+            } else if (status == 'undelivered') {
+                sid = 4;    //  phone off, for instance
+
+            } else {    //   not sure about anything about this option
                 sid = 2;
 
                 mongmodels.Contact.updateMany(

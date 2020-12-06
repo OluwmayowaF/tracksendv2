@@ -1,7 +1,10 @@
 const Sequelize = require('sequelize');
+const sequelize  = require('../config/cfg/db');
 const moment = require('moment');
 var models = require('../models');
 const getUrlReferer = require('../my_modules/getUrlReferer');
+const mongmodels = require('../models/_mongomodels');
+var pcmpgnController = require('./PerfCampaignController');
 // const referrer = require('referrer');
 
 exports.campaign = async function(req, res) {
@@ -56,6 +59,39 @@ exports.campaign = async function(req, res) {
     }
     console.log('this is: ' + JSON.stringify(pro));
     
+    getUrlReferer(req, shurl.id);
+
+    let cpid, utm = '';
+    if(cpid = pro[0][0].campaignId) {
+    
+        var cmpgn = await models.Campaign.findByPk((cpid), {
+            attributes: ['name','has_utm'], 
+        })
+
+    } else if(cpid = pro[0][0].perfcmpgnId) {
+
+        var cmpgn = await mongmodels.PerfCampaign.findById(cpid).select(['name', 'measure', 'cost', 'budget', 'has_utm', 'status.stage']);
+        let targetClicks = Math.floor(parseFloat(cmpgn.budget)/parseFloat(cmpgn.cost));
+
+        if(cmpgn.status.stage != "In-Progress")
+        await sequelize.query(
+            "SELECT COUNT(status) AS clickc FROM messages WHERE status = 1 AND clickcount > 0 AND campaignId = :cid WHERE t8.userId = :id" , {
+                replacements: {
+                    cid: cmpgn._id,
+                },
+                type: sequelize.QueryTypes.SELECT,
+            }
+        ).then(([result, metadata]) => {
+            console.log(result);
+            if(targetClicks ===  parseInt(result.clickc)) {
+                //  END PERFORMANCE CAMPAIGN
+                req.pcid = cmpgn._id;
+                pcmpgnController.finish(req, res);
+            }
+        }),
+
+    }
+
     //  update msg clicks and date (if first time)
     var mysqlTimestamp = moment.utc(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     await pro[0][0].update({
@@ -64,14 +100,9 @@ exports.campaign = async function(req, res) {
         ...((pro[0][0].firstclicktime == null) ? {firstclicktime: mysqlTimestamp} : {})
     })
 
-    getUrlReferer(req, shurl.id);
-    
+
     //  finally, redirect to client URL
-    let utm = '';
     
-    var cmpgn = await models.Campaign.findByPk((pro[0][0].campaignId), {
-        attributes: ['name','has_utm'], 
-    })
     console.log('pre-utm-check; cid = ' + cmpgn.has_utm + ' -- ' + JSON.stringify(cmpgn));
     if(cmpgn.has_utm) {
         console.log('post-utm-check');
