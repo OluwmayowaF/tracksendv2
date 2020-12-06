@@ -338,7 +338,7 @@ exports.validate = async (req, res) => {
         } catch(err) {
             console.log("--------------------- ERRORS OCCURED ----------------------");
             console.log(JSON.stringify(err));
-            console.log('error type: ' + err.code + '; errors count: ' + (err.writeErrors.length ? err.writeErrors.length : 0));
+            console.log('error type: ' + err.code + '; errors count: ' + (err.writeErrors ? err.writeErrors.length : 0));
         }
 
         // console.log('________FINISHED = ' + JSON.stringify(finished));
