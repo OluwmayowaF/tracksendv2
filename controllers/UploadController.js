@@ -328,12 +328,18 @@ exports.validate = async (req, res) => {
         var rows_finetuned = rows_trimmed.filter(validateCsvRow);
 
         // console.log('________FINAL DATA: ' + JSON.stringify(rows_finetuned));
-        
+
         console.log('t_error: ' + total_errors + '; e_errors: ' + email_errors + '; p_errors: ' + phone_errors);
         // return;
+        let finished;
 
-        let finished = await mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(rows_finetuned))) //   for massive amount of bulk insert
-
+        try {
+            finished = await mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(rows_finetuned)), { ordered: false }) //   for massive amount of bulk insert
+        } catch(err) {
+            console.log("--------------------- ERRORS OCCURED ----------------------");
+            console.log(JSON.stringify(err));
+        }
+        
         // console.log('________FINISHED = ' + JSON.stringify(finished));
         let inserted = 0;
         if(finished) {
