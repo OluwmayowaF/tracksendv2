@@ -328,7 +328,7 @@ exports.validate = async (req, res) => {
         var rows_finetuned = rows_trimmed.filter(validateCsvRow);
 
         // console.log('________FINAL DATA: ' + JSON.stringify(rows_finetuned));
-        console.log('t_error: ' + total_errors + '; e_errors: ' + email_errors + '; p_errors: ' + phone_errors);
+        
         console.log('t_error: ' + total_errors + '; e_errors: ' + email_errors + '; p_errors: ' + phone_errors);
         // return;
 

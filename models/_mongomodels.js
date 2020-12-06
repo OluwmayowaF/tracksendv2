@@ -159,7 +159,7 @@ const PerfCampaign = mongoose.model('perfcampaigns', PerfCampaignSchema);
 
 const PerfContactSchema = new mongoose.Schema({
   phone:          String,
-  fields:         mongoose.Schema.Types.Mixed,
+  fields:         mongoose.Schema.Types.Mixed, 
   usecount:       Number,
   status:         mongoose.Schema.Types.Mixed,  //    an object for different types of statuses ...dnd ['yes' | 'maybe' | 'no'], active [true | false]
   batch:          {
