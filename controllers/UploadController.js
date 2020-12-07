@@ -336,11 +336,12 @@ exports.validate = async (req, res) => {
         let duplicates = 0;
 
         try {
-            finished = await mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(rows_finetuned)), { ordered: false }, (er, result) => {
+            finished = await mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(rows_finetuned)), { ordered: false }, (er_, result) => {
                 console.log('RSTRSTRS = ' + JSON.stringify(result));
-                console.log('EREREROR = ' + JSON.stringify(er));
+                console.log('EREREROR = ' + JSON.stringify(er_));
+                let er = JSON.parse(JSON.stringify(er_));
                 inserted = er.result.nInserted;
-                duplicates = er.result.writeErrors.length;
+                duplicates = er.result.writeErrors ? er.result.writeErrors.length : 0;
                 console.log('EREREROR | inserted: ' + (er.result ? er.result.nInserted : 'xx') + '; duplicates: ' + JSON.stringify(er.result.writeErrors) + (er.result.writeErrors ? er.result.writeErrors.length : 'yy') + ', errorcode: ' + er.code );
             }) //   for massive amount of bulk insert
         } catch(err) {
