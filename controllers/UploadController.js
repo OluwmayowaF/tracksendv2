@@ -337,13 +337,16 @@ exports.validate = async (req, res) => {
 
         try {
             finished = await mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(rows_finetuned)), { ordered: false }, (er_, result) => {
-                console.log('RSTRSTRS = ' + JSON.stringify(result));
-                console.log('EREREROR = ' + JSON.stringify(er_));
-                let er = JSON.parse(JSON.stringify(er_));
-                inserted = er.result.nInserted;
-                duplicates = er.result.writeErrors ? er.result.writeErrors.length : 0;
-                console.log('EREREROR | inserted: ' + (er.result ? er.result.nInserted : 'xx') + '; duplicates: ' + (er.result.writeErrors ? er.result.writeErrors.length : 'yy') + ', errorcode: ' + er.code );
-
+                // console.log('RSTRSTRS = ' + JSON.stringify(result));
+                // console.log('EREREROR = ' + JSON.stringify(er_));
+                if(result) inserted = result.length;
+                else {
+                    let er = JSON.parse(JSON.stringify(er_));
+                    inserted = er.result.nInserted;
+                    duplicates = er.result.writeErrors ? er.result.writeErrors.length : 0;
+                    console.log('EREREROR | inserted: ' + (er.result ? er.result.nInserted : 'xx') + '; duplicates: ' + (er.result.writeErrors ? er.result.writeErrors.length : 'yy') + ', errorcode: ' + er.code );
+                }
+                
                 if(inserted) req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added' + ((phone_errors) ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '.') + (duplicates ? '; ' + duplicates + ' duplicates ignored.' : ''));
                 else req.flash('error', 'Upload failure. Please try again later or contact Admin');
                 res.redirect('/dashboard/upload');
