@@ -912,15 +912,20 @@ exports.add = async (req, res) => {
                         let _msgmsg = (info.schedule == 'Invalid date') ? 'Messages sent out' : 'Messages would be sent out at ' + info.schedulewa;
                         req.flash('success', 'Campaign created successfully. ' + _msgmsg);
                     }
-                    var backURL = req.header('Referer') || '/';
-                    res.redirect(backURL);
+                    //   don't return or 'res.send' yet cos this is in a loop
                 }
             }
         } else {
             console.log('INVALID OPERATION!');
         }
     }
-    
+    try {
+        var backURL = req.header('Referer') || '/';
+        res.redirect(backURL);
+    } catch(err) {
+        console.log(" ;);););) Cannot set headers after they are sent to the client ;);););)");
+    }
+
     async function doSMS(info, ref) {
         //  ...continues here if type-sms and has been analysed 
         
