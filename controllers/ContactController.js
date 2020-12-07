@@ -373,8 +373,9 @@ exports.addContact = async (req, res) => {
             };
         }
 
-        console.log('...............about checking sending "new contact zap trigger. zap_list: ' + JSON.stringify(zap_list) + '; to url: ' + zap.hookUrl);
         if(zap) {
+            console.log('...............about checking sending "new contact zap trigger. zap_list: ' + JSON.stringify(zap_list) + '; to url: ' + zap.hookUrl);
+
             console.log('...............about sending "new contact zap trigger.');
             let ret = await axios({
                 method: 'POST',
@@ -422,7 +423,16 @@ exports.addContact = async (req, res) => {
         if((err.name == 'SequelizeUniqueConstraintError') || (err.codeName == 'DuplicateKey')) {
             fl.msg = fl.msg + 'Group Name already exists on your account. ';
             fl.code = "E020";
-    } 
+        } 
+        if((err.MongoError && err.MongoError.search('11000') >= 0)) {
+            if(err.MongoError.search('name_1_userId_1') >= 0)) {
+                fl.msg = fl.msg + 'Group Name already exists on your account. ';
+                fl.code = "E020";
+            } else {
+                fl.msg = fl.msg + 'Contact(s) already exists in Group. ';
+                fl.code = "E019";                
+            }
+        } 
         if(fl.msg == '') {
             fl.msg = fl.msg + 'An error occured. Kindly try again later or contact Admin. ';
             fl.code = "EOO1";
