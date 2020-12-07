@@ -336,7 +336,8 @@ exports.validate = async (req, res) => {
         try {
             finished = await mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(rows_finetuned)), { ordered: false }, (er, result) => {
                 console.log('RSTRSTRS = ' + JSON.stringify(result));
-                console.log('EREREROR = ' + JSON.stringify(er));
+                // console.log('EREREROR = ' + JSON.stringify(er));
+                console.log('EREREROR | inserted: ' + er.result.nInserted + '; duplicates: ' + er.result.writeErrors.length + ', errorcode: ' + err.code );
             }) //   for massive amount of bulk insert
         } catch(err) {
             console.log("--------------------- ERRORS OCCURED ----------------------");
