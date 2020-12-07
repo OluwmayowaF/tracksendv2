@@ -342,7 +342,7 @@ exports.validate = async (req, res) => {
                 let er = JSON.parse(JSON.stringify(er_));
                 inserted = er.result.nInserted;
                 duplicates = er.result.writeErrors ? er.result.writeErrors.length : 0;
-                console.log('EREREROR | inserted: ' + (er.result ? er.result.nInserted : 'xx') + '; duplicates: ' + JSON.stringify(er.result.writeErrors) + (er.result.writeErrors ? er.result.writeErrors.length : 'yy') + ', errorcode: ' + er.code );
+                console.log('EREREROR | inserted: ' + (er.result ? er.result.nInserted : 'xx') + '; duplicates: ' + (er.result.writeErrors ? er.result.writeErrors.length : 'yy') + ', errorcode: ' + er.code );
             }) //   for massive amount of bulk insert
         } catch(err) {
             console.log("--------------------- ERRORS OCCURED ----------------------");
@@ -351,12 +351,12 @@ exports.validate = async (req, res) => {
         }
 
         console.log('________FINISHED = ' + (finished ? finished.length : 'zz'));
-        if(inserted) {
+        /* if(inserted) {
             inserted = finished.length;
             // duplicates = result.warningCount;
         } else {
             console.log('ERROR: IN INSERTING CONTACTS');
-        }
+        } */
         
         // req.flash('success', 'Upload complete successfully: <b>' + inserted + '</b> duplicate contacts added; <b>' + duplicates + '</b> contacts ignored.');
         // if(inserted) req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added; ' + duplicates + ' duplicate contacts ignored' + (phone_errors > 0 ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '') );
