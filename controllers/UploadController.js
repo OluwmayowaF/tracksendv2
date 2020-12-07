@@ -343,11 +343,18 @@ exports.validate = async (req, res) => {
                 inserted = er.result.nInserted;
                 duplicates = er.result.writeErrors ? er.result.writeErrors.length : 0;
                 console.log('EREREROR | inserted: ' + (er.result ? er.result.nInserted : 'xx') + '; duplicates: ' + (er.result.writeErrors ? er.result.writeErrors.length : 'yy') + ', errorcode: ' + er.code );
+
+                if(inserted) req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added' + ((phone_errors) ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '.') + (duplicates ? '; ' + duplicates + ' duplicates ignored.' : ''));
+                else req.flash('error', 'Upload failure. Please try again later or contact Admin');
+                res.redirect('/dashboard/upload');
             }) //   for massive amount of bulk insert
         } catch(err) {
             console.log("--------------------- ERRORS OCCURED ----------------------");
             console.log(JSON.stringify(err));
             console.log('error type: ' + err.code + '; errors count: ' + (err.writeErrors ? err.writeErrors.length : 0));
+            
+            req.flash('error', 'Upload failure. Please try again later or contact Admin.');
+            res.redirect('/dashboard/upload');
         }
 
         console.log('________FINISHED = ' + (finished ? finished.length : 'zz'));
@@ -360,9 +367,10 @@ exports.validate = async (req, res) => {
         
         // req.flash('success', 'Upload complete successfully: <b>' + inserted + '</b> duplicate contacts added; <b>' + duplicates + '</b> contacts ignored.');
         // if(inserted) req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added; ' + duplicates + ' duplicate contacts ignored' + (phone_errors > 0 ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '') );
-        if(inserted) req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added' + ((phone_errors) ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '.') + (duplicates ? '; ' + duplicates + ' duplicates ignored.' : ''));
-        else req.flash('error', 'Upload failure. Please try again later or contact Admin');
-        res.redirect('/dashboard/upload');
+
+        // if(inserted) req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added' + ((phone_errors) ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '.') + (duplicates ? '; ' + duplicates + ' duplicates ignored.' : ''));
+        // else req.flash('error', 'Upload failure. Please try again later or contact Admin');
+        // res.redirect('/dashboard/upload');
         
     })
     .on("error", function (error) {
