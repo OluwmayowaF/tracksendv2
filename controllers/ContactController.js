@@ -425,7 +425,7 @@ exports.addContact = async (req, res) => {
             fl.code = "E020";
         } 
         if((err.MongoError && err.MongoError.search('11000') >= 0)) {
-            if(err.MongoError.search('name_1_userId_1') >= 0)) {
+            if(err.MongoError.search('name_1_userId_1') >= 0) {
                 fl.msg = fl.msg + 'Group Name already exists on your account. ';
                 fl.code = "E020";
             } else {
