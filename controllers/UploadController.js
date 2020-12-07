@@ -332,12 +332,16 @@ exports.validate = async (req, res) => {
         console.log('t_error: ' + total_errors + '; e_errors: ' + email_errors + '; p_errors: ' + phone_errors);
         // return;
         let finished;
+        let inserted = 0;
+        let duplicates = 0;
 
         try {
             finished = await mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(rows_finetuned)), { ordered: false }, (er, result) => {
                 console.log('RSTRSTRS = ' + JSON.stringify(result));
                 console.log('EREREROR = ' + JSON.stringify(er));
-                console.log('EREREROR | inserted: ' + (er.result ? er.result.nInserted : 'xx') + '; duplicates: ' + (er.result.writeErrors ? er.result.writeErrors.length : 'yy') + ', errorcode: ' + er.code );
+                inserted = er.result.nInserted;
+                duplicates = er.result.writeErrors.length;
+                console.log('EREREROR | inserted: ' + (er.result ? er.result.nInserted : 'xx') + '; duplicates: ' + JSON.stringify(er.result.writeErrors) + (er.result.writeErrors ? er.result.writeErrors.length : 'yy') + ', errorcode: ' + er.code );
             }) //   for massive amount of bulk insert
         } catch(err) {
             console.log("--------------------- ERRORS OCCURED ----------------------");
@@ -345,9 +349,8 @@ exports.validate = async (req, res) => {
             console.log('error type: ' + err.code + '; errors count: ' + (err.writeErrors ? err.writeErrors.length : 0));
         }
 
-        // console.log('________FINISHED = ' + JSON.stringify(finished));
-        let inserted = 0;
-        if(finished) {
+        console.log('________FINISHED = ' + (finished ? finished.length : 'zz'));
+        if(inserted) {
             inserted = finished.length;
             // duplicates = result.warningCount;
         } else {
@@ -356,7 +359,7 @@ exports.validate = async (req, res) => {
         
         // req.flash('success', 'Upload complete successfully: <b>' + inserted + '</b> duplicate contacts added; <b>' + duplicates + '</b> contacts ignored.');
         // if(inserted) req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added; ' + duplicates + ' duplicate contacts ignored' + (phone_errors > 0 ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '') );
-        if(inserted) req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added' + ((phone_errors) ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '.'));
+        if(inserted) req.flash('success', 'Upload completed successfully: ' + inserted + ' contacts added' + ((phone_errors) ? '; ' + phone_errors + ' contacts with invalid numbers ignored' : '.') + (duplicates ? '; ' + duplicates + ' duplicates ignored.' : ''));
         else req.flash('error', 'Upload failure. Please try again later or contact Admin');
         res.redirect('/dashboard/upload');
         
