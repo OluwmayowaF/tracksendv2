@@ -320,14 +320,14 @@ exports.validate = async (req, res) => {
         // console.log('________fileRows: ' + JSON.stringify(fileRows));
         
         rows_matched = fileRows.slice(1, fileRows.length).map(mapfn);   //  the slice removes the header
-        // console.log('______rows_matched = ' + JSON.stringify(rows_matched));
+        console.log('______rows_matched = ' + JSON.stringify(rows_matched));
 
         //  filter out corrupt entries
         var rows_trimmed = rows_matched.slice(0, MAX_UPLOAD_RECORDS);   //  rows limit is 50,000
-        // console.log('______rows_trimmed = ' + JSON.stringify(rows_trimmed));
+        console.log('______rows_trimmed = ' + JSON.stringify(rows_trimmed));
         var rows_finetuned = rows_trimmed.filter(validateCsvRow);
 
-        // console.log('________FINAL DATA: ' + JSON.stringify(rows_finetuned));
+        console.log('________FINAL DATA: ' + JSON.stringify(rows_finetuned));
 
         console.log('t_error: ' + total_errors + '; e_errors: ' + email_errors + '; p_errors: ' + phone_errors);
         // return;
