@@ -337,8 +337,8 @@ exports.validate = async (req, res) => {
 
         try {
             finished = await mongmodels.Contact.insertMany(JSON.parse(JSON.stringify(rows_finetuned)), { ordered: false }, (er_, result) => {
-                // console.log('RSTRSTRS = ' + JSON.stringify(result));
-                // console.log('EREREROR = ' + JSON.stringify(er_));
+                console.log('RSTRSTRS = ' + JSON.stringify(result));
+                console.log('EREREROR = ' + JSON.stringify(er_));
                 if(result) inserted = result.length;
                 else {
                     let er = JSON.parse(JSON.stringify(er_));
