@@ -225,11 +225,11 @@ exports.add = async (req, res) => {
 }
 
 exports.send = async (req, res) => {
-    const PCMPGN_IMPRN_LIFESPAN_HOURS = 24;
-    const PCMPGN_IMPRN_INTR_INTVL_HOURS = 3;
+    const PCMPGN_IMPRN_LIFESPAN_HOURS = 1; //24;
+    const PCMPGN_IMPRN_INTR_INTVL_HOURS = 0.33; //3;
 
-    const PCMPGN_CLICK_LIFESPAN_HOURS = 72;
-    const PCMPGN_CLICK_INTR_INTVL_HOURS = 24;
+    const PCMPGN_CLICK_LIFESPAN_HOURS = 1.5; //72;
+    const PCMPGN_CLICK_INTR_INTVL_HOURS = 0.5; //24;
     const PCMPGN_CLICK_EXPECTED_CTR = 0.05;
     const PCMPGN_CLICK_EXPECTED_DLVRY_RATE = 0.5;
     const PCMPGN_CLICK_ITERATION_VOLUMES = [0.5, 0.25, 0.25];
@@ -384,7 +384,9 @@ exports.send = async (req, res) => {
         // var tgtcount = parseFloat(cpn.budget) / parseFloat(cpn.cost);
         // var dura = PCMPGN_LIFESPAN_HOURS * 60 * 60 * 1000, 
         // var iter = 0;
-        var _end = moment().add(PCMPGN_LIFESPAN_HOURS, 'hours');
+        
+        // var _end = moment().add(PCMPGN_LIFESPAN_HOURS, 'hours');
+        var _end = moment().add(PCMPGN_LIFESPAN_HOURS * 60, 'minutes');
 
         // perfEngine(0)
         (async function perfEngine( iter = 0, end = _end ) {
@@ -417,7 +419,7 @@ exports.send = async (req, res) => {
             if(result == 'error') throw "error in result";
 
             // let next = moment().add(PCMPGN_INTR_INTVL_HOURS, 'hours').toDate();
-            let next = moment().add(2, 'minutes').toDate();
+            let next = moment().add(PCMPGN_INTR_INTVL_HOURS * 60, 'minutes').toDate();
             scheduler.scheduleJob(next, perfEngine.bind(iter++, end));
         })()
 
