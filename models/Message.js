@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
     },
     contactId:      DataTypes.STRING,
+    perfcmpgnId:    DataTypes.STRING,
     contactlink:    DataTypes.STRING,
     shortlinkId: {
       type:         DataTypes.INTEGER,

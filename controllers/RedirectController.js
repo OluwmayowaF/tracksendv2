@@ -61,7 +61,7 @@ exports.campaign = async function(req, res) {
     
     getUrlReferer(req, shurl.id);
 
-    let cpid, utm = '';
+    let cpid, utm = '', txnmsg = false;
     if(cpid = pro[0][0].campaignId) {
     
         var cmpgn = await models.Campaign.findByPk((cpid), {
@@ -90,6 +90,8 @@ exports.campaign = async function(req, res) {
             }
         });
 
+    } else {
+        txnmsg = true;
     }
 
     //  update msg clicks and date (if first time)
@@ -100,16 +102,15 @@ exports.campaign = async function(req, res) {
         ...((pro[0][0].firstclicktime == null) ? {firstclicktime: mysqlTimestamp} : {})
     })
 
-
     //  finally, redirect to client URL
-    
-    console.log('pre-utm-check; cid = ' + cmpgn.has_utm + ' -- ' + JSON.stringify(cmpgn));
-    if(cmpgn.has_utm) {
-        console.log('post-utm-check');
-        //   seencmpgn = true;
-        utm = '?utm_source=tracksend&utm_medium=sms&utm_campaign=' + cmpgn.name;
+    if(!txnmsg) {
+        console.log('pre-utm-check; cid = ' + cmpgn.has_utm + ' -- ' + JSON.stringify(cmpgn));
+        if(cmpgn.has_utm) {
+            console.log('post-utm-check');
+            //   seencmpgn = true;
+            utm = '?utm_source=tracksend&utm_medium=sms&utm_campaign=' + cmpgn.name;
+        }
     }
-
    /*  var ssh = await shurl.getMessages({
         where: {
             contactlink: curl,
