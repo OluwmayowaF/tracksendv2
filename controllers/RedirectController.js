@@ -91,7 +91,7 @@ exports.campaign = async function(req, res) {
         });
 
     } else {
-        txnmsg = true;
+        txnmsg = true; 
     }
  
     //  update msg clicks and date (if first time)
