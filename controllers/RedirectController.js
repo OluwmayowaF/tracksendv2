@@ -93,7 +93,7 @@ exports.campaign = async function(req, res) {
     } else {
         txnmsg = true;
     }
-
+ 
     //  update msg clicks and date (if first time)
     var mysqlTimestamp = moment.utc(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     await pro[0][0].update({
