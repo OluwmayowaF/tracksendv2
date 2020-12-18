@@ -293,7 +293,7 @@ exports.send = async (req, res) => {
             userId: user_id,
             type: (req.txnmessaging) ? 'TXN-MESSAGING' : ((req.perfcampaign) ? 'PERFCAMPAIGN' : 'CAMPAIGN'),
             ref_id: (req.txnmessaging) ? new Date().getTime() : cpn.id.toString(),
-            units: (-1) * info.units_used,
+            units: (-1) * units_used,
             status: 1,
         })
 
