@@ -110,7 +110,12 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
               .replace(/\[last name\]/g,  kont.lastname)
               .replace(/\[email\]/g,      kont.email)
               .replace(/\[e-mail\]/g,     kont.email)
-
+              .replace(/\[phone\]/g,      kont.phone)
+              .replace(/\[zip-code\]/g,   kont.zip_code)
+              .replace(/\[zip code\]/g,   kont.zip_code)
+              .replace(/\[zip_code\]/g,   kont.zip_code)
+              .replace(/\[zipcode\]/g,    kont.zip_code)
+  
               .replace(/\[loyalty\]/g,    kont.loyalty)
               .replace(/\[rank\]/g,       kont.rank)
               .replace(/\[company\]/g,    kont.company)

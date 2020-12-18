@@ -502,6 +502,11 @@ exports.analyse = async (req, res) => {
                     .replace(/\[last name\]/g,  'kont.lastname')
                     .replace(/\[email\]/g,      'kont.email')
                     .replace(/\[e-mail\]/g,     'kont.email')
+                    .replace(/\[phone\]/g,      'kont.phone')
+                    .replace(/\[zip-code\]/g,   'kont.zip_code')
+                    .replace(/\[zip code\]/g,   'kont.zip_code')
+                    .replace(/\[zip_code\]/g,   'kont.zip_code')
+                    .replace(/\[zipcode\]/g,    'kont.zip_code')
                     .replace(/\[url\]/g,        'https://tsn.go/xxx/xxx')
 
                     .replace(/\[loyalty\]/g,    'kont.loyalty')
@@ -562,6 +567,11 @@ exports.analyse = async (req, res) => {
                         .replace(/\[last name\]/g,  kont.lastname)
                         .replace(/\[email\]/g,      kont.email)
                         .replace(/\[e-mail\]/g,     kont.email)
+                        .replace(/\[phone\]/g,      kont.phone)
+                        .replace(/\[zip-code\]/g,   kont.zip_code)
+                        .replace(/\[zip code\]/g,   kont.zip_code)
+                        .replace(/\[zip_code\]/g,   kont.zip_code)
+                        .replace(/\[zipcode\]/g,    kont.zip_code)
 
                         .replace(/\[loyalty\]/g,    kont.loyalty)
                         .replace(/\[rank\]/g,       kont.rank)
@@ -573,7 +583,7 @@ exports.analyse = async (req, res) => {
                         .replace(/\[category\]/g,   kont.category)
                         .replace(/\[createdat\]/g,  kont.createdAt)
                         
-                            .replace(/\[url\]/g, 'https://tsn.go/' + (shorturl_ ? shorturl_.shorturl : '') + '/' + uid)
+                        .replace(/\[url\]/g, 'https://tsn.go/' + (shorturl_ ? shorturl_.shorturl : '') + '/' + uid)
                         // .replace(/\[url\]/g, 'https://tsn.go/' + shorturl.shorturl + '/' + uid)
                         .replace(/&nbsp;/g, ' ');
 
@@ -1078,7 +1088,7 @@ exports.add = async (req, res) => {
                                     },
                                 ]
                             }
-                        }, {
+                        }, /* {
                             $project: {
                                 "contacts.firstname": 1,
                                 "contacts.lastname": 1,
@@ -1087,8 +1097,8 @@ exports.add = async (req, res) => {
                                 "contacts.country.id": 1,
                                 "contacts._id": 1,
                                 // "_id": 0
-                            }
-                        }                        
+                            } 
+                        } */                       
                     ])      //  consider adding .exec() for proper promise handling
                     
                     //  merge contacts from all groups
@@ -1170,6 +1180,11 @@ exports.add = async (req, res) => {
                     .replace(/\[last name\]/g,  'X')
                     .replace(/\[email\]/g,      'X')
                     .replace(/\[e-mail\]/g,     'X')
+                    .replace(/\[phone\]/g,      'X')
+                    .replace(/\[zip-code\]/g,   'X')
+                    .replace(/\[zip code\]/g,   'X')
+                    .replace(/\[zip_code\]/g,   'X')
+                    .replace(/\[zipcode\]/g,    'X')
                     .replace(/\[url\]/g,        'X')
 
                     .replace(/\[loyalty\]/g,    'X')
@@ -1451,6 +1466,11 @@ exports.add = async (req, res) => {
             .replace(/\[last name\]/g,  kont.lastname)
             .replace(/\[email\]/g,      kont.email)
             .replace(/\[e-mail\]/g,     kont.email)
+            .replace(/\[phone\]/g,      kont.phone)
+            .replace(/\[zip-code\]/g,   kont.zip_code)
+            .replace(/\[zip code\]/g,   kont.zip_code)
+            .replace(/\[zip_code\]/g,   kont.zip_code)
+            .replace(/\[zipcode\]/g,    kont.zip_code)
 
             .replace(/\[loyalty\]/g,    kont.loyalty)
             .replace(/\[rank\]/g,       kont.rank)
