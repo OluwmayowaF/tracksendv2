@@ -500,8 +500,8 @@ exports.analyse = async (req, res) => {
                     .replace(/\[first name\]/g, 'kont.firstname')
                     .replace(/\[lastname\]/g,   'kont.lastname')
                     .replace(/\[last name\]/g,  'kont.lastname')
-                    .replace(/\[email\]/g,      'kont.emailkont.email')
-                    .replace(/\[e-mail\]/g,     'kont.emailkont.email')
+                    .replace(/\[email\]/g,      'kont.email')
+                    .replace(/\[e-mail\]/g,     'kont.email')
                     .replace(/\[url\]/g,        'https://tsn.go/xxx/xxx')
 
                     .replace(/\[loyalty\]/g,    'kont.loyalty')
