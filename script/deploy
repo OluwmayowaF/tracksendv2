@@ -1,0 +1,8 @@
+#!/bin/sh
+ssh tiwex@167.71.89.146 <<EOF
+ cd ~/apps/dev2.tracksend.co
+ git pull
+ npm install 
+ pm2 restart all
+ exit
+EOF
