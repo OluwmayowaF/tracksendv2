@@ -63,8 +63,8 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
           console.log('UID = ' + uid);
           let shrtlnk = await models.Shortlink.findByPk(info.shortlinkId);
           return {
-              sid : shrtlnk.id,
-              slk : shrtlnk.shorturl,
+              sid : 111,
+              slk : 'shrtlnk.shorturl',
               cid: uid, 
           };
       }
@@ -84,12 +84,15 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
                 let cpnid = cpn.id.toString() || cpn._id.toString(); 
                 console.log('cccccccccccccccccccc ', cpnid );
                 shrt = await models.Message.create({
-                    campaignId: cpnid,
-                    shortlinkId: args.sid,
-                    contactlink: args.cid,
-                    contactId: kont._id.toString(),
+                    campaignId: 'cpnid',
+                    shortlinkId: ['args.sid'],
+                    contactlink: ['args.cid'],
+                    contactId: ['kont._id.toString()'],
                     destination: '+' + formatted_phone,
-                });
+                })
+                .catch((err) => {
+                    console.log('Message.create FakeERROR: ' + err);
+                })
             }
 
               console.log('MESSAGE ENTRY CREATE STARTED.:::' + JSON.stringify(shrt));
@@ -189,7 +192,7 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
     async function doLoop(start) { 
         let actions = [];
         
-        console.log('**************   ' + 'count of contacts = ' + len + '; start = ' + start + '   ****************' + JSON.stringify(contacts));
+        console.log('**************   ' + 'count of contacts = ' + len + '; start = ' + start + '   ****************' + JSON.stringify(contacts.length));
         if(start <= len) {
             var end = (start + grpn > len) ? len : start + grpn;
 
@@ -252,8 +255,9 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
             
             let params = data[0];
 
-            let response = await sendSMS('kirusa', params);
+            let response = await sendSMS('kirusa', params, req.networktimeout);
             // let resp_ = null;
+            console.log('______RESPONSE = ' + JSON.stringify(response));
             if (response) {
                 //   console.log(`Status code: ${response.statusCode}. Message: ${response.body}`);
                 if(response.data) console.log('KIRUSA Status code: ' + JSON.stringify(response.data.status));

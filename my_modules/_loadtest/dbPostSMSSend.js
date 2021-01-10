@@ -39,7 +39,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
         } else {
             await models.Message.update(
                 {
-                    message_id: response.id
+                    message_ids: ['response.id']
                 },
                 {
                     where: {
@@ -50,7 +50,10 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                     }
                 }
             )
-        }
+            .catch((err) => {
+                console.log('Message.update FakeERROR: ' + err);
+            })
+    }
     }
 
     console.log('SUCCESSFULS: ' + successfuls + '; FAILURES : ' + failures + '; batches = ' + batches);
@@ -71,38 +74,55 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                     let usr = await models.User.findByPk(user_id)
                     //  UPDATE UNITS USER BALANCE
                     await usr.update({
-                        balance: new_bal,
-                    });
+                        balances: 'new_bal',
+                    })
+                    .catch((err) => {
+                        console.log('usr.update FakeERROR: ' + err);
+                    })
+    
 
-                    if(!req.txnmessaging) await cpn.update({
-                        units_used: info.units_used,
+                    /* if(!req.txnmessaging) await cpn.update({
+                        units_useds: 'info.units_used',
                         status: 1
-                    });
+                    })
+                    .catch((err) => {
+                        console.log('cpn.update FakeERROR: ' + err);
+                    })
+                    .error((err) => {
+                        console.log('cpn.update FakeERROR: ' + err);
+                    }) */
+
     
                     //  LOG TRANSACTIONS (performance campaigns transactions are logged separately)
                     await models.Transaction.create({
                         description: 'DEBIT',
-                        userId: user_id,
-                        type: (req.txnmessaging) ? 'TXN-MESSAGING' : ((req.perfcampaign) ? 'PERFCAMPAIGN' : 'CAMPAIGN'),
+                        userIsd: ['user_id'],
+                        types: (req.txnmessaging) ? 'TXN-MESSAGING' : ((req.perfcampaign) ? 'PERFCAMPAIGN' : 'CAMPAIGN'),
                         ref_id: (req.txnmessaging) ? new Date().getTime() : cpn.id.toString(),
                         units: (-1) * info.units_used,
                         status: 1,
+                    })
+                    .catch((err) => {
+                        console.log('Transaction.create FakeERROR: ' + err);
                     })
                 }
 
                 //  CONVERT REFS FROM TEMP REFS TO REAL REFS
                 if(!req.txnmessaging && !req.perfcampaign) await models.Tmpcampaign.update(
                     {
-                        ref_campaign: cpn.id.toString(),
+                        ref_campaignw: cpn.id.toString(),
                     }, {
                         where: {
-                            ref_campaign: "tmpref_" + info.id
+                            ref_campaigna: "tmpref_" + info.id
                         }
                     }
                 )
+                .catch((err) => {
+                    console.log('Tmpcampaign.update FakeERROR: ' + err);
+                })
 
                 //  REMOVE TEMPORARY DATA
-                if(!req.externalapi && !req.perfcampaign) await info.destroy();
+                // if(!req.externalapi && !req.perfcampaign) await info.destroy();
 
                 let mm = (schedule_) ? 'scheduled to be sent out at ' + moment(schedule_, 'YYYY-MM-DD HH:mm:ss').add(1, 'hour').format('h:mm A, DD-MMM-YYYY') + '.' : 'sent out.';
                 
@@ -118,10 +138,13 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
 
                 await models.Message.destroy({
                     where: {
-                        campaignId: cpn.id.toString(),
+                        campaignIds: cpn.id.toString(),
                     }
-                });
-                await cpn.destroy();
+                })
+                .catch((err) => {
+                    console.log('Tmpcampaign.update FakeERROR: ' + err);
+                })
+                // await cpn.destroy();
 
                 _status = {
                     response: "Error: Campaign sending error!", 
@@ -131,7 +154,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                 }
             } else if(!req.txnmessaging && !req.perfcampaign) {
 
-                await cpn.destroy();
+                // await cpn.destroy();
 
                 _status = {
                     response: "Error: Campaign sending error!", 
@@ -154,6 +177,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
         if(req.externalapi || req.perfcampaign) {
             return _status;
         } else {
+            console.log('STATUS========= ' + JSON.stringify(_status));
             try {
                 req.flash(_status.responseType == "OK" ? 'success' : _status.responseType.toLowerCase(), _status.responseText);
                 var backURL = req.header('Referer') || '/';

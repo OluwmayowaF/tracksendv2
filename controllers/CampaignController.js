@@ -487,7 +487,7 @@ exports.analyse = async (req, res) => {
                         })
                     ]);
 
-                    name = [name];
+                    name = [ name ];
                     contactcount_ = { counts: [contactslength] };
                     msgcount_ = { counts: [msgcount], acc: msgcount };
                     units_ = { counts: [units], acc: units };       //  units accumulated from checkAndAggregate call above
@@ -1115,7 +1115,6 @@ exports.add = async (req, res) => {
                             console.log('2BIG ERROR: ' + err);
                         })
                     });
-
                     //  remove duplicates
                     contacts = _.uniqBy(arr, 'phone');
                 } else {

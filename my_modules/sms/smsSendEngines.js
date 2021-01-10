@@ -33,7 +33,7 @@ const smsSendEngine =  async (req, res, user_id, user_balance, sndr, info, conta
     if(req.externalapi) console.log('2~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~  ~~~~~~~~~~~~~');
     
     try {
-        if(aux_obj) {
+        if(aux_obj.sms_service) {
             console.log('aux_obj=', JSON.stringify(req.aux_obj));
             sms_service = aux_obj.sms_service;
         } else {

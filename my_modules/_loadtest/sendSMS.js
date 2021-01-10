@@ -54,9 +54,28 @@ const sendSMS =  async (platform, params, url = null, message = null, sender = n
                 headers: params.headers
             };
 
+            let ret;
             // console.log('PRESEND: ' + JSON.stringify(tosend_));
-            
-            let ret = await axios(tosend_);
+            console.log('@@@@@@@111');
+            if(url.networktimeout) {
+                console.log('@@@@@@@222');
+                // let ret 
+                let ret_ = async () => {
+                    await new Promise(resolve => setTimeout(resolve, url.networktimeout))
+                    return {
+                        data: {
+                            status: "ok"
+                        },
+                        code: "OK"
+                    }
+                }
+                ret = ret_();
+                
+            } else {
+                console.log('@@@@@@@333');
+                // let ret = await axios(tosend_);
+            }
+                console.log('@@@@@@@444 & ret = ' + JSON.stringify(ret));
 
             /* let ret = {
                 status: 200

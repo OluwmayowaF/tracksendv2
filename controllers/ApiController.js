@@ -1085,6 +1085,8 @@ exports.newTxnMessage = async (req, res) => {
                     units += cc * chg;
                 }
 
+                if(user_balance < units) throw 'balance';
+
                 if(file_not_logged) {
                     filelogger('sms', 'Transaction Message', 'sending message', message);
                     file_not_logged = false;

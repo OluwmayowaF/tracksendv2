@@ -265,6 +265,230 @@ module.exports = function(app) {
     //  THE END!
   });
 
+  //  GET page to enter parameters for load test
+  app.get('/rundefaultgroups/tiwex', async (req, res) => {
+    var mongmodels = require('../models/_mongomodels');
+    
+    console.log('ADJUSTMENT-SYNCHING STARTED..........');
+    
+    let users = models.User.findAll({
+      attributes: ['id'],
+    })
+
+    users.forEach(user => {
+      let exists = await mongmodels.Group.find({
+        userId: user.id
+      })
+      if(!exists || exists.length === 0) {
+        await mongmodels.Group.create({
+          name: '[Uncategorized]',
+          description: 'For all contacts without distinct groups.',
+          userId: user.id,
+          can_optin: false,
+        })
+      }
+    })
+
+    res.send('DATABASES ADJUSTMENT-SYNCHING DONE!!! BYE-BYE!!!');
+  });
+
+  //  GET page to enter parameters for load test
+  app.get('/runloadtest/tiwex', async (req, res) => {
+
+    var flashtype, flash = req.flash('error');
+    if(flash.length > 0) { 
+      console.log('111111111');
+      flashtype = "error";           
+    } else {
+      flashtype = "success";
+      flash = req.flash('success');
+      console.log('222222222' + flash);
+    }
+
+    res.render('pages/_load_test_page_', {
+      page: 'TRACKSEND LOAD TEST',
+      flashtype, flash,
+
+    });
+  });
+  //  start load test based on POSTed parameters
+  app.post('/runloadtest/tiwex', async (req, res) => {
+
+    const sendCampaign        = require('../my_modules/_loadtest/_loadtest_campaignsending');
+    
+    const num_of_contacts = req.body.contactscount;
+    const concurrent_activities = req.body.concurrencycount;
+    const sms_service = req.body.sms_service;
+    const message = req.body.messager;
+    const networktimeout = req.body.networktimeout;
+
+    const user_id = 10;
+    const sender = 42;
+    const contacts = [];
+    // const shorturl = null;
+    // const url = null;
+
+    // var _status;
+
+    // req.externalapi = false;
+    // req.txnmessaging = false;
+    // req.loadtesting = true;
+
+    console.log('received body: ' + JSON.stringify(req.body));
+    req.networktimeout = { networktimeout };
+    req.sms_service = sms_service;
+
+    try {
+
+      req.user = { id : user_id };
+
+      console.log('LOADTEST INITIALIZED...');
+
+      for(let k = 1; k <= num_of_contacts; k++) {
+        contacts.push({
+          phone:        "0" + (8000000000 + k),
+          email:        "Mai" + k,
+          country:      { id: 234 },
+          fullname:     "Fullname-" + k,
+          company:      "Company-" + k,
+          city:         "City-" + k,
+          state:        "State-" + k,
+          zip_code:     "Zip-Code-" + k,
+          count:        0,
+          trip:         "Trip-" + k,
+          rank:         "Rank-" + k,
+          loyalty:      "Loyalty-" + k,
+          category:     "Category-" + k,
+        })
+      }
+
+      console.log('LOADTEST CONTACTS LOADED...');
+
+      req.body.analysis_id = [4];
+      req.body.type = 'sms';
+      req.body.info = {
+        total_units: '',
+        message,
+        // schedule: '',
+        // add_optout: false,
+        // add_optin: false,
+        name: 'LoadTest-' + new Date().toLocaleDateString(),
+        description: 'Performing some load test on ' + new Date().toISOString(),
+        senderId: sender,
+        // shortlinkId: '',
+        // recipients: '',
+        // has_utm: false,
+        grp: '',
+        contacts,
+        // within_days: '',
+        // skip_dnd: false,
+        // to_optin: '',
+        // to_awoptin: '',
+        // to_awoptin: '',
+      };
+
+      // let concurrencies = [];
+      for(let i = 0; i < concurrent_activities; i++) {
+        // concurrencies.push(await Promise.resolve(sendCampaign.bind(null, req, res)));
+        console.log('============= ITERATION #' + (i + 1));
+        sendCampaign(req, res);
+      }
+
+      // let ww = await Promise.all(concurrencies);
+
+
+    } catch(err) {
+        console.log('ERROR WA: ' + JSON.stringify(err));
+
+        switch(err) {
+            case 'auth':
+                _status = {
+                    response: "Error: You're not logged in.", 
+                    responseType: "ERROR", 
+                    responseCode: "E001", 
+                    responseText: "Invalid Token", 
+                };
+                break;
+            case 'balance':
+                _status = {
+                    response: "Error: Inadequate balance.", 
+                    responseType: "ERROR", 
+                    responseCode: "E002", 
+                    responseText: "Inadequate balance", 
+                };
+                break;
+            case 'fields':
+                _status = {
+                    response: "Error: Incomplete fields.", 
+                    responseType: "ERROR", 
+                    responseCode: "E003", 
+                    responseText: "Check the fields for valid entries: 'name'; 'message'; 'sender'; 'group'.", 
+                };
+                break;
+            case 'group':
+                _status = {
+                    response: "Error: Invalid Group Name.", 
+                    responseType: "ERROR", 
+                    responseCode: "E053", 
+                    responseText: "Invalid Group Name.", 
+                };
+                break;
+            case 'contacts':
+                _status = {
+                    response: "Error: Invalid Contacts (must be an array).", 
+                    responseType: "ERROR", 
+                    responseCode: "E052", 
+                    responseText: "Invalid Contacts.", 
+                };
+                break;
+            case 'message':
+                _status = {
+                    response: "Error: Invalid Message text (must not be empty).", 
+                    responseType: "ERROR", 
+                    responseCode: "E054", 
+                    responseText: "Invalid Message.", 
+                };
+                break;
+            case 'sender':
+                _status = {
+                    response: "Error: Invalid Sender ID Name.", 
+                    responseType: "ERROR", 
+                    responseCode: "E043", 
+                    responseText: "Invalid Sender ID Name.", 
+                };
+                break;
+            case 'shorturl':
+                _status = {
+                    response: "Error: Can't create shorturl.", 
+                    responseType: "ERROR", 
+                    responseCode: "E033", 
+                    responseText: "There was an error creating the shorturl.", 
+                };
+                break;
+            default:
+                _status = {
+                    response: "Error: General Error!" + err, 
+                    responseType: "ERROR", 
+                    responseCode: "E000", 
+                    responseText: "General error. Please contact Tracksend admin.", 
+                };
+        }
+        // return;
+    }
+  
+    /* res.render('pages/_load_test_page_', {
+      page: 'TRACKSEND LOAD TEST',
+      output: 'done'
+    }); */
+
+    //  THE END!
+  });
+
+
+
+
+
+
   app.get('/account/update/forgotpassword', async (req, res) => {
 
     /* var flashtype, flash = req.flash('error');
