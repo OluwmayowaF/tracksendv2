@@ -271,7 +271,7 @@ module.exports = function(app) {
     
     console.log('ADJUSTMENT-SYNCHING STARTED..........');
     
-    let users = models.User.findAll({
+    let users = await models.User.findAll({
       attributes: ['id'],
     })
 
