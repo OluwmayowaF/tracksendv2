@@ -278,7 +278,8 @@ module.exports = function(app) {
     for(let u = 0; u < users.length; u++) {
       console.log('....................')
       let exists = await mongmodels.Group.find({
-        userId: users[u].id
+        userId: users[u].id,
+        name: '[Uncategorized]'
       })
       if(!exists || exists.length === 0) {
         console.log('Creating Group for User #' + users[u].id);
