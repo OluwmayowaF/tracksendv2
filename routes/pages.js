@@ -275,7 +275,7 @@ module.exports = function(app) {
       attributes: ['id'],
     })
 
-    users.forEach(user => {
+    users.forEach(async user => {
       let exists = await mongmodels.Group.find({
         userId: user.id
       })
