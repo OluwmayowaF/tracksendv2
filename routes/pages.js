@@ -275,19 +275,21 @@ module.exports = function(app) {
       attributes: ['id'],
     })
 
-    users.forEach(async user => {
+    for(let u = 0; u < users.length; u++) {
+      console.log('....................')
       let exists = await mongmodels.Group.find({
-        userId: user.id
+        userId: users[u].id
       })
       if(!exists || exists.length === 0) {
+        console.log('Creating Group for User #' + users[u].id);
         await mongmodels.Group.create({
           name: '[Uncategorized]',
           description: 'For all contacts without distinct groups.',
-          userId: user.id,
+          userId: users[u].id,
           can_optin: false,
         })
       }
-    })
+    }
 
     res.send('DATABASES ADJUSTMENT-SYNCHING DONE!!! BYE-BYE!!!');
   });
