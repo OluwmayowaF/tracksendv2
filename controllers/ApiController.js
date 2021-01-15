@@ -1215,6 +1215,87 @@ exports.newTxnMessage = async (req, res) => {
     
 }
 
+//  EXTERNAL API ACCESS
+exports.txnMessageStatus = async (req, res) => {
+
+    try {
+
+        var user_id, sts, _status;
+        if(user_id = await apiAuthToken(req.query.token)) {
+
+            let msgstatus = await models.Message.findByPk(req.query.id, {
+                attributes: ['status', 'clickcount']
+            });
+
+            console.log(JSON.stringify(msgstatus));
+            if(!msgstatus) throw 'invalid';
+
+            switch (parseInt(msgstatus.status)) {
+                case 0:
+                    sts = "PENDING"
+                    break;
+                case 1:
+                    sts = (msgstatus.clickcount > 0) ? "DELIVERED & CLICKED" : "DELIVERED"
+                    break;
+                case (2 || 3):
+                    sts = "FAILED"
+                    break;
+                case 4:
+                    sts = "UNDELIVERABLE"
+                    break;
+                case 5:
+                    sts = "VIEWED"
+                    break;
+                case 5:
+                                
+                default:
+                    break;
+            }
+
+            _status = {
+                response: { id: req.query.id, status: sts }, 
+                responseType: "OK", 
+                responseCode: "P001", 
+                responseText: "Message status successfully retrieved", 
+            };
+        } else throw 'auth';
+
+    } catch(err) {
+        console.log('ERROR WA: ' + err);
+
+        switch(err) {
+            case 'auth':
+                _status = {
+                    response: "Error: Authentication error.", 
+                    responseType: "ERROR", 
+                    responseCode: "E001", 
+                    responseText: "Invalid Token", 
+                };
+                break;
+            case 'invalid':
+                _status = {
+                    response: "Error: Invalid Message ID", 
+                    responseType: "ERROR", 
+                    responseCode: "E001", 
+                    responseText: "Invalid Message ID", 
+                };
+                break;
+            default:
+                _status = {
+                    response: "Error: General Error!", 
+                    responseType: "ERROR", 
+                    responseCode: "E000", 
+                    responseText: "General error. Please contact Tracksend admin.", 
+                };
+        }
+        // return;
+    }
+
+    res.send(_status);
+    return;
+    
+}
+
 //  deprecated
 exports.whatsAppOptIn = async (req, res) => {
     whatsappController.preOptIn(req, res);
