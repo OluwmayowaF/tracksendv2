@@ -134,7 +134,7 @@ module.exports = function(app) {
               models.Settingsnetwork.create({
                 name: res.telco_name,
                 prefix,
-                unitscharge: res.unit_no,
+                cost: res.unit_no,
                 countryId: 234,
               })
               .error((err) => {
@@ -370,7 +370,7 @@ module.exports = function(app) {
       req.body.analysis_id = [4];
       req.body.type = 'sms';
       req.body.info = {
-        total_units: '',
+        total_cost: '',
         message,
         // schedule: '',
         // add_optout: false,

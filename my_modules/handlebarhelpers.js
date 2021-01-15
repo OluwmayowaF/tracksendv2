@@ -64,7 +64,7 @@ const hbsHelpers = () => {
 
             formatNumber: function (num) {
                 if(!num) {
-                    console.error('ERROR IN \'formatNumber\' of handlebarhelpers.js: num is null' + num);
+                    console.error('ERROR IN \'formatNumber\' of handlebarhelpers.js: num is null =' + num);
                     return "00"
                 }
                 var nnum = num.toString().split(',');
@@ -73,6 +73,20 @@ const hbsHelpers = () => {
                     num += nnum[0]; 
                 }
                 return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }, 
+
+            formatAmount: function (num) {
+                if(!num) {
+                    console.error('ERROR IN \'formatAmount\' of handlebarhelpers.js: num is null =' + num);
+                    return "00"
+                }
+                num = Number(num).toFixed(2);
+                var nnum = num.toString().split(',');
+                num = '';
+                for(var i=0;i<nnum.length;i++) {
+                    num += nnum[0]; 
+                }
+                return "NGN " + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             } 
 
         }

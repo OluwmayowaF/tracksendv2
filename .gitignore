@@ -3,3 +3,4 @@
 config/cfg/
 config/env.js
 tmp/
+node_modules/

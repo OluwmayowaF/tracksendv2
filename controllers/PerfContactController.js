@@ -320,8 +320,8 @@ exports.add = async (req, res) => {
         var user_balance = user_balance_.balance;
         console.log('USER BALANCE IS ' + JSON.stringify(user_balance));
         
-        if(!ref && (user_balance < info.total_units)) {
-            console.log('INSUFFICIENT UNITS!');
+        if(!ref && (user_balance < info.total_cost)) {
+            console.log('INSUFFICIENT BALANCE!');
 
             return;
         }
@@ -1285,7 +1285,7 @@ exports.copy = (req, res) => {
         
     Promise.all([
         sequelize.query(
-            "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, campaigns.createdAt FROM campaigns " +
+            "SELECT campaigns.id, campaigns.name, campaigns.cost, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, campaigns.createdAt FROM campaigns " +
             "JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
             "JOIN groups ON groups.id = campaign_groups.groupId " +
             "WHERE campaigns.userId = :uid " +

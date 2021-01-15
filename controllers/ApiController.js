@@ -992,7 +992,7 @@ exports.newTxnMessage = async (req, res) => {
             console.log('___**********____*******________**********_________balance=', user_balance);
             let file_not_logged = true;
             let msgcount = 0;
-            let units = 0;
+            let cost = 0;
             let message = req.body.message;
             let contacts = req.body.contacts;
             let sender = req.body.sender;
@@ -1082,10 +1082,10 @@ exports.newTxnMessage = async (req, res) => {
                 for(let i = 0; i < contacts.length; i++) {
                     if(!contacts[i].phone || !contacts[i].countryId) throw 'contacts';
                     let chg = await getRateCharge(contacts[i].phone, contacts[i].countryId, user_id);
-                    units += cc * chg;
+                    cost += cc * chg;
                 }
 
-                if(user_balance < units) throw 'balance';
+                if(user_balance < cost) throw 'balance';
 
                 if(file_not_logged) {
                     filelogger('sms', 'Transaction Message', 'sending message', message);
@@ -1106,8 +1106,8 @@ exports.newTxnMessage = async (req, res) => {
                     to_awoptin: 0,
                     add_optout: 0,
                     add_optin:  0,
-                    units_used: units,
-                    total_units: units,
+                    cost,
+                    total_cost: cost,
                     within_days: null,    
                     ref_campaign: null,
                 }

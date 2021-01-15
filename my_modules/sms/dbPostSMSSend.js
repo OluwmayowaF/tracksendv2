@@ -65,17 +65,17 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                 if(!req.perfcampaign) {
                     console.log('.................................updating status for ' + cpn._id);
                     
-                    let new_bal = parseFloat(user_balance) - parseFloat(info.units_used);
-                    console.log('old bal = ' + user_balance + '; units used = ' + info.units_used + '; NEW BALANCE = ' + new_bal);
+                    let new_bal = parseFloat(user_balance) - parseFloat(info.cost);
+                    console.log('old bal = ' + user_balance + '; cost = ' + info.cost + '; NEW BALANCE = ' + new_bal);
 
                     let usr = await models.User.findByPk(user_id)
-                    //  UPDATE UNITS USER BALANCE
+                    //  UPDATE COST USER BALANCE
                     await usr.update({
                         balance: new_bal,
                     });
 
                     if(!req.txnmessaging) await cpn.update({
-                        units_used: info.units_used,
+                        cost: info.cost,
                         status: 1
                     });
     
@@ -85,7 +85,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                         userId: user_id,
                         type: (req.txnmessaging) ? 'TXN-MESSAGING' : ((req.perfcampaign) ? 'PERFCAMPAIGN' : 'CAMPAIGN'),
                         ref_id: (req.txnmessaging) ? new Date().getTime() : cpn.id.toString(),
-                        units: (-1) * info.units_used,
+                        amount: (-1) * info.cost,
                         status: 1,
                     })
                 }

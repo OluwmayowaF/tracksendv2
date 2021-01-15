@@ -151,8 +151,8 @@ const sendCampaign = async (req, res) => {
       var user_balance = user_balance_.balance;
       console.log('USER BALANCE IS ' + JSON.stringify(user_balance));
       
-      if(!ref && (user_balance < info.total_units)) {
-          console.log('INSUFFICIENT UNITS!');
+      if(!ref && (user_balance < info.cost)) {
+          console.log('INSUFFICIENT BALANCE!');
 
           return;
       }

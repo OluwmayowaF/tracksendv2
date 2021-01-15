@@ -33,7 +33,7 @@ exports.index = async (req, res) => {
             "SELECT " +
             "   C1.id, " +        //      kenni 
             "   C1.name, " +
-            "   C1.units_used, " +
+            "   C1.cost, " +
             "   GROUP_CONCAT(CG1.groupname SEPARATOR ', ') AS grpname, " +
             "   IF(C1.status = 1, 'Active', 'Error') AS status, " +
             "   IF(C1.platformtypeId = 1, 'SMS', 'WhatsApp') AS platform, " +
@@ -205,7 +205,7 @@ exports.analyse = async (req, res) => {
     var file_not_logged = true;
     var is_api_access = req.externalapi;
     var HAS_FOLLOWUP = false;
-    var user_id, msgcount, units, name, groups, groups_, message, sender, sender_, shorturl, schedule, datepicker, tid, condition, within_days;
+    var user_id, msgcount, cost, name, groups, groups_, message, sender, sender_, shorturl, schedule, datepicker, tid, condition, within_days;
     var skip, utm, isfollowup, cond_1, cond_2, unsub, dosub, tooptin, toawoptin, toall, tonone; //  has_clicked = false, has_unclicked = false, has_elapsed = false;
 
     try {
@@ -214,7 +214,7 @@ exports.analyse = async (req, res) => {
             user_id = req.user.id;
             // user_id = 10;
             msgcount = 0;
-            units = 0;
+            cost = 0;
             name = req.body.name;
             groups = req.body.group;
             message = req.body.message;
@@ -254,7 +254,7 @@ exports.analyse = async (req, res) => {
                 // user_id = req.body.id;
                 
                 msgcount = 0;
-                units = 0;
+                cost = 0;
                 name = req.body.name;
                 message = req.body.message;
                 groups_ = req.body.group;
@@ -354,14 +354,14 @@ exports.analyse = async (req, res) => {
 
         // console.log('----' + name.length + '----' + message[0].length + '----' + groups[0].toString().length + '----' + sender[0].toString().length);
         console.log('||||||||||||||||| ', name, ' - ', groups, ' - ', sender, ' - ', message );
-        if(!name || !message || !groups || !sender) throw 'fields';
-        if(!(name.length > 1) || !(message[0].length > 1) || !(groups[0].toString().length > 0) || !(sender[0].toString().length > 0)) throw 'fields';
+        if(!name || !message || !groups || !sender) throw 'fields3';
+        if(!(name.length > 1) || !(message[0].length > 1) || !(groups[0].toString().length > 0) || !(sender[0].toString().length > 0)) throw 'fields2';
         
         var uid = 'xxx';
         var allresults = [];
         var contactslength = 0;
         var tids = [];
-        var msgcount_ = {}, contactcount_ = {}, units_ = {};
+        var msgcount_ = {}, contactcount_ = {}, cost_ = {};
         var invalidphones = 0;
         var all, bal, fin;
         var int = 0;
@@ -463,7 +463,7 @@ exports.analyse = async (req, res) => {
                         } */
                     ])      //  consider adding .exec() for proper promise handling
 
-                    console.log('-------------22b--------------' + JSON.stringify(dd));
+                    // console.log('-------------22b--------------' + JSON.stringify(dd));
                     
                     //  merge contacts from all groups
                     var contacts_arr = [];
@@ -490,10 +490,10 @@ exports.analyse = async (req, res) => {
                     name = [ name ];
                     contactcount_ = { counts: [contactslength] };
                     msgcount_ = { counts: [msgcount], acc: msgcount };
-                    units_ = { counts: [units], acc: units };       //  units accumulated from checkAndAggregate call above
+                    cost_ = { counts: [cost], acc: cost };       //  cost accumulated from checkAndAggregate call above
                 } else {
                     let contactcount_1;
-                    let units_1;
+                    let cost_1;
 
                     let message_tmp  = message[int]     //  just for temporary estimation
                     .replace(/\[firstname\]/g,  'kont.firstname')
@@ -523,10 +523,10 @@ exports.analyse = async (req, res) => {
 
                     let msgcnt = getSMSCount(message_tmp);
 
-                    //  LET'S GET THE PROPORTION OF MAIN MSG TO THIS FLWP MSG AND ESTIMATE UNITS
-                    console.log('...........||..........', JSON.stringify(msgcount_), msgcnt, JSON.stringify(contactcount_), JSON.stringify(units_), JSON.stringify(condition));
+                    //  LET'S GET THE PROPORTION OF MAIN MSG TO THIS FLWP MSG AND ESTIMATE COSTS
+                    console.log('...........||..........', JSON.stringify(msgcount_), msgcnt, JSON.stringify(contactcount_), JSON.stringify(cost_), JSON.stringify(condition));
                     
-                    let avgunt = units_.counts[0] / msgcount_.counts[0];        //  OR = 1
+                    let avgunt = cost_.counts[0] / msgcount_.counts[0];        //  OR = 1
 
                     if(condition[int-1] == "clicked") {
                         contactcount_1 = Math.round(ESTIMATED_CLICK_PERCENTAGE * contactcount_.counts[0]);
@@ -537,15 +537,15 @@ exports.analyse = async (req, res) => {
                     }
 
                     let msgcount_1 = Math.round(msgcnt * contactcount_1); 
-                    units_1 = Math.round(msgcount_1 * avgunt);
+                    cost_1 = Math.round(msgcount_1 * avgunt);
 
                     name.push(name[0] + "_(followup: " + condition[int - 1] + ")")
                     contactcount_.counts.push(contactcount_1);
                     msgcount_.counts.push(msgcount_1);
                     msgcount_.acc += msgcount_1;
-                    units_.counts.push(units_1);
-                    units_.acc += units_1;
-                    console.log('...........|||.........', JSON.stringify(name), msgcount_1, JSON.stringify(contactcount_), JSON.stringify(units_), JSON.stringify(units_));
+                    cost_.counts.push(cost_1);
+                    cost_.acc += cost_1;
+                    console.log('...........|||.........', JSON.stringify(name), msgcount_1, JSON.stringify(contactcount_), JSON.stringify(cost_), JSON.stringify(cost_));
                 }
 
                 console.log('====================================');
@@ -594,17 +594,17 @@ exports.analyse = async (req, res) => {
                         filelogger('sms', 'API Controller', 'analysing campaign', message_);
                         file_not_logged = false;
                     }
-
-                    let unit_ = await getRateCharge(kont.phone, kont.country.id, user_id);
-                    if(!unit_) {
+                
+                    let _cost_ = await getRateCharge(kont.phone, kont.country.id, user_id);
+                    if(!_cost_) {
                         invalidphones++;
-                        unit_ = 0;
+                        _cost_ = 0;
                     }
-                    console.log('+++++++0000+++++++', kont.phone, units, unit_, cc);
+                    console.log('+++++++0000+++++++', kont.phone, cost, _cost_, cc);
 
-                    units += unit_ * cc;
+                    cost += _cost_ * cc;
                     
-                    return unit_;
+                    return _cost_;
 
                 }
 
@@ -614,7 +614,7 @@ exports.analyse = async (req, res) => {
                     console.log('______11______');
                     
                     if(tid[int] == 0) {
-                    console.log(int, '______22aa______', JSON.stringify(name), JSON.stringify(sender), JSON.stringify(shorturl), JSON.stringify(groups), JSON.stringify(message), JSON.stringify(units_), JSON.stringify(within_days), JSON.stringify(tids));
+                    console.log(int, '______22aa______', JSON.stringify(name), JSON.stringify(sender), JSON.stringify(shorturl), JSON.stringify(groups), JSON.stringify(message), JSON.stringify(cost_), JSON.stringify(within_days), JSON.stringify(tids));
                         var tt = await models.Tmpcampaign.create({
                             name:       name[int],
                             userId:     user_id,
@@ -631,8 +631,8 @@ exports.analyse = async (req, res) => {
                             to_awoptin: (toawoptin) ? 1 : 0,
                             add_optout: (unsub) ? 1 : 0,
                             add_optin:  (dosub) ? 1 : 0,
-                            units_used: units_.counts[int], //(int===0 ? units : 0) + (condition[int]=="clicked" ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (condition[int]=="unclicked" ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0),
-                            total_units: units_.acc, // + (condition[int] ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0) + (has_elapsed ? units : 0),
+                            cost: cost_.counts[int], //(int===0 ? cost : 0) + (condition[int]=="clicked" ? cost * ESTIMATED_CLICK_PERCENTAGE : 0) + (condition[int]=="unclicked" ? cost * ESTIMATED_UNCLICK_PERCENTAGE : 0),
+                            total_cost: cost_.acc, // + (condition[int] ? cost * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? cost * ESTIMATED_UNCLICK_PERCENTAGE : 0) + (has_elapsed ? cost : 0),
                             within_days: (int === 0) ? null : within_days[int-1],
                             ref_campaign: (int === 0) ? null : "tmpref_" + tids[0],
                         });
@@ -640,7 +640,7 @@ exports.analyse = async (req, res) => {
 
                         tt = tt.id;
                     } else {
-                        console.log(int, '______22bb______', JSON.stringify(name), JSON.stringify(sender), JSON.stringify(shorturl), JSON.stringify(groups), JSON.stringify(message), JSON.stringify(units_), JSON.stringify(within_days), JSON.stringify(tids));
+                        console.log(int, '______22bb______', JSON.stringify(name), JSON.stringify(sender), JSON.stringify(shorturl), JSON.stringify(groups), JSON.stringify(message), JSON.stringify(cost_), JSON.stringify(within_days), JSON.stringify(tids));
                         await models.Tmpcampaign.update({
                             name:       name[int],
                             userId:     user_id,
@@ -656,8 +656,8 @@ exports.analyse = async (req, res) => {
                             to_awoptin: (toawoptin ? 1 : 0),
                             add_optout: (unsub ? 1 : 0),
                             add_optin:  (dosub ? 1 : 0),
-                            units_used: units_.counts[int], //(int===0 ? units : 0) + (condition[int]=="clicked" ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (condition[int]=="unclicked" ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0),
-                            total_units: units_.acc, // + (condition[int] ? units * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? units * ESTIMATED_UNCLICK_PERCENTAGE : 0) + (has_elapsed ? units : 0),
+                            cost: cost_.counts[int], //(int===0 ? cost : 0) + (condition[int]=="clicked" ? cost * ESTIMATED_CLICK_PERCENTAGE : 0) + (condition[int]=="unclicked" ? cost * ESTIMATED_UNCLICK_PERCENTAGE : 0),
+                            total_cost: cost_.acc, // + (condition[int] ? cost * ESTIMATED_CLICK_PERCENTAGE : 0) + (has_unclicked ? cost * ESTIMATED_UNCLICK_PERCENTAGE : 0) + (has_elapsed ? cost : 0),
                             within_days: (int == 0) ? null : within_days[int-1],
                             ref_campaign: (int === 0) ? null : "tmpref_" + tids[0],
                         }, {
@@ -675,7 +675,7 @@ exports.analyse = async (req, res) => {
 
                     console.log('post2... ' + JSON.stringify(fin));
                 }
-            } else throw 'fields';
+            } else throw 'fields1';
             int++;
         }
         
@@ -683,7 +683,7 @@ exports.analyse = async (req, res) => {
         console.log('END OF ANALYSIS!');
         console.log('====================================');
         if(is_api_access) {
-            if(units > bal.balance) throw 'balance'
+            if(cost > bal.balance) throw 'balance'
             let req_ = {
                 body: {
                     // id: req.body.id,  
@@ -706,8 +706,8 @@ exports.analyse = async (req, res) => {
                         to_awoptin: (toawoptin) ? 1 : 0,
                         add_optout: (unsub) ? 1 : 0,
                         add_optin:  (dosub) ? 1 : 0,
-                        units_used: units,
-                        total_units: units,
+                        cost,
+                        total_cost: cost,
                         within_days: null,    
                         ref_campaign: null,
                     }
@@ -727,7 +727,7 @@ exports.analyse = async (req, res) => {
                     contactcount: contactcount_,
                     msgcount: msgcount_,
                     invalidphones,      //  optional
-                    units: units_,
+                    cost: cost_,
                     balance: fin[0],
                 }, 
                 responseType: "SUCCESS", 
@@ -739,7 +739,7 @@ exports.analyse = async (req, res) => {
                 contactcount: contactcount_,
                 msgcount: msgcount_,
                 invalidphones,      //  optional
-                units: units_,
+                cost: cost_,
                 balance: fin[0], */
                 // followups: [cond_1 ? 1 : 0, cond_2 ? 1 : 0],
             };
@@ -747,6 +747,7 @@ exports.analyse = async (req, res) => {
         }
 
     } catch(err) {
+        console.log('caught error = ' + JSON.stringify(err));
         
         switch(err) {
             case 'auth':
@@ -765,7 +766,7 @@ exports.analyse = async (req, res) => {
                     responseText: "Inadequate balance", 
                 };
                 break;
-            case 'fields':
+            case 'fields' || 'fields1' || 'fields3':
                 _status = {
                     response: "Error: Incomplete fields.", 
                     responseType: "ERROR", 
@@ -955,8 +956,8 @@ exports.add = async (req, res) => {
         var user_balance = user_balance_.balance;
         console.log('USER BALANCE IS ' + JSON.stringify(user_balance));
         
-        if(!ref && (user_balance < info.total_units)) {
-            console.log('INSUFFICIENT UNITS!');
+        if(!ref && (user_balance < info.total_cost)) {
+            console.log('INSUFFICIENT BALANCE!');
 
             return;
         }
@@ -2029,7 +2030,7 @@ exports.copy = (req, res) => {
         
     Promise.all([
         sequelize.query(
-            "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, campaigns.createdAt FROM campaigns " +
+            "SELECT campaigns.id, campaigns.name, campaigns.cost, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, campaigns.createdAt FROM campaigns " +
             "JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
             "JOIN groups ON groups.id = campaign_groups.groupId " +
             "WHERE campaigns.userId = :uid " +

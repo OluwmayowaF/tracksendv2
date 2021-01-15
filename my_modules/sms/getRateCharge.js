@@ -15,7 +15,7 @@ const getRateCharge = async (phone, ctry, user_id) => {
   let prefix = formatphone.substr(0, 4);
 
   var res_charge = await sequelize.query(
-    "SELECT units FROM settingsuserbillings " +
+    "SELECT settingsuserbillings.cost FROM settingsuserbillings " +
     "JOIN settingsnetworks ON settingsuserbillings.settingsnetworkId = settingsnetworks.id " +
     "WHERE settingsuserbillings.userId = (:id) " +
     "AND settingsnetworks.prefix = '" + prefix + "'", {
@@ -25,9 +25,9 @@ const getRateCharge = async (phone, ctry, user_id) => {
 
   console.log('RES!!!' + JSON.stringify(res_charge));
 
-  if(res_charge[0][0] && res_charge[0][0].units) {
+  if(res_charge[0][0] && res_charge[0][0].cost) {
       console.log('444444');
-      var results = res_charge[0][0].units;
+      var results = res_charge[0][0].cost;
       
   } else {
 
@@ -36,13 +36,13 @@ const getRateCharge = async (phone, ctry, user_id) => {
               prefix: prefix,
               countryId: ctry,
           },
-          attributes: ['unitscharge'], 
+          attributes: ['cost'], 
           limit: 1,
       });
 
       console.log('RRES!!!' + JSON.stringify(res_rcharge));
-      console.log('RRES!!!' + res_rcharge.map((r) => r.unitscharge));
-      var results = res_rcharge.map((r) => r.unitscharge);
+      console.log('RRES!!!' + res_rcharge.map((r) => r.cost));
+      var results = res_rcharge.map((r) => r.cost);
 
       console.log('555555');
   }
