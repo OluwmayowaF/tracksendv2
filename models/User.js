@@ -80,7 +80,7 @@ module.exports = function(sequelize, DataTypes) {
       // as: "groups", 
       foreignKey: 'userId' 
     });
-    User.hasMany(models.Topup, { 
+    User.hasMany(models.Wallet, { 
       // as: "groups", 
       foreignKey: 'userId' 
     });

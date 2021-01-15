@@ -959,9 +959,9 @@ $(document).ready(function() {
 						let cpm_summary_recp 		=	data_.contactcount.counts[i] + (i > 0 ? ' (est.)' : '');
 						let cpm_summary_count 	= data_.msgcount.counts[i] + (i > 0 ? ' (est.)' : '');
 						let cpm_summary_avg 		=	(parseInt(data_.contactcount.counts[i]) > 0) ? (parseInt(data_.msgcount.counts[i])/parseInt(data_.contactcount.counts[i])) + (i > 0 ? ' (est.)' : '') : '--';
-						let cpm_units_chrg 			=	data_.units.counts[i] + (i > 0 ? ' (est.)' : '');
+						let cpm_units_chrg 			=	data_.cost.counts[i] + (i > 0 ? ' (est.)' : '');
 
-						let $su = $('<div class="_su"><div class="trigger"><div class="col-lg-12 toggle active _hdr">' + cpm_summary_title + '</div></div><div class="col-lg-12 toggle-container" style="display: none"><div class="row with-forms">' + ((i === 0) ? '<div class="col-md-12"><h5>Campaign Name: </h5><span id="cpm_summary_name">' + cpm_summary_name + '</span></div>' : '') + '<div class="col-md-12"><h5>Sender ID: </h5><span id="cpm_summary_sender">' + cpm_summary_sender + '</span></div><div class="col-md-12"><h5>Message: </h5><span id="cpm_summary_msg">' + cpm_summary_msg + '</span></div><div class="col-md-12"><h5>To: </h5><span id="cpm_summary_to">' + cpm_summary_to + '</span></div><div class="col-md-12"><h5>Send Time: </h5><span id="cpm_summary_time">Immediately</span></div><div class="col-md-12 sepr"></div><div class="col-md-12"><h5>Number of Recipients: </h5><span id="cpm_summary_recp">' + cpm_summary_recp + '</span></div><div class="col-md-12"><h5>Total Messages: </h5><span id="cpm_summary_count">' + cpm_summary_count + '</span></div><div class="col-md-12"><h5>Average Message(s) per Recipient: </h5><span id="cpm_summary_avg">' + cpm_summary_avg + '</span></div><div class="col-md-12"><h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">' + cpm_units_chrg + '</span></div><div class="col-md-12 sepr"></div></div></div><div class="clearfix"></div></div>')
+						let $su = $('<div class="_su"><div class="trigger"><div class="col-lg-12 toggle active _hdr">' + cpm_summary_title + '</div></div><div class="col-lg-12 toggle-container" style="display: none"><div class="row with-forms">' + ((i === 0) ? '<div class="col-md-12"><h5>Campaign Name: </h5><span id="cpm_summary_name">' + cpm_summary_name + '</span></div>' : '') + '<div class="col-md-12"><h5>Sender ID: </h5><span id="cpm_summary_sender">' + cpm_summary_sender + '</span></div><div class="col-md-12"><h5>Message: </h5><span id="cpm_summary_msg">' + cpm_summary_msg + '</span></div><div class="col-md-12"><h5>To: </h5><span id="cpm_summary_to">' + cpm_summary_to + '</span></div><div class="col-md-12"><h5>Send Time: </h5><span id="cpm_summary_time">Immediately</span></div><div class="col-md-12 sepr"></div><div class="col-md-12"><h5>Number of Recipients: </h5><span id="cpm_summary_recp">' + cpm_summary_recp + '</span></div><div class="col-md-12"><h5>Total Messages: </h5><span id="cpm_summary_count">' + cpm_summary_count + '</span></div><div class="col-md-12"><h5>Average Message(s) per Recipient: </h5><span id="cpm_summary_avg">' + cpm_summary_avg + '</span></div><div class="col-md-12"><h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">' + formatMyAmount(cpm_units_chrg) + '</span></div><div class="col-md-12 sepr"></div></div></div><div class="clearfix"></div></div>')
 						
 						$bo.append($su);
 						tot += data_.contactcount.counts[i];
@@ -970,14 +970,14 @@ $(document).ready(function() {
 					
 					let cpm_summary_recp 	= tot + (len > 1 ? ' (est.)' : '') + (data_.invalidphones > 0 ? ' <span style="display: inline;font-size: 0.85em;color: #ff4a21;"> * invalid: ' + data_.invalidphones + ' *</spa>' : '');
 					let cpm_summary_count = data_.msgcount.acc + (len > 1 ? ' (est.)' : '');
-					let cpm_units_chrg 		= data_.units.acc + (len > 1 ? ' (est.)' : '');
+					let cpm_units_chrg 		= data_.cost.acc + (len > 1 ? ' (est.)' : '');
 
-					let $sutt = '<div class="su_totals" style="background-color: #bae7ec;margin-top: 5px;"><div class="row with-forms"><div style="text-align: center;padding: 5px;font-weight: bold;background-color: #85ccd2;color: #444;border-bottom: solid white 1px;">Totals</div><div class="col-md-12"><h5>Number of Recipients: </h5><span id="cpm_summary_recp">' + cpm_summary_recp + '</span></div><div class="col-md-12"><h5>Total Messages: </h5><span id="cpm_summary_count">' + cpm_summary_count + '</span></div><div class="col-md-12"><h5>Total Units Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">' + cpm_units_chrg + '</span></div><div class="col-md-12 sepr"></div><div class="col-md-12"><h5>Available Balance: </h5><span id="cpm_units_balance" style="font-weight: bold">--</span></div></div></div>';
+					let $sutt = '<div class="su_totals" style="background-color: #bae7ec;margin-top: 5px;"><div class="row with-forms"><div style="text-align: center;padding: 5px;font-weight: bold;background-color: #85ccd2;color: #444;border-bottom: solid white 1px;">Totals</div><div class="col-md-12"><h5>Number of Recipients: </h5><span id="cpm_summary_recp">' + cpm_summary_recp + '</span></div><div class="col-md-12"><h5>Total Messages: </h5><span id="cpm_summary_count">' + cpm_summary_count + '</span></div><div class="col-md-12"><h5>Total Cost Charge: </h5><span id="cpm_units_chrg" style="font-weight: bold">' + formatMyAmount(cpm_units_chrg) + '</span></div><div class="col-md-12 sepr"></div><div class="col-md-12"><h5>Available Balance: </h5><span id="cpm_units_balance" style="font-weight: bold">--</span></div></div></div>';
 
 					$bo.append($sutt);
 					
 					var bal, noc;
-					if(data_.units.acc > data_.balance) {
+					if(data_.cost.acc > data_.balance) {
 						bal = '<span style="color: red">' + data_.balance + ' (INSUFFICIENT) </span>';
 						
 						$('.campaign_summary_btn.send').hide();
@@ -995,7 +995,7 @@ $(document).ready(function() {
 						$('.campaign_summary_btn.send').show(); 
 					}
 
-					$('#analysis-box #cpm_units_balance').html(bal);
+					$('#analysis-box #cpm_units_balance').html(formatMyAmount(bal));
 
 					$('#click_analysis_box').click();
 
@@ -1792,12 +1792,6 @@ $(document).ready(function() {
 		var ent = parseFloat($(this).val());
 		console.log('entered: ' + ent);
 		
-			/* [2, 1, 50000],
-			[1.9, 50001, 100000],
-			[1.8, 100001, 500000],
-			[1.7, 500001, 1000000000000],
-		] */
-
 		if(!ent) {
 				$('#_rate').text('??');
 				$('#_units').text('??');
@@ -2886,6 +2880,28 @@ function formatMyNumber(num, curr) {
 		num += nnum[0];
 	}
 	return (curr || '') + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function formatMyAmount(num, curr) {
+	console.log('formatMyAmount = ' + num);
+
+	let est = '';
+	let mt = 0;
+
+	mt = num.toString().trim().split(' ');
+	if(mt.length > 1) {
+		num = mt[0];
+		est = ' ' + mt[1];
+	}
+
+	if(!num) return '--';
+	num = Number(num).toFixed(2);
+	nnum = num.toString().split(',');
+	num = '';
+	for(var i=0;i<nnum.length;i++) {
+		num += nnum[0];
+	}
+	return (curr || 'NGN') + ' ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + est;
 }
 
 function toShortTime(date) {

@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     recipients: DataTypes.STRING,
     status:     DataTypes.INTEGER,
     has_utm:    DataTypes.INTEGER,
-    units_used: DataTypes.DOUBLE,
+    cost:       DataTypes.DOUBLE,
     platformtypeId: DataTypes.INTEGER,
     condition:  DataTypes.STRING,
     within_days: DataTypes.INTEGER,

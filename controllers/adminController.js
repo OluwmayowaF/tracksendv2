@@ -415,7 +415,7 @@ exports.uploadPerfContacts = async (req, res) => {
 exports.manualget = (req, res) => {
     var user_id = req.user.id;
 
-    models.Topup.findAll({ 
+    models.Wallet.findAll({ 
         include: [{
             model: models.Payment, 
             // attributes: ['id', 'name', 'nameKh'], 
@@ -475,7 +475,7 @@ exports.manualpost = async (req, res) => {
 
     let uid = req.user.id;
     let cid = req.body.clientid;
-    let amt = req.body.amount;
+    let amt = Number(req.body.amount);
     // let rid = req.body.rateid;
     try {
         let client = await models.User.findByPk(cid);
@@ -491,7 +491,7 @@ exports.manualpost = async (req, res) => {
             isverified: 1,
         })
 
-        let getUnits = async(amt) => {
+        /* let getUnits = async(amt) => {
             var rate = await models.Settingstopuprate.findAll({
                 order: [ 
                     ['id', 'ASC']
@@ -537,13 +537,11 @@ exports.manualpost = async (req, res) => {
             console.log('====================================');
             console.log('error in amount');
             console.log('====================================');
-        }
+        } */
 
-        let topup = await models.Topup.create({
+        let topup = await models.Wallet.create({
             userId: client.id,
-            settingstopuprateId: rateid,
             amount: amt,
-            units,
             paymentId: payt.id,
         })
 
@@ -551,7 +549,7 @@ exports.manualpost = async (req, res) => {
             description: 'CREDIT',
             amount: amt,
             trxref: "Manual_By_" + uid,
-            units,
+            amount: amt,
             userId: client.id,
             status: 1, 
             type: 'MANUAL_TOPUP',
@@ -559,7 +557,7 @@ exports.manualpost = async (req, res) => {
         })
 
         await client.update({
-            balance: Sequelize.literal('balance + ' + units),
+            balance: Sequelize.literal('balance + ' + amt),
         });
 
         req.flash('success', "Manual TopUp Successful");

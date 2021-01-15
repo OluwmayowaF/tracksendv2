@@ -54,7 +54,7 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
 
             do {
 
-                var uid = makeId(3);
+                var uid = makeId(5);
                 var exists = await models.Message.findAll({
                     where: { 
                         ...(

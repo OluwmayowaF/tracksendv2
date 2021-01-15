@@ -151,8 +151,8 @@ const sendCampaign = async (req, res) => {
       var user_balance = user_balance_.balance;
       console.log('USER BALANCE IS ' + JSON.stringify(user_balance));
       
-      if(!ref && (user_balance < info.total_units)) {
-          console.log('INSUFFICIENT UNITS!');
+      if(!ref && (user_balance < info.cost)) {
+          console.log('INSUFFICIENT BALANCE!');
 
           return;
       }
@@ -552,7 +552,7 @@ const sendCampaign = async (req, res) => {
 
           do {
 
-              var uid = makeId(3);
+              var uid = makeId(5);
               var exists = await models.Message.findAll({
                   where: { 
                       campaignId: cpn.id.toString(),

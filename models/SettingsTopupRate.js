@@ -17,9 +17,9 @@ module.exports = (sequelize, DataTypes) => {
 
   Settingstopuprate.associate = function (models) {
     // models.SettingstopuprateID.belongsToMany(models.Contact, { through: models.ContactGroup, foreignKey: 'groupId' });
-    Settingstopuprate.hasMany(models.Topup, {
+    /* Settingstopuprate.hasMany(models.Wallet, {
       foreignKey: 'settingstopuprateId'
-    });
+    }); */
   }
 
   return Settingstopuprate;

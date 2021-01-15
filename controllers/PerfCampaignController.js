@@ -235,8 +235,6 @@ exports.send = async (req, res) => {
     const PCMPGN_CLICK_ITERATION_VOLUMES = [0.5, 0.25, 0.25];
     const PCMPGN_CLICK_PRICE_PER_SMS = 2;
 
-    const PCMPGN_AVG_COST_PER_UNIT = 2;
-
     let rmsg = "error"; //"Campaign successfully started.";
 
     req.perfcampaign = true; 
@@ -269,18 +267,18 @@ exports.send = async (req, res) => {
 
         var budget = cpn.budget;
         var cost = cpn.cost;
-        var units_used = Math.floor(parseFloat(budget) / parseFloat(cost)) * parseFloat(cost) / PCMPGN_AVG_COST_PER_UNIT;   //  to get the relevant portion of the budget
+        var costcharge = Math.floor(parseFloat(budget) / parseFloat(cost)) * parseFloat(cost);   //  to get the relevant portion of the budget
 
         /*  
-            REMOVE UNITS AND 
+            REMOVE CHARGE AND 
             REGISTER/LOG TRANSACTION 
         */
-        if(user_balance < units_used) throw 'insufficient_balance';
+        if(user_balance < costcharge) throw 'insufficient_balance';
 
-        let new_bal = user_balance - units_used;
-        console.log('old bal = ' + user_balance + '; units used = ' + units_used + '; NEW BALANCE = ' + new_bal);
+        let new_bal = user_balance - costcharge;
+        console.log('old bal = ' + user_balance + '; cost charged = ' + costcharge + '; NEW BALANCE = ' + new_bal);
 
-        //  UPDATE UNITS USER BALANCE
+        //  UPDATE USER BALANCE
         await models.User.update({
             balance: new_bal,
         }, {
@@ -293,12 +291,12 @@ exports.send = async (req, res) => {
             userId: user_id,
             type: (req.txnmessaging) ? 'TXN-MESSAGING' : ((req.perfcampaign) ? 'PERFCAMPAIGN' : 'CAMPAIGN'),
             ref_id: (req.txnmessaging) ? new Date().getTime() : cpn.id.toString(),
-            units: (-1) * units_used,
+            amount: (-1) * costcharge,
             status: 1,
         })
 
 
-        /*  REMOVED UNITS AND REGISTERED/LOGGED TRANSACTION */
+        /*  REMOVED CHARGE AND REGISTERED/LOGGED TRANSACTION */
 
 
         sndr = await models.Sender.findByPk(cpn.senderId, { attributes: ['id', 'name']});
@@ -312,7 +310,7 @@ exports.send = async (req, res) => {
         info = {
             name: cpn.name,
             shortlinkId: cpn.shorturl,
-            units_used,
+            cost: costcharge,
         } 
 
         var crits = cpn.conditionset;
@@ -633,7 +631,7 @@ exports.send = async (req, res) => {
             errmsg = "Campaign not yet Approved. Kindly contact Admin.";
             errresp = "Error. ";
         } else if(err == "insufficient_balance") {
-            errmsg = "You have insufficent units balance.";
+            errmsg = "You have insufficent balance.";
             errresp = "Error. ";
 
             cpn = await mongmodels.PerfCampaign.findOneAndUpdate({
@@ -738,7 +736,7 @@ exports.send_ = async (req, res) => {
 
         info = {
             shortlinkId: cpn.shorturl,
-            units_used: cpn.adminamount || 1000,
+            cost: cpn.adminamount || 1000,
         }
 
         let crits = cpn.conditionset;
@@ -1273,7 +1271,7 @@ exports.copy = (req, res) => {
         
     Promise.all([
         sequelize.query(
-            "SELECT campaigns.id, campaigns.name, campaigns.units_used, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, campaigns.createdAt FROM campaigns " +
+            "SELECT campaigns.id, campaigns.name, campaigns.cost, GROUP_CONCAT(groups.name SEPARATOR ', ') AS grpname, campaigns.createdAt FROM campaigns " +
             "JOIN campaign_groups ON campaign_groups.campaignId = campaigns.id " +
             "JOIN groups ON groups.id = campaign_groups.groupId " +
             "WHERE campaigns.userId = :uid " +

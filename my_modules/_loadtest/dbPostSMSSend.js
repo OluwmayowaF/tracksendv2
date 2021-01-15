@@ -68,29 +68,17 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                 if(!req.perfcampaign) {
                     console.log('.................................updating status for ' + cpn._id);
                     
-                    let new_bal = parseFloat(user_balance) - parseFloat(info.units_used);
-                    console.log('old bal = ' + user_balance + '; units used = ' + info.units_used + '; NEW BALANCE = ' + new_bal);
+                    let new_bal = parseFloat(user_balance) - parseFloat(info.cost);
+                    console.log('old bal = ' + user_balance + '; cost = ' + info.cost + '; NEW BALANCE = ' + new_bal);
 
                     let usr = await models.User.findByPk(user_id)
-                    //  UPDATE UNITS USER BALANCE
+                    //  UPDATE COST USER BALANCE
                     await usr.update({
                         balances: 'new_bal',
                     })
                     .catch((err) => {
                         console.log('usr.update FakeERROR: ' + err);
                     })
-    
-
-                    /* if(!req.txnmessaging) await cpn.update({
-                        units_useds: 'info.units_used',
-                        status: 1
-                    })
-                    .catch((err) => {
-                        console.log('cpn.update FakeERROR: ' + err);
-                    })
-                    .error((err) => {
-                        console.log('cpn.update FakeERROR: ' + err);
-                    }) */
 
     
                     //  LOG TRANSACTIONS (performance campaigns transactions are logged separately)
@@ -99,7 +87,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
                         userIsd: ['user_id'],
                         types: (req.txnmessaging) ? 'TXN-MESSAGING' : ((req.perfcampaign) ? 'PERFCAMPAIGN' : 'CAMPAIGN'),
                         ref_id: (req.txnmessaging) ? new Date().getTime() : cpn.id.toString(),
-                        units: (-1) * info.units_used,
+                        amount: (-1) * info.cost,
                         status: 1,
                     })
                     .catch((err) => {

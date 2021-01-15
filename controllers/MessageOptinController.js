@@ -192,7 +192,7 @@ exports.preOptIn = async (req, res) => {
                 userId: user.id,
                 type: 'CONTACT OPT-IN NOTIFICATION',
                 ref_id: phone,
-                units: (-1) * charge,
+                amount: (-1) * charge,
             })
         }
         
@@ -660,7 +660,7 @@ exports.completeOptin = async function(req, res) {
                         userId: userId,
                         type: 'CONTACT OPT-IN NOTIFICATION',
                         ref_id: phone,
-                        units: (-1) * charge,
+                        amount: (-1) * charge,
                     })
                 }
             } catch(err) {

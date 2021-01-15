@@ -235,7 +235,7 @@ exports.generateUrl = async (req, res) => {
         console.log('====================================');
         console.log("URL = " + url);
         console.log('====================================');
-        uid = makeId(3);
+        uid = makeId(5);
 
         await checkId(uid);
 
@@ -249,7 +249,7 @@ exports.generateUrl = async (req, res) => {
             
             if(e.length) {
                 console.log(JSON.stringify(e));
-                uid = makeId(3);
+                uid = makeId(5);
                 await checkId(uid);
             } else {
                 if(req.query.id) {
@@ -992,7 +992,7 @@ exports.newTxnMessage = async (req, res) => {
             console.log('___**********____*******________**********_________balance=', user_balance);
             let file_not_logged = true;
             let msgcount = 0;
-            let units = 0;
+            let cost = 0;
             let message = req.body.message;
             let contacts = req.body.contacts;
             let sender = req.body.sender;
@@ -1082,10 +1082,10 @@ exports.newTxnMessage = async (req, res) => {
                 for(let i = 0; i < contacts.length; i++) {
                     if(!contacts[i].phone || !contacts[i].countryId) throw 'contacts';
                     let chg = await getRateCharge(contacts[i].phone, contacts[i].countryId, user_id);
-                    units += cc * chg;
+                    cost += cc * chg;
                 }
 
-                if(user_balance < units) throw 'balance';
+                if(user_balance < cost) throw 'balance';
 
                 if(file_not_logged) {
                     filelogger('sms', 'Transaction Message', 'sending message', message);
@@ -1106,8 +1106,8 @@ exports.newTxnMessage = async (req, res) => {
                     to_awoptin: 0,
                     add_optout: 0,
                     add_optin:  0,
-                    units_used: units,
-                    total_units: units,
+                    cost,
+                    total_cost: cost,
                     within_days: null,    
                     ref_campaign: null,
                 }
@@ -1234,6 +1234,87 @@ exports.saveRole = async (req, res) => {
     return await adminController.updateRole(req, res);
 
 }
+//  EXTERNAL API ACCESS
+exports.txnMessageStatus = async (req, res) => {
+
+    try {
+
+        var user_id, sts, _status;
+        if(user_id = await apiAuthToken(req.query.token)) {
+
+            let msgstatus = await models.Message.findByPk(req.query.id, {
+                attributes: ['status', 'clickcount']
+            });
+
+            console.log(JSON.stringify(msgstatus));
+            if(!msgstatus) throw 'invalid';
+
+            switch (parseInt(msgstatus.status)) {
+                case 0:
+                    sts = "PENDING"
+                    break;
+                case 1:
+                    sts = (msgstatus.clickcount > 0) ? "DELIVERED & CLICKED" : "DELIVERED"
+                    break;
+                case (2 || 3):
+                    sts = "FAILED"
+                    break;
+                case 4:
+                    sts = "UNDELIVERABLE"
+                    break;
+                case 5:
+                    sts = "VIEWED"
+                    break;
+                case 5:
+                                
+                default:
+                    break;
+            }
+
+            _status = {
+                response: { id: req.query.id, status: sts }, 
+                responseType: "OK", 
+                responseCode: "P001", 
+                responseText: "Message status successfully retrieved", 
+            };
+        } else throw 'auth';
+
+    } catch(err) {
+        console.log('ERROR WA: ' + err);
+
+        switch(err) {
+            case 'auth':
+                _status = {
+                    response: "Error: Authentication error.", 
+                    responseType: "ERROR", 
+                    responseCode: "E001", 
+                    responseText: "Invalid Token", 
+                };
+                break;
+            case 'invalid':
+                _status = {
+                    response: "Error: Invalid Message ID", 
+                    responseType: "ERROR", 
+                    responseCode: "E001", 
+                    responseText: "Invalid Message ID", 
+                };
+                break;
+            default:
+                _status = {
+                    response: "Error: General Error!", 
+                    responseType: "ERROR", 
+                    responseCode: "E000", 
+                    responseText: "General error. Please contact Tracksend admin.", 
+                };
+        }
+        // return;
+    }
+
+    res.send(_status);
+    return;
+    
+}
+
 //  deprecated
 exports.whatsAppOptIn = async (req, res) => {
     whatsappController.preOptIn(req, res);

@@ -23,10 +23,7 @@ module.exports = function(app) {
   app.get ('/api/getclients',       apiController.getClients);
   app.post('/api/savesenderid',     apiController.saveSenderId);
   app.get ('/api/delsenderid',      apiController.delSenderId);
-  app.post('/api/ext/newgroup',     apiController.newGroup);       //  external API access
-  app.post('/api/ext/updategroup',  apiController.updateGroup);    //  external API access
-  app.post('/api/ext/newcampaign',  apiController.newCampaign);    //  external API access
-  app.post('/api/ext/newtxnmsg',    apiController.newTxnMessage);   //  external API access
+  
   app.post('/api/savegroup',        apiController.saveGroup);
   app.get ('/api/delgroup',         apiController.delGroup);
   app.get ('/api/delcampaign',      apiController.delCampaign);
@@ -61,6 +58,12 @@ module.exports = function(app) {
 
   // Delete Permission
   app.get('/api/delpermission', apiController.delPermission);
+  //  to implement middleware for the below (like relay)
+  app.post('/api/ext/newgroup',     apiController.newGroup);          //  external API access
+  app.post('/api/ext/updategroup',  apiController.updateGroup);       //  external API access
+  app.post('/api/ext/newcampaign',  apiController.newCampaign);       //  external API access
+  app.post('/api/ext/newtxnmsg',    apiController.newTxnMessage);     //  external API access
+  app.get('/api/ext/txnmsgstatus',  apiController.txnMessageStatus);  //  external API access
   
   // Delete Role
   app.get('/api/delrole', apiController.delRole);
