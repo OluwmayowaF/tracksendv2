@@ -41,7 +41,7 @@ exports.kirusaPlatform = async (req, res, user_id, user_balance, sndr, info, con
 
           do {
 
-              var uid = makeId(3);
+              var uid = makeId(5);
               var exists = await models.Message.findAll({
                 where: { 
                     ...(

@@ -44,6 +44,7 @@
 			<ul data-submenu-title="Account">
 				<li {{#if settingsmenu}} class="active" {{/if}}><a><i class="sl sl-icon-settings"></i> Settings</a>
 					<ul>
+						<li {{#if wallet}} class="active" {{/if}}><a href="/dashboard/wallet"><i class="fa fa-money"></i> Wallet</a></li>
 						<li {{#if topups}} class="active" {{/if}}><a href="/dashboard/topups"><i class="fa fa-money"></i> Top-Up</a></li>
 						<li {{#if profile}} class="active" {{/if}}><a href="/dashboard/profile"><i class="sl sl-icon-user"></i> Profile</a></li>
 						<li {{#if integrations}} class="active" {{/if}}><a href="/dashboard/integrations"><i class="sl sl-icon-link"></i> Integrations</a></li>

@@ -7,9 +7,9 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true
     },
-    name: DataTypes.STRING,
+    name:   DataTypes.STRING,
     prefix: DataTypes.STRING,
-    unitscharge: DataTypes.DOUBLE,
+    cost:   DataTypes.DOUBLE,
   }, {});
 
   // SettingsnetworkID.belongsToMany(Contact, { through: { model: ContactGroup, unique: false }, foreignKey: 'groupId' });

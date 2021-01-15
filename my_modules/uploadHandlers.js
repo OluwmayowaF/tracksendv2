@@ -15,7 +15,7 @@ const uploadHandlers = async (oldfile, type) => {
     // let oldfile = file;
     let filename_ = oldfile.name.split('.'); 
     let filename = filename_[0].substr(0, 20); 
-    filename = ((filename_[0] > filename) ? filename.substr(0, 14) + '_trunc' : filename) + '.' + filename_[1];
+    filename = ((filename_[0] > filename) ? filename.substr(0, 14) + '_trunc' : filename) + '.' + filename_[1];     // CHECK AGAIN: ...consider adding .length
     
     let tempfilename = await randgen('', '', '', 20, 'fullalphnum', '_');
     var timestamp_ = new Date();

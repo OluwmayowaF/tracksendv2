@@ -12,8 +12,9 @@ module.exports = (sequelize, DataTypes) => {
     type: DataTypes.STRING,
     description: DataTypes.STRING,
     ref_id: DataTypes.INTEGER,
-    status: DataTypes.INTEGER,
-    units: DataTypes.DOUBLE,
+    trxref: DataTypes.STRING,
+    status: DataTypes.STRING,
+    amount: DataTypes.DOUBLE,
   }, {});
 
   Transaction.associate = function (models) {

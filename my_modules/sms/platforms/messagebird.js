@@ -35,6 +35,7 @@ exports.messagebirdPlatform = async (req, res, user_id, user_balance, sndr, info
         console.log(response);
     }); */
 
+    var return_collection = [];     //  for txnmessaging return of messageid and phone number
 
     var q_reference = info.name.replace(/ /g, '_');
     var q_type = 'sms';
@@ -61,7 +62,6 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
     SINGLE_MSG = SINGLE_MSG && !UNSUBMSG && !DOSUBMSG;    //  UNSUBMSG includes individual contact ids so invariable can't be single msg
   
     var k = 0;
-    var msgarray = '';
 
     async function messagebird_checkAndAggregate(kont) {
         k++;
@@ -76,7 +76,7 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
 
             do {
 
-                var uid = makeId(3);
+                var uid = makeId(5);
                 var exists = await models.Message.findAll({
                     where: { 
                         ...(
@@ -105,7 +105,7 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
         }
         
         async function saveMsg(args) {
-            let shrt;
+            let shrt, retn;
             console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
             try {
                 if(req.txnmessaging) {
@@ -168,9 +168,9 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
                 
                 if(SINGLE_MSG) {
                     var msgto = "+" + formatted_phone;
-                    
+
                     console.log('SINGLE MESSAGE ENTRY CREATE DONE.');
-                    return msgto;
+                    retn = msgto;
                 } else {
                     var msgfull = { //  STEP 1 OF MESSAGE CONSTRUCTION
                         "originator" : m_originator,
@@ -188,15 +188,20 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
                         "validity"  : m_validity
                     }; 
                     
-                    console.log('UNSINGLE MESSAGE ENTRY CREATE DONE.');
                     if(file_not_logged && !req.txnmessaging) {
                         filelogger('sms', 'Send Campaign (MessageBird)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
                         file_not_logged = false;
                     }    
                 
-                    return msgfull;
+                    console.log('UNSINGLE MESSAGE ENTRY CREATE DONE.');
+                    retn = msgfull;
                 }
                 
+                if(req.txnmessaging) return_collection.push({
+                    "to": formatted_phone,
+                    "messageId": shrt.id,
+                });
+                return retn;
             
             } catch(err) {
                 console.log('________________________________');
@@ -305,7 +310,7 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
 
             //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
             let klist = sub_list.map(k => { return k._id })
-            let resp = await dbPostSMSSend.dbPostSMSSend(req, res, batches, null, null, info, user_balance, user_id, cpn, schedule_, klist, resp_);
+            let resp = await dbPostSMSSend.dbPostSMSSend(req, res, batches, null, null, info, user_balance, user_id, cpn, schedule_, req.txnmessaging ? return_collection : klist, resp_);
             // });
 
             /* const options = {

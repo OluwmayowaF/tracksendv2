@@ -25,11 +25,11 @@ exports.index = async(req, res) => {
     var acc_o = 0;    //  accumulating optouts
     var acc_i = 0;    //  accumulating optins
 
-    await mongmodels.Contact.deleteMany({
+    /* await mongmodels.Contact.deleteMany({
         groupId: mongoose.Types.ObjectId('5f6c540e780c8e0870a2fc2d')
-    });
+    }); */
     //  check if user has api_key and create
-    if(!req.user.api_key || req.user.api_key.length == 0) {
+    /* if(!req.user.api_key || req.user.api_key.length == 0) {
         let pk = await randgen('api_key', models.User, 'mysql', 50, 'fullalphnum', '_');
 
         await models.User.update({
@@ -41,7 +41,7 @@ exports.index = async(req, res) => {
             }
         })
         req.user.api_key = pk;
-    }
+    } */
 
     console.log('showing page...'); 
     

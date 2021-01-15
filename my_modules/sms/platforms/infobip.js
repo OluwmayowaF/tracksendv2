@@ -15,7 +15,8 @@ var base64encode = buff.toString('base64');
 exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
   originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj) => {
 
-    var return_collection = [];     //  for txnmessaging return of messageid and phone number
+    var return_collection = [];     //  for txnmessaging return of messageid and phone number\
+
     var q_tracking_type = !req.txnmessaging ? info.name.replace(/ /g, '_') : 'txn_sms_msg';
     var q_bulkId = 'generateBulk';
     var q_tracking_track = 'SMS';
@@ -39,7 +40,6 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
     SINGLE_MSG = SINGLE_MSG && !UNSUBMSG && !DOSUBMSG;    //  UNSUBMSG includes individual contact ids so invariable can't be single msg
   
     var k = 0;
-    var msgarray = '';
 
     async function checkAndAggregate(kont) {
         k++;
@@ -54,7 +54,7 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
 
             do {
 
-                var uid = makeId(3);
+                var uid = makeId(5);
                 var exists = await models.Message.findAll({
                     where: { 
                         ...(
@@ -86,7 +86,7 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
         }
         
         async function saveMsg(args) {
-            let shrt;
+            let shrt, retn;
             console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
             try {
                 if(req.txnmessaging) {
@@ -150,8 +150,7 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
                     }
                     
                     console.log('SINGLE MESSAGE ENTRY CREATE DONE.');
-                    if(req.txnmessaging) return_collection.push(msgto);
-                    return msgto;
+                    retn = msgto;
                 } else {
                     var msgfull = { //  STEP 1 OF MESSAGE CONSTRUCTION
                         "from" : m_from,
@@ -172,18 +171,21 @@ exports.infobipPlatform = async (req, res, user_id, user_balance, sndr, info, co
                         "validityPeriod" : m_validityPeriod,
                     }; 
                     
-                    console.log('UNSINGLE MESSAGE ENTRY CREATE DONE.');
-                    if(req.txnmessaging) return_collection.push({
-                        "to": formatted_phone,
-                        "messageId": shrt.id,
-                    });
                     if(file_not_logged && !req.txnmessaging) {
                         filelogger('sms', 'Send Campaign (Infobip)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
                         file_not_logged = false;
                     }    
-
-                    return msgfull;
+                    
+                    console.log('UNSINGLE MESSAGE ENTRY CREATE DONE.');
+                    retn = msgfull;
                 }
+
+                if(req.txnmessaging) return_collection.push({
+                    "to": formatted_phone,
+                    "messageId": shrt.id,
+                });
+                return retn;
+
             } catch(err) {
                 console.log('________________________________');
 
