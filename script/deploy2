@@ -1,0 +1,8 @@
+#!/bin/sh
+ssh prow@167.71.247.200 <<EOF
+ cd ~/apps/dev2.tracksend.co
+ git pull
+ npm install 
+ pm2 restart all
+ exit
+EOF
