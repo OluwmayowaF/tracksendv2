@@ -778,7 +778,7 @@ exports.add = async (req, res) => {
 
             do {
 
-                var uid = makeId(3);
+                var uid = makeId(5);
                 var exists = await models.Message.findAll({
                     where: { 
                         campaignId: cpn.id,

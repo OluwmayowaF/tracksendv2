@@ -14,6 +14,8 @@ const makeId = require('../../makeId');
 exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, info, contacts, schedule, schedule_, cpn, 
   originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, aux_obj) => {
 
+    var return_collection = [];     //  for txnmessaging return of messageid and phone number
+
   var file_not_logged = true;
   var networkerror = false;
   console.log('1~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~  ~~~~~~~~~~~~~');
@@ -35,7 +37,6 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
   // var m_mclass = 1; 
 
   var k = 0;
-  var msgarray = '';
 
   async function africastalking_checkAndAggregate(kont) {
       k++;
@@ -50,7 +51,7 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
 
           do {
 
-              var uid = makeId(3);
+              var uid = makeId(5);
               var exists = await models.Message.findAll({
                 where: { 
                     ...(
@@ -79,7 +80,7 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
       }
       
       async function saveMsg(args) {
-        let shrt;
+        let shrt, retn;
         console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
         try {
             if(req.txnmessaging) {
@@ -141,10 +142,10 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
               console.log('====================================');
               
               if(SINGLE_MSG) {
-                  var msgto = "+" + formatted_phone;
-                  
-                  console.log('SINGLE MESSAGE ENTRY CREATE DONE.');
-                  return msgto;
+                var msgto = "+" + formatted_phone;
+
+                console.log('SINGLE MESSAGE ENTRY CREATE DONE.');
+                retn = msgto;
               } else {
                   var msgfull = { //  STEP 1 OF MESSAGE CONSTRUCTION
                       "from" : m_from,
@@ -152,14 +153,20 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
                       "message" : updatedmessage,
                   }; 
                   
-                  console.log('UNSINGLE MESSAGE ENTRY CREATE DONE.');
-                  if(file_not_logged && !req.txnmessaging) {
-                    filelogger('sms', 'Send Campaign (AfricasTalking)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
-                      file_not_logged = false;
-                  }    
-              
-                  return msgfull;
-              }
+                    if(file_not_logged && !req.txnmessaging) {
+                        filelogger('sms', 'Send Campaign (Kirusa)', 'sending campaign: ' + cpn.name, JSON.stringify(msgfull));
+                        file_not_logged = false;
+                    }    
+                
+                    console.log('UNSINGLE MESSAGE ENTRY CREATE DONE.');
+                    retn = msgfull;
+                }
+                
+                if(req.txnmessaging) return_collection.push({
+                    "to": formatted_phone,
+                    "messageId": shrt.id,
+                });
+                return retn;
 
             } catch(err) {
                 console.log('________________________________');
@@ -242,7 +249,7 @@ exports.africastalkingPlatform = async (req, res, user_id, user_balance, sndr, i
 
             //  IF SENDING IS COMPLETE, CHARGE BALANCE... AND OTHER HOUSEKEEPING
             let klist = sub_list.map(k => { return k._id })
-            let resp = await dbPostSMSSend.dbPostSMSSend(req, res, batches, null, null, info, user_balance, user_id, cpn, schedule_, klist, resp_);
+            let resp = await dbPostSMSSend.dbPostSMSSend(req, res, batches, null, null, info, user_balance, user_id, cpn, schedule_, req.txnmessaging ? return_collection : klist, resp_);
 
             /* const options = {
                 url: 'https://'+tracksend_base_url+'/sms/2/text/advanced',

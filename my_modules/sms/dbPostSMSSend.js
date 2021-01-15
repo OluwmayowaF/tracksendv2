@@ -63,7 +63,7 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
         try {
             if(!networkerror && successfuls > 0) {   
                 if(!req.perfcampaign) {
-                    console.log('.................................updating status for ' + cpn._id);
+                    // console.log('.................................updating status for ' + cpn._id);
                     
                     let new_bal = parseFloat(user_balance) - parseFloat(info.cost);
                     console.log('old bal = ' + user_balance + '; cost = ' + info.cost + '; NEW BALANCE = ' + new_bal);
@@ -149,6 +149,12 @@ exports.dbPostSMSSend = async(req, res, batches, successfuls = 0, failures = 0, 
             }
         } catch (err) {
             console.error('THIS ERROR: ' + err);
+            _status = {
+                response: "Error: Internal error!", 
+                responseType: "ERROR", 
+                responseCode: "E007", 
+                responseText: "An error occurred. Please try again later or contact admin.", 
+            }
         }
 
         if(req.externalapi || req.perfcampaign) {

@@ -76,7 +76,7 @@ console.log('+++++++++++++++++++ env = '+ env.SERVER_BASE);
 
             do {
 
-                var uid = makeId(3);
+                var uid = makeId(5);
                 var exists = await models.Message.findAll({
                     where: { 
                         ...(

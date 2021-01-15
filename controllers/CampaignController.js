@@ -1425,7 +1425,7 @@ exports.add = async (req, res) => {
 
             do {
 
-                var uid = makeId(3);
+                var uid = makeId(5);
                 var exists = await models.Message.findAll({
                     where: { 
                         campaignId: cpn.id.toString(),
@@ -1457,7 +1457,7 @@ exports.add = async (req, res) => {
                 status: 0,
             })
 
-            console.log('MESSAGE ENTRY CREATE STARTED.');
+            console.log('CampaignController: MESSAGE ENTRY CREATE STARTED.');
                                                 
             let updatedmessage  = req.body.message
             .replace(/\[firstname\]/g,  kont.firstname)

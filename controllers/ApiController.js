@@ -235,7 +235,7 @@ exports.generateUrl = async (req, res) => {
         console.log('====================================');
         console.log("URL = " + url);
         console.log('====================================');
-        uid = makeId(3);
+        uid = makeId(5);
 
         await checkId(uid);
 
@@ -249,7 +249,7 @@ exports.generateUrl = async (req, res) => {
             
             if(e.length) {
                 console.log(JSON.stringify(e));
-                uid = makeId(3);
+                uid = makeId(5);
                 await checkId(uid);
             } else {
                 if(req.query.id) {
