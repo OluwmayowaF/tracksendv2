@@ -1,0 +1,157 @@
+<div class="dashboard-content">
+
+	<!-- Titlebar -->
+	<div id="titlebar">
+		<div class="row">
+			<div class="col-md-12">
+				<!-- Breadcrumbs -->
+				<nav id="breadcrumbs">
+					<ul>
+						<li><a href="/dashboard">Dashboard</a></li>
+						<li>Assign Roles To Users</li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+	</div>
+
+	{{#if flash}}
+	<div class="notification {{ flashtype }} closeable no-shadow">
+		<p><span style="text-transform: capitalize">{{ flashtype }}!</span> {{ flash }}</p>
+		<a class="close"></a>
+	</div>
+	{{/if}}
+
+	<div class="notification other3 closeable">
+		<p></p>
+		<a class="close"></a>
+	</div>
+
+	<div class="row">
+		<div class="toggle-wrap no_borders">
+
+			<div class="col-lg-12 trigger">
+				<div class="col-lg-12 page_box_header toggle active"><i class="im im-icon-Cursor-Click2"></i> <b>Assing</b>
+					Role<i class="sl sl-icon-plus"></i></div>
+			</div>
+			<div class="col-lg-12 toggle-container" style="display: none">
+
+				<div class="col-lg-12">
+					<div id="add-listing">
+						<form action="/admin/userrole" method="POST">
+
+							<!-- Section -->
+							<div class="add-listing-section">
+
+								<!-- Row -->
+								<div class="row with-forms">
+									<br>
+									<!-- Status -->
+									<div class="col-md-12">
+										<h5>Select User</h5>
+										{{!-- <input type="text" id="search_clients" maxlength="20" required
+											placeholder="Client Name or ID"> --}}
+										<select class="search_clients" name="clientid" id="search_clients" required
+											width="100%">
+										</select>
+										<input type="hidden" name="clientid" id="clientid"> 
+										<div class="col-md-12">
+											<h5>Select Role </h5>
+											<select class="chosen-select-no-single _plain _sel_contact_group"
+												name="roleId" id="sel_contact_group" required >
+												<option label="Select Role"></option>
+												<option disabled>--------------------------------------</option>
+												{{#each args.allRoles }}
+												<option value="{{ id }}">{{ name }}</option>
+												{{/each}}
+												<option disabled>--------------------------------------</option>
+											</select>
+										</div>
+
+									</div>
+
+								</div>
+								<!-- Row / End -->
+								<button type="submit" class="button preview">Assign <i
+										class="fa fa-arrow-circle-right"></i></button><span
+									class="loading_icon fa fa-hourglass-2"></span>
+
+							</div>
+							<!-- Section / End -->
+
+
+
+						</form>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="col-lg-12" style="margin-top: 30px">
+			<div class="col-lg-12 page_box_header">Topup History <span>[{{ args.userRoles.length }}]</span>
+			</div>
+		</div>
+		<div class="col-lg-12">
+
+			<div id="add-listing">
+				<!-- Section -->
+				<div class="add-listing-section">
+
+					<!-- Row -->
+					<div class="row with-forms">
+						<br>
+						<!-- Status -->
+						<div class="col-md-12 lists">
+							<ul>
+								<li class="list_item _hd" style="font-weight: bolder">
+									<ul class="saved_item">
+										<li style="flex: 6">User</li>
+										<li style="flex: 3">Role</li>
+										
+										<li style="flex: 1 ">...</li>
+									</ul>
+								</li>
+								{{#each args.userRoles}}
+								<li class="list_item" data-wh="userrole">
+								    <form><input type="hidden" class="id" value="{{ id }}" /></form>
+
+									<ul class="saved_item">
+										<li style="flex: 6">{{ name }}</li>
+										<li style="flex: 3">{{role.name }}</li>
+										
+										<li style="margin: 3px; text-align:center; align-items: center; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
+											
+											<span style="flex: 1; text-align:center; align-items: center; 3px;"
+												class="del_item_btn"><span class="tooltip top" title="Delete"
+													style="cursor: pointer"><i class="fa fa-trash-o"></i><span></span>
+										</li>
+									</ul>
+								</li>
+								{{else}}
+								<em>No users have been assigned roles.</em>
+								{{/each}}
+							</ul>
+						</div>
+
+					</div>
+					<!-- Row / End -->
+
+				</div>
+				<!-- Section / End -->
+			</div>
+		</div>
+
+		<div class="col-lg-12" style="margin-top: 30px;">
+
+			<div id="add-listing">
+			</div>
+		</div>
+		<!-- Copyrights -->
+		<div class="col-md-12">
+			<div class="copyrights">© 2019 Tracksend. All Rights Reserved.</div>
+		</div>
+
+	</div>
+
+</div>

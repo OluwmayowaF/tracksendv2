@@ -18,6 +18,10 @@ const hbsHelpers = () => {
 
     var hbs = exphbs.create({
         defaultLayout: 'dashboard',
+        runtimeOptions: {
+            allowProtoPropertiesByDefault: true,
+            allowProtoMethodsByDefault: true
+          },
         helpers: {
 
             ifCond: function (v1, operator, v2, options) {

@@ -32,6 +32,10 @@ const models = {
   Payment:      sequelize.import('./Payment'),
   Country:      sequelize.import('./Country'),
   Zapiertrigger:          sequelize.import('./ZapierTrigger'),
+  Permission:   sequelize.import('./Permission.js'),
+  Role:         sequelize.import('./Role.js'),
+  RolePermission: sequelize.import('./RolePermission.js'),
+
 };
 
 Object.keys(models).forEach(modelName => {

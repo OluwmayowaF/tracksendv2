@@ -59,8 +59,16 @@ module.exports = function(app) {
   
   app.use ('/api/zapier', zapierRouter);     //  from tsnwhatsappoptin api on external webpage
 
+  // Delete Permission
+  app.get('/api/delpermission', apiController.delPermission);
   
-  
+  // Delete Role
+  app.get('/api/delrole', apiController.delRole);
+
+  // Update Permission 
+  app.post('/api/savepermission',apiController.savePermission);
+  app.post('/api/saverole',apiController.saveRole);
+
   
   
   // Using the passport.authenticate middleware with our local strategy.

@@ -18,6 +18,12 @@
 
 			<ul data-submenu-title="TopUps">
 				<li {{#if topup}} class="active" {{/if}}><a href="/admin/m_a_n_u_a_l"><i class="im im-icon-Folder-Archive"></i> TopUp</a></li>
+			</ul>
+
+			<ul data-submenu-title="Roles and Permission">
+				<li {{#if permission}} class="active" {{/if}}><a href="/admin/permissions"><i class="fa fa-shield" aria-hidden="true"></i> Permissions</a></li>
+				<li {{#if role}} class="active" {{/if}}><a href="/admin/roles"><i class="fa fa-lock" aria-hidden="true"></i> Roles</a></li>
+				<li {{#if userRoles}} class="active" {{/if}}><a href="/admin/userroles"><i class="fa fa-users" aria-hidden="true"></i> Assign Roles To Users</a></li>
 			</ul>	
 
 			<ul data-submenu-title="Migrations">

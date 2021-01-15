@@ -12,12 +12,13 @@ const mongoconnectionurl = 'mongodb://' +
                            (mongo_username ? ':' : '') +
                            mongo_password + 
                            (mongo_password ? '@' : '') +
-                            'localhost:27017/' +
+                           // 'localhost:27017/' +
                           //  '167.71.89.146:27017/' +
                            mongo_db;
 console.log('urlurl is ' + mongoconnectionurl);
 
-mongoose.connect(mongoconnectionurl, {useNewUrlParser: true});
+mongoose.connect(`mongodb://mayowa_dbuser:mayowadBuser@cluster0-shard-00-00-7pndu.mongodb.net:27017,cluster0-shard-00-01-7pndu.mongodb.net
+  ,cluster0-shard-00-02-7pndu.mongodb.net:27017/tracksend?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true&w=majority`, {useNewUrlParser: true});
 mongoose.set('useFindAndModify', false);
 // const sequelize = new Sequelize(config.database, config.username, config.password);
 const db = mongoose.connection;

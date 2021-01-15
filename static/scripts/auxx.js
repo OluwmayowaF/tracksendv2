@@ -1494,6 +1494,7 @@ $(document).ready(function() {
 			var $btn = $(this); console.log('btn = ' + $btn.attr('class'));
 			var $item = $btn.closest('.list_item');
 			var id = $item.find('form .id').val();
+			alert
 			var wh = $item.attr('data-wh');
 			var whh = (wh == 'group') ? '. (NOTE THIS WILL ALSO DELETE ALL CONTACTS IN THE GROUP!)' : '';
 

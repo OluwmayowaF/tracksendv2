@@ -45,6 +45,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING,
       defaultValue: 'infobip',
     },
+    roleId: DataTypes.INTEGER,
   }, {
     hooks: {
       beforeCreate: function(user) {
@@ -99,6 +100,8 @@ module.exports = function(sequelize, DataTypes) {
       // as: "groups", 
       foreignKey: 'userId' 
     });
+    User.belongsTo(models.Role, {foreignKey: 'roleId', as: 'role'})
+
   }
   
 
