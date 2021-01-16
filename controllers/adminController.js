@@ -1032,5 +1032,31 @@ exports.updateRole = async(req, res) => {
         //res.redirect(backURL); 
 
 }
+exports.unassignRole = async(req, res) => {
+
+    try {
+        var user_id = req.user.id;
+        if(user_id.length == 0)  throw "error";
+    } catch (e) {
+        res.send({
+            error: "Authentication Error!!!"
+        });
+        return;
+    }
+
+    console.log('dele = ' + req.query.id);
+
+    userId = req.query.id;
+
+    let user = await models.User.update({ roleId: 0 }, {
+        where: {
+            id: userId
+        }
+      });
+   
+        if (user)res.send({ response: "success" });
+        else res.send({ response:  "Error" });
+    
+}
 
 

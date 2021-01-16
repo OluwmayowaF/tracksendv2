@@ -8,7 +8,7 @@ exports.index = async (req, res) => {
     var user_id = req.user.id;
     const allTransactions = await models.Transaction.findAll({ 
         where: { 
-            userId: 59
+            userId: user_id
         },
         order: [ 
             ['createdAt', 'DESC']
@@ -32,42 +32,72 @@ exports.index = async (req, res) => {
 };
 
 
-/*exports.download = async (req, res) => {
+exports.download = async (req, res) => {
+    console.log('HI')
     var excel = require('excel4node');
     var workbook = new excel.Workbook();
-    var worksheet = workbook.addWorksheet('Transactions');
-   
-    var headingColumnNames = [
-        "Date",
-        "Amount",
-        "Units",
-       "Transaction type",
-       "Reference number",
-        "Status",
-    ];
+    var worksheet = workbook.addWorksheet('Transaction');
+    var style = workbook.createStyle({
+        /* font: {
+            color: '#FF0800',
+            size: 12,
+        }, */
+        numberFormat: '$#,##0.00; ($#,##0.00); -'
+    })
+    var user_id = req.user.id;
+    var transaction_id = req.params.transid;
 
-    //Write Column Title in Excel file 
-    var headingColumnIndex = 1;
-    headingColumnNames.forEach(heading =>{
-        worksheet.cell(1, headingColumnIndex++)
-        .string(heading)
+    console.log('form details are now: ' + JSON.stringify(req.body)); 
+    console.log('userid: ' + JSON.stringify(user_id) + '; transaction_id: ' + JSON.stringify(transaction_id)); 
 
-    });
+    const userTransactions = await models.Transaction.findAll({ 
+        where: { 
+            userId: user_id
+        },
+        order: [ 
+            ['createdAt', 'DESC']
+        ],
+        limit: 100
+    })
+    
+    worksheet.cell(1,1).string('Amount').style(style);
+    worksheet.cell(1,2).string('Transaction type').style(style);
+    worksheet.cell(1,3).string('Reference Number').style(style);
+    worksheet.cell(1,5).string('Date').style(style);
+    worksheet.cell(1,4).string('Status?').style(style);
 
-    //Write Data in Excel file
-    var rowIndex = 2;
-    data.forEach( record => {
-        var columnIndex = 1;
-        Object.keys(record).forEach(columnName => {
-            worksheet.cell(rowIndex, columnIndex++)
-            .string(record[columnName])
-        });
-        rowIndex++;
-    });
+    var itr = 1;
 
-    let timestamp_ = new Date();
+
+
+    userTransactions.forEach(transaction => {
+        itr++;
+        var stat = parseInt(transaction.status);
+
+         worksheet.cell(itr,1).string(transaction.amount || '--').style(style);
+         worksheet.cell(itr,2).string(transaction.description || '--').style(style);
+         worksheet.cell(itr,3).string(transaction.trxref).style(style);
+         worksheet.cell(itr,5).string(transaction.createdAt || '--').style(style);
+         
+         switch (stat) {
+             case 0:
+                transaction.status = "Failed"
+                 break;
+             case 1:
+                transaction.status = "Success"
+                 break;
+             default:
+                 break;
+         }
+        
+
+         worksheet.cell(itr,6).string(transaction.status).style(style);
+         
+     });
+
+     let timestamp_ = new Date();
      let timestamp = timestamp_.getTime();
-     let newfile = 'tmp/downloads/' + gname + '_' + timestamp + '.xlsx';
+     let newfile = 'tmp/downloads/' + 'transactions' + '_' + timestamp + '.xlsx';
 
      await workbook.write(newfile, (err, status) => {
          if(err) console.log('_______________ERROR: ' + err);
@@ -76,4 +106,4 @@ exports.index = async (req, res) => {
      console.log('____________DONE');
 
 
-}*/
+};

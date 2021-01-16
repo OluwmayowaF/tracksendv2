@@ -1234,6 +1234,12 @@ exports.saveRole = async (req, res) => {
     return await adminController.updateRole(req, res);
 
 }
+
+exports.unassignRole = async (req, res) => {
+
+    return await adminController.unassignRole(req, res);
+
+}
 //  EXTERNAL API ACCESS
 exports.txnMessageStatus = async (req, res) => {
 

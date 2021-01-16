@@ -72,7 +72,9 @@ module.exports = function(app) {
   app.post('/api/savepermission',apiController.savePermission);
   app.post('/api/saverole',apiController.saveRole);
 
-  
+  //Unassign Roles
+  app.get('/api/deluserrole', apiController.unassignRole);
+
   
   // Using the passport.authenticate middleware with our local strategy.
   // If the user has valid login credentials, send them to the members page.
