@@ -12,7 +12,6 @@ var passport     = require("./config/passport");
 var cookieParser = require('cookie-parser');
 var session      = require('express-session');
 var flash        = require('express-flash');
-
 // const Sequelize = require('sequelize');
 // const User = require('./models/User');
 // const Contact = require('./models/Contact');
@@ -125,6 +124,8 @@ require("./routes/admin")(app);
 require("./routes/dashboard")(app);
 require("./routes/api.js")(app);
 require("./routes/pages")(app);
+
+
 
 //  init database
 const db = require('./config/cfg/db');
