@@ -56,6 +56,8 @@ module.exports = function(app) {
   
   app.use ('/api/zapier', zapierRouter);     //  from tsnwhatsappoptin api on external webpage
 
+  // Delete Permission
+  app.get('/api/delpermission', apiController.delPermission);
   //  to implement middleware for the below (like relay)
   app.post('/api/ext/newgroup',     apiController.newGroup);          //  external API access
   app.post('/api/ext/updategroup',  apiController.updateGroup);       //  external API access
@@ -63,8 +65,16 @@ module.exports = function(app) {
   app.post('/api/ext/newtxnmsg',    apiController.newTxnMessage);     //  external API access
   app.get('/api/ext/txnmsgstatus',  apiController.txnMessageStatus);  //  external API access
   
-  
-  
+  // Delete Role
+  app.get('/api/delrole', apiController.delRole);
+
+  // Update Permission 
+  app.post('/api/savepermission',apiController.savePermission);
+  app.post('/api/saverole',apiController.saveRole);
+
+  //Unassign Roles
+  app.get('/api/deluserrole', apiController.unassignRole);
+
   
   // Using the passport.authenticate middleware with our local strategy.
   // If the user has valid login credentials, send them to the members page.
