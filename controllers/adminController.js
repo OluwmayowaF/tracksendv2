@@ -4,6 +4,7 @@ var mongmodels = require('../models/_mongomodels');
 var moment = require('moment');
 const sequelize = require('../config/cfg/db');
 const Sequelize = require('sequelize');
+const { Op } = require("sequelize");
 const mongodb = require('mongoose');
 const randgen = require('../my_modules/randgen');
 const { default: axios } = require('axios');
@@ -693,4 +694,369 @@ exports.testerly = async (req, res) => {
     return;
 
 };
+
+exports.permissions = async(req, res) => {    
+    var user_id = req.user.id;
+
+    const allPermissions = await models.Permission.findAll({
+        order: [ 
+            ['name', 'ASC']
+        ], 
+        include: ['roles']
+    });
+   
+
+    var flashtype, flash = req.flash('error');
+    if(flash.length > 0) {
+        flashtype = "error";           
+    } else {
+        flashtype = "success";
+        flash = req.flash('success'); 
+    }
+    res.render('pages/admin/permissions', { 
+        layout: 'admin',
+        page: 'Permissions',
+        permissions: true,
+        flashtype, flash,
+
+        args: {
+            allPermissions,
+        }
+    });
+
+};
+
+exports.addPermission = async(req, res) => {
+    const newPermission = await models.Permission.create({
+        name: req.body.name,
+        description: req.body.description
+    })
+
+    if(newPermission) req.flash('success', 'Permission added successfully');
+    else  req.flash('error', 'An error occurred.');
+    const backURL = req.header('Referer') || '/';
+    res.redirect(backURL);
+}
+
+exports.roles = async(req, res) => {    
+    var user_id = req.user.id;
+
+    const allRoles = await models.Role.findAll({
+        order: [ 
+            ['name', 'ASC']
+        ], include: ['permissions', 'users']
+    });
+
+    const allPermissions = await models.Permission.findAll({
+        order: [
+            ['name', 'ASC']
+        ]
+    })
+   
+
+    var flashtype, flash = req.flash('error');
+    if(flash.length > 0) {
+        flashtype = "error";           
+    } else {
+        flashtype = "success";
+        flash = req.flash('success'); 
+    }
+    res.render('pages/admin/roles', { 
+        layout: 'admin',
+        page: 'Roles',
+        roles: true,
+        flashtype, flash,
+
+        args: {
+            allRoles,
+            allPermissions
+        }
+    });
+
+
+};
+
+exports.addRole = async(req, res) => {
+    const newRole = await models.Role.create({
+        name: req.body.name,
+    })
+
+    if(newRole){
+        let permissionIds = req.body.permissionId;
+        if(permissionIds.length < 2) permissionIds = [permissionIds]
+        
+        permissionIds.forEach(async(permissionId) => {
+            const rolePermission = await models.RolePermission.create({
+                roleId: newRole.id,
+                permissionId: permissionId
+            });
+            if(rolePermission) req.flash('success', 'Role added successfully');
+            else  req.flash('error', 'An error occurred.');
+            const backURL = req.header('Referer') || '/';
+            res.redirect(backURL);
+        });
+    }
+    else  req.flash('error', 'An error occurred.');
+   
+}
+
+exports.deletePermission = async(req, res) => {
+
+    try {
+        var user_id = req.user.id;
+        if(user_id.length == 0)  throw "error";
+    } catch (e) {
+        res.send({
+            error: "Authentication Error!!!"
+        });
+        return;
+    }
+
+    console.log('dele = ' + req.query.id);
+
+    permissionId = req.query.id;
+
+    // Check that no Role is attached to permission before deleting 
+    const roleExists = await models.RolePermission.count({
+        where: {permissionId : permissionId}
+    });
+    if(roleExists > 0){
+        res.send({
+            response: "Error: Permission cannot be deleted, it is already linked to roles",
+        });
+    } else {
+        const delPermission = await models.Permission.destroy({
+            where: {
+              id: permissionId
+            }
+          });
+        if (delPermission)res.send({ response: "success",});
+    }
+}
+
+exports.userRoles = async (req, res) => {
+    var user_id = req.user.id;
+
+    const allRoles = await models.Role.findAll({
+        order: [ 
+            ['name', 'ASC']
+        ], 
+    });
+
+    const userRoles = await models.User.findAll({
+        where: {
+            [Op.not]: [
+                { roleId: 0 },
+              ]
+        },
+        order: [
+            ['name', 'ASC']
+        ],
+        include: ['role']
+    })
+   
+
+    var flashtype, flash = req.flash('error');
+    if(flash.length > 0) {
+        flashtype = "error";           
+    } else {
+        flashtype = "success";
+        flash = req.flash('success'); 
+    }
+    res.render('pages/admin/users_roles', { 
+        layout: 'admin',
+        page: 'UserRoles',
+        userroles: true,
+        flashtype, flash,
+
+        args: {
+            allRoles,
+            userRoles
+        }
+    });
+
+}
+
+exports.assignRole = async(req, res) => {
+    const userId = req.body.clientid;
+    const roleId = req.body.roleId;
+    console.log(userId, roleId);
+
+    let user = await models.User.update({ roleId: roleId }, {
+        where: {
+            id: Number(userId[0])
+        }
+      });
+    if(user) req.flash('success', 'Role assigned successfully');
+    else  req.flash('error', 'An error occurred.');
+    const backURL = req.header('Referer') || '/';
+    res.redirect(backURL);
+    
+    /*const newRole = await models.Role.create({
+        name: req.body.name,
+    })
+
+    if(newRole){
+        let permissionIds = req.body.permissionId;
+        if(permissionIds.length < 2) permissionIds = [permissionIds]
+        
+        permissionIds.forEach(async(permissionId) => {
+            const rolePermission = await models.RolePermission.create({
+                roleId: newRole.id,
+                permissionId: permissionId
+            });
+            if(rolePermission) req.flash('success', 'Role added successfully');
+            else  req.flash('error', 'An error occurred.');
+            const backURL = req.header('Referer') || '/';
+            res.redirect(backURL);
+        });
+    }
+    else  req.flash('error', 'An error occurred.');*/
+   
+}
+
+exports.deleteRole = async(req, res) => {
+
+    try {
+        var user_id = req.user.id;
+        if(user_id.length == 0)  throw "error";
+    } catch (e) {
+        res.send({
+            error: "Authentication Error!!!"
+        });
+        return;
+    }
+
+    console.log('dele = ' + req.query.id);
+
+    roleId = req.query.id;
+
+    // Check that no Role is attached to permission before deleting 
+    const userExists = await models.User.count({
+        where: {roleId : roleId}
+    });
+    if(userExists > 0){
+        res.send({
+            response: "Error: Role cannot be deleted, it is already linked to users",
+        });
+    } else {
+        const delRole = await models.Role.destroy({
+            where: {
+              id: roleId
+            }
+          });
+        if (delRole)res.send({ response: "success" });
+        else res.send({ response:  "Error" });
+    }
+}
+
+exports.updatePermission = async(req, res) => {
+    try {
+        var user_id = req.user.id;
+        if(user_id.length == 0)  throw "error";
+    } catch (e) {
+        res.send({
+            error: "Authentication Error!!!"
+        });
+        return;
+    }
+
+    console.log('edit = ' + req.body.id);
+
+    var permissionId = req.body.id;
+
+    const updatePermission = await models.Permission.update(
+        {  'description': req.body.description }, 
+        
+        {
+        where: {
+          id: permissionId
+        }
+      });
+
+      if(updatePermission) res.send({ response: "success" });
+      else res.send({ response:  "Error" });
+
+}
+
+const updateOrCreate =  async (model, where, newItem) => {
+    // First try to find the record
+   const foundItem = await model.findOne({where});
+   if (!foundItem) {
+        // Item not found, create a new one
+        const item = await model.create(newItem)
+        return  {item, created: true};
+    }
+    // Found an item, update it
+    const item = await model.update(newItem, {where});
+    return {item, created: false};
+}
+
+exports.updateRole = async(req, res) => {
+    try {
+        var user_id = req.user.id;
+        if(user_id.length == 0)  throw "error";
+    } catch (e) {
+        res.send({
+            error: "Authentication Error!!!"
+        });
+        return;
+    }
+
+    console.log('edit = ' + req.body.id);
+
+    var roleId = req.body.id;
+    var permissionIds = req.body.permissionId;
+
+    if(permissionIds.length < 2) permissionIds = [permissionIds]
+    let updateRolePermission;
+    permissionIds.forEach(async(permissionId) => {
+     updateRolePermission  = await updateOrCreate(models.RolePermission, {
+            roleId: roleId,
+            permissionId: permissionId
+        }, {
+            roleId: roleId,
+            permissionId : permissionId
+        })
+        console.log(updateRolePermission)
+        if(updateRolePermission) res.send({ response: "success" });
+        else res.send({ response:  "Error" });
+    });
+
+    console.log(updateRolePermission)
+
+    
+        //if(updateRolePermission) res.send({ response: "success" });
+        //else res.send({ response:  "Error" });
+        //const backURL = req.header('Referer') || '/';
+        //res.redirect(backURL); 
+
+}
+exports.unassignRole = async(req, res) => {
+
+    try {
+        var user_id = req.user.id;
+        if(user_id.length == 0)  throw "error";
+    } catch (e) {
+        res.send({
+            error: "Authentication Error!!!"
+        });
+        return;
+    }
+
+    console.log('dele = ' + req.query.id);
+
+    userId = req.query.id;
+
+    let user = await models.User.update({ roleId: 0 }, {
+        where: {
+            id: userId
+        }
+      });
+   
+        if (user)res.send({ response: "success" });
+        else res.send({ response:  "Error" });
+    
+}
+
 

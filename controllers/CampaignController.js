@@ -9,6 +9,10 @@ const mongmodels = require('../models/_mongomodels');
 const fs         = require('fs'); 
 const scheduler  = require('node-schedule');
 
+// Get Agenda to schedlue Jobs
+// const agenda = require('../my_modules/setup.agenda');
+
+
 const apiController         = require('./ApiController');
 const smsSendEngines        = require('../my_modules/sms/smsSendEngines');
 const { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
@@ -877,9 +881,9 @@ exports.add = async (req, res) => {
                 console.log('====================================');
 
                 if(!schedule || schedule === 'null') {
-                    let ts = moment().add(parseInt(within_days), 'days');
+                  //  let ts = moment().add(parseInt(within_days), 'days');
                     // let ts = moment().add(parseInt(within_days), 'hours');
-                    // let ts = moment().add(parseInt(within_days), 'minutes');
+                     let ts = moment().add(parseInt(within_days), 'minutes');
                     console.log('====================================');
                     console.log('date 2a='+ts);
                     console.log('====================================');
@@ -908,6 +912,19 @@ exports.add = async (req, res) => {
                     
                     doSMS(info, reff)
                 }.bind(null, info.id)) 
+
+
+               /* agenda.define('schedule campaign', {priority: 'high', concurrency: 10}, (job, done) => {
+                    const {jobInfo} = job.attrs.data;
+                    doSMS(jobInfo, reff)
+                    done();
+                });
+
+
+                (async function() {
+                    await agenda.start();
+                    await  agenda.schedule(date, 'schedule campaign', {jobInfo: info.id});
+                })();*/
                 
                 /* _dosms.bind(info.id));
                 function _dosms(reff) {

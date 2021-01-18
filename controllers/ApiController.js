@@ -1215,6 +1215,31 @@ exports.newTxnMessage = async (req, res) => {
     
 }
 
+exports.delPermission = async (req, res) => {
+    adminController.deletePermission(req,res);
+}
+
+exports.delRole = async (req, res) => {
+    adminController.deleteRole(req,res);
+}
+
+exports.savePermission = async (req, res) => {
+
+    return await adminController.updatePermission(req, res);
+
+}
+
+exports.saveRole = async (req, res) => {
+
+    return await adminController.updateRole(req, res);
+
+}
+
+exports.unassignRole = async (req, res) => {
+
+    return await adminController.unassignRole(req, res);
+
+}
 //  EXTERNAL API ACCESS
 exports.txnMessageStatus = async (req, res) => {
 

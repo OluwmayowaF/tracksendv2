@@ -12,7 +12,6 @@ var passport     = require("./config/passport");
 var cookieParser = require('cookie-parser');
 var session      = require('express-session');
 var flash        = require('express-flash');
-
 // const Sequelize = require('sequelize');
 // const User = require('./models/User');
 // const Contact = require('./models/Contact');
@@ -20,7 +19,8 @@ var flash        = require('express-flash');
 const homeRouter = require('./routes/home');
 const dashboardRouter = require('./routes/dashboard');
 const apiRouter = require('./routes/api');
-
+// const Agendash = require('agendash');
+// const agenda = require('./my_modules/setup.agenda')
 const app = express(); 
 
 var sessionStore = new session.MemoryStore;
@@ -125,6 +125,9 @@ require("./routes/admin")(app);
 require("./routes/dashboard")(app);
 require("./routes/api.js")(app);
 require("./routes/pages")(app);
+
+//app.use('/admin/agenda/dashboard', require('./config/middleware/isAdministrator'), Agendash(agenda));
+
 
 //  init database
 const db = require('./config/cfg/db');

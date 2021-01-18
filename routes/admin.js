@@ -1,8 +1,9 @@
 var express = require('express');
 var router = express.Router();
 const path = require('path');
-
 var adminController = require('../controllers/adminController');
+
+
 
 // Requiring our custom middleware for checking if a user is logged in
 var isAdministrator = require("../config/middleware/isAdministrator");
@@ -20,6 +21,12 @@ module.exports = function(app) {
   app.get('/admin/m_a_n_u_a_l',     isAdministrator, adminController.manualget);
   app.post('/admin/m_a_n_u_a_l',    isAdministrator, adminController.manualpost);
   app.get('/admin/testerly',        isAdministrator, adminController.testerly);
+  app.get('/admin/permissions', isAdministrator, adminController.permissions);
+  app.post('/admin/permissions', isAdministrator, adminController.addPermission);
+  app.get('/admin/roles', isAdministrator, adminController.roles);
+  app.post('/admin/role', isAdministrator, adminController.addRole);
+  app.get('/admin/userroles', isAdministrator, adminController.userRoles);
+  app.post('/admin/userrole', isAdministrator, adminController.assignRole);
 
   
   // app.get('/admin/m_a_n_u_a_l', isAdministrator, (req, res) => {
