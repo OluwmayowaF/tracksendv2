@@ -149,7 +149,7 @@ exports.ref = (req, res) => {
             }); */
             console.log('111111111 -> ' + response.amount);
             
-            let owo = parseInt(r.amount)/100;
+            let owo = parseInt(payment.amount)/100; //  amount in NGN (from kobo)
             var cost = 0;
             var rid = 0;
             var drate = 0;
@@ -158,7 +158,7 @@ exports.ref = (req, res) => {
             
             var tpp = await models.Wallet.create({
                 userId: payment.userId,
-                amount: payment.amount/100, //  amount in NGN (from kobo)
+                amount: owo,
                 paymentId: payment.id,
             })
             //.then(async () => {
@@ -171,15 +171,16 @@ exports.ref = (req, res) => {
                 type: 'TOPUP',
                 ref_id: tpp.id,
                 status: 1,
+                amount: owo, 
             })
             
             var usr = await models.User.findByPk(payment.userId);
             await usr.update({
-                balance: Sequelize.literal('balance + ' + payment.amount),
+                balance: Sequelize.literal('balance + ' + payment.amount/100),
             });
             console.log('DONE!');
             
-            req.flash('success', 'Payment successful. Account topped up with NGN ' + payment.amount + '.');
+            req.flash('success', 'Payment successful. Account topped up with NGN ' + owo + '.');
             res.redirect('/dashboard/wallet/');
 
 
