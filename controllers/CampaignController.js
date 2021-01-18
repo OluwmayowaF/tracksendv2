@@ -10,7 +10,7 @@ const fs         = require('fs');
 const scheduler  = require('node-schedule');
 
 // Get Agenda to schedlue Jobs
-const agenda = require('../my_modules/setup.agenda');
+// const agenda = require('../my_modules/setup.agenda');
 
 
 const apiController         = require('./ApiController');
@@ -914,9 +914,9 @@ exports.add = async (req, res) => {
                 }.bind(null, info.id)) 
 
 
-                agenda.define('schedule campaign', {priority: 'high', concurrency: 10}, (job, done) => {
+               /* agenda.define('schedule campaign', {priority: 'high', concurrency: 10}, (job, done) => {
                     const {jobInfo} = job.attrs.data;
-                    doSMS(jobInfo, null)
+                    doSMS(jobInfo, reff)
                     done();
                 });
 
@@ -924,7 +924,7 @@ exports.add = async (req, res) => {
                 (async function() {
                     await agenda.start();
                     await  agenda.schedule(date, 'schedule campaign', {jobInfo: info.id});
-                })();
+                })();*/
                 
                 /* _dosms.bind(info.id));
                 function _dosms(reff) {
