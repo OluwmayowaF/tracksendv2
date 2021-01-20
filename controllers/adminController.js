@@ -487,7 +487,7 @@ exports.manualpost = async (req, res) => {
             phone: client.phone,
             email: client.email,
             amount: amt,
-            channel: 'manual',
+            channel: 'MANUAL',
             isverified: 1,
         })
 

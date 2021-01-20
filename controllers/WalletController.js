@@ -21,6 +21,7 @@ exports.index = async (req, res) => {
         ]
     });
     
+    console.log(`tups: ${JSON.stringify(tups)}`);
     var flashtype, flash = req.flash('error');
     if(flash.length > 0) {
         flashtype = "error";           
@@ -39,7 +40,6 @@ exports.index = async (req, res) => {
             tups,
         }
     });
-
 
 
     console.log('showing page...'); 
@@ -78,7 +78,7 @@ exports.pay = async (req, res) => {
         email: form.email,
         amount: form.amount,       //   amount in kobo
         currency: 'NGN',
-        channel: '-',
+        channel: 'CARD',
     })
     .then((pay) => {
         initializePayment(form, (error, body)=>{
@@ -147,7 +147,8 @@ exports.ref = (req, res) => {
                     ['id', 'ASC']
                 ]
             }); */
-            console.log('111111111 -> ' + response.amount);
+            console.log('response.amount -> ' + response.amount);
+            console.log('payment.amount -> ' + payment.amount);
             
             let owo = parseInt(payment.amount)/100; //  amount in NGN (from kobo)
             var cost = 0;
