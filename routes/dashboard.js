@@ -49,7 +49,7 @@ module.exports = function(app) {
   app.use('/dashboard/shortlinks',      isAuthenticated, shortLinkRouter);
   app.use('/dashboard/shorturls',       isAuthenticated, shortLinkRouter);
   app.use('/dashboard/wallet',          isAuthenticated, walletRouter);
-  app.use('/dashboard/topups',          isAuthenticated, topupRouter);
+  // app.use('/dashboard/topups',          isAuthenticated, topupRouter);
   app.use('/dashboard/upload',          isAuthenticated, uploadRouter);
   app.use('/dashboard/profile',         isAuthenticated, profileRouter);
   app.use('/dashboard/integrations',    isAuthenticated, integrationRouter);
