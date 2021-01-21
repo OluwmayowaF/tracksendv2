@@ -27,13 +27,11 @@ exports.index = async (req, res) => {
                   
                 }
             });
-        console.log(allTransactions, user_id)
     console.log('showing page...'); 
 };
 
 
 exports.download = async (req, res) => {
-    console.log('HI')
     var excel = require('excel4node');
     var workbook = new excel.Workbook();
     var worksheet = workbook.addWorksheet('Transaction');
@@ -47,7 +45,6 @@ exports.download = async (req, res) => {
     var user_id = req.user.id;
     var transaction_id = req.params.transid;
 
-    console.log('form details are now: ' + JSON.stringify(req.body)); 
     console.log('userid: ' + JSON.stringify(user_id) + '; transaction_id: ' + JSON.stringify(transaction_id)); 
 
     const userTransactions = await models.Transaction.findAll({ 
@@ -59,24 +56,26 @@ exports.download = async (req, res) => {
         ],
         limit: 100
     })
-    
     worksheet.cell(1,1).string('Amount').style(style);
     worksheet.cell(1,2).string('Transaction type').style(style);
-    worksheet.cell(1,3).string('Reference Number').style(style);
+    worksheet.cell(1,3).string('Purpose').style(style);
+    worksheet.cell(1,4).string('Reference Id').style(style);
     worksheet.cell(1,5).string('Date').style(style);
-    worksheet.cell(1,4).string('Status?').style(style);
+    worksheet.cell(1,6).string('Status').style(style);
 
     var itr = 1;
 
 
 
-    userTransactions.forEach(transaction => {
+    Array.from(userTransactions).forEach(transactions => {
         itr++;
+        var transaction = JSON.parse(JSON.stringify(transactions));
         var stat = parseInt(transaction.status);
 
          worksheet.cell(itr,1).string(transaction.amount || '--').style(style);
          worksheet.cell(itr,2).string(transaction.description || '--').style(style);
-         worksheet.cell(itr,3).string(transaction.trxref).style(style);
+         worksheet.cell(itr,3).string(transaction.type).style(style);
+         worksheet.cell(itr,4).string(transaction.ref_id).style(style);
          worksheet.cell(itr,5).string(transaction.createdAt || '--').style(style);
          
          switch (stat) {

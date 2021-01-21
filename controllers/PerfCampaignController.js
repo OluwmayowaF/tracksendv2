@@ -10,6 +10,8 @@ const mailgun = require('mailgun-js')({apiKey: mgauth.APIKEY, domain: mgauth.DOM
 
 var smsSendEngines = require('../my_modules/sms/smsSendEngines');
 
+// Get Agenda to schedlue Jobs
+const agenda = require('../my_modules/setup.agenda');
 
 exports.index = async (req, res) => {
     var user_id = req.user.id;
@@ -398,8 +400,24 @@ exports.send = async (req, res) => {
             //  confirm/get valid timing and schedule
             let timing = _acceptableTime(end)
             if(timing == "end") return; //  update campaign to "finished"
-            else if(timing != "now") scheduler.scheduleJob(timing, perfEngine.bind(iter, end));
-            //  else, continue
+            else if(timing != "now") {
+                agenda.define('schedule campaign perfController', {priority: 'high', concurrency: 10}, (job, done) => {
+                    const {jobInfo} = job.attrs.data;
+                    perfEngine(jobInfo, end )
+                   // doSMS(jobInfo, reff)
+                    done();
+                });
+
+
+                (async function() {
+                    await agenda.start();
+                    await  agenda.schedule(date, 'schedule campaign', {jobInfo: iter});
+                    console.log('Scheduled!!')
+                })();
+            }
+            
+            scheduler.scheduleJob(timing, perfEngine.bind(iter, end));
+            // else, continue
 
             console.log('***********  PERFORMANCE CAMPAIGN ITERATION #' + iter + "  ************");
             //  update campaign status to "In-Process"
@@ -418,7 +436,20 @@ exports.send = async (req, res) => {
 
             // let next = moment().add(PCMPGN_INTR_INTVL_HOURS, 'hours').toDate();
             let next = moment().add(PCMPGN_INTR_INTVL_HOURS * 60, 'minutes').toDate();
-            scheduler.scheduleJob(next, perfEngine.bind(iter++, end));
+           // scheduler.scheduleJob(next, perfEngine.bind(iter++, end));
+           agenda.define('schedule campaign perfController', {priority: 'high', concurrency: 10}, (job, done) => {
+            const {jobInfo} = job.attrs.data;
+            perfEngine(jobInfo, end )
+           // doSMS(jobInfo, reff)
+            done();
+        });
+
+
+        (async function() {
+            await agenda.start();
+            await  agenda.schedule(date, 'schedule campaign', {jobInfo: iter++});
+            console.log('Scheduled3!!')
+        })();
         })()
 
         async function _doSMS(_contacts) {

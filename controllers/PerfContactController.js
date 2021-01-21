@@ -9,6 +9,9 @@ var mongmodels = require('../models/_mongomodels');
 const fs = require('fs'); 
 var scheduler = require('node-schedule');
 
+// Get Agenda to schedlue Jobs
+const agenda = require('../my_modules/setup.agenda');
+
 var smsSendEngines = require('../my_modules/sms/smsSendEngines');
 var { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
 var uploadMyFile = require('../my_modules/uploadHandlers');

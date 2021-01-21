@@ -1,3 +1,5 @@
+require('dotenv').config(); // SETUP .dotenc as soon as application starts
+
 const express    = require('express');
 const exphbs     = require('express-handlebars');
 const { hbs }    = require('./my_modules/handlebarhelpers')();
@@ -19,8 +21,8 @@ var flash        = require('express-flash');
 const homeRouter = require('./routes/home');
 const dashboardRouter = require('./routes/dashboard');
 const apiRouter = require('./routes/api');
-// const Agendash = require('agendash');
-// const agenda = require('./my_modules/setup.agenda')
+const Agendash = require('agendash');
+const agenda = require('./my_modules/setup.agenda')
 const app = express(); 
 
 var sessionStore = new session.MemoryStore;
@@ -126,7 +128,7 @@ require("./routes/dashboard")(app);
 require("./routes/api.js")(app);
 require("./routes/pages")(app);
 
-//app.use('/admin/agenda/dashboard', require('./config/middleware/isAdministrator'), Agendash(agenda));
+app.use('/admin/agenda/dashboard', require('./config/middleware/isAdministrator'), Agendash(agenda));
 
 
 //  init database

@@ -881,9 +881,9 @@ exports.add = async (req, res) => {
                 console.log('====================================');
 
                 if(!schedule || schedule === 'null') {
-                     let ts = moment().add(parseInt(within_days), 'days');
+                    // let ts = moment().add(parseInt(within_days), 'days');
                     // let ts = moment().add(parseInt(within_days), 'hours');
-                    // let ts = moment().add(parseInt(within_days), 'minutes');
+                     let ts = moment().add(parseInt(within_days), 'minutes');
                     console.log('====================================');
                     console.log('date 2a='+ts);
                     console.log('====================================');
@@ -914,23 +914,43 @@ exports.add = async (req, res) => {
                 }.bind(null, info.id)) */
 
 
-                agenda.define('schedule campaign', {priority: 'high', concurrency: 10}, (job, done) => {
+                agenda.define('schedule followup campaign', {priority: 'high', concurrency: 10}, async job => {
                     const {jobInfo} = job.attrs.data;
-                    doSMS(jobInfo, reff)
-                    done();
+                    await doSMS(jobInfo, jobInfo)
+                
                 });
 
 
                 (async function() {
                     await agenda.start();
-                    await  agenda.schedule(date, 'schedule campaign', {jobInfo: info.id});
+   
+                    await  agenda.schedule(date, 'schedule followup campaign', {jobInfo: info.id});
                 })();
                 
                 /* _dosms.bind(info.id));
                 function _dosms(reff) {
                 } */
             } else {
-                let resp = await doSMS(info, null);                                                                                                                                                           
+            let resp = await doSMS(info, null);
+            /*console.log(new Date(info.schedule));
+                if(info.schedule !== ''){
+                    agenda.define('schedule campaign', {priority: 'high', concurrency: 10}, async job => {
+                        const {jobInfo} = job.attrs.data;
+                         resp =  await  doSMS(jobInfo, jobInfo)
+                        
+                    });
+    
+    
+                    (async function() {
+                        await agenda.start();
+                        await  agenda.schedule(new Date(info.schedule), 'schedule campaign', {jobInfo: info.id});
+                    })(); 
+
+                }else{
+                     resp = await doSMS(info, null);  
+
+                }*/
+                                                                                                                                                                        
                 console.log('2++++++++++'+resp);
                 if(is_api_access && tempid[0] == 'api') return resp;
                 else {

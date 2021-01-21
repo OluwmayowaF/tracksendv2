@@ -3,11 +3,15 @@
 const { ObjectId } = require('mongoose');
 const mongoose = require('mongoose');
 // const AutoIncrement = require('mongoose-sequence')(mongoose);
-const mongo_username = '';// 'tiwexmong';
-const mongo_password = '';//'Tracksend8319#';
-const mongo_db = 'tracksend';
+const environment = process.env.NODE_ENV;
+const stage = require('../config.js')[environment];
 
-const mongoconnectionurl = 'mongodb://' + 
+const mongo_username = stage.DBMONGOUSERNAME;// 'tiwexmong';
+const mongo_password = stage.DBMONGOPASSWORD;//'Tracksend8319#';
+const mongo_db = stage.DBMONGODATABASE;
+const mongo_url = stage.DBMONGOURL;
+
+const mongoconnectionurl = mongo_url + 
                            mongo_username + 
                            (mongo_username ? ':' : '') +
                            mongo_password + 
@@ -17,8 +21,7 @@ const mongoconnectionurl = 'mongodb://' +
                            mongo_db;
 console.log('urlurl is ' + mongoconnectionurl);
 
-mongoose.connect(`mongodb://mayowa_dbuser:mayowadBuser@cluster0-shard-00-00-7pndu.mongodb.net:27017,cluster0-shard-00-01-7pndu.mongodb.net
-  ,cluster0-shard-00-02-7pndu.mongodb.net:27017/tracksend?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true&w=majority`, {useNewUrlParser: true});
+mongoose.connect(mongoconnectionurl, {useNewUrlParser: true});
 mongoose.set('useFindAndModify', false);
 // const sequelize = new Sequelize(config.database, config.username, config.password);
 const db = mongoose.connection;

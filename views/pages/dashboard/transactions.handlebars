@@ -31,7 +31,7 @@
 			
 			<div class="col-lg-12" style="margin-top: 30px">
 				<div class="col-lg-12 page_box_header">Transaction History <span>[{{ args.allTransactions.length }}]  </span>
-				<span class="shadow_btn"  style="float:right; margin-bottom:10px;  padding: 5px 10px; color: green; font-size: 0.6em"><a href="/dashboard/transaction/download" id="contact_download_link" style="color: inherit"><i class="fa fa-file-excel-o"></i> Download Excel</a></span>	
+				<span class="shadow_btn"  style="float:right; margin-bottom:10px;  padding: 5px 10px; color: green; font-size: 0.6em"><a href="/dashboard/transaction-history/download" id="contact_download_link" style="color: inherit"><i class="fa fa-file-excel-o"></i> Download Excel</a></span>	
 				</div>
 				<div>								
 </div>
@@ -54,7 +54,8 @@
 											<li style="flex: 3">Date</li>
 											<li style="flex: 3">Amount</li>
 											<li style="flex: 3">Transaction type</li>
-											<li style="flex: 4">Reference number</li>
+											<li style="flex: 3">Purpose</li>
+											<li style="flex: 4">Reference ID</li>
 											<li style="flex: 3">Status</li>
 
 										</ul>
@@ -64,9 +65,10 @@
 										<ul class="saved_item">
 											<input type="hidden" class="cid" value="'+i.id+'" />
 											<li style="flex: 3">{{formatDate createdAt "short"}}</li>
-											<li style="flex: 3">{{ amount }}</li>
+											<li style="flex: 3">{{ amount}} </li>
 											<li style="flex: 3">{{ description }}</li>
-											<li style="flex: 4">{{ trxref }}</li>
+											<li style="flex: 4">{{ type }}</li>
+											<li style="flex: 4">{{ ref_id }}</li>
 											<li style="flex: 3; color:{{#ifCond status "==" "1"}}green{{/ifCond}}{{#ifCond status "==" "0"}}red{{/ifCond}}">
 												{{#ifCond status "==" "1"}}SUCCESS{{/ifCond}}{{#ifCond status "==" "0"}}FAILED{{/ifCond}}
 												</li>
