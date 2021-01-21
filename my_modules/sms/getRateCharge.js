@@ -59,7 +59,7 @@ const getRateCharge = async (phone, ctry, user_id) => {
       console.log('RRES!!!' + JSON.stringify(res_rcharge));
       // console.log('RRES!!!' + res_rcharge.map((r) => r.cost));
       // var results = res_rcharge.map((r) => r.cost);
-      results = res_rcharge.cost;
+      results = res_rcharge ? res_rcharge.cost : null;
 
       console.log('555555');
   }

@@ -19,7 +19,7 @@ const mongoconnectionurl = mongo_url +
                            // 'localhost:27017/' +
                           //  '167.71.89.146:27017/' +
                            mongo_db;
-console.log('urlurl is ' + mongoconnectionurl);
+console.log('murlurl is ' + mongoconnectionurl);
 
 mongoose.connect(mongoconnectionurl, {useNewUrlParser: true});
 mongoose.set('useFindAndModify', false);
