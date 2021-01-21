@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../config/cfg/db');
-const dbauth = require('../config/cfg/dbauth_')();
 var uploadMyFile = require('../my_modules/uploadHandlers');
 var phoneval = require('../my_modules/phonevalidate');
 var mongmodels = require('../models/_mongomodels');
