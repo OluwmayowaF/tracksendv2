@@ -13,7 +13,7 @@ const connectionString = mongo_url +
                            mongo_password + 
                            (mongo_password ? '@' : '') +
                            mongo_db;
-console.log(connectionString)
+console.log('agenda_db:'+ connectionString)
 module.exports = new Agenda({
     db: {address: connectionString, collection: 'tracksendJobSchedulers'},
     processEvery: '30 seconds'

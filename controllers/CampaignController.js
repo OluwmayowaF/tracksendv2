@@ -895,9 +895,10 @@ exports.add = async (req, res) => {
                     console.log('====================================');
                     console.log('date 1b='+schedule);
                     console.log('====================================');
-                    // let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss').add(parseInt(within_days), 'days');
+                    let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss')
+                    //.add(parseInt(within_days), 'days');
                     // let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss').add(parseInt(within_days), 'hours');
-                    let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss').add(parseInt(within_days), 'minutes');
+                    // let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss').add(parseInt(within_days), 'minutes');
                     console.log('====================================');
                     console.log('date 2b='+ts);
                     console.log('====================================');
@@ -905,6 +906,7 @@ exports.add = async (req, res) => {
                     console.log('====================================');
                     console.log('date 3b=' + JSON.stringify(ts));
                     console.log('====================================');
+                    
                 }
 
                /* scheduler.scheduleJob(date, function(reff) {
@@ -912,7 +914,10 @@ exports.add = async (req, res) => {
                     
                     doSMS(info, reff)
                 }.bind(null, info.id)) */
-
+                
+                /* _dosms.bind(info.id));
+                function _dosms(reff) {
+                } */
 
                 agenda.define('schedule followup campaign', {priority: 'high', concurrency: 10}, async job => {
                     const {jobInfo} = job.attrs.data;
@@ -920,36 +925,30 @@ exports.add = async (req, res) => {
                 
                 });
 
-
                 (async function() {
                     await agenda.start();
    
                     await  agenda.schedule(date, 'schedule followup campaign', {jobInfo: info.id});
                 })();
-                
-                /* _dosms.bind(info.id));
-                function _dosms(reff) {
-                } */
+
             } else {
-            let resp = await doSMS(info, null);
-            /*console.log(new Date(info.schedule));
-                if(info.schedule !== ''){
-                    agenda.define('schedule campaign', {priority: 'high', concurrency: 10}, async job => {
-                        const {jobInfo} = job.attrs.data;
-                         resp =  await  doSMS(jobInfo, jobInfo)
-                        
-                    });
-    
-    
-                    (async function() {
-                        await agenda.start();
-                        await  agenda.schedule(new Date(info.schedule), 'schedule campaign', {jobInfo: info.id});
-                    })(); 
+                let runJobDate = info.schedule ? new Date(moment(info.schedule , 'YYYY-MM-DD HH:mm:ss').add(parseInt(1), 'hours')) : new Date();
+                let displayDate = info.schedulewa ? 'at '+ info.schedulewa : 'immediately';
+                console.log(runJobDate)
+                let resp;
+                agenda.define('schedule campaign', {priority: 'high', concurrency: 10}, async job => {
+                    const {jobInfo} = job.attrs.data;
+                    resp = await doSMS(JSON.parse(jobInfo), jobInfo.id)
+                
+                });
 
-                }else{
-                     resp = await doSMS(info, null);  
-
-                }*/
+                (async function() {
+                    await agenda.start();
+                    console.log({runJobDate})
+                    await  agenda.schedule(runJobDate, 'schedule campaign', {jobInfo: JSON.stringify(info)});
+                })();
+               
+           //let resp = await doSMS(info, null);
                                                                                                                                                                         
                 console.log('2++++++++++'+resp);
                 if(is_api_access && tempid[0] == 'api') return resp;
@@ -957,7 +956,8 @@ exports.add = async (req, res) => {
                     if(( resp && resp.responseType && (resp.responseType == "ERROR")) || (resp && resp.status && (resp.status == 'error'))) {
                         req.flash('error', 'An error occured. Please try again later or contact site admin.');
                     } else {
-                        let _msgmsg = (info.schedule == 'Invalid date') ? 'Messages sent out' : 'Messages would be sent out at ' + info.schedulewa;
+                        //let _msgmsg = (info.schedule == 'Invalid date') ? 'Messages sent out' : 'Messages would be sent out at ' + info.schedulewa;
+                        let _msgmsg = (info.schedule == 'Invalid date') ? 'Messages sent out' : 'Messages would be sent out ' + runJobDate;
                         req.flash('success', 'Campaign created successfully. ' + _msgmsg);
                     }
                     //   don't return or 'res.send' yet cos this is in a loop
