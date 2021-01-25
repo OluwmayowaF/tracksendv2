@@ -600,43 +600,36 @@
 								{{#ifCond status.stage "==" "Pre-analyze"}}
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Edit" style="color: #aaa"><i class="fa fa-edit"></i></a></span> | 
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Send" style="color: #aaa"><i class="fa fa-send-o"></i></a></span> |
-								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Show Report" style="color: #aaa"><i class="sl sl-icon-chart"></i></a></span> |
 								<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
 								{{/ifCond}}
 								{{#ifCond status.stage "==" "Approved"}}
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Edit" style="color: #aaa"><i class="fa fa-edit"></i></a></span> | 
 								<span style="flex: 1; text-align:center" class="send_item_btn"><a class="tooltip top" title="Send" style="cursor: pointer"><i class="fa fa-send-o"></i></a></span> |
-								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Show Report" style="color: #aaa"><i class="sl sl-icon-chart"></i></a></span> |
 								<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
 								{{/ifCond}}
 								{{#ifCond status.stage "==" "Denied"}}
 								<span style="flex: 1; text-align:center" data-indx="{{@index}}" class="edit_item_btn"><a class="tooltip top" title="Edit" style="cursor: pointer"><i class="fa fa-edit"></i></a></span> | 
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Send" style="color: #aaa"><i class="fa fa-send-o"></i></a></span> |
-								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Show Report" style="color: #aaa"><i class="sl sl-icon-chart"></i></a></span> |
 								<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
-								{{/ifCond}} 
+								{{/ifCond}}
 								{{#ifCond status.stage "==" "Sent"}}
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Edit" style="color: #aaa"><i class="fa fa-edit"></i></a></span> | 
-								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Send" style="color: #aaa"><i class="fa fa-send-o"></i></a></span> |
-								<span style="flex: 1; text-align:center" class="rpt_item_btn"><a class="tooltip top" title="Show Report" style="cursor: pointer"><i class="sl sl-icon-chart"></i></a></span> |
+								<span style="flex: 1; text-align:center" class="report_item_btn"><a class="tooltip top" title="Show Report" style="cursor: pointer"><i class="sl sl-icon-chart"></i></a></span> |
 								<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
 								{{/ifCond}}
 								{{#ifCond status.stage "==" "In-Process"}}
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Edit" style="color: #aaa"><i class="fa fa-edit"></i></a></span> | 
-								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Send" style="color: #aaa"><i class="fa fa-send-o"></i></a></span> |
-								<span style="flex: 1; text-align:center" class="rpt_item_btn"><a class="tooltip top" title="Show Report" style="cursor: pointer"><i class="sl sl-icon-chart"></i></a></span> |
+								<span style="flex: 1; text-align:center" class="report_item_btn"><a class="tooltip top" title="Show Report" style="cursor: pointer"><i class="sl sl-icon-chart"></i></a></span> |
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Delete" style="color: #aaa"><i class="fa fa-trash-o"></i></a></span>
 								{{/ifCond}}
 								{{#ifCond status.stage "==" "Terminated"}}
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Edit" style="color: #aaa"><i class="fa fa-edit"></i></a></span> | 
-								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Send" style="color: #aaa"><i class="fa fa-send-o"></i></a></span> |
-								<span style="flex: 1; text-align:center" class="rpt_item_btn"><a class="tooltip top" title="Show Report" style="cursor: pointer"><i class="sl sl-icon-chart"></i></a></span> |
+								<span style="flex: 1; text-align:center" class="report_item_btn"><a class="tooltip top" title="Show Report" style="cursor: pointer"><i class="sl sl-icon-chart"></i></a></span> |
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Delete" style="color: #aaa"><i class="fa fa-trash-o"></i></a></span>
 								{{/ifCond}}
 								{{#ifCond status.stage "==" "Completed"}}
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Edit" style="color: #aaa"><i class="fa fa-edit"></i></a></span> | 
-								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Send" style="color: #aaa"><i class="fa fa-send-o"></i></a></span> |
-								<span style="flex: 1; text-align:center" class="rpt_item_btn"><a class="tooltip top" title="Show Report" style="cursor: pointer"><i class="sl sl-icon-chart"></i></a></span> |
+								<span style="flex: 1; text-align:center" class="report_item_btn"><a class="tooltip top" title="Show Report" style="cursor: pointer"><i class="sl sl-icon-chart"></i></a></span> |
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Delete" style="color: #aaa"><i class="fa fa-trash-o"></i></a></span>
 								{{/ifCond}}
 							</li>
@@ -688,6 +681,31 @@
 
 							<button type="button" class="button preview campaign_summary_btn cancel" style="margin-top: 0">Cancel <i class="fa fa-close"></i></button>
 							<button type="button" class="button preview campaign_summary_btn send" style="margin-top: 0">Send <i class="fa fa-send"></i></button>
+
+						</div>
+
+						<a href="#analysis-box" class="sign-in popup-with-zoom-anim" style="color: #09b1d1; visibility: hidden; width: 1px; height: 1px; display:inline-block; float: left" id="click_analysis_box">.</a>
+						<div id="analysis-box" class="zoom-anim-dialog mfp-hide">
+
+							<div class="small-dialog-header" style="margin-bottom: 15px">
+								<h3>Campaign  <b>Report</b></h3>
+							</div>
+
+							<!--Tabs -->
+							<div class="sign-in-form style-1" style="overflow-y: auto; overflow-x: hidden; max-height: 440px; margin-bottom: 10px">
+								<div style="border: solid 1px #cccccc">
+									<span style="width: 40%;">Total Impressions: </span><span style="background: none" id="total_impressions">2,362</span>
+								</div>
+								<div style="border: solid 1px #cccccc; border-top: none">
+									<span style="width: 40%;">Total Clicks: </span><span style="background: none" id="total_clicks">2,362</span>
+								</div>
+								<div style="margin-top: 5px; border: solid 1px #cccccc">
+									<span style="width: 40%;">Total Cost: </span><span style="background: none" id="total_cost">NGN 20,362</span>
+								</div>
+
+							</div>
+
+							<button type="button" class="button preview campaign_summary_btn cancel" style="margin-top: 0">OK <i class="fa fa-send"></i></button>
 
 						</div>
 

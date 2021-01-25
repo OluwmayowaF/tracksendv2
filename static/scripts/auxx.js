@@ -641,7 +641,7 @@ $(document).ready(function() {
 		
 		$.ajax({
 			type: 'GET',
-			url: _getGlobals.SERVICE_HOST+'generateurl'+'?url='+url+urlid,
+			url: `${_getGlobals.SERVICE_HOST}generateurl?url=${url}${urlid}`,
 			contentType: 'application/json; charset=utf-8',
 			// data: json_form_reg,
 			success: function( data ) {
@@ -724,7 +724,7 @@ $(document).ready(function() {
 			} else {
 				$.ajax({
 					type: 'GET',
-					url: _getGlobals.SERVICE_HOST+'savecustomoptinlink'+'?url='+tt,
+					url: `${_getGlobals.SERVICE_HOST}savecustomoptinlink?url=${tt}`,
 					contentType: 'application/json; charset=utf-8',
 					// data: json_form_reg,
 					success: function( data ) {
@@ -781,7 +781,7 @@ $(document).ready(function() {
 
 		$.ajax({
 			type: 'GET',
-			url: _getGlobals.SERVICE_HOST+'savecustomoptinlink?reset=true',
+			url: `${_getGlobals.SERVICE_HOST}savecustomoptinlink?reset=true`,
 			contentType: 'application/json; charset=utf-8',
 			// data: json_form_reg,
 			success: function( data ) {
@@ -920,7 +920,7 @@ $(document).ready(function() {
 
 		$.ajax({
 			type: 'POST',
-			url: _getGlobals.SERVICE_HOST + apiadd,
+			url: `${_getGlobals.SERVICE_HOST}${apiadd}`,
 			contentType: 'application/json',
 			data: json_campaign_add,
 				// data: json_form_reg,
@@ -1065,7 +1065,7 @@ $(document).ready(function() {
 //		closeOnSelect: false,
 //   		id: function(orgs){return {id: orgs.orgid};},
 		ajax: {
-			url: _getGlobals.SERVICE_HOST+'getclients',
+			url: `${_getGlobals.SERVICE_HOST}getclients`,
 			dataType: 'json',
 			quietMillis: 100,
 			data: function (term, page) { // page is the one-based page number tracked by Select2
@@ -1201,7 +1201,7 @@ $(document).ready(function() {
 		
 		$.ajax({
 			type: 'GET',
-			url: _getGlobals.SERVICE_HOST + arg,
+			url: `${_getGlobals.SERVICE_HOST}${arg}`,
 			contentType: 'application/json; charset=utf-8',
 			// data: json_form_reg,
 			success: function( data ) {
@@ -1400,7 +1400,7 @@ $(document).ready(function() {
 		
 		$.ajax({
 			type: 'GET',
-			url: _getGlobals.SERVICE_HOST + 'getgroups?grptype=' + opt,
+			url: `${_getGlobals.SERVICE_HOST}getgroups?grptype=${opt}`,
 			contentType: 'application/json; charset=utf-8',
 			// data: json_form_reg,
 			success: function( data ) {
@@ -1503,7 +1503,7 @@ $(document).ready(function() {
 			
 				$.ajax({
 					type: 'GET',
-					url: _getGlobals.SERVICE_HOST+'del' + wh + '?id=' + id,
+					url: `${_getGlobals.SERVICE_HOST}del${wh}?id=${id}`,
 					contentType: 'application/json; charset=utf-8',
 					success: function( data ) {
 						
@@ -1611,7 +1611,7 @@ $(document).ready(function() {
 		
 			$.ajax({
 				type: 'POST',
-				url: _getGlobals.SERVICE_HOST+'save'+wh,
+				url: `${_getGlobals.SERVICE_HOST}save${wh}`,
 				contentType: 'application/json; charset=utf-8',
 				data: json_save_form,
 				success: function( data ) {
@@ -1690,7 +1690,7 @@ $(document).ready(function() {
 		
 			$.ajax({
 				type: 'GET',
-				url: _getGlobals.SERVICE_HOST + 'send' + wh + '?id=' + id,
+				url: `${_getGlobals.SERVICE_HOST}send${wh}?id=${id}`,
 				contentType: 'application/json; charset=utf-8',
 				success: function( data ) {
 					
@@ -1723,6 +1723,57 @@ $(document).ready(function() {
 			}
 			}).done(function(){
 				
+				
+			});
+
+		})
+
+		$('.report_item_btn').off('click');
+		$('.report_item_btn').on('click', function(e) {
+			e.stopPropagation();
+			e.preventDefault();
+			
+			var $btn = $(this);
+			var $item = $btn.closest('.list_item');
+			var wh = $item.attr('data-wh');
+			var $me = $item.find('form');
+			var id = $item.find('.cid').val();
+
+			console.log('clicked report');
+		
+			$.ajax({
+				type: 'GET',
+				url: `${_getGlobals.SERVICE_HOST}report${wh}?id=${id}`,
+				contentType: 'application/json; charset=utf-8',
+				success: function( data ) {
+
+					console.log(data);
+					if(data.responseType == "SUCCESS") {
+						let data_ = data.response;
+						
+						console.log(`data.response: ${JSON.stringify(data_)}`);
+
+						const impressions = data_.summary.delivered;
+						const clicks = data_.summary.clickc;
+						const measure = data_.pcampaign.measure
+						const cost = data_.pcampaign.cost * ( measure == "Per Click" ? clicks : impressions)
+
+						$('#total_impressions').text(impressions)
+						$('#total_clicks').text(clicks)
+						$('#total_cost').text(cost)
+						$('#click_analysis_box').click();
+	
+						$btn.closest('div').find('.loading_icon').hide();
+						$btn.closest('div').find('.activity_status').text('');
+	
+					} else {
+						alert('Sorry an error occured.')
+					}
+				},
+				error: function(resp, dd, ww) {
+					alert('Sorry an error occured.')
+				}
+			}).done(function(){
 				
 			});
 
@@ -1878,7 +1929,7 @@ $(document).ready(function() {
 		
 			$.ajax({
 				type: 'POST',
-				url: _getGlobals.SERVICE_HOST+'customoptin/add/question',
+				url: `${_getGlobals.SERVICE_HOST}customoptin/add/question`,
 				contentType: 'application/json; charset=utf-8',
 				data: json_form,
 				success: function( data ) {
@@ -1914,7 +1965,7 @@ $(document).ready(function() {
 					
 						$.ajax({
 							type: 'DELETE',
-							url: _getGlobals.SERVICE_HOST+'customoptin/delete/question/' + del_id,
+							url: `${_getGlobals.SERVICE_HOST}customoptin/delete/question/${del_id}`,
 							contentType: 'application/json; charset=utf-8',
 							// data: json_form,
 							success: function( data ) {
@@ -1948,7 +1999,7 @@ $(document).ready(function() {
 	
 		$.ajax({
 			type: 'DELETE',
-			url: _getGlobals.SERVICE_HOST+'customoptin/delete/question/' + del_id,
+			url: `${_getGlobals.SERVICE_HOST}customoptin/delete/question/${del_id}`,
 			contentType: 'application/json; charset=utf-8',
 			// data: json_form,
 			success: function( data ) {
@@ -2496,7 +2547,7 @@ function activateWhatsApp(e) {
 
 		$.ajax({
 			type: 'GET',
-			url: _getGlobals.SERVICE_HOST+'getwhatsappqrode',
+			url: `${_getGlobals.SERVICE_HOST}getwhatsappqrode`,
 			contentType: 'application/json; charset=utf-8',
 			// data: json_form_reg,
 			success: function( data ) {
@@ -2577,7 +2628,7 @@ function doRegistration() {
 
   $.ajax({
 		type: 'POST',
-		url: _getGlobals.SERVICE_HOST+'register',
+		url: `${_getGlobals.SERVICE_HOST}register`,
 		contentType: 'application/json; charset=utf-8',
 		data: json_form_reg,
 		success: function( data ) {
@@ -2677,7 +2728,7 @@ function doLogin() {
 
   $.ajax({
 		type: 'POST',
-		url: _getGlobals.SERVICE_HOST+'login',
+		url: `${_getGlobals.SERVICE_HOST}login`,
 		contentType: 'application/json; charset=utf-8',
 		data: json_form_login,
 		success: function( data ) {
