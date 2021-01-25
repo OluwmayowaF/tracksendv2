@@ -56,7 +56,7 @@ app.use('/admin/agenda/dashboard', require('./config/middleware/isAdministrator'
 
 
 //  init database
-const db = require('./config/cfg/db');
+const db = require('./config/db');
 db.authenticate()
 .then(() => {
   console.log   ('Main Database connected...');

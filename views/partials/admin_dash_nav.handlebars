@@ -21,6 +21,8 @@
 			</ul>
 
 			<ul data-submenu-title="Roles and Permission">
+				<li {{#if subscription}} class="active" {{/if}}><a href="/admin/subscriptions"><i class="fa fa-shield" aria-hidden="true"></i> Subscriptions</a></li>
+				<li {{#if plan}} class="active" {{/if}}><a href="/admin/plans"><i class="fa fa-shield" aria-hidden="true"></i> Plans</a></li>
 				<li {{#if permission}} class="active" {{/if}}><a href="/admin/permissions"><i class="fa fa-shield" aria-hidden="true"></i> Permissions</a></li>
 				<li {{#if role}} class="active" {{/if}}><a href="/admin/roles"><i class="fa fa-lock" aria-hidden="true"></i> Roles</a></li>
 				<li {{#if userRoles}} class="active" {{/if}}><a href="/admin/userroles"><i class="fa fa-users" aria-hidden="true"></i> Assign Roles To Users</a></li>

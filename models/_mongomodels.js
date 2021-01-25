@@ -152,7 +152,7 @@ const PerfCampaignSchema = new mongoose.Schema({
   shortlinkId:    Number,
   startdate:      Date,
   message:        String,
-  status:         mongoose.Schema.Types.Mixed,  //  an object for different types of statuses : { stage => [ 'Completed' | 'Approved' | 'Denied' | 'Terminated' | 'In-Process' ] }
+  status:         mongoose.Schema.Types.Mixed,  //  an object for different types of statuses : { stage => [ 'Completed' | 'Terminated' | 'In-Process' | 'Sent' | 'Approved' | 'Denied' | 'Pre-analyze' ] }
   addoptin:       Boolean,
   admincomment:   String,
 }, {

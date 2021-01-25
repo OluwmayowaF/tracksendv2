@@ -1,5 +1,5 @@
 var models = require('../models');
-const sequelize = require('../config/cfg/db');
+const sequelize = require('../config/db');
 const mongoose   = require('mongoose');
 const mongmodels = require('../models/_mongomodels');
 var moment = require('moment');

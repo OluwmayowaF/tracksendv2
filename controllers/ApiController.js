@@ -1,5 +1,5 @@
 var models      = require('../models');
-const sequelize = require('../config/cfg/db');
+const sequelize = require('../config/db');
 var moment      = require('moment');
 const _         = require('lodash');
 const Sequelize = require('sequelize');

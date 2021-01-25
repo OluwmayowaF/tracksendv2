@@ -16,6 +16,7 @@ var db = require("../models");
 const mongmodels = require('../models/_mongomodels');
 var passport = require("../config/passport");
 var cors = require("cors");
+const models = require('../models');
 //
 module.exports = function(app) {
   app.get ('/api/getgroups',        apiController.getGroups);
@@ -104,15 +105,28 @@ module.exports = function(app) {
     console.log('====================================');
 
     try {
-      let user = await db.User.create(req.body);
-      // res.redirect(307, "/api/login");
-      console.log('111111');
-      //  then create the [Uncategorized] group for the new user
-      /* await db.Group.create({
-        name: '[Uncategorized]',
-        description: 'For all contacts without distinct groups.',
-        userId: user.id,
-      }) */
+
+      // get DEFAULT plan
+      let defaultPlan = await models.Plan.findOne({
+        where: {
+          category: 'DEFAULT',
+        }
+      })
+
+      const transaction = await sequelize.transaction(async (t) => { 
+
+        let user = await db.User.create(req.body, { transaction: t });
+
+        //  create default subscription for user
+        if(defaultPlan) await user.createSubscription({
+          name: 'REGISTRATION Subscription',
+          description: '',
+          planId: defaultPlan.id,
+          cycles: 1,
+          expiry: new Date().getTime() + ( 100 * 365 * 24 * 60 * 60 * 1000 ), //  after 100 years ;)
+        }, { transaction: t });
+      })
+
       await mongmodels.Group.create({
         name: '[Uncategorized]',
         description: 'For all contacts without distinct groups.',
@@ -130,14 +144,12 @@ module.exports = function(app) {
       };
       
       mailgun.messages().send(data, function (error, body) {
-      console.log('mail error: ' + JSON.stringify(error));
-      console.log('mail body: ' + JSON.stringify(body));
+        console.log('mail error: ' + JSON.stringify(error));
+        console.log('mail body: ' + JSON.stringify(body));
       });
     
       req.login(user, () => {
-        console.log('222222');
         req.flash('success', 'Registration successful. Welcome to Tracksend.');
-        console.log('33333');
         res.json(["registered"]);
       });
     } catch(err) {

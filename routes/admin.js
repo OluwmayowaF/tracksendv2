@@ -21,6 +21,10 @@ module.exports = function(app) {
   app.get('/admin/m_a_n_u_a_l',     isAdministrator, adminController.manualget);
   app.post('/admin/m_a_n_u_a_l',    isAdministrator, adminController.manualpost);
   app.get('/admin/testerly',        isAdministrator, adminController.testerly);
+  app.get('/admin/subscriptions',   isAdministrator, adminController.subscriptions);
+  app.post('/admin/subscriptions',  isAdministrator, adminController.addSubscription);
+  app.get('/admin/plans',           isAdministrator, adminController.plans);
+  app.post('/admin/plans',          isAdministrator, adminController.addPlan);
   app.get('/admin/permissions', isAdministrator, adminController.permissions);
   app.post('/admin/permissions', isAdministrator, adminController.addPermission);
   app.get('/admin/roles', isAdministrator, adminController.roles);

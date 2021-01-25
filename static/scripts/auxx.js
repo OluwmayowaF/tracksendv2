@@ -2594,7 +2594,8 @@ function doRegistration() {
 				$('.notification.other2 p').text('Registration successful. Please sign in.');
 				$('.notification.other2').show();
 
-				location.href = '/dashboard';
+				// location.href = '/dashboard';
+				location.href = '/subscription';
 				// floatingMsg('success',"Welcome to Spaceba, " + data.name + ". Kindly sign in.");
 				/* var el = $('#sign-in-dialog');
 				$.magnificPopup.open({

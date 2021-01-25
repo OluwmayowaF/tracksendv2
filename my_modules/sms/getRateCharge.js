@@ -4,7 +4,7 @@
 var phoneval = require('../phonevalidate');
 
 const getRateCharge = async (phone, ctry, user_id) => {
-  const sequelize = require('../../config/cfg/db');
+  const sequelize = require('../../config/db');
   var models = require('../../models');
 
   let formatphone = phoneval(phone, ctry);

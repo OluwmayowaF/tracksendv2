@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const Sequelize = require('sequelize');
+const sequelize = require('../config/db');
 var models = require('../models');
 const request = require('request');
 const { initializePayment, verifyPayment } = require('../config/paystack')(request);
@@ -20,8 +21,11 @@ exports.index = async (req, res) => {
             ['createdAt', 'DESC']
         ]
     });
-    
-    console.log(`tups: ${JSON.stringify(tups)}`);
+
+    const vatRate = await sequelize.query("SELECT vatrate  FROM adminsettings", {
+        type: sequelize.QueryTypes.SELECT,
+    });
+
     var flashtype, flash = req.flash('error');
     if(flash.length > 0) {
         flashtype = "error";           
@@ -38,6 +42,7 @@ exports.index = async (req, res) => {
 
         args: {
             tups,
+            vatRate: Number(vatRate[0].vatrate) * 100,
         }
     });
 
@@ -62,21 +67,29 @@ exports.index = async (req, res) => {
 
 exports.pay = async (req, res) => {
 
+    const vatRate = await sequelize.query("SELECT vatrate  FROM adminsettings", {
+        type: sequelize.QueryTypes.SELECT,
+    });
+
+    const amount = Number(req.body.amount);
+    const vatAmount = Number(vatRate[0].vatrate) * Number(amount);
+
     var form = _.pick(req.body,['amount','phone','email','full_name','metadata','reference','callback_url']);
     form.full_name = req.user.name;
     form.phone = req.user.phone;
     form.email = req.user.email;
     form.reference = await randgen('paymentref', models.Payment);
     form.callback_url = env.SERVER_BASE + '/dashboard/wallet/ref';
-    form.amount *= 100;
-    
+    form.amount = (amount + vatAmount) * 100; //  to kobo
+
     models.Payment.create({
         paymentref: form.reference,
         userId: req.user.id,
         name: form.full_name,
         phone: form.phone,
         email: form.email,
-        amount: form.amount,       //   amount in kobo
+        amount,
+        vat: vatAmount,            
         currency: 'NGN',
         channel: 'CARD',
     })
@@ -123,80 +136,66 @@ exports.ref = (req, res) => {
             
             const response = JSON.parse(body);
             console.log('RESPONSE IS -> ' + JSON.stringify(response));
-            const data = _.at(response.data, ['reference', 'amount','customer.email', 'metadata.full_name']);
-            var [reference, amount, email, full_name] =  data;
-            var newDonor = {reference, amount, email, full_name}
+            // const data = _.at(response.data, ['reference', 'amount','customer.email', 'metadata.full_name']);
+            // var [reference, amount, email, full_name] =  data;
+            // var newDonor = {reference, amount, email, full_name}
 
-            let payments = await models.Payment.findAll({
-                where: {
-                    paymentref: ref,
-                }
-            });
+            const transaction = await sequelize.transaction(async (t) => { 
 
-            var payment_ = payments[0];
+                let payment = await models.Payment.update({
+                    isverified: 1
+                }, {
+                    where: {
+                        paymentref: ref,
+                    }
+                }, { transaction: t });
 
-            console.log('retrieved payment: ' + JSON.stringify(payment_) + 'payent id is = ' + payment_.id);
-            var payment = await models.Payment.findByPk(payment_.id);
-            var r = await payment.update({isverified: 1,});
                 console.log('====================================');
-                console.log('payment table update feedbak = ' + JSON.stringify(r));
+                console.log('payment table update feedbak = ' + JSON.stringify(payment));
                 console.log('====================================');
 
-            /* var rate = await models.Settingstopuprate.findAll({
-                order: [ 
-                    ['id', 'ASC']
-                ]
-            }); */
-            console.log('response.amount -> ' + response.amount);
-            console.log('payment.amount -> ' + payment.amount);
-            
-            let owo = parseInt(payment.amount)/100; //  amount in NGN (from kobo)
-            var cost = 0;
-            var rid = 0;
-            var drate = 0;
+                console.log('response.amount -> ' + response.amount);
+                console.log('payment.amount -> ' + payment.amount);
+                
+                let owo = parseFloat(payment.amount); 
 
-            console.log('we dey here...');
-            
-            var tpp = await models.Wallet.create({
-                userId: payment.userId,
-                amount: owo,
-                paymentId: payment.id,
+                console.log('we dey here...');
+                
+                // CREATE WALLET ENTRY
+                var tpp = await models.Wallet.create({
+                    userId: payment.userId,
+                    amount: owo,
+                    paymentId: payment.id,
+                }, { transaction: t });
+                //.then(async () => {
+                console.log('and almost finally...');
+                
+                //  LOG TRANSACTIONS
+                await models.Transaction.create({
+                    description: 'CREDIT',
+                    userId: payment.userId,
+                    type: 'TOPUP',
+                    ref_id: tpp.id,
+                    status: 1,
+                    amount: owo, 
+                }, { transaction: t });
+                
+                //  UPDATE USER BALANCE
+                var usr = await models.User.update({
+                    balance: Sequelize.literal('balance + ' + owo),
+                },{
+                    where: {
+                        id: payment.userId
+                    }
+                }, { transaction: t });
+                console.log('DONE!');
             })
-            //.then(async () => {
-            console.log('and almost finally...');
-            
-            //  LOG TRANSACTIONS
-            await models.Transaction.create({
-                description: 'CREDIT',
-                userId: payment.userId,
-                type: 'TOPUP',
-                ref_id: tpp.id,
-                status: 1,
-                amount: owo, 
-            })
-            
-            var usr = await models.User.findByPk(payment.userId);
-            await usr.update({
-                balance: Sequelize.literal('balance + ' + payment.amount/100),
-            });
-            console.log('DONE!');
-            
-            req.flash('success', 'Payment successful. Account topped up with NGN ' + owo + '.');
+
+            req.flash('success', 'Payment successful. Wallet topped up with NGN ' + owo + '.');
             res.redirect('/dashboard/wallet/');
-
-
-            //})
             
             return tpp;
-            /* const donor = new Donor(newDonor)
 
-            donor.save().then((donor)=>{
-                if(!donor){
-                    res.redirect('dashboard/topups/error');
-                }
-                res.redirect('/receipt/'+donor._id);
-            }).catch((e)=>{
-        }); */
         });
     } catch (err) {
         console.error('====================================');

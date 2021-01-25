@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const sequelize = require('../config/cfg/db');
+const sequelize = require('../config/db');
 var uploadMyFile = require('../my_modules/uploadHandlers');
 var phoneval = require('../my_modules/phonevalidate');
 var mongmodels = require('../models/_mongomodels');

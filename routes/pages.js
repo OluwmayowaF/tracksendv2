@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const path = require('path');
 var models = require('../models');
-const sequelize = require('../config/cfg/db');
+const sequelize = require('../config/db');
 var bcrypt = require("bcryptjs");
 const nodemailer = require('nodemailer');
 const randgen = require('../my_modules/randgen');
@@ -765,6 +765,19 @@ module.exports = function(app) {
     res.render('pages/register', {
       layout: 'main',
       page: 'REGISTER',
+      auth: (req.user) ? true : false,
+      flash: {
+        type: req.flash('type'),
+        msg: req.flash('msg'),
+      },
+    })
+  });
+
+  app.get('/subscription', (req, res) => {
+
+    res.render('pages/subscription', {
+      layout: 'main',
+      page: 'SUBSCRIPTION',
       auth: (req.user) ? true : false,
       flash: {
         type: req.flash('type'),

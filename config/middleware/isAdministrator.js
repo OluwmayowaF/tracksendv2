@@ -6,7 +6,7 @@ module.exports = function(req, res, next) {
     console.log('====================================');
     console.log('is admin');
     console.log('====================================');
-    const db = require('../cfg/db');
+    const db = require('../db');
     return db.query(
       "SELECT balance FROM users " +
       "WHERE id = (:id) ", {

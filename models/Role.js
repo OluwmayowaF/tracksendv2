@@ -14,13 +14,16 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
 
   Role.associate = function (models){
-     Role.belongsToMany(models.Permission, {
-        through: models.RolePermission,
-        as:"permissions",
-        foreignKey: 'roleId'
+    Role.belongsToMany(models.Plan, {
+      through: models.PlanRole,
+      as:"plans",
+      foreignKey: 'roleId'
     });
-    Role.hasMany(models.User,
-      { as:'users'});
+    Role.belongsToMany(models.Permission, {
+      through: models.RolePermission,
+      as:"permissions",
+      foreignKey: 'roleId'
+    });
   };
   return Role;
 }

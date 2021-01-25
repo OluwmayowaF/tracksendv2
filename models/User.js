@@ -45,7 +45,6 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING,
       defaultValue: 'infobip',
     },
-    roleId: DataTypes.INTEGER,
   }, {
     hooks: {
       beforeCreate: function(user) {
@@ -63,47 +62,36 @@ module.exports = function(sequelize, DataTypes) {
   // In this case, before a User is created, we will automatically hash their password
 
   User.associate = function (models) {
-    // User.belongsTo(models.Contact);
-    /* User.hasMany(models.Contact, { 
-      // as: "contacts", 
-      foreignKey: 'userId'
-    }); */
     User.hasMany(models.Sender, { 
-      // as: "groups", 
       foreignKey: 'userId' 
     });
     User.hasMany(models.Campaign, { 
-      // as: "groups", 
       foreignKey: 'userId' 
     });
     User.hasMany(models.Shortlink, { 
-      // as: "groups", 
       foreignKey: 'userId' 
     });
     User.hasMany(models.Wallet, { 
-      // as: "groups", 
       foreignKey: 'userId' 
     });
     User.hasMany(models.Tmpoptin, { 
-      // as: "groups", 
       foreignKey: 'userId' 
     });
     User.hasMany(models.Settingsuserbilling, { 
-      // as: "groups", 
       foreignKey: 'userId' 
     });
     User.hasMany(models.Customoptin, { 
-      // as: "groups", 
       foreignKey: 'userId' 
     });
     User.hasMany(models.Customoptinquestion, { 
-      // as: "groups", 
       foreignKey: 'userId' 
     });
-    User.belongsTo(models.Role, {foreignKey: 'roleId', as: 'role'})
+    User.belongsTo(models.Subscription, {
+      foreignKey: 'subscriptionId',
+      as: 'subscription',
+    })
 
   }
-  
 
   return User;
 };

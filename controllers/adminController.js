@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 var models = require('../models');
 var mongmodels = require('../models/_mongomodels');
 var moment = require('moment');
-const sequelize = require('../config/cfg/db');
+const sequelize = require('../config/db');
 const Sequelize = require('sequelize');
 const { Op } = require("sequelize");
 const mongodb = require('mongoose');
@@ -695,6 +695,177 @@ exports.testerly = async (req, res) => {
 
 };
 
+exports.subscriptions = async(req, res) => {    
+    var user_id = req.user.id;
+
+    const allSubscriptions = await models.Subscription.findAll({
+        order: [ 
+            ['name', 'ASC']
+        ],
+        include: ['plan', 'user'],
+    });
+
+    const allPlans = await models.Plan.findAll({
+        order: [ 
+            ['name', 'ASC']
+        ],
+    });
+
+    console.log((`allSubscriptions...${JSON.stringify(allSubscriptions)}`));
+    var flashtype, flash = req.flash('error');
+    if(flash.length > 0) {
+        flashtype = "error";           
+    } else {
+        flashtype = "success";
+        flash = req.flash('success'); 
+    }
+    res.render('pages/admin/subscriptions', { 
+        layout: 'admin',
+        page: 'Subscriptions',
+        subscriptions: true,
+        flashtype, flash,
+
+        args: {
+            allSubscriptions,
+            allPlans,
+        }
+    });
+
+};
+
+exports.addSubscription = async(req, res) => {
+
+    try {
+
+        let usr = await models.User.findByPk(req.body.clientid, { include: ['subscription'] });
+        let planPeriod = await models.Plan.findByPk(req.body.planId, { attributes: ['period'] });
+
+        const transaction = await sequelize.transaction(async (t) => { 
+
+            if(usr && usr.subscription) {
+                let expiry = usr.subscription.expiry
+                //  do we extend the expiry
+
+                await models.Subscription.destroy({
+                    where: {
+                        id: usr.subscription.id
+                    }
+                }, { transaction: t });
+            }
+
+            const newSubscription = await usr.createSubscription({
+                name: req.body.name,
+                description: req.body.description,
+                planId: req.body.planId,
+                cycles: req.body.cycles,
+                expiry: new Date().getTime() + ( planPeriod.period * Number(req.body.cycles) * 24 * 60 * 60 * 1000 ),
+            }, { transaction: t });
+
+            if(!newSubscription) throw 'createsubscriptionerror';
+
+            /* const updateUser = await models.User.update(
+                {
+                    subscriptionId: newSubscription.id,
+                }, {
+                    where: {
+                        id: req.body.clientid,
+                    }
+                }, { transaction: t }
+            );
+            
+            if(!updateUser) throw 'updateusererror'; */
+
+        })
+
+        req.flash('success', 'Subscription successfully added for user');
+        const backURL = req.header('Referer') || '/';
+        res.redirect(backURL);
+
+    } catch(err) {
+        console.log(err);
+        req.flash('error', 'An error occurred.');
+        const backURL = req.header('Referer') || '/';
+        res.redirect(backURL);
+    }
+}
+
+exports.plans = async(req, res) => {    
+    var user_id = req.user.id;
+    const allPlans = await models.Plan.findAll({
+        order: [ 
+            ['name', 'ASC']
+        ], 
+        include: ['roles']
+    });
+   
+    const allRoles = await models.Role.findAll({
+        order: [ 
+            ['name', 'ASC']
+        ], 
+    });
+   
+
+    var flashtype, flash = req.flash('error');
+    if(flash.length > 0) {
+        flashtype = "error";           
+    } else {
+        flashtype = "success";
+        flash = req.flash('success'); 
+    }
+    res.render('pages/admin/plans', { 
+        layout: 'admin',
+        page: 'Plans',
+        permissions: true,
+        flashtype, flash,
+
+        args: {
+            allPlans,
+            allRoles,
+        }
+    });
+
+};
+
+exports.addPlan = async(req, res) => {
+    console.log('JSON.stringify' + JSON.stringify(req.body))
+    try {
+        const transaction = await sequelize.transaction(async (t) => { 
+            const newPlan = await models.Plan.create({
+                name: req.body.name,
+                description: req.body.description,
+                amount: req.body.amount,
+                period: req.body.period,
+                creditwallet: req.body.creditwallet,
+                discountrate: req.body.discountrate,
+                discountafter: req.body.cycle,
+                category: req.body.category,
+            }, { transaction: t });
+
+            if(!newPlan) throw 'error';
+
+            let roleIds = req.body.roleId;
+            if(!Array.isArray(roleIds)) roleIds = [roleIds]
+            
+            for(let i = 0; i < roleIds.length; i++) {
+                let planRole = await models.PlanRole.create({
+                    planId: newPlan.id,
+                    roleId: roleIds[i],
+                }, { transaction: t });
+            }
+
+            req.flash('success', 'Plan added successfully');
+            const backURL = req.header('Referer') || '/';
+            res.redirect(backURL); 
+        })
+
+    } catch(err) {
+        console.log(err);
+        req.flash('error', 'An error occurred.');
+        const backURL = req.header('Referer') || '/';
+        res.redirect(backURL); 
+    }
+}
+
 exports.permissions = async(req, res) => {    
     var user_id = req.user.id;
 
@@ -744,7 +915,7 @@ exports.roles = async(req, res) => {
     const allRoles = await models.Role.findAll({
         order: [ 
             ['name', 'ASC']
-        ], include: ['permissions', 'users']
+        ], include: ['permissions', 'plans']
     });
 
     const allPermissions = await models.Permission.findAll({
@@ -777,27 +948,36 @@ exports.roles = async(req, res) => {
 };
 
 exports.addRole = async(req, res) => {
-    const newRole = await models.Role.create({
-        name: req.body.name,
-    })
 
-    if(newRole){
-        let permissionIds = req.body.permissionId;
-        if(permissionIds.length < 2) permissionIds = [permissionIds]
-        
-        permissionIds.forEach(async(permissionId) => {
-            const rolePermission = await models.RolePermission.create({
-                roleId: newRole.id,
-                permissionId: permissionId
+    try {
+        const transaction = await sequelize.transaction(async (t) => { 
+
+            const newRole = await models.Role.create({
+                name: req.body.name,
+            }, { transaction: t });
+
+            if(!newRole) throw 'error';
+
+            let permissionIds = req.body.permissionId;
+            if(permissionIds.length < 2) permissionIds = [permissionIds]
+            
+            permissionIds.forEach(async(permissionId) => {
+                const rolePermission = await models.RolePermission.create({
+                    roleId: newRole.id,
+                    permissionId: permissionId
+                }, { transaction: t });
             });
-            if(rolePermission) req.flash('success', 'Role added successfully');
-            else  req.flash('error', 'An error occurred.');
+
+            req.flash('success', 'Role added successfully');
             const backURL = req.header('Referer') || '/';
             res.redirect(backURL);
-        });
+
+        })
+    } catch(err) {
+        req.flash('error', 'An error occurred.');
+        const backURL = req.header('Referer') || '/';
+        res.redirect(backURL);
     }
-    else  req.flash('error', 'An error occurred.');
-   
 }
 
 exports.deletePermission = async(req, res) => {

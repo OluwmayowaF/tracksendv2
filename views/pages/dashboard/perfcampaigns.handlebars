@@ -600,22 +600,44 @@
 								{{#ifCond status.stage "==" "Pre-analyze"}}
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Edit" style="color: #aaa"><i class="fa fa-edit"></i></a></span> | 
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Send" style="color: #aaa"><i class="fa fa-send-o"></i></a></span> |
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Show Report" style="color: #aaa"><i class="sl sl-icon-chart"></i></a></span> |
 								<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
 								{{/ifCond}}
 								{{#ifCond status.stage "==" "Approved"}}
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Edit" style="color: #aaa"><i class="fa fa-edit"></i></a></span> | 
 								<span style="flex: 1; text-align:center" class="send_item_btn"><a class="tooltip top" title="Send" style="cursor: pointer"><i class="fa fa-send-o"></i></a></span> |
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Show Report" style="color: #aaa"><i class="sl sl-icon-chart"></i></a></span> |
 								<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
 								{{/ifCond}}
 								{{#ifCond status.stage "==" "Denied"}}
 								<span style="flex: 1; text-align:center" data-indx="{{@index}}" class="edit_item_btn"><a class="tooltip top" title="Edit" style="cursor: pointer"><i class="fa fa-edit"></i></a></span> | 
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Send" style="color: #aaa"><i class="fa fa-send-o"></i></a></span> |
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Show Report" style="color: #aaa"><i class="sl sl-icon-chart"></i></a></span> |
 								<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
-								{{/ifCond}}
+								{{/ifCond}} 
 								{{#ifCond status.stage "==" "Sent"}}
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Edit" style="color: #aaa"><i class="fa fa-edit"></i></a></span> | 
 								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Send" style="color: #aaa"><i class="fa fa-send-o"></i></a></span> |
+								<span style="flex: 1; text-align:center" class="rpt_item_btn"><a class="tooltip top" title="Show Report" style="cursor: pointer"><i class="sl sl-icon-chart"></i></a></span> |
 								<span style="flex: 1; text-align:center" class="del_item_btn"><a class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></a></span>
+								{{/ifCond}}
+								{{#ifCond status.stage "==" "In-Process"}}
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Edit" style="color: #aaa"><i class="fa fa-edit"></i></a></span> | 
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Send" style="color: #aaa"><i class="fa fa-send-o"></i></a></span> |
+								<span style="flex: 1; text-align:center" class="rpt_item_btn"><a class="tooltip top" title="Show Report" style="cursor: pointer"><i class="sl sl-icon-chart"></i></a></span> |
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Delete" style="color: #aaa"><i class="fa fa-trash-o"></i></a></span>
+								{{/ifCond}}
+								{{#ifCond status.stage "==" "Terminated"}}
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Edit" style="color: #aaa"><i class="fa fa-edit"></i></a></span> | 
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Send" style="color: #aaa"><i class="fa fa-send-o"></i></a></span> |
+								<span style="flex: 1; text-align:center" class="rpt_item_btn"><a class="tooltip top" title="Show Report" style="cursor: pointer"><i class="sl sl-icon-chart"></i></a></span> |
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Delete" style="color: #aaa"><i class="fa fa-trash-o"></i></a></span>
+								{{/ifCond}}
+								{{#ifCond status.stage "==" "Completed"}}
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Edit" style="color: #aaa"><i class="fa fa-edit"></i></a></span> | 
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Send" style="color: #aaa"><i class="fa fa-send-o"></i></a></span> |
+								<span style="flex: 1; text-align:center" class="rpt_item_btn"><a class="tooltip top" title="Show Report" style="cursor: pointer"><i class="sl sl-icon-chart"></i></a></span> |
+								<span style="flex: 1; text-align:center" class=""><a class="tooltip top" title="Delete" style="color: #aaa"><i class="fa fa-trash-o"></i></a></span>
 								{{/ifCond}}
 							</li>
 						</ul>

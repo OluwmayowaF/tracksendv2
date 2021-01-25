@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const sequelize  = require('../config/cfg/db');
+const sequelize  = require('../config/db');
 const moment = require('moment');
 var models = require('../models');
 const getUrlReferer = require('../my_modules/getUrlReferer');
