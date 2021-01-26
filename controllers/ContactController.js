@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const sequelize = require('../config/cfg/db');
+const sequelize = require('../config/db');
 const mongoose = require('mongoose');
 const { default: axios } = require('axios');
 

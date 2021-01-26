@@ -19,7 +19,7 @@ const mongoconnectionurl = mongo_url +
                            // 'localhost:27017/' +
                           //  '167.71.89.146:27017/' +
                            mongo_db;
-console.log('urlurl is ' + mongoconnectionurl);
+console.log('murlurl is ' + mongoconnectionurl);
 
 mongoose.connect(mongoconnectionurl, {useNewUrlParser: true});
 mongoose.set('useFindAndModify', false);
@@ -152,7 +152,7 @@ const PerfCampaignSchema = new mongoose.Schema({
   shortlinkId:    Number,
   startdate:      Date,
   message:        String,
-  status:         mongoose.Schema.Types.Mixed,  //  an object for different types of statuses : { stage => [ 'Completed' | 'Approved' | 'Denied' | 'Terminated' | 'In-Process' ] }
+  status:         mongoose.Schema.Types.Mixed,  //  an object for different types of statuses : { stage => [ 'Completed' | 'Terminated' | 'In-Process' | 'Sent' | 'Approved' | 'Denied' | 'Pre-analyze' ] }
   addoptin:       Boolean,
   admincomment:   String,
 }, {

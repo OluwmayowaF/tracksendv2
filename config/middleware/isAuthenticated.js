@@ -1,10 +1,10 @@
 // This is middleware for restricting routes a user is not allowed to visit if not logged in
-const sequelize = require('../cfg/db');
+const sequelize = require('../db');
 module.exports = function(req, res, next) {
   // If the user is logged in, continue with the request to the restricted route
   var _message = require('../../my_modules/output_messages');
 if (req.user) {
-    const db = require('../cfg/db');
+    const db = require('../db');
     return db.query(
       "SELECT balance FROM users " +
       "WHERE id = (:id) ", {

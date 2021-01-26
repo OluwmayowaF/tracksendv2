@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
-const sequelize = require('../config/cfg/db');
-const dbauth = require('../config/cfg/dbauth')();
+const sequelize = require('../config/db');
 var uploadMyFile = require('../my_modules/uploadHandlers');
 var phoneval = require('../my_modules/phonevalidate');
 var mongmodels = require('../models/_mongomodels');
@@ -11,13 +10,22 @@ const csv       = require('fast-csv');
 var moment      = require('moment');
 var mysql       = require('mysql');
 const _ = require('lodash');
- 
+
+const environment = process.env.NODE_ENV;
+const stage = require('../config.js')[environment];
+
+const mysql_host = stage.DBMYSQLHOST;
+const mysql_user = stage.DBMYSQLUSERNAME;// 'tiwexmong';
+const mysql_pwrd = stage.DBMYSQLPASSWORD;//'Tracksend8319#';
+const mysql_db = stage.DBMYSQLDATABASE;
+
+
 var connection  = mysql.createPool({
     connectionLimit : 10,
-    host            : 'localhost',
-    user            : dbauth.dbuser,
-    password        : dbauth.dbpwrd,
-    database        : dbauth.dbdb,
+    host            : mysql_host,
+    user            : mysql_user,
+    password        : mysql_pwrd,
+    database        : mysql_db,
     debug           : true
   });
 

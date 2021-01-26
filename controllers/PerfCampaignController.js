@@ -1,7 +1,7 @@
 var models = require('../models');
 var moment = require('moment');
 const Sequelize = require('sequelize');
-const sequelize = require('../config/cfg/db');
+const sequelize = require('../config/db');
 const mongoose = require('mongoose');
 var mongmodels = require('../models/_mongomodels');
 var scheduler = require('node-schedule');
@@ -929,6 +929,48 @@ exports.send_ = async (req, res) => {
     res.redirect(backURL);
 
 }
+
+exports.report = (req, res) => {
+    var user_id = req.user.id;
+    var cmgnid = req.query.id;
+
+    Promise.all([
+        sequelize.query(
+            "SELECT * FROM ( SELECT COUNT(status) AS delivered      FROM messages WHERE status = 1 AND perfcmpgnId = :cid ) t1," +
+            "              ( SELECT COUNT(status) AS clickc         FROM messages WHERE status = 1 AND clickcount > 0 AND perfcmpgnId = :cid ) t2 ", {
+                replacements: {
+                    cid: cmgnid,
+                },
+                type: sequelize.QueryTypes.SELECT,
+            }
+        ).then(([results, metadata]) => {
+            return results;
+        }),
+        mongmodels.PerfCampaign.findById(cmgnid, "measure cost"),
+    ]).then(([summary, pcampaign]) => {
+
+        console.log(`summary: ${JSON.stringify(summary)} | pcampaign: ${JSON.stringify(pcampaign)}`);
+
+        res.send({
+            response: {
+                summary,
+                pcampaign,
+            }, 
+            responseType: "SUCCESS", 
+            responseCode: "OK", 
+            responseText: "Success", 
+        })
+            /* code: "SUCCESS",
+            tmpid: fin[1],
+            contactcount: contactcount_,
+            msgcount: msgcount_,
+            invalidphones,      //  optional
+            cost: cost_,
+            balance: fin[0], */
+            // followups: [cond_1 ? 1 : 0, cond_2 ? 1 : 0],
+
+    });
+};
 
 exports.view = (req, res) => {
     var user_id = req.user.id;

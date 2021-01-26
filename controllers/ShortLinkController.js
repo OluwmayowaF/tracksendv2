@@ -1,4 +1,4 @@
-const sequelize = require('../config/cfg/db');
+const sequelize = require('../config/db');
 var models = require('../models');
 
 exports.index = async (req, res) => {

@@ -102,7 +102,7 @@ MongoClient.connect(mongoconnectionurl, { useUnifiedTopology: true, useNewUrlPar
   require("./routes/pages")(app);
   
   //  init database
-  const db = require('./config/cfg/db');
+  const db = require('./config/db');
   db.authenticate()
   .then(() => {
     console.log   ('Main Database connected...');
@@ -127,7 +127,7 @@ MongoClient.connect(mongoconnectionurl, { useUnifiedTopology: true, useNewUrlPar
 // require("./routes/pages")(app);
 
 // //  init database
-// const db = require('./config/cfg/db');
+// const db = require('./config/db');
   app.listen(PORT, console.log(`Server running on port ${PORT} ...`));
 // db.authenticate()
 // .then(() => {

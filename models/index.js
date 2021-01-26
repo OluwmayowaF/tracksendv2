@@ -2,7 +2,7 @@
 
 var Sequelize = require('sequelize');
 
-const sequelize = require('../config/cfg/db');
+const sequelize = require('../config/db');
 
 // const sequelize = new Sequelize(config.database, config.username, config.password);
 
@@ -27,15 +27,18 @@ const models = {
   Settingsuserbilling:    sequelize.import('./SettingsUserBilling'),
   Settingstopuprate:      sequelize.import('./SettingsTopupRate'),
   Topup:        sequelize.import('./Topup'),
-  Wallet:        sequelize.import('./Wallet'),
+  Wallet:       sequelize.import('./Wallet'),
   Transaction:  sequelize.import('./Transaction'),
   Tmpoptin:     sequelize.import('./Tmpoptin'),
   Payment:      sequelize.import('./Payment'),
   Country:      sequelize.import('./Country'),
-  Zapiertrigger:          sequelize.import('./ZapierTrigger'),
+  Zapiertrigger:  sequelize.import('./ZapierTrigger'),
   Permission:   sequelize.import('./Permission.js'),
-  Role:         sequelize.import('./Role.js'),
   RolePermission: sequelize.import('./RolePermission.js'),
+  Role:         sequelize.import('./Role.js'),
+  PlanRole:     sequelize.import('./PlanRole.js'),
+  Plan:         sequelize.import('./Plan.js'),
+  Subscription: sequelize.import('./Subscription.js'),
 
 };
 
