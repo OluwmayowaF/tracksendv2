@@ -437,18 +437,16 @@ exports.send = async (req, res) => {
             // let next = moment().add(PCMPGN_INTR_INTVL_HOURS, 'hours').toDate();
             let next = moment().add(PCMPGN_INTR_INTVL_HOURS * 60, 'minutes').toDate();
            // scheduler.scheduleJob(next, perfEngine.bind(iter++, end));
-           agenda.define('schedule campaign perfController', {priority: 'high', concurrency: 10}, (job, done) => {
+           agenda.define('schedule campaign perfController', {priority: 'high', concurrency: 10}, async job => {
             const {jobInfo} = job.attrs.data;
-            perfEngine(jobInfo, end )
-           // doSMS(jobInfo, reff)
-            done();
+            await perfEngine(jobInfo, end )
+          
         });
 
 
         (async function() {
             await agenda.start();
-            await  agenda.schedule(date, 'schedule campaign', {jobInfo: iter++});
-            console.log('Scheduled3!!')
+            await  agenda.schedule(date, 'schedule campaign perfController', {jobInfo: iter++});
         })();
         })()
 
