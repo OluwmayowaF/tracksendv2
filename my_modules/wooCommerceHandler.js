@@ -123,7 +123,7 @@ const wooCommerceHandlers = () => {
         res.send({
             data: {
               status: 200,
-              response: "Success: Connection established with store",
+              response: "Success: Connection established with store, Refresh Page",
             },
           });
 
