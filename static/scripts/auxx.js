@@ -2585,6 +2585,61 @@ function activateWhatsApp(e) {
 
 }
 
+
+function connectToWoocommerce() {
+	console.log('connectostore');
+	// return false;
+	
+	var $me = $('#woocommerce_form');
+	
+	$('._form_errors').hide();
+	$('._e_login').hide();
+	$('.notification.other2').hide();
+
+	$me.find('.error').removeClass('error');
+	var json_form_woocommerce = JSON.stringify($me.serializeObject()); 
+	
+	var $butt = $('#woocommerce_btn');
+	$butt.attr('disabled','disabled');
+	$me.find('.loading_icon').show();
+	let hyd = true;
+
+  $.ajax({
+		type: 'POST',
+		url: `${_getGlobals.SERVICE_HOST}woocommerceconnect`,
+		contentType: 'application/json; charset=utf-8',
+		data: json_form_woocommerce,
+		
+		success: function( data ) {
+			console.log({data})
+			if( data.data){
+				$butt.removeAttr('disabled');
+				$('.notification.other2').addClass('success');
+				$('.notification.other2 p').text(data.data.response);
+				$('.notification.other2').show();
+				
+			}else{
+				$butt.removeAttr('disabled');
+				$me.find('._form_errors._e_login').text(data.error.response);
+				$me.find('._form_errors._e_login').show();
+			}
+
+		},
+		error: function( error ) {
+			$me.find('._form_errors._e_login').text(error.response);
+			$me.find('._form_errors._e_login').show();
+			
+
+			console.log({error});
+		
+		}
+	}).done(function(){
+		if(hyd) $me.find('.loading_icon').hide();
+         $butt.removeAttr('disabled');
+	});
+}
+
+
 function doDate() {
 	//console.log('EXECUTED!');
 	$('.date').each(function(i,el) {

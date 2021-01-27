@@ -39,6 +39,7 @@ const models = {
   PlanRole:     sequelize.import('./PlanRole.js'),
   Plan:         sequelize.import('./Plan.js'),
   Subscription: sequelize.import('./Subscription.js'),
+  UserWoocommerceData: sequelize.import('./UserWoocommerceData.js'),
 
 };
 

@@ -1,5 +1,6 @@
 var models = require('../models');
 var { getWhatsAppStatus } = require('../my_modules/whatsappHandlers')();
+var { getWooCommerceStatus } = require('../my_modules/wooCommerceHandler')();
 
 // const { default: axios } = require('axios');
 // const { INSTANCEID, TOKEN , BINURL } = require('../config/cfg/chatapi')();
@@ -11,9 +12,9 @@ exports.index = async (req, res) => {
     console.log('showing page...integrations...'); 
 
     let status = await getWhatsAppStatus(user_id);
+    let wc_status = await getWooCommerceStatus(user_id);
     var active = status.active;
     var error = status.error;
-
     /* // var url = 'https://eu2.chat-api.com/instance76984/sendMessage?token=mgnd0b9bpaehouf2';
     var url = 'https://eu2.chat-api.com/instance' + INSTANCEID + '/status?token=' + TOKEN;
     // var url = BINURL;
@@ -57,6 +58,7 @@ exports.index = async (req, res) => {
             active,
             qrcode,
             error,
+            wc_status,
         }
     });
 };

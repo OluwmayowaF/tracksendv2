@@ -1,4 +1,6 @@
 [
   "20210119224237-update-user-table-add-roleId.js",
-  "20210119225826-update-tmpcampaigns-change-column-totalunits-to-totalcost.js"
+  "20210119225826-update-tmpcampaigns-change-column-totalunits-to-totalcost.js",
+  "20210126162613-update-user-table-add-woocommerce-status-flag.js",
+  "20210126164325-create-user-woocommerce-data.js"
 ]

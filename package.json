@@ -5,6 +5,7 @@
   "main": "app.js",
   "dependencies": {
     "@joeattardi/emoji-button": "^2.5.2",
+    "@woocommerce/woocommerce-rest-api": "^1.0.1",
     "africastalking": "^0.5.3",
     "agenda": "^4.0.1",
     "agendash": "^1.0.0",

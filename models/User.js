@@ -38,6 +38,8 @@ module.exports = function(sequelize, DataTypes) {
     balance:          DataTypes.DOUBLE,
     token:            DataTypes.STRING,
     wa_active:        DataTypes.BOOLEAN,
+    //Woocommerce Integration Status 
+    wc_active:        DataTypes.BOOLEAN,
     wa_instanceid:    DataTypes.STRING,
     wa_instancetoken: DataTypes.STRING,
     wa_instanceurl:   DataTypes.STRING,

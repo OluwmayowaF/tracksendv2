@@ -161,6 +161,84 @@
 
 			</div>
 
+			<div class="toggle-wrap no_borders">
+
+				<div class="col-lg-12 trigger" style="margin-top: 30px;"><div class="col-lg-12 page_box_header toggle active"><i class="im im-icon-Cursor-Click2"></i> WooCommerce <i class="sl sl-icon-plus"></i></div></div>
+				<div class="col-lg-12 toggle-container" style="display: none">
+
+					<div id="add-listing">
+				<!--	<form action="" method="POST">-->
+
+						<!-- Section -->
+						<div class="add-listing-section">
+
+											
+							<div class="row with-forms">
+
+								{{!-- <div class="col-md-12">
+									<h5>Include Recipients <span>(separate numbers with commas; messages to these won't be tracked.)</span> </h5>
+									<input type="text" name="recipients" id="recipients" maxlength="200">
+								</div> --}}
+								{{#if args.wc_status }}
+
+								<div class="col-md-12 with-forms" style="margin-top: 20px;">
+									<div class="col-md-12 ignore_dnd" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
+										<h5 style="float: left">Woocommerce Connection <span>[ active ]</span></h5>
+										<label class="switch"><input type="checkbox" checked="{{wc_status}}" name="do_whatsapp" id="do_whatsapp" onchange="javascript: activateWhatsApp(this)" ><span class="slider round"></span></label>
+										<input type="hidden" name="">
+										<div class="clearfix"></div>
+									</div>
+								</div>
+
+
+								{{else }}
+
+								<div class="col-md-12 with-forms" style="margin-top: 20px;">
+									<div class="col-md-12 ignore_dnd" style="border: solid 1px #ddd; background-color: #eee; padding-top: 8px; border-radius: 5px">
+										<h5 style="float: left">Connect to Woocommerce Store  <span>[ inactive ]</span> </h5>
+										<input type="hidden" name="">
+										<div class="clearfix"></div>
+									</div>
+								</div>
+
+								<div class="col-md-12 with-forms">
+									<form id="woocommerce_form" action="javascript: connectToWoocommerce()" class="login">
+									<label for="storeUrl"> Store Url:</label>
+									<input type="text" name="storeurl" id="storeurl" required>
+									<label for="consumerkey"> Consumer Key:</label>
+									<input type="text" name="consumerkey" id="consumerkey" required>
+									<label for="consumersecret"> Consumer Secret</label>
+									<input type="text" name="consumersecret" id="consumersecret" required>
+																		<input type="hidden" name="apikey" id="apikey" value = {{args.apikey}}>
+
+									<input type="submit" id="woocommerce_btn" value="Connect" id="woocommerce_connect" > <span class="loading_icon fa fa-hourglass-2"></span> 
+
+					                 <div class="_form_errors _e_login" style="display:none"></div>
+<div class="notification other2 closeable">
+				<p></p>
+				<a class="close"></a>
+			</div>
+
+									</form>
+
+								</div>
+
+
+								
+
+
+								{{/if}}
+							</div>
+							
+						</div>
+						<!-- Section / End -->
+
+					<!--</form>-->
+					</div>
+				</div>
+
+			</div>
+
 			<div class="col-lg-12" id="show_contacts_pane" style="margin-top: 30px;" hidden>
 
 				<div id="add-listing">
@@ -197,5 +275,6 @@
 			</div>
 
 		</div>
+		
 
 	</div>

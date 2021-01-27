@@ -24,6 +24,7 @@ var getSMSCount           = require('../my_modules/sms/getSMSCount');
 var getRateCharge         = require('../my_modules/sms/getRateCharge');
 var smsSendEngines        = require('../my_modules/sms/smsSendEngines');
 var whatsappSendMessage   = require('../my_modules/whatsappSendMessage');
+var woocommerceController = require('../my_modules/wooCommerceHandler')();
 
 const CHARS_PER_SMS = 160;
 const ESTIMATED_CLICK_PERCENTAGE = 0.8;
@@ -1244,6 +1245,14 @@ exports.saveRole = async (req, res) => {
 exports.unassignRole = async (req, res) => {
 
     return await adminController.unassignRole(req, res);
+
+}
+
+exports.woocommerceConnect = async (req, res) => {
+
+    return await woocommerceController.connectToWooCommerceStore(req, res)
+   
+
 
 }
 //  EXTERNAL API ACCESS

@@ -77,6 +77,9 @@ module.exports = function(app) {
   //Unassign Roles
   app.get('/api/deluserrole', apiController.unassignRole);
 
+  //Connect To Woocommerce Store
+  app.post('/api/woocommerceconnect', apiController.woocommerceConnect)
+
   
   // Using the passport.authenticate middleware with our local strategy.
   // If the user has valid login credentials, send them to the members page.
