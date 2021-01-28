@@ -1,0 +1,149 @@
+	<div class="dashboard-content">
+
+		<!-- Titlebar -->
+		<div id="titlebar">
+			<div class="row">
+				<div class="col-md-12">
+					<!-- Breadcrumbs -->
+					<nav id="breadcrumbs">
+						<ul>
+							<li><a href="/dashboard">Dashboard</a></li>
+							<li>All Contacts</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+
+		{{#if flash}}
+			<div class="notification {{ flashtype }} closeable no-shadow">
+				<p><span style="text-transform: capitalize">{{ flashtype }}!</span> {{ flash }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
+
+			<div class="notification other3 closeable">
+				<p></p>
+				<a class="close"></a>
+			</div>
+
+		<div class="row">
+			<div class="col-lg-12"><div class="col-lg-12 page_box_header">All Contacts<i class="sl sl-icon-refresh _loader"></i></div></div>
+			<div class="col-lg-12">
+
+				<div id="add-listing">
+				<form action="/dashboard/contacts/groups/add" method="POST">
+
+					<!-- Section -->
+					<div class="add-listing-section">
+
+						<!-- Row -->
+						<div class="row with-forms">
+							<br>
+							<!-- Status -->
+							<div class="col-md-12">
+								<h5>Select Group </h5>
+								<input type="hidden" id="linked_group_id" value="{{ args.lnkgrp }}">
+								<select class="chosen-select-no-single" name="group" id="sel_contact_group">
+									<option disabled selected>Select Group</option>
+									{{#each args.grps}}
+									<option value="{{ _id }}">{{ name }}</option>
+									{{/each}}
+								</select>
+							</div>
+
+							<div class="col-md-12" id="_group_info" hidden>
+								<h5>Group Summary </h5>
+								<div class="col-md-12 inline_popup">
+
+									<!-- Status -->
+									<div class="col-md-3">
+										<h5>Description</h5>
+										<div class="col-md-12 summary_box" id="_desc">
+											This is a group that was created without my knowledge and consent. So please treat with utmost caution. Thanks.
+										</div>
+									</div>
+
+									<div class="col-md-3">
+										<h5>Opt-in/Opt-out</h5>
+										<div class="col-md-12 summary_box">
+											<div>Awaiting Opt-in: <span id="_awoptin"></span></div>
+											<div>Opted in: <span id="_optin"></span></div>
+											<div>Opted out: <span id="_optout"></span></div>
+										</div>
+									</div>
+
+									<div class="col-md-3">
+										<h5>Count/Do-Not-Disturb</h5>
+										<div class="col-md-12 summary_box">
+											<div><b>Contacts: <span id="_conts"></span></b></div>
+											<div>DND: <span id="_dnds"></span></div>
+											<div>Non-DND: <span id="_ndnds"></span></div>
+											<div>Unverified: <span id="_unverifs"></span></div>
+										</div>
+									</div>
+
+									<div class="col-md-3">
+										<h5>Dates</h5>
+										<div class="col-md-12 summary_box">
+											<div>Created: <span id="_cdate"></span></div>
+											<div class="clearfix"></div>
+											<div>Last Updated: <span id="_udate"></span></div>
+											<div class="clearfix"></div>
+										</div>
+									</div>
+
+								</div>
+							</div>
+
+						</div>
+						<!-- Row / End -->
+
+					</div>
+					<!-- Section / End -->
+
+				</form>
+				</div>
+			</div>
+
+			<div class="col-lg-12" id="show_contacts_pane" style="margin-top: 30px;" hidden>
+
+				<div id="add-listing">
+					<!-- Section -->
+					<div class="add-listing-section" style="background-color: inherit;">
+
+						<!-- Row --> 
+						<div class="row with-forms">
+							<br>
+							<!-- Status -->
+							<div class="col-md-12 lists">
+								<h5 style="position: relative">
+									<span id="grp_typ_name"></span>Group: <span id="group_name" style="weight: bold"></span> | Contacts: <span class="items_count" id="group_contact_count" style="weight: bold"></span> <i class="sl sl-icon-refresh _loader"></i>
+									<span class="shadow_btn"  style="margin-left: 5px; margin-left: 5px; padding: 5px 10px; color: green; font-size: 0.8em"><a href="/dashboard/contacts/download/..." id="contact_download_link" style="color: inherit"><i class="fa fa-file-excel-o"></i> Download Excel</a></span>	
+								</h5>
+								<div class="input-group mb-3" id="search_conts_box">
+									<input type="text" class="form-control" name="search_conts" id="search_conts" placeholder="Search Contacts..." style="width: 92%; display: inline; height: 35px; padding: 10px; font-size: 0.9em;">
+									<span class="input-group-append">
+										<button class="btn btn-default" id="search_conts_btn">Search</button>
+									</span>
+								</div>
+								<ul id="contact_list">
+								</ul>
+							</div>
+
+						</div>
+						<!-- Row / End -->
+
+					</div>
+					<!-- Section / End -->
+				</div>
+			</div>
+
+			<!-- Copyrights -->
+			<div class="col-md-12">
+				<div class="copyrights">© 2019 Tracksend. All Rights Reserved.</div>
+			</div>
+
+		</div>
+
+	</div>

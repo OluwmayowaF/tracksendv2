@@ -683,54 +683,55 @@ module.exports = function(app) {
 
     if(password == cpassword) {
       
-      models.User.findAll({
+      let usr = await models.User.findOne({
         where: {
           email,
           token,
-          update_profile: 0
+          // update_profile: 0
         }
-      })
-      .then(async usr => {
-        console.log('====================================');
-        console.log('user = ' + JSON.stringify(usr));
-        console.log('====================================');
-
-        if(!usr.length || usr.length > 1) {
-          res.send('INVALID OPERTAION!');
-        } else {
-
-          var user = await models.User.findByPk(usr[0].id);
-          if(!user) {
-            console.log('====================================');
-            console.log('user error!');
-            console.log('====================================');
-            return;
-          }
-
-          var new_password = bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
-
-          await user.update({
-              password: new_password,
-              token: null,
-              update_profile: 1
-          })
-
-          console.log('UPDATED');
-          req.login(user, function(err) {
-              if (err) { 
-                  return next(err); 
-              }
-              req.flash('success', 'Password update successfully');
-              return res.redirect('/dashboard/profile');
-          });
-
-        }
-      })
-      .error((err) => {
+      }).error((err) => {
         console.log('====================================');
         console.log('error = ' + err);
         console.log('====================================');
       })
+
+      console.log('====================================');
+      console.log('user = ' + JSON.stringify(usr));
+      console.log('====================================');
+
+      if(!usr) {
+        req.flash('error', 'An error occurred. INVALID OPERATION.');
+        const backURL = req.header('Referer') || '/';
+        res.redirect(backURL);
+      } else {
+
+        var user = await models.User.findByPk(usr[0].id);
+        if(!user) {
+          console.log('====================================');
+          console.log('user error!');
+          console.log('====================================');
+          return;
+        }
+
+        var new_password = bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
+
+        await user.update({
+            password: new_password,
+            token: null,
+            update_profile: 1
+        })
+
+        console.log('UPDATED');
+        req.login(user, function(err) {
+            if (err) { 
+                return next(err); 
+            }
+            req.flash('success', 'Password update successfully');
+            return res.redirect('/dashboard/profile');
+        });
+
+      }
+      
 
     } else {
         req.flash('error', 'Password mismatch. Please enter again.');

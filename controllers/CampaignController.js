@@ -3,11 +3,9 @@ const moment     = require('moment');
 const _          = require('lodash');
 const Sequelize  = require('sequelize');
 const sequelize  = require('../config/db');
-const Op         = Sequelize.Op;
 const mongoose   = require('mongoose');
 const mongmodels = require('../models/_mongomodels');
 const fs         = require('fs'); 
-const scheduler  = require('node-schedule');
 
 // Get Agenda to schedlue Jobs
 const agenda = require('../my_modules/setup.agenda');
@@ -21,16 +19,13 @@ const phoneformat           = require('../my_modules/phoneformat');
 const apiAuthToken          = require('../my_modules/apitokenauth');
 const getSMSCount           = require('../my_modules/sms/getSMSCount');
 const getRateCharge         = require('../my_modules/sms/getRateCharge');
-const randgen               = require('../my_modules/randgen');
-const _message              = require('../my_modules/output_messages');
 const filelogger            = require('../my_modules/filelogger');
 
 
 exports.index = async (req, res) => {
     var user_id = req.user.id;
-    // var user_id = 10;
     
-    console.log('....................showing page......................'); 
+    console.log(':::::::: showing page... CAMPAIGNS'); 
 
     Promise.all([
         sequelize.query( 
@@ -113,8 +108,6 @@ exports.index = async (req, res) => {
 
         // var tmps = models
         cpns.forEach(ea => {
-            // console.log(ea.tid? JSON.stringify(ea.tid.split(',')) : null);
-            // ea.tid = ea.tid? JSON.stringify(ea.tid.split(',').map(e => { e.replace('"', '')})) : null;
             ea.tid = ea.tid ? _.uniq(ea.tid.split(',')).map(e => { return parseInt(e) }) : null;
             ea.wtd = ea.wtd ? _.uniq(ea.wtd.split(',')).map(e => { return parseInt(e) }) : null;
             if(ea.wtd && (ea.wtd.length < 2)) ea.wtd.push(ea.wtd[0]); 
@@ -253,9 +246,6 @@ exports.analyse = async (req, res) => {
 
             //  API ACCESS
             if(is_api_access) {
-                console.log('___**********____*******________**********_________');
-                
-                // user_id = req.body.id;
                 
                 msgcount = 0;
                 cost = 0;
@@ -312,12 +302,10 @@ exports.analyse = async (req, res) => {
 
                     if(!groups__) throw 'group';
                     groups = groups__._id
-                    // console.log('................group='+groups.id);
                 }
                 if(req.body.url) {  //  if actual url is sent instead of shorturl id
                     req.query.url = req.body.url;
                     let resp = await apiController.generateUrl(req, res);
-                    console.log('^^^^^^^^^^^^^^^^^^ ' + JSON.stringify(resp));
                     
                     if(!resp.error) {
                         shorturl = resp.id;
@@ -333,13 +321,9 @@ exports.analyse = async (req, res) => {
         }
         console.log('form details are now: ' + JSON.stringify(req.body)); 
 
-        console.log('tonone='+tonone+'; tooptin='+tooptin+'; toawoptin='+toawoptin+'; toall='+toall);
         if(Array.isArray(sender)) sender = _.compact(sender);
         if(Array.isArray(sender) && sender.length === 1) sender = sender[0];
         if(Array.isArray(sender)) {
-            console.log('====================================');
-            console.log('isaaray');
-            console.log('====================================');
             HAS_FOLLOWUP = true;
             if(!Array.isArray(groups)) groups = [groups];
             condition = req.body.condition ? (Array.isArray(req.body.condition) ? req.body.condition : [req.body.condition]) : null;
@@ -351,13 +335,9 @@ exports.analyse = async (req, res) => {
             sender = [sender];
             shorturl = [shorturl];
             groups = (Array.isArray(groups) || is_api_access) ? [groups] : [[groups]];
-            console.log('====================================');
-            console.log('noarray'+JSON.stringify(sender));
-            console.log('====================================');
         }
 
         // console.log('----' + name.length + '----' + message[0].length + '----' + groups[0].toString().length + '----' + sender[0].toString().length);
-        console.log('||||||||||||||||| ', name, ' - ', groups, ' - ', sender, ' - ', message );
         if(!name || !message || !groups || !sender) throw 'fields3';
         if(!(name.length > 1) || !(message[0].length > 1) || !(groups[0].toString().length > 0) || !(sender[0].toString().length > 0)) throw 'fields2';
         
@@ -370,7 +350,10 @@ exports.analyse = async (req, res) => {
         var all, bal, fin;
         var int = 0;
 
-        console.log('_______________11group= ' + JSON.stringify(groups));
+        //  LOAD ALL NETWORK PREFIXES
+        // let allnetworks = await models.Settingsnetwork.findAll();
+        // allnetworks.filter(r => !('08013434'.search(r.pref)) && (r.ctry == '23'))
+
 
         while(int < sender.length) {
             if((message[int].length > 1) && (groups[int].toString().length > 0) && (sender[int].toString().length > 0)) {
@@ -383,12 +366,7 @@ exports.analyse = async (req, res) => {
                 console.log('THE END!!! balance ' + JSON.stringify(schedule));
                 console.log('THE END!!!' +  moment.utc(moment(schedule, 'YYYY-MM-DD HH:mm:ss')).format('YYYY-MM-DD HH:mm:ss'));
 
-                console.log('====================================');
-                console.log('iiiiiiiiiiiiiiiiiiii = ' + int);
-                console.log('====================================');
-
                 if(int === 0) {  //  done only for the main campaign...followups would get only contact length from here
-                    console.log('-------------22a--------------', JSON.stringify(groups));
                     let _grp_ = Array.isArray(groups[0]) ? groups[0] : groups;
                     let group_ = _grp_.map(g => {
                         return mongoose.Types.ObjectId(g);
@@ -467,8 +445,6 @@ exports.analyse = async (req, res) => {
                         } */
                     ])      //  consider adding .exec() for proper promise handling
 
-                    // console.log('-------------22b--------------' + JSON.stringify(dd));
-                    
                     //  merge contacts from all groups
                     var contacts_arr = [];
                     dd.forEach(el => {
@@ -528,8 +504,6 @@ exports.analyse = async (req, res) => {
                     let msgcnt = getSMSCount(message_tmp);
 
                     //  LET'S GET THE PROPORTION OF MAIN MSG TO THIS FLWP MSG AND ESTIMATE COSTS
-                    console.log('...........||..........', JSON.stringify(msgcount_), msgcnt, JSON.stringify(contactcount_), JSON.stringify(cost_), JSON.stringify(condition));
-                    
                     let avgunt = cost_.counts[0] / msgcount_.counts[0];        //  OR = 1
 
                     if(condition[int-1] == "clicked") {
@@ -549,21 +523,14 @@ exports.analyse = async (req, res) => {
                     msgcount_.acc += msgcount_1;
                     cost_.counts.push(cost_1);
                     cost_.acc += cost_1;
-                    console.log('...........|||.........', JSON.stringify(name), msgcount_1, JSON.stringify(contactcount_), JSON.stringify(cost_), JSON.stringify(cost_));
                 }
-
-                console.log('====================================');
-                console.log('iiiiiiiiiiiiiiiiiiii = ' + JSON.stringify(name));
-                console.log('====================================');
 
                 async function checkAndAggregate(kont) { 
 
                     if(shorturl[0] ) {
                         var shorturl_ = await models.Shortlink.findByPk(shorturl[int]);
                     }
-                    console.log('====================================');
-                    console.log('cmpan is: ' + message[int]) ;
-                    console.log('====================================');
+
                     var message_  = message[int]
                         .replace(/\[firstname\]/g,  kont.firstname)
                         .replace(/\[first name\]/g, kont.firstname)
@@ -604,7 +571,6 @@ exports.analyse = async (req, res) => {
                         invalidphones++;
                         _cost_ = 0;
                     }
-                    console.log('+++++++0000+++++++', kont.phone, cost, _cost_, cc);
 
                     cost += _cost_ * cc;
                     
@@ -612,13 +578,10 @@ exports.analyse = async (req, res) => {
 
                 }
 
-                console.log('______00______');
                 if(!is_api_access) {
                     // let nint = (int == 2 && condition[0] == 0) ? int - 1 : int;
-                    console.log('______11______');
                     
                     if(tid[int] == 0) {
-                    console.log(int, '______22aa______', JSON.stringify(name), JSON.stringify(sender), JSON.stringify(shorturl), JSON.stringify(groups), JSON.stringify(message), JSON.stringify(cost_), JSON.stringify(within_days), JSON.stringify(tids));
                         var tt = await models.Tmpcampaign.create({
                             name:       name[int],
                             userId:     user_id,
@@ -640,11 +603,9 @@ exports.analyse = async (req, res) => {
                             within_days: (int === 0) ? null : within_days[int-1],
                             ref_campaign: (int === 0) ? null : "tmpref_" + tids[0],
                         });
-                    console.log('______33______');
 
                         tt = tt.id;
                     } else {
-                        console.log(int, '______22bb______', JSON.stringify(name), JSON.stringify(sender), JSON.stringify(shorturl), JSON.stringify(groups), JSON.stringify(message), JSON.stringify(cost_), JSON.stringify(within_days), JSON.stringify(tids));
                         await models.Tmpcampaign.update({
                             name:       name[int],
                             userId:     user_id,
@@ -677,7 +638,6 @@ exports.analyse = async (req, res) => {
 
                     fin = [bal.balance, tids];
 
-                    console.log('post2... ' + JSON.stringify(fin));
                 }
             } else throw 'fields1';
             int++;
@@ -718,10 +678,8 @@ exports.analyse = async (req, res) => {
                 },
                 externalapi: true,
             }
-            // console.log(JSON.stringify(req_));
             
             let resp = await this.add(req_, res);
-            console.log('3+++++++++++++'+JSON.stringify(resp));
             if(resp.status == "error") throw resp.msg;
             _status = resp;
         } else {
@@ -819,9 +777,7 @@ exports.analyse = async (req, res) => {
 }
 
 exports.add = async (req, res) => {
-    console.log('1\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\');
-    if(req.externalapi) console.log('1\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\');
-    
+
     var aux_obj = {};
     try {
         var user_id = req.user.id;
@@ -847,9 +803,6 @@ exports.add = async (req, res) => {
 
     var tempid = req.body.analysis_id;
     var ctype = req.body.type;
-    console.log('====================================');
-    console.log('CAMPAIGN OPS: ' + (Array.isArray(tempid) ? 'yes' : 'no') + ' ; ' + tempid + "tempid.length="+tempid.length);
-    console.log('====================================');
 
     if(!Array.isArray(tempid)) {
         tempid = [tempid]
@@ -862,28 +815,21 @@ exports.add = async (req, res) => {
         if(is_api_access && tempid[0] == 'api') {
             var info = req.body.info; ii = tempid.length;
         } else {
-            console.log("______________________________________________TMPTABLE____________________________________________________") 
             var info = await models.Tmpcampaign.findByPk(tempid[ii]);
         }
 
         if(ctype[ii] == "whatsapp") {
             doWhatsApp();
         } else if(info) {
-            console.log("______________________________________________info____________________________________________________") 
             if(info.ref_campaign) {
-                console.log("______________________________________________ref_campaign____________________________________________________") 
                 let ref = info.ref_campaign;
                 let schedule = info.schedule;
                 let within_days = info.within_days;
 
-                console.log('====================================');
-                console.log('|||||||||||||||||| dataa = '+ ii + ' - ');
-                console.log('====================================');
-
                 if(!schedule || schedule === 'null') {
                     // let ts = moment().add(parseInt(within_days), 'days');
                     // let ts = moment().add(parseInt(within_days), 'hours');
-                     let ts = moment().add(parseInt(within_days), 'minutes');
+                     let ts = moment().add(parseInt(within_days), process.env.DELAY_MEASURE);
                     console.log('====================================');
                     console.log('date 2a='+ts);
                     console.log('====================================');
@@ -897,7 +843,7 @@ exports.add = async (req, res) => {
                     console.log('====================================');
                     // let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss').add(parseInt(within_days), 'days');
                     // let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss').add(parseInt(within_days), 'hours');
-                    let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss').add(parseInt(within_days), 'minutes');
+                    let ts = moment(schedule, 'YYYY-MM-DD HH:mm:ss').add(parseInt(within_days), process.env.DELAY_MEASURE);
                     console.log('====================================');
                     console.log('date 2b='+ts);
                     console.log('====================================');
@@ -906,13 +852,6 @@ exports.add = async (req, res) => {
                     console.log('date 3b=' + JSON.stringify(ts));
                     console.log('====================================');
                 }
-
-               /* scheduler.scheduleJob(date, function(reff) {
-                    console.log('_________reff=' + reff + '___________');
-                    
-                    doSMS(info, reff)
-                }.bind(null, info.id)) */
-
 
                 agenda.define('schedule followup campaign', {priority: 'high', concurrency: 10}, async job => {
                     const {jobInfo} = job.attrs.data;
@@ -932,26 +871,6 @@ exports.add = async (req, res) => {
                 } */
             } else {
             let resp = await doSMS(info, null);
-            /*console.log(new Date(info.schedule));
-                if(info.schedule !== ''){
-                    agenda.define('schedule campaign', {priority: 'high', concurrency: 10}, async job => {
-                        const {jobInfo} = job.attrs.data;
-                         resp =  await  doSMS(jobInfo, jobInfo)
-                        
-                    });
-    
-    
-                    (async function() {
-                        await agenda.start();
-                        await  agenda.schedule(new Date(info.schedule), 'schedule campaign', {jobInfo: info.id});
-                    })(); 
-
-                }else{
-                     resp = await doSMS(info, null);  
-
-                }*/
-                                                                                                                                                                        
-                console.log('2++++++++++'+resp);
                 if(is_api_access && tempid[0] == 'api') return resp;
                 else {
                     if(( resp && resp.responseType && (resp.responseType == "ERROR")) || (resp && resp.status && (resp.status == 'error'))) {
@@ -982,7 +901,6 @@ exports.add = async (req, res) => {
         if(ref) {
             info = await models.Tmpcampaign.findByPk(ref);
             nref = info.ref_campaign;
-            console.log('_____________________ THIS IS REF =' + JSON.stringify(nref) + '_____________________ THIS IS rrREF =' + JSON.stringify(info.ref_campaign));
         }
 
         //  GET USER BALANCE
@@ -999,8 +917,6 @@ exports.add = async (req, res) => {
             return;
         }
         
-        console.log('form details are now...'); 
-
         var originalmessage  = info.message.replace(/[^\x00-\x7F]/g, "");
         
         var schedule_ = (info.schedule && !ref) ? moment(info.schedule, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss') : null;  //  for DB
@@ -1039,8 +955,6 @@ exports.add = async (req, res) => {
             // var group = info.grp;
             
             var HAS_SURL = false;
-            // console.log('info.grp = ' + info.grp + 'ppp-info.grp = ' + JSON.stringify(info.grp) + '______ref = ' + ref);
-            // console.log((info.grp != 0 && !Array.isArray(info.grp)) ? "NON-ARRAY" : "ARRAY");
 
             var groups
             if ((info.grp === "clicked") || (info.grp === "unclicked") || (info.grp === "elapsed")) {
@@ -1052,16 +966,12 @@ exports.add = async (req, res) => {
                 })
             }
             
-            // console.log('______________________info.group = ' + groups + '; json = ' + JSON.stringify(groups));
             var skip = (info.skip_dnd && info.skip_dnd == "on");
             var unsub     = info.add_optout;
             var dosub     = info.add_optin;
             var tooptin   = info.to_optin;
             var toawoptin = info.to_awoptin;
             var toall     = tooptin && toawoptin;
-            console.log('===========================');
-            console.log('tooptin='+tooptin+'; toawoptin='+toawoptin+'; toall='+toall);
-            console.log('===========================');
             
             var contacts, arr;         
             if(groups !== 0) {
@@ -1194,19 +1104,7 @@ exports.add = async (req, res) => {
                 }
 
                 //  change status of shortlink to used
-                if (info.shortlinkId) {
-                    HAS_SURL = true;
-                    /* await models.Shortlink.findByPk(info.shortlinkId)
-                    .then((shrt) => {
-                        shrt.update({
-                            shorturl: info.myshorturl,
-                            status: 1
-                        })
-                    })
-                    .error((err) => {
-                        console.log('2BIG ERROR: ' + err);
-                    }) */
-                }
+                if (info.shortlinkId) HAS_SURL = true;
                 
                 //  check for personalizations
                 var SINGLE_MSG = false;
@@ -1244,8 +1142,7 @@ exports.add = async (req, res) => {
                     user_id, user_balance, sndr, info, contacts, schedule, schedule_, 
                     cpn, originalmessage, UNSUBMSG, DOSUBMSG, SINGLE_MSG, HAS_SURL, is_api_access? aux_obj : null
                 );
-                console.log('++++++++++++++++++++');
-                console.log(resp);
+
                 return resp;
 
             } else {
@@ -1274,10 +1171,8 @@ exports.add = async (req, res) => {
         try {
             var sendmethod = parseInt(req.body.wa_send_method);
 
-            console.log('====================================');
-            console.log('ALL SENT = ' + JSON.stringify(req.body));
             if(req.files && req.files.att_file) console.log('FILE? = ' + JSON.stringify(Object.keys(req.files.att_file)));
-            console.log('====================================');
+
             //  create campaign
             var cpn = await models.Campaign.create({
                 name: req.body.name,

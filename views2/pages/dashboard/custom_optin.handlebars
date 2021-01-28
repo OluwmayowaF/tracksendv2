@@ -1,0 +1,305 @@
+	<div class="dashboard-content">
+
+		<!-- Titlebar -->
+		<div id="titlebar">
+			<div class="row">
+				<div class="col-md-12">
+					<!-- Breadcrumbs -->
+					<nav id="breadcrumbs">
+						<ul>
+							<li><a href="/dashboard">Dashboard</a></li>
+							<li>Custom Messages</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+
+		{{#if flash}}
+			<div class="notification {{ flashtype }} closeable no-shadow">
+				<p><span style="text-transform: capitalize">{{ flashtype }}!</span> {{ flash }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
+
+			<div class="notification other3 closeable">
+				<p></p>
+				<a class="close"></a>
+			</div>
+
+		<div class="notification success _pk closeable no-shadow list_item" style="border: solid 1px;padding: 10px 20px;">
+			<p class="_x short_url_box ready">Public Opt-in Link: 
+				<b class="dv_desc" style="word-break: break-all;">{{ args.opt_link_base }}<span id="_edit_span" class="_editable" maxlength="50" style="font-weight: bold;">{{ args.opt_link_link }}</span></b><input style="display: none" type="text" name="myshorturl" id="_edit_text" placeholder="..." class="_editable" maxlength="50" readonly >
+				<span class="_editing" style="margin-left: 20px;">
+					<span class="tooltip top" title="Copy Link"> <i class="fa fa-copy cpy_lnk_btn" style="margin-left: 10px;color:#999; cursor:pointer"></i></span>
+					<span class="tooltip top" title="Edit"> <i class="fa fa-edit customize_url_btn" style="margin-left: 10px;color:#999; cursor:pointer; float: none"></i></span>
+					<span class="tooltip top" title="Reset"> <i class="fa fa-refresh reset_url_btn" style="margin-left: 10px;color:#999; cursor:pointer"></i></span>
+				</span>
+				<span class="_afteredit" style="display: none;">
+					<span class="tooltip top" title="Done"> <i class="fa fa-check do_lnk_btn" style="margin-left: 10px;color:green; cursor:pointer"></i></span>
+					<span class="tooltip top" title="Cancel"> <i class="fa fa-close cls_lnk_btn" style="margin-left: 10px;color:red; cursor:pointer; float: none"></i></span>
+				</span>
+			</p>
+			<a class="close"></a>
+		</div>
+
+		<div class="row">
+			<div class="toggle-wrap no_borders">
+
+				<div class="col-lg-12 trigger" style="margin-top: 10px;">
+					<div class="col-lg-12 page_box_header toggle active">
+						<i class="im im-icon-Cursor-Click2"></i> Website Opt-In Options<i class="sl sl-icon-plus"></i>
+					</div>
+				</div>
+				<div class="col-lg-12 toggle-container" style="display: none">
+
+					<div id="add-listing">
+					{{!-- <form action="/dashboard/customoptin/update" method="POST"> --}}
+
+						<!-- Section -->
+						<div class="add-listing-section">
+							<!-- Row -->
+							<div class="row with-forms">
+								<br>
+								<!-- Status -->
+								<div class="col-lg-12 radiobutton ">
+									<input id="chk_followup1" class="chk_customoptinoption" name="chk_customoptinoption" value="two-click" {{#if args.option_two_click}} checked {{/if}} type="radio" style="display: inline-block;">
+									<label for="chk_followup1" style="display: inline-block; font-weight: bold">2-Click Opt-in </label>
+								</div>
+								<span style="color:#ff4a21; font-size: 0.85em; line-height: 1.6; background-color: #eee; display: inline-block; padding: 10px; width: 100%">
+									This is a simple opt-in process, and requires no additional confirmation from the user. Website visitors would be automatically added to the group(s) you select here, upon completion of opt-in.
+								</span>
+							</div>
+							<!-- Row -->
+							<div class="row with-forms _more_options" style="background-color: #eee;">
+
+								<div class="col-md-12">
+									<h5>Select Group(s) </h5>
+									<select class="chosen-select-no-single _plain" name="group" id="sel_contact_group" required multiple>
+										<option label="blank" value="0" >Select Group</option>
+										{{#each args.grps}}
+										<option {{#if can_optin}} selected {{/if}} value="{{ _id }}">{{ name }}</option>
+										{{/each}}
+									</select>
+								</div>
+
+							</div>
+							<!-- Row -->
+							<div class="row with-forms">
+								<br>
+								<!-- Status -->
+								<div class="col-lg-12 radiobutton ">
+									<input id="chk_followup2" class="chk_customoptinoption" name="chk_customoptinoption" value="complete" {{#if args.option_complete}} checked {{/if}} type="radio" style="display: inline-block;">
+									<label for="chk_followup2" style="display: inline-block; font-weight: bold">Complete Opt-in</label>
+								</div>
+								<span style="color:#ff4a21; font-size: 0.85em; line-height: 1.6; background-color: #eee; display: inline-block; padding: 10px; width: 100%">
+									This process involves sending confirmation links to the users, through which they can select groups of interest, and provide additional information. 
+									Include additional required information below [Optional; max. of 5 questions]:
+								</span>
+
+							</div>
+							<div class="row with-forms _more_options" style="background-color: #eee;">
+								<div id="existing_questions">
+									{{#each args.ques}}
+									<div class="existing_question" style="border: solid 1px #ddd; padding: 10px; font-size: 0.9em; line-height: 1.7; background-color: #f3f3f3; margin: 10px;">
+										<span style="float: right; cursor: pointer; margin-left: 10px " class="delete_question_btn tooltip top" title="Delete Question"><i class="sl sl-icon-trash"></i></span>
+										<span style="font-weight: bold;">Question: </span>
+										<span style="font-style: italic;">{{ title }}</span>
+										<input type="hidden" class="existing_question_id" value="{{ id }}" />
+										<ul style="margin-bottom: 0;">
+											{{#if option1}}
+												<li>{{ option1 }}</li>
+											{{/if}}
+											{{#if option2}}
+												<li>{{ option2 }}</li>
+											{{/if}}
+											{{#if option3}}
+												<li>{{ option3 }}</li>
+											{{/if}}
+											{{#if option4}}
+												<li>{{ option4 }}</li>
+											{{/if}}
+											{{#if option5}}
+												<li>{{ option5 }}</li>
+											{{/if}}
+											{{#if polartype}}
+												<li>{{ polartype }}</li>
+											{{/if}}
+										</ul>
+									</div>
+									{{/each}}
+								</div>
+								<form id="new_question_form">
+									<div class="col-md-12" id="new_question_box">
+									</div>
+									<div class="col-md-12"><br>
+										<select class="chosen-select-no-single _plain" name="question_type" id="sel_custom_question_type" required>
+											<option label="blank" value="0" disabled selected>Select question type to add</option>
+											<option value="1">Open questions</option>
+											<option value="2">Multiple choice</option>
+											<option value="3">Polar question (True-False / Yes-No)</option>
+										</select>
+									</div>
+									<div class="clearfix"></div>
+								</form>
+							</div>
+							<!-- Row -->
+							<div class="row with-forms">
+								<br>
+								<!-- Status -->
+								<div class="col-lg-12 radiobutton ">
+									<h5>Opt-in Channels</h5>
+								</div>
+								<span style="color:#ff4a21; font-size: 0.85em; line-height: 1.6; background-color: #eee; display: inline-block; padding: 10px; width: 100%">
+									These are the channels that your users would be automatically opted in for.
+								</span>
+
+							</div>
+							<div class="row with-forms _more_options" style="background-color: #eee;">
+								<div class="col-md-12">
+									<h5>Select Channel(s) </h5>
+									<div class="col-md-12">
+										<div class="col-md-6 checkboxes _errorable">
+											<input id="optin_sms" type="checkbox" name="optin_sms" {{#if args.optchs.ch_sms}} checked {{/if}}>
+											<label for="optin_sms">SMS</label>
+										</div>
+									</div>
+									<div class="col-md-12">
+										<div class="col-md-6 checkboxes margin-top-15 _errorable">
+											<input id="optin_whatsapp" type="checkbox" name="optin_whatsapp" {{#if args.optchs.ch_whatsapp}} checked {{/if}}>
+											<label for="optin_whatsapp">WhatsApp</label>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- Row / End -->
+							<form action="/dashboard/customoptin/option/save" method="POST" id="custom_optin_type">
+								<input type="hidden" name="option" id="_option">
+								<input type="hidden" name="grps" id="_grps">
+								<input type="hidden" name="channels" id="_channels">
+								<div class="_form_errors _e_analyse customoption_errors" style="display:none; margin-top: 10px"></div>
+								<button type="submit" class="button preview" id="save_customoptin_btn">Save <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
+							</form>
+						</div>
+						<!-- Section / End -->
+
+					{{!-- </form> --}}
+					</div>
+				</div>
+
+				<div class="col-lg-12 trigger" style="margin-top: 10px;">
+					<div class="col-lg-12 page_box_header toggle active">
+						<i class="im im-icon-Cursor-Click2"></i> <b>Edit</b> Opt-In Message 1<i class="sl sl-icon-plus"></i>
+					</div>
+				</div>
+				<div class="col-lg-12 toggle-container" style="display: none">
+
+					<div id="add-listing">
+					<form action="/dashboard/customoptin/update" method="POST">
+
+						<!-- Section -->
+						<div class="add-listing-section">
+
+							<!-- Row -->
+							<div class="row with-forms">
+								<br>
+								<!-- Status -->
+								<div class="col-md-12">
+									<h5>Initial Opt-In Message <span>( This is the message received after filling form on website )</span></h5>
+									<span style="color:#ff4a21; font-size: 0.85em; line-height: 1.6; background-color: #eee; display: inline-block; padding: 10px;">To further customize, add 'first name', 
+										'full name', or 'company name'. Simply include any of these three fields within square brackets "[ ]", 
+										and ensure there is no space within the bracket. For instance, "Hello [fullname], [companyname] welcomes you."  </span>
+									<input type="text" name="optin_msg1" id="optin_msg1" maxlength="50" required style="margin-bottom: 5px" value="{{ args.msg_1 }}">
+								</div>
+									
+								<div class="clearfix"></div>
+								<div class="col-md-12">
+									<h5>Send notifications through: </h5>
+									<div class="col-md-12">
+										<div class="col-md-6 checkboxes _errorable">
+											<input id="notif1_sms" type="checkbox" name="notif1_sms" {{#if args.msgchs.msgch_1_sms}} checked {{/if}}>
+											<label for="notif1_sms">SMS</label>
+										</div>
+									</div>
+									<div class="col-md-12">
+										<div class="col-md-6 checkboxes margin-top-15 _errorable">
+											<input id="notif1_whatsapp" type="checkbox" name="notif1_whatsapp" {{#if args.msgchs.msgch_1_whatsapp}} checked {{/if}}>
+											<label for="notif1_whatsapp">WhatsApp</label>
+										</div>
+									</div>
+								</div>
+
+							</div>
+							<!-- Row / End -->
+						<button type="submit" class="button preview">Save <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
+
+						</div>
+						<!-- Section / End -->
+
+					</form>
+					</div>
+				</div>
+
+				<div class="col-lg-12 trigger" style="margin-top: 10px;">
+					<div class="col-lg-12 page_box_header toggle active">
+						<i class="im im-icon-Cursor-Click2"></i> <b>Edit</b> Opt-In Message 2<i class="sl sl-icon-plus"></i>
+					</div>
+				</div>
+				<div class="col-lg-12 toggle-container" style="display: none">
+
+					<div id="add-listing">
+					<form action="/dashboard/customoptin/update" method="POST">
+
+						<!-- Section -->
+						<div class="add-listing-section">
+
+							<!-- Row -->
+							<div class="row with-forms">
+								<br>
+								<!-- Status -->
+								<div class="col-md-12">
+									<h5>Opt-In Confirmtion Message <span>( This is the message received after user completes opt-in )</span></h5>
+									<span style="color:#ff4a21; font-size: 0.85em; line-height: 1.6; background-color: #eee; display: inline-block; padding: 10px;">To further customize, add 'first name', 
+										'full name', or 'company name'. Simply include any of these three fields within square brackets "[ ]", 
+										and ensure there is no space within the bracket. For instance, "Hello [fullname], [companyname] welcomes you."  </span>
+									<input type="text" name="optin_msg2" id="optin_msg2" maxlength="50" required style="margin-bottom: 5px" value="{{ args.msg_2 }}">
+								</div>
+
+								<div class="clearfix"></div>
+								<div class="col-md-12">
+									<h5>Send notifications through: </h5>
+									<div class="col-md-12">
+										<div class="col-md-6 checkboxes _errorable">
+											<input id="notif2_sms" type="checkbox" name="notif2_sms" {{#if args.msgchs.msgch_2_sms}} checked {{/if}}>
+											<label for="notif2_sms">SMS</label>
+										</div>
+									</div>
+									<div class="col-md-12">
+										<div class="col-md-6 checkboxes margin-top-15 _errorable">
+											<input id="notif2_whatsapp" type="checkbox" name="notif2_whatsapp" {{#if args.msgchs.msgch_2_whatsapp}} checked {{/if}}>
+											<label for="notif2_whatsapp">WhatsApp</label>
+										</div>
+									</div>
+								</div>
+
+							</div>
+							<!-- Row / End -->
+						<button type="submit" class="button preview">Save <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
+
+						</div>
+						<!-- Section / End -->
+
+					</form>
+					</div>
+				</div>
+
+			</div>
+
+			<!-- Copyrights -->
+			<div class="col-md-12">
+				<div class="copyrights">© 2019 Tracksend. All Rights Reserved.</div>
+			</div>
+
+		</div>
+
+	</div>
