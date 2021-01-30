@@ -16,7 +16,7 @@ const getRateCharge = async (phone, ctry, user_id) => {
     where: {
       [Sequelize.Op.and]: [
         Sequelize.where(
-          Sequelize.fn('LOCATE', Sequelize.col('prefix'), phone), 1
+          Sequelize.fn('LOCATE', Sequelize.col('prefix'), formatphone), 1
         ),
         { countryId: ctry },
       ]
@@ -38,7 +38,7 @@ const getRateCharge = async (phone, ctry, user_id) => {
     results = res_charge['settingsuserbillings.cost'] ? res_charge['settingsuserbillings.cost'] : res_charge.cost;
   } 
   
-  console.log('getRateCharge: ' + phone + ' = ' + JSON.stringify(results));
+  console.log('getRateCharge: ' + formatphone + ' = ' + JSON.stringify(results));
 
   return results;
 
