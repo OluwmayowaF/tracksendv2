@@ -333,7 +333,8 @@ exports.validate = async (req, res) => {
         //  filter out corrupt entries
         var rows_trimmed = rows_matched.slice(0, MAX_UPLOAD_RECORDS);   //  rows limit is 50,000
         console.log('______rows_trimmed = ' + JSON.stringify(rows_trimmed));
-        var rows_finetuned = rows_trimmed.filter(validateCsvRow);
+        var rows_finetuned_ = rows_trimmed.filter(validateCsvRow); 
+        var rows_finetuned = _.uniqBy(rows_finetuned_, 'phone');
 
         console.log('________FINAL DATA: ' + JSON.stringify(rows_finetuned));
 

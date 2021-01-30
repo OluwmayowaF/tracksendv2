@@ -1,0 +1,156 @@
+	<div class="dashboard-content">
+
+		<!-- Titlebar -->
+		<div id="titlebar">
+			<div class="row">
+				<div class="col-md-12">
+					<!-- Breadcrumbs -->
+					<nav id="breadcrumbs">
+						<ul>
+							<li><a href="/dashboard">Dashboard</a></li>
+							<li>Short URL</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+
+		{{#if flash}}
+			<div class="notification {{ flashtype }} closeable no-shadow">
+				<p><span style="text-transform: capitalize">{{ flashtype }}!</span> {{ flash }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
+
+			<div class="notification other3 closeable">
+				<p></p>
+				<a class="close"></a>
+			</div>
+
+		<div class="row">
+			<div class="toggle-wrap no_borders">
+
+			<div class="col-lg-12 trigger"><div class="col-lg-12 page_box_header toggle active"><i class="im im-icon-Cursor-Click2"></i> <b>Create</b> Short URL<i class="sl sl-icon-plus"></i></div></div>
+			<div class="col-lg-12 toggle-container" style="display: none">
+
+				<div id="add-listing">
+				<form action="/dashboard/shorturls/add" method="POST">
+
+					<!-- Section -->
+					<div class="add-listing-section">
+
+						<!--Tabs -->
+						<div class="sign-in-form style-1">
+
+							<div class="row with-forms">
+								<br>
+								<!-- Status -->
+								<div class="col-md-12">
+									<h5>Enter or Paste Your Link</h5>
+									<input type="text" name="full_link" id="long_url_link" placeholder="http://www.">
+									<button type="button" class="button preview create_short_url_btn" style="margin-top: 0; padding: 5px; font-size: 15px; border-radius: 10px;">Create <i class="sl sl-icon-refresh"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
+								</div>
+
+
+								<div class="col-md-12" style="margin-top: 30px;">
+									<h5>Here's Your Short URL:  <span class="customize_url_btn" style="display: none">[ Customize ]</span></h5>
+									<div class="_c short_url_box">http://tsn.pub/<span id="_edit_span" class="_editable" maxlength="20">...</span><input style="display: none" type="text" name="myshorturl" id="_edit_text" placeholder="..." class="_editable" maxlength="20" readonly >
+										<input type="hidden" name="shorturlid" id="shorturlid" >
+									</div>
+									{{!-- <div class="short_url_box">https://tsn.go/
+									</div> --}}
+
+									<button type="submit" class="button preview ">Save <i class="fa fa-save"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
+								</div>
+
+
+							</div>
+
+						</div>
+					</div>
+					<!-- Section / End -->
+
+
+
+				</form>
+				</div>
+			</div>
+
+			</div>
+
+			<div class="col-lg-12" style="margin-top: 30px">
+				<div class="col-lg-12 page_box_header">All URLs <span>[{{ args.sids.length }}]</span>
+				</div>
+			</div>
+			<div class="col-lg-12">
+
+				<div id="add-listing">
+					<!-- Section -->
+					<div class="add-listing-section">
+
+						<!-- Row -->
+						<div class="row with-forms">
+							<br>
+							<!-- Status -->
+							<div class="col-md-12 lists">
+								<ul>
+									<li class="list_item _hd" style="font-weight: bolder">
+										<ul class="saved_item">
+											<input type="hidden" class="cid" value="'+i.id+'" />
+											<li style="flex: 8">Destination</li>
+											<li style="flex: 6">Short URL</li>
+											{{!-- <li style="flex: 6">Most Recent Campaigns</li> --}}
+											<li style="flex: 3">Clicks</li>
+											<li style="flex: 5">Created</li>
+											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; text-align: center; font-size: 2em; line-height: 0.3;">
+												...
+											</li>
+										</ul>
+									</li>
+									{{#each args.sids}}
+
+									<a href="/dashboard/shortlinks/shortlink/{{ id }}" class="_campaign-detail" id="_click_campaign_detail_box">
+									<li class="list_item" data-wh="senderid">
+										<ul class="saved_item">
+											<input type="hidden" class="cid" value="'+i.id+'" />
+											<li style="flex: 8" class="dv_name">{{ url }}</li>
+											<li style="flex: 6" class="dv_desc">http://tsn.pub/{{ shorturl }}</li>
+											{{!-- <li style="flex: 6" class="dv_status">{{ cmpgn }}</li> --}}
+											<li style="flex: 3" class="dv_updated">{{ clickcount }}</li>
+											<li style="flex: 5">{{formatDate createdAt "short"}}</li>
+											<li style="margin: 3px; margin-right:0; height: 33px; flex: 1; display: flex; background-color: #eee;">
+												<span style="flex: 1; text-align:center;align-items: center;display: flex;" class="cpy_lnk_btn"><span class="tooltip top" title="Copy short link" style="cursor: pointer"><i class="fa fa-copy"></i></span></span>
+												<span style="flex: 1; text-align:center;align-items: center;border-left: solid 1px;padding-left: 3px;margin-left: 3px;display: flex;" class="del_item_btn"><span class="tooltip top" title="Delete" style="cursor: pointer"><i class="fa fa-trash-o"></i></span></span>
+											</li>
+										</ul>
+									</li>
+									</a>
+
+									{{else}}
+										<em>No Short URLs created yet.</em> 
+									{{/each}}
+								</ul>
+							</div>
+
+						</div>
+						<!-- Row / End -->
+
+					</div>
+					<!-- Section / End -->
+				</div>
+			</div>
+
+			<div class="col-lg-12" style="margin-top: 30px;">
+
+				<div id="add-listing">
+				</div>
+			</div>
+
+			<!-- Copyrights -->
+			<div class="col-md-12">
+				<div class="copyrights">© 2019 Tracksend. All Rights Reserved.</div>
+			</div>
+
+		</div>
+
+	</div>

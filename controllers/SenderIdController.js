@@ -3,9 +3,7 @@ var models = require('../models');
 exports.index = (req, res) => {
     var user_id = req.user.id;
 
-    console.log('showing page...'); 
-    // var flash = req.flash('success')
-    // console.log('flash details are now: ' + flash); 
+    console.log(':::::::: showing page... SENDERIDS'); 
 
     models.Sender.findAll({ 
         where: { 
@@ -17,7 +15,6 @@ exports.index = (req, res) => {
         ]
     })
     .then((sids) => {
-        // console.log('groups are: ' + JSON.stringify(sids));
         var flashtype, flash = req.flash('error');
         if(flash.length > 0) {
             flashtype = "error";           

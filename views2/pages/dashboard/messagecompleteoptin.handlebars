@@ -1,0 +1,122 @@
+	<div class="dashboard-content">
+		{{#if flash}}
+			<div class="notification {{ flashtype }} closeable no-shadow">
+				<p><span style="text-transform: capitalize">{{ flashtype }}!</span> {{ flash }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
+
+		<div class="row">
+
+			{{#if args.grps }}
+				<div class="pageerror" style="margin-left: 50px; margin-right: 50px">
+					<div style="text-align: center; margin-bottom: 40px"><h3>{{ args._msg }}</h3></div>
+					<div class="row with-forms">
+						<form method="POST" id="subscribe_form" action="/messages/complete" enctype="application/x-www-form-urlencoded" onsubmit="return halidate(this)">
+							{{#if args.general}}
+							<input type="hidden" name="generaloptin" value="true">
+							<input type="hidden" name="user_id" value="{{ args.user_id }}">
+							<div class="col-md-12">
+								<h5>Full Name </h5>
+								<input type="text" name="fullname" placeholder="Enter full name" required />
+							</div>
+							<div>
+								<div class="col-md-6">
+									<h5>Phone Number </h5>
+									<input type="text" name="phone" placeholder="Enter phone number" required />
+								</div>
+								<div class="col-md-6">
+									<h5>Select Country </h5>
+									<select class="chosen-select-no-single _plain" name="country" id="sel_country" required>
+										<option label="blank" disabled selected>Select Country</option>
+										{{#each args.ctry}}
+										<option value="{{ id }}">{{ name }}</option>
+										{{/each}}
+										{{!-- <option disabled>--------------------------------------</option>
+										<option value="-1">All Groups</option> --}}
+									</select>
+								</div>
+							</div>
+							{{/if}}
+							<div class="col-md-12">
+								<h5>Select Group(s) </h5>
+								<input type="hidden" name="optinusercode" value="{{ ucode }}" />
+								<select class="chosen-select-no-single _plain" name="groups" id="sel_contact_group" required multiple>
+									<option label="blank" value="0">Select Group</option>
+									{{#each args.grps}}
+									<option value="{{ _id }}">{{ name }}</option>
+									{{/each}}
+									{{!-- <option disabled>--------------------------------------</option>
+									<option value="-1">All Groups</option> --}}
+								</select>
+							</div>
+							{{!-- <div class="col-md-12">
+								<h5>Select Channel(s) </h5>
+								<div class="col-md-12">
+									<div class="col-md-6 checkboxes _errorable">
+										<input id="sms" type="checkbox" name="sms">
+										<label for="sms">SMS</label>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="col-md-6 checkboxes margin-top-15 _errorable">
+										<input id="whatsapp" type="checkbox" name="whatsapp">
+										<label for="whatsapp">WhatsApp</label>
+									</div>
+								</div>
+							</div> --}}
+							<div class="clearfix"></div>
+							<div class="_more_options" style="margin: 20px 10px;">
+							{{#each args.ques}}
+								<input type="hidden" name="question" value="{{ id }}">
+								<input type="hidden" name="questiontype" value="{{ type }}">
+								<div class="col-md-12">
+									<h5>{{ title }} </h5>
+									{{#if openend}} 
+										<div><input type="text" name="question_{{@index}}" maxlength="200" required ></div>
+									{{/if}}
+									{{#if multichoice}} 
+										<select class="chosen-select-no-single _plain"  name="question_{{@index}}" required>
+											<option label="blank" value="0" disabled selected>Select one</option>
+											{{#if option1}} <option>{{ option1 }}</option>{{/if}}
+											{{#if option2}} <option>{{ option2 }}</option>{{/if}}
+											{{#if option3}} <option>{{ option3 }}</option>{{/if}}
+											{{#if option4}} <option>{{ option4 }}</option>{{/if}}
+											{{#if option5}} <option>{{ option5 }}</option>{{/if}}
+										</select>
+									{{/if}}
+									{{#if polarque}} 
+										<div class="col-lg-12 radiobutton">
+											<div class="col-lg-12 ">
+												<input class="chk_followup" value="{{#if yesno}}Yes{{/if}}{{#if truefalse}}True{{/if}}" type="radio" name="question_{{@index}}" id="questiona_{{@index}}" style="display: inline-block; margin-right: 10px" required>
+												<label for="questiona_{{@index}}" style="display: inline-block; margin-right: 10px">{{#if yesno}} Yes {{/if}}{{#if truefalse}} True {{/if}}</label>
+											</div>
+											<div class="col-lg-12 ">
+												<input class="chk_followup" value="{{#if yesno}}No{{/if}}{{#if truefalse}}False{{/if}}" type="radio" name="question_{{@index}}" id="questionb_{{@index}}" style="display: inline-block; margin-right: 10px" required>
+												<label for="questionb_{{@index}}" style="display: inline-block; margin-right: 10px">{{#if yesno}} No {{/if}}{{#if truefalse}} False {{/if}}</label>
+											</div>
+										</div>
+									{{/if}}
+								</div>
+							{{/each}}
+							<div class="clearfix"></div>
+							</div>
+							<div class="col-md-12">
+								<div class="_form_errors _e_consent" style="display: none; margin-top: 10px"></div>
+							</div>
+							<button type="submit" class="button preview">Finish <i class="fa fa-arrow-circle-right"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
+						</form>
+
+					</div>
+				</div>
+			{{else }}
+				<div class="pageerror">
+					<div style="text-align: center; margin-bottom: 40px"><h3>{{ args._msg }}</h3></div>
+				</div>
+			{{/if}}
+			<!-- Copyrights -->
+			
+
+		</div>
+
+	</div>

@@ -7,7 +7,7 @@
 <div class="container stand-alone" id="welcome">
 
   <div class="small-dialog-header" style="text-align: center">
-    <h3>Update Password</h3>
+    <h3>Sign In</h3>
     <div class="aux_msg" style="display:none"></div> 
   </div>
 
@@ -32,20 +32,18 @@
           </div>
         {{/if}}
 
-        <form method="POST" action="/account/update/password/" class="login" id="">
-          <input type="hidden" name="email" value="{{ args.email }}">
-          <input type="hidden" name="token" value="{{ args.token }}">
+        <form method="POST" action="javascript: doLogin()" class="login" id="login_form">
           <p class="form-row form-row-wide">
-            <label for="username">New Password:
-              <i class="im im-icon-Lock-2"></i>
-              <input class="input-text" type="password" name="password" id="password" required />
+            <label for="username">Email:
+              <i class="im im-icon-Male"></i>
+              <input type="email" class="input-text" name="email" id="email" value="" required />
             </label>
           </p>
 
           <p class="form-row form-row-wide">
-            <label for="password">Confirm Password:
+            <label for="password">Password:
               <i class="im im-icon-Lock-2"></i>
-              <input class="input-text" type="password" name="confirm_password" id="cpassword" required />
+              <input class="input-text" type="password" name="password" id="password" required />
             </label>
             {{!-- <span class="lost_password">
               <a href="" >Lost Your Password?</a>
@@ -55,7 +53,8 @@
 					<div class="_form_errors _e_login" style="display:none"></div>
 
 					<div class="form-row">
-						<input type="submit" class="button border margin-top-5" name="login" value="Login" /><span class="loading_icon fa fa-hourglass-2"></span>
+						<input type="submit" class="button border margin-top-5" name="login" value="Login" /><span class="loading_icon fa fa-hourglass-2"></span> 
+            <a href="/account/update/forgotpassword" style="font-size: 0.85em; color: #999;">Forgot my password</a>
 						<div class="checkboxes margin-top-10">
 							<input id="remember-me" type="checkbox" name="check">
 							<label for="remember-me">Remember Me</label>
@@ -63,7 +62,8 @@
 					</div>
           
         </form>
-      </div>
+        {{!-- <div class="place_it_here" id="s"></div> --}}
+     </div>
 
       <!-- Register -->
       <div class="tab-content hidden-lg hidden-md hidden-sm" id="tab2" style="display: none;">
@@ -75,6 +75,6 @@
   <div class="col-lg-3 col-md-3 col-sm-hidden col-xs-hidden">
 	</div>
 </div>
+<script type="text/javascript" src="/scripts/tsnwhatsappoptin.js"></script>
 
-    
 

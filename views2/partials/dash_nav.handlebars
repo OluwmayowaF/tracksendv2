@@ -1,0 +1,73 @@
+<div class="dashboard-nav">
+	{{#if page.length }}
+
+		<div class="dashboard-nav-inner">
+
+			<ul>
+				<li {{#if dashboard}} class="active" {{/if}}><a href="/dashboard"><i class="fa fa-calendar-check-o"></i> DASHBOARD</a></li>
+			</ul>
+			
+			<ul data-submenu-title="Campaigns">
+				<li {{#if campaigns}} class="active" {{/if}}><a><i class="sl sl-icon-layers"></i> Campaigns</a>
+					<ul>
+						<li {{#if ncampaigns}} class="active" {{/if}}><a href="/dashboard/campaigns"><i class="sl sl-icon-layers"></i> Regular Campaigns</a></li>
+						{{!-- <li {{#if pcampaigns}} class="active" {{/if}}><a href="/dashboard/perfcampaigns" style="color: yellow;"><i class="sl sl-icon-layers"></i> Performance Campaigns</a></li> --}}
+					</ul>	
+				</li>
+				{{!-- <li {{#if campaigns}} class="active" {{/if}}><a><i class="sl sl-icon-layers"></i> Campaigns</a>
+					<ul>
+						<li {{#if smscampaigns}} class="active" {{/if}}><a href="/dashboard/campaigns/sms"><i class="fa fa-commenting-o"></i> SMS</a></li>
+						<li {{#if wacampaigns}} class="active" {{/if}}><a href="/dashboard/campaigns/whatsapp"><i class="fa fa-whatsapp"></i> WhatsApp</a></li>
+					</ul>
+				</li> --}}
+				<li {{#if senderids}} class="active" {{/if}}><a href="/dashboard/senderids"><i class="fa fa-tags"></i> Sender ID</a></li>
+				<li {{#if shortlinks}} class="active" {{/if}}><a href="/dashboard/shorturls"><i class="sl sl-icon-link"></i> Short URL</a></li>
+			</ul>
+			
+			<ul data-submenu-title="Contacts">
+				<li {{#if newcontact}} class="active" {{/if}}><a><i class="im im-icon-Add"></i> Create New</a>
+					<ul>
+						<li {{#if singleentry}} class="active" {{/if}}><a href="/dashboard/contacts/new"><i class="sl sl-icon-user"></i> Single Entry </a></li>
+						<li {{#if uploads}} class="active" {{/if}}><a href="/dashboard/upload"><i class="sl sl-icon-people"></i> Upload </a></li>
+					</ul>	
+				</li>
+				<li {{#if contactlist}} class="active" {{/if}}><a href="/dashboard/contacts/list"><i class="im im-icon-Folder-Archive"></i> View Contacts</a></li>
+				<li {{#if groups}} class="active" {{/if}}><a href="/dashboard/contacts/groups"><i class="fa fa-users"></i> Groups</a></li>
+				{{!-- <li {{#if groups}} class="active" {{/if}}><a><i class="fa fa-users"></i> Groups</a>
+					<ul>
+						<li {{#if smsgroups}} class="active" {{/if}}><a href="/dashboard/contacts/groups/sms"><i class="fa fa-commenting-o"></i> SMS</a></li>
+						<li {{#if wagroups}} class="active" {{/if}}><a href="/dashboard/contacts/groups/whatsapp"><i class="fa fa-whatsapp"></i> WhatsApp</a></li>
+					</ul>
+				</li> --}}
+			</ul>	
+
+			<ul data-submenu-title="Account">
+				<li {{#if settingsmenu}} class="active" {{/if}}><a><i class="sl sl-icon-settings"></i> Settings</a>
+					<ul>
+						<li {{#if wallet}} class="active" {{/if}}><a href="/dashboard/wallet"><i class="fa fa-money"></i> Wallet</a></li>
+						{{!-- <li {{#if topups}} class="active" {{/if}}><a href="/dashboard/topups"><i class="fa fa-money"></i> Top-Up</a></li> --}}
+						<li {{#if transactions}} class="active" {{/if}}><a href="/dashboard/transaction-history"><i class="fa fa-bar-chart" aria-hidden="true"></i>Transaction History</a></li>
+						<li {{#if profile}} class="active" {{/if}}><a href="/dashboard/profile"><i class="sl sl-icon-user"></i> Profile</a></li>
+						<li {{#if integrations}} class="active" {{/if}}><a href="/dashboard/integrations"><i class="sl sl-icon-link"></i> Integrations</a></li>
+						<li {{#if customoptin}} class="active" {{/if}}><a href="/dashboard/customoptin"><i class="sl sl-icon-speech"></i> Customize Opt-In</a></li>
+					</ul>
+				</li>
+				<li><a href="/logout"><i class="sl sl-icon-power"></i> Logout</a></li>
+			</ul>
+			
+		</div>
+
+	{{/if}}
+	<div id="toggle_my_dashnav" style="position: fixed; 
+							top: 78px; left: 0; 
+							color: black; 
+							background-color: #3ac3dc; 
+							padding: 0px 10px; 
+							border-radius: 0 7px 7px 0; 
+							box-shadow: 1px 1px 3px #999;
+							cursor: pointer">
+				<span class="tooltip right" title="Hide/Show Navigation">
+			<i class="fa fa-eye-slash"></i>
+		</span>
+	</div>
+</div>

@@ -1,0 +1,183 @@
+	<div class="dashboard-content">
+
+		<!-- Titlebar -->
+		<div id="titlebar">
+			<div class="row">
+				<div class="col-md-12">
+					<!-- Breadcrumbs -->
+					<nav id="breadcrumbs">
+						<ul>
+							<li><a href="/dashboard">Dashboard</a></li>
+							<li>Upload Contacts  </li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+
+		{{#if flash}}
+			<div class="notification {{ flashtype }} closeable no-shadow">
+				<p><span style="text-transform: capitalize">{{ flashtype }}!</span> {{ flash }}</p>
+				<a class="close"></a>
+			</div>
+		{{/if}}
+
+		<div class="row">
+			{{#if args.result.length}}
+			{{!-- INITIAL UPLOAD PAGE --}}
+			<div class="col-lg-12"><div class="col-lg-12 page_box_header"><b style="color: black"> Step 2:</b> Validate Column Headers</div></div>
+			<div class="col-lg-12">	
+
+				<div id="add-listing">
+					<form action="/dashboard/upload/validate" method="POST" id="upload_fields_form">
+
+					<!-- Section -->
+					<div class="add-listing-section">
+
+						<!-- Headline -->
+						{{!-- <div class="add-listing-headline">
+							<h3><i class="sl sl-icon-doc"></i> Basic Information</h3>
+						</div> --}}
+
+						<!-- Row -->
+						<div class="row with-forms">
+							<br>
+							<h5>Match your columns with column names <span>(where relevant)</span>: </h5>
+							{{#args.result}}
+							<div class="col-md-12 all_columns">
+								<div class="col-md-3" style="border: solid 1px;">
+									<h5 style="line-height: unset; margin-bottom: 10px;">" {{ this }} "</h5>
+								</div>
+								<div class="col-md-9 _for_new_field">
+									<select class="chosen-select" id="column_field_{{ @index }}" name="row_{{ @index }}">
+										<option value="n_0">[ignore]</option>
+										<option value="n_f">[ New field ]</option>
+										<option disabled>---------------------------------------</option>
+										{{#../args.std_list_grp1 }}	
+										<option value="{{ this.value_string }}">{{ this.name }}</option>
+										{{/../args.std_list_grp1 }}	
+										<option disabled>---------------------------------------</option>
+										{{#../args.std_list_grp2 }}	
+										<option value="{{ this.value_string }}">{{ this.name }}</option>
+										{{/../args.std_list_grp2 }}	
+									</select>
+									<input type="text" class="_new_field" style="display: none; background-color: rgb(255 252 241);" placeholder="Specify text field name" name="newfield_{{ @index }}"/>
+								</div>
+							</div>
+										{{!-- {{ ../args.standard_fields }} --}}
+							{{/args.result}}
+							<input type="hidden" name="fid" id="fid" value="{{ args.fid }}">
+							<input type="hidden" name="fieldscount" id="fc" value="{{ args.result.length }}">
+							<input type="hidden" name="rows" id="rows" value="{{ args.rows }}">
+							<input type="hidden" name="group" id="v_grp" value="{{ args.grp }}">
+							<input type="hidden" name="country" id="v_ctry" value="{{ args.ctry }}">
+						</div>
+						<!-- Row / End -->
+
+						<div class="_form_errors _e_upload_field" style="display: none; margin-top: 10px"></div>
+					</div>
+					<!-- Section / End -->
+
+
+					<button type="submit" class="button preview">Done <i class="sl sl-icon-cloud-upload"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
+					</form>
+				</div>
+			</div>
+			{{ else }}
+			{{!-- VALIDATION UPLOAD PAGE --}}
+			<div class="col-lg-12"><div class="col-lg-12 page_box_header"><b style="color: black"> Step 1:</b> Upload Contacts</div></div>
+			<div class="col-lg-12">	
+
+				<div id="add-listing">
+					<form action="/dashboard/upload/load" enctype="multipart/form-data" method="POST" id="csv_upload_form">
+
+					<!-- Section -->
+					<div class="add-listing-section">
+
+						<!-- Headline -->
+						{{!-- <div class="add-listing-headline">
+							<h3><i class="sl sl-icon-doc"></i> Basic Information</h3>
+						</div> --}}
+
+						<!-- Row -->
+						<div class="row with-forms">
+							<br>
+							<div class="col-md-12">
+								<h5>Select File <span>(CSV and TXT only; max. rows: 50,000; each column must have a heading)</span> </h5>
+								<input type="file" name="file" style="line-height: 1; padding-top: 13px" accept=".csv, text/plain" required>
+							</div>
+
+						</div>
+						<!-- Row / End -->
+
+						<!-- Row -->
+						<div class="row with-forms">
+							<div class="col-md-6">
+								<h5>Contacts' Country </h5>
+								<select class="chosen-select-no-single" name="country" id="contact_country" required>
+									<option disabled>Select One</option>
+									{{#each args.ctry}}
+									<option value="{{ id }}">{{ name }}</option>
+									{{/each}}
+								</select>
+							</div>
+
+							<div class="col-md-6">
+								<h5>Group </h5>
+								<select class="chosen-select-no-single" name="group" id="new_contact_group" required>
+									{{!-- <option label="blank" value="0">[No Group]</option> --}}
+									<option></option>
+									<option value="-1">[Create Group]</option>
+									{{#if args.grps.length}}
+									<option label="blank" disabled>--------------------------------</option>
+									{{/if}}
+									{{#each args.grps}}
+									<option value="{{ _id }}">{{ name }}</option>
+									{{/each}}
+								</select>
+							</div>
+						</div>
+
+						<div class="checkboxes margin-top-10 _errorable">
+							<input id="have_consent" type="checkbox" name="check">
+							<label for="have_consent">These contacts gave me permission to send them messages</label>
+						</div>
+
+						<div class="row with-forms">
+							<div class="col-md-12" id="_new_group_info" hidden>
+								<div class="col-md-12 inline_popup">
+
+									<!-- Status -->
+									<div class="col-md-6">
+										<h5>Group Name</h5>
+										<input type="text" name="name">
+									</div>
+
+									<!-- Type -->
+									<div class="col-md-6">
+										<h5>Description</h5>
+										<input type="text" name="description">
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="_form_errors _e_consent" style="display:none; margin-top: 10px"></div>
+
+					</div>
+					<!-- Section / End -->
+
+
+					<button type="submit" class="button preview">Upload <i class="sl sl-icon-cloud-upload"></i></button><span class="loading_icon fa fa-hourglass-2"></span>
+					</form>
+				</div>
+			</div>
+			{{/if}}
+			<!-- Copyrights -->
+			<div class="col-md-12">
+				<div class="copyrights">© 2019 Tracksend. All Rights Reserved.</div>
+			</div>
+
+		</div>
+
+	</div>

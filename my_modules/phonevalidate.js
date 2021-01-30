@@ -34,7 +34,8 @@ const phoneValidity = (phone, ctrycode) => {
         return false;
       }
       
-      return '0' + phone;
+      console.log('SA#');
+      return phone;
 
     } else if(ctrycode == 225) {   //  COTE D'IVOIRE NUMBERS
 
@@ -59,6 +60,18 @@ const phoneValidity = (phone, ctrycode) => {
       }
 
       return '0' + phone;
+      
+    } else if(ctrycode == 233) {   //  GHANA NUMBERS
+
+      if ((phone.length == 9) && ((phone.substr(0, 1) == '2') || (phone.substr(0, 1) == '5'))) phone = phone;
+      else if ((phone.length == 10) && ((phone.substr(0, 2) == '02') || (phone.substr(0, 2) == '05'))) phone = phone.substr(-9);
+      else if ((phone.length == 12) && ((phone.substr(0, 4) == '2332') || (phone.substr(0, 4) == '2335'))) phone = phone.substr(-9);
+      else {
+        console.log('|||||| nigeria phoneformat FALSE! phone = ' + phone + "; ctrycode = " + ctrycode);
+        return false;
+      }
+
+      return phone;
       
     }  
 

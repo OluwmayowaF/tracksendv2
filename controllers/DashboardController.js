@@ -43,7 +43,7 @@ exports.index = async(req, res) => {
         req.user.api_key = pk;
     } */
 
-    console.log('showing page...'); 
+    console.log(':::::::: showing page... DASHBOARD'); 
     
 
     Promise.all([
@@ -59,7 +59,6 @@ exports.index = async(req, res) => {
                 type: sequelize.QueryTypes.SELECT,
             }
         ).then(([results, metadata]) => {
-            console.log(results);
             return results;
         }),
         /* models.Campaign.findAll({ 
@@ -108,36 +107,6 @@ exports.index = async(req, res) => {
                 // status: 1
             }
         }), 
-        /* models.Contact.count({
-            where: { 
-                userId: user_id,
-            },
-            attributes: [[Sequelize.literal('DISTINCT `phone`'), 'phone']],
-            group: ['phone']
-        }),  */
-        /* models.Optout.count({
-            where: { 
-                userId: user_id,
-            },
-        }),  */
-        /* models.Message.count({
-            where: { 
-                userId: user_id,
-            }
-        }),  */
-        /* sequelize.query(
-            "SELECT COUNT(messages.id) AS msgcount FROM messages " +
-            "JOIN campaigns ON messages.campaignId = campaigns.id " +
-            "WHERE campaigns.userId = (:id) " +
-            "AND campaigns.status = 1 ", {
-                replacements: {id: user_id},
-                type: sequelize.QueryTypes.SELECT,
-            },
-        ).then(([results, metadata]) => {
-            console.log('unt is = ' + JSON.stringify(results));
-           
-            return results.msgcount;
-        }), */
         //  MESSAGE GROWTH
         sequelize.query(
             "SELECT COUNT(messages.id) AS premsgcount FROM messages " +
@@ -149,8 +118,6 @@ exports.index = async(req, res) => {
                 type: sequelize.QueryTypes.SELECT,
             },
         ).then(([results, metadata]) => {
-            console.log('unt is = ' + JSON.stringify(results));
-
             let msg_sub_6 = results.premsgcount;
             if(ACCUMULATE_MESSAGES) acc_m += msg_sub_6;    //   count of msgs before 6 months
             
@@ -167,8 +134,6 @@ exports.index = async(req, res) => {
                     // type: sequelize.QueryTypes.SELECT,
                 },
             ).then(([results, metadata]) => {
-                console.log('ungrowtht is = ' + JSON.stringify(results) + '...' + results.length);
-
                 let arr = []; 
 
                 let init = parseInt(moment().format('M'));   
@@ -195,14 +160,11 @@ exports.index = async(req, res) => {
                             "COUNT" : acc_m,
                         };
                     }
-    console.log("results= "+ JSON.stringify(i));
 
                     arr.push(i)
                     initt = (initt + 1 > 12) ? initt + 1 - 12 : initt + 1;
                     initd--;
                 };
-                console.log('new array : ' +    JSON.stringify(arr));
-                
                 
                 return arr;
             })  
@@ -216,8 +178,6 @@ exports.index = async(req, res) => {
                 type: sequelize.QueryTypes.SELECT,
             },
         ).then(([results, metadata]) => {
-            console.log('unt is = ' + JSON.stringify(results));
-
             let con_sub_6 = results.preconcount;
             if(ACCUMULATE_CONTACTS) acc_c += con_sub_6;    //   count of contacts before 6 months
             
@@ -232,8 +192,6 @@ exports.index = async(req, res) => {
                     // type: sequelize.QueryTypes.SELECT,
                 },
             ).then(([results, metadata]) => {
-                console.log('cungrowtht is = ' + JSON.stringify(results) + '...' + results.length);
-
                 let arr = []; 
 
                 let init = parseInt(moment().format('M'));   
@@ -260,14 +218,11 @@ exports.index = async(req, res) => {
                             "COUNT" : acc_c,
                         };
                     }
-    console.log("results= "+ JSON.stringify(i));
 
                     arr.push(i)
                     initt = (initt + 1 > 12) ? initt + 1 - 12 : initt + 1;
                     initd--;
                 };
-                console.log('new array : ' +    JSON.stringify(arr));
-                
                 
                 return arr;
             })  
@@ -281,7 +236,6 @@ exports.index = async(req, res) => {
                 type: sequelize.QueryTypes.SELECT,
             },
         ).then(([results, metadata]) => {
-            console.log('opts1 is = ' + JSON.stringify(results));
 
             let opt_sub_6 = results.optouts;
             if(ACCUMULATE_OPTOUTS) acc_o += opt_sub_6;    //   count of contacts before 6 months
@@ -297,7 +251,6 @@ exports.index = async(req, res) => {
                     // type: sequelize.QueryTypes.SELECT,
                 },
             ).then(([results, metadata]) => {
-                console.log('optgrowtht is = ' + JSON.stringify(results) + '...' + results.length);
 
                 let arr = []; 
 
@@ -325,14 +278,11 @@ exports.index = async(req, res) => {
                             "COUNT" : acc_o,
                         };
                     }
-    console.log("results= "+ JSON.stringify(i));
 
                     arr.push(i)
                     initt = (initt + 1 > 12) ? initt + 1 - 12 : initt + 1;
                     initd--;
                 };
-                console.log('new array : ' +    JSON.stringify(arr));
-                
                 
                 return arr;
             })  
@@ -347,7 +297,6 @@ exports.index = async(req, res) => {
                 type: sequelize.QueryTypes.SELECT,
             },
         ).then(([results, metadata]) => {
-            console.log('unt is = ' + JSON.stringify(results));
 
             let opt_sub_6 = results.prekontcount;
             if(ACCUMULATE_OPTINS) acc_i += opt_sub_6;    //   count of msgs before 6 months
@@ -364,7 +313,6 @@ exports.index = async(req, res) => {
                     // type: sequelize.QueryTypes.SELECT,
                 },
             ).then(([results, metadata]) => {
-                console.log('ungrowtht is = ' + JSON.stringify(results) + '...' + results.length);
 
                 let arr = []; 
 
@@ -392,14 +340,11 @@ exports.index = async(req, res) => {
                             "COUNT" : acc_i,
                         };
                     }
-    console.log("results= "+ JSON.stringify(i));
 
                     arr.push(i)
                     initt = (initt + 1 > 12) ? initt + 1 - 12 : initt + 1;
                     initd--;
                 };
-                console.log('new array : ' +    JSON.stringify(arr));
-                
                 
                 return arr;
             })  
@@ -410,41 +355,12 @@ exports.index = async(req, res) => {
         let ocount = ogrowth[ogrowth.length - 1].COUNT;
         let icount = igrowth[igrowth.length - 1].COUNT;
 
-        console.log('qqq= '+ icount);
-        
-        console.log('====================================');
-        console.log('OPTOUTS: '+ JSON.stringify(cgrowth));
-        console.log('====================================');
-
-        /* let c_array = ccount;
-        ccount = 0;
-        c_array.forEach(c => {
-            ccount += c.count;
-        });; */
-
-        console.log('====================================');
-        console.log('NEW CCOUNT = ' + ccount);
-        console.log('====================================');
-
         if(!messageslastcmpg.length) nocampaigns = true;
         if(!ccount) nocontacts = true;
         if(!csender) nosenderids = true;
         
-        console.log('groups1 are: ' + JSON.stringify(summary));
-        console.log('groups2 are: ' + JSON.stringify(messageslastcmpg));
-        console.log('groups2 are: ' + JSON.stringify(cgroup));
-        console.log('groups2 are: ' + JSON.stringify(csender));
-        console.log('groups3 are: ' + JSON.stringify(ccount));
-        console.log('groups4 are: ' + JSON.stringify(mcount));
-        console.log('groups5 are: ' + JSON.stringify(ocount));
-        console.log('groups6 are: ' + messageslastcmpg.map((res) => res.name));
-        console.log('groups7 are: ' + JSON.stringify(mgrowth));
-        console.log('groups8 are: ' + JSON.stringify(cgrowth)); 
-        console.log('groups9 are: ' + JSON.stringify(ogrowth));
-
         let lastcpgnplatform = messageslastcmpg.map((res) => res.platformtypeId) == 1 ? "SMS" : "WhatsApp";
         let show_viewed = messageslastcmpg.map((res) => res.platformtypeId) == 1 ? false : true;
-        console.log('______SHOW______:' + show_viewed);
         
         var flashtype, flash = req.flash('error');
         if(flash.length > 0) {

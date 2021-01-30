@@ -6,7 +6,7 @@ module.exports ={
         DBMYSQLPORT: process.env.DB_PROD_MYSQL_PORT,
         DBMYSQLDATABASE: process.env.DB_PROD_MYSQL_DATABASE,
         DBMYSQLUSERNAME: process.env.DB_PROD_MYSQL_USERNAME,
-        DBMYSQLPASSWORD: process.env.DB_PROD_PASSWORD,
+        DBMYSQLPASSWORD: process.env.DB_PROD_MYSQL_PASSWORD,
         DBMONGOURL: process.env.DB_PROD_MONGO_URL,
         DBMONGODATABASE: process.env.DB_PROD_MONGO_DATABASE,
         DBMONGOUSERNAME: process.env.DB_PROD_MONGO_USERNAME,

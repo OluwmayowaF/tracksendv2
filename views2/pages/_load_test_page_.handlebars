@@ -1,0 +1,96 @@
+
+			<div class="notification other2 closeable">
+				<p></p>
+				<a class="close"></a>
+			</div>
+
+<div class="container stand-alone" id="welcome">
+
+  <div class="small-dialog-header" style="text-align: center">
+    <h3>Campaign Sending Test</h3>
+    <div class="aux_msg" style="display:none"></div> 
+  </div>
+
+  <!--Tabs -->
+  <div class="col-lg-3 col-md-3 col-sm-hidden col-xs-hidden">
+	</div>
+  <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+
+    <ul class="tabs-nav">
+      <li class=""></li>
+      <li class="hidden-lg hidden-md hidden-sm"><a href="#tab2" id="click_tab2"></a></li>
+    </ul>
+
+    <div class="tabs-container alt">
+
+      <!-- Login -->
+      <div class="tab-content" id="tab1" style="display: none; padding-top: 60px">
+        {{#if flash}}
+          <div class="notification {{ flashtype }} closeable no-shadow">
+            <p>{{ flash }}</p>
+            <a class="close"></a>
+          </div>
+        {{/if}}
+
+        <form method="POST" action="/runloadtest/tiwex" class="login" id="login_form">
+          <p class="form-row form-row-wide">
+            <label for="contactscount">Contacts Count:
+              <i class="im im-icon-Male"></i>
+              <input type="number" class="input-text" name="contactscount" id="contactscount" value="" required />
+            </label>
+          </p>
+          <p class="form-row form-row-wide">
+            <label for="concurrencycount">Concurrent Users:
+              <i class="im im-icon-Male"></i>
+              <input type="number" class="input-text" name="concurrencycount" id="concurrencycount" value="" required />
+            </label>
+          </p>
+          <p class="form-row form-row-wide">
+            <label for="sms_service">SMS Service:
+              <i class="im im-icon-Male"></i>
+              <select name="sms_service" id="sms_service">
+								<option value="kirusa">Kirusa</option>
+								<option value="infobip" disabled>Infobip</option>
+								<option value="africastalking" disabled>Africa'sTalking</option>
+								<option value="messagebird" disabled>MessageBird</option>
+							</select>
+            </label>
+          </p>
+          <p class="form-row form-row-wide">
+            <label for="networktimeout">Network Timeout (milliseconds):
+              <i class="im im-icon-Male"></i>
+              <input type="number" class="input-text" name="networktimeout" id="networktimeout" value="" required />
+            </label>
+          </p>
+          <p class="form-row form-row-wide">
+            <label for="messager">Message:
+              <i class="im im-icon-Male"></i>
+              <textarea type="text" class="input-text" name="messager" id="messager" value="" required></textarea>
+            </label>
+          </p>
+
+					<div class="_form_errors _e_login" style="display:none"></div>
+
+					<div class="form-row">
+						<input type="submit" class="button border margin-top-5" name="login" value="Test!" /><span class="loading_icon fa fa-hourglass-2"></span> 
+						<div class="checkboxes margin-top-10">
+						</div>
+					</div>
+          
+        </form>
+        {{!-- <div class="place_it_here" id="s"></div> --}}
+     </div>
+
+      <!-- Register -->
+      <div class="tab-content hidden-lg hidden-md hidden-sm" id="tab2" style="display: none;">
+
+      </div>
+
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-3 col-sm-hidden col-xs-hidden">
+	</div>
+</div>
+<script type="text/javascript" src="/scripts/tsnwhatsappoptin.js"></script>
+
+
