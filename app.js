@@ -65,3 +65,5 @@ db.authenticate()
   app.listen(PORT, console.log(`Server running on port ${PORT} ...`));
 })
 .catch(err => console.log('Error: ' + err));
+
+module.exports = app;

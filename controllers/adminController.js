@@ -883,7 +883,9 @@ exports.permissions = async(req, res) => {
     } else {
         flashtype = "success";
         flash = req.flash('success'); 
+       
     }
+    
     res.render('pages/admin/permissions', { 
         layout: 'admin',
         page: 'Permissions',
@@ -894,6 +896,7 @@ exports.permissions = async(req, res) => {
             allPermissions,
         }
     });
+   
 
 };
 
