@@ -34,6 +34,7 @@ const phoneValidity = (phone, ctrycode) => {
         return false;
       }
       
+      console.log('SA#');
       return phone;
 
     } else if(ctrycode == 225) {   //  COTE D'IVOIRE NUMBERS
